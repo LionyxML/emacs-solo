@@ -1555,9 +1555,11 @@ A compound word includes letters, numbers, `-`, and `_`."
     (setq-local git-gutter-diff-info result)
     result)
 
-  (defun emacs-solo/git-gutter-add-mark ()
-    "Add symbols to the margin based on Git diff statuses."
+
+  (defun emacs-solo/git-gutter-add-mark (&rest args)
+    "Add symbols to the left margin based on Git diff statuses."
     (interactive)
+    (set-window-margins (selected-window) 1 0) ;; change to 2 if you wan't more columns
     (let ((lines-status (emacs-solo/git-gutter-process-git-diff)))
       (remove-overlays)
       (save-excursion
@@ -1566,33 +1568,28 @@ A compound word includes letters, numbers, `-`, and `_`."
           (let* ((line-num (line-number-at-pos))
                  (status (cdr (assoc line-num lines-status))))
             (when status
-              (move-to-column 0 t)
-              (let ((overlay (make-overlay (point-at-bol) (point-at-eol))))
-                (overlay-put overlay 'before-string
-                             (propertize (if (string= status "added") "+" "-")
-                                         'face (if (string= status "added")
-                                                   '(:foreground "lightgreen")
-                                                 '(:foreground "tomato")))))
-              (forward-line))
-            (unless status
-              (move-to-column 0 t)
               (let ((overlay (make-overlay (point-at-bol) (point-at-bol))))
-                (overlay-put overlay 'before-string " "))
-              (forward-line)))))))
+                (overlay-put overlay 'before-string
+                             (propertize " "
+                                         'display
+                                         `((margin left-margin)
+                                           ,(propertize (if (string= status "added") "+" "-")
+                                                        'face
+                                                        `(:foreground ,(if (string= status "added")
+                                                                           "lightgreen"
+                                                                         "tomato"))))))))
+            (forward-line))))))
 
   (defun emacs-solo/git-gutter-off ()
     "Greedly remove all git gutter marks and other overlays."
     (interactive)
+    (set-window-margins (selected-window) 1 0)
     (remove-overlays)
-    (remove-hook 'after-change-functions #'emacs-solo/git-gutter-add-mark)
-    (remove-hook 'pre-command-hook #'emacs-solo/git-gutter-add-mark)
     (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
 
   (defun emacs-solo/git-gutter-on ()
     (interactive)
     (emacs-solo/git-gutter-add-mark)
-    (add-hook 'after-change-functions #'emacs-solo/git-gutter-add-mark nil t)
-    (add-hook 'pre-command-hook #'emacs-solo/git-gutter-add-mark)
     (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
 
   (global-set-key (kbd "M-9") 'emacs-solo/goto-previous-hunk)
