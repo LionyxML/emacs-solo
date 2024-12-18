@@ -1381,8 +1381,12 @@ A compound word includes letters, numbers, `-`, and `_`."
   (define-key viper-vi-global-user-map (kbd "v") 'viper-visual-select)
   (define-key viper-vi-global-user-map (kbd "V") 'viper-visual-select-line)
 
-  ;; Beginning/End buffer
+  ;; Movements by references and LSP
   (define-key viper-vi-global-user-map (kbd "gd") 'xref-find-references)
+  (define-key viper-vi-global-user-map (kbd "SPC c a") 'eglot-code-actions)
+  (define-key viper-vi-global-user-map (kbd "SPC s g") 'project-find-regexp)
+  (define-key viper-vi-global-user-map (kbd "SPC s f") 'project-find-file)
+  (define-key viper-vi-global-user-map (kbd "SPC m p") 'emacs-solo-movements/format-current-file)
   (global-set-key (kbd "C-o") 'xref-go-back)
 
   ;; Map `C-w` followed by specific keys to window commands in Viper
