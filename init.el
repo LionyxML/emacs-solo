@@ -1418,12 +1418,15 @@ A compound word includes letters, numbers, `-`, and `_`."
   (define-key viper-vi-global-user-map (kbd "] t") 'tab-next)
   (define-key viper-vi-global-user-map (kbd "[ t") 'tab-previous)
 
-  ;; flymake
+  ;; Flymake
   (define-key viper-vi-global-user-map (kbd "SPC x x") 'flymake-show-buffer-diagnostics)
   (define-key viper-vi-global-user-map (kbd "] d") 'flymake-goto-next-error)
   (define-key viper-vi-global-user-map (kbd "[ d") 'flymake-goto-prev-error)
   (define-key viper-vi-global-user-map (kbd "SPC t i") 'toggle-flymake-diagnostics-at-eol)
-)
+
+  ;; Gutter
+  (define-key viper-vi-global-user-map (kbd "] c") 'emacs-solo/goto-next-hunk)
+  (define-key viper-vi-global-user-map (kbd "[ c") 'emacs-solo/goto-previous-hunk))
 
 
 
