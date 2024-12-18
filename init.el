@@ -957,6 +957,9 @@ and restart Flymake to apply the changes."
   :ensure nil
   :defer t
   :init
+
+  ;; TODO Do we need this?
+  ;;      it looks like variable `completion-auto-select' does the same
   (defun emacs-solo/jump-to-completions ()
     "Hook function to move focus to *Completions* buffer."
     (when (string= (buffer-name) "*Completions*")
@@ -1125,6 +1128,8 @@ Also first tries the local node_modules/.bin and later the global bin."
 ;;; EMACS-SOLO-RAINBOW-DELIMITERS
 ;;
 ;;  Colorizes matching delimiters
+;;
+;;  TODO: Make it work with treesitter modes
 ;;
 (use-package emacs-solo-rainbow-delimiters
   :ensure nil
