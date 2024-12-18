@@ -695,6 +695,32 @@ and restart Flymake to apply the changes."
    '((nntp "news.gwene.org"))))
 
 
+;;; MINIBUFFER
+(use-package minibuffer
+  :ensure nil
+  :custom
+  (completion-styles '(partial-completion flex initials)))
+
+;;; ELEC_PAIR
+(use-package elec-pair
+  :ensure nil
+  :defer
+  :hook (after-init . electric-pair-mode))
+
+;;; SO-LONG
+;;  Makes Emacs more performannt with giant oneliners, like minified JS
+(use-package so-long
+  :ensure nil
+  :hook (after-init . global-so-long-mode))
+
+;;; PAREN
+(use-package paren
+  :ensure nil
+  :hook (after-init . show-paren-mode)
+  :custom
+  (show-paren-style 'mixed)
+  (show-paren-context-when-offscreen t)) ;; show matches within window splits
+
 ;;; PROCED
 (use-package proced
   :ensure nil
