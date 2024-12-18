@@ -823,6 +823,69 @@ and restart Flymake to apply the changes."
    ("Supplemental Web site list for webjump"
     . "www.neilvandyke.org/webjump/"))))
 
+ ;;; THEMES
+(use-package modus-themes
+  :ensure nil
+  :defer t
+  :custom
+  (modus-themes-italic-constructs t)
+  (modus-themes-bold-constructs t)
+  (modus-themes-mixed-fonts nil)
+  (modus-themes-prompts '(bold intense))
+  (modus-themes-common-palette-overrides
+   `((bg-main "#292D3E")
+     (bg-active bg-main)
+     (fg-main "#EEFFFF")
+     (fg-active fg-main)
+     (fg-mode-line-active "#A6Accd")
+     (bg-mode-line-active "#232635")
+     (fg-mode-line-inactive "#676E95")
+     (bg-mode-line-inactive "#282c3d")
+     (border-mode-line-active "#676E95")
+     (border-mode-line-inactive bg-dim)
+     (bg-tab-bar      "#242837")
+     (bg-tab-current  bg-main)
+     (bg-tab-other    bg-active)
+     (fg-prompt "#c792ea")
+     (bg-prompt unspecified)
+     (bg-hover-secondary "#676E95")
+     (bg-completion "#2f447f")
+     (fg-completion white)
+     (bg-region "#3C435E")
+     (fg-region white)
+
+     (fg-line-number-active fg-main)
+     (fg-line-number-inactive "gray50")
+     (bg-line-number-active unspecified)
+     (bg-line-number-inactive "#292D3E")
+     (fringe "#292D3E")
+
+     (fg-heading-0 "#82aaff")
+     (fg-heading-1 "#82aaff")
+     (fg-heading-2 "#c792ea")
+     (fg-heading-3 "#bb80b3")
+     (fg-heading-4 "#a1bfff")
+
+     (fg-prose-verbatim "#c3e88d")
+     (bg-prose-block-contents "#232635")
+     (fg-prose-block-delimiter "#676E95")
+     (bg-prose-block-delimiter bg-prose-block-contents)
+
+     (accent-1 "#79a8ff")
+
+     (keyword "#89DDFF")
+     (builtin "#82aaff")
+     (comment "#676E95")
+     (string "#c3e88d")
+     (fnname "#82aaff")
+     (type "#c792ea")
+     (variable "#ffcb6b")
+     (docstring "#8d92af")
+     (constant "#f78c6c")))
+  :init
+  (load-theme 'modus-vivendi-tinted t))
+
+;;; -------------------- TREESITTER AREA
 ;;; RUBY-TS-MODE
 (use-package ruby-ts-mode
   :ensure nil
@@ -884,62 +947,8 @@ and restart Flymake to apply the changes."
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
 
-;;; THEMES
-(use-package modus-themes
-  :ensure nil
-  :defer t
-  :custom
-  (modus-themes-italic-constructs t)
-  (modus-themes-bold-constructs t)
-  (modus-themes-mixed-fonts nil)
-  (modus-themes-prompts '(bold intense))
-  (modus-themes-common-palette-overrides
-   `((bg-main "#292D3E")
-     (bg-active bg-main)
-     (fg-main "#EEFFFF")
-     (fg-active fg-main)
-     (fg-mode-line-active "#A6Accd")
-     (bg-mode-line-active "#232635")
-     (fg-mode-line-inactive "#676E95")
-     (bg-mode-line-inactive "#282c3d")
-     (border-mode-line-active "#676E95")
-     (border-mode-line-inactive bg-dim)
-     (bg-tab-bar      "#242837")
-     (bg-tab-current  bg-main)
-     (bg-tab-other    bg-active)
-     (fg-prompt "#c792ea")
-     (bg-prompt unspecified)
-     (bg-hover-secondary "#676E95")
-     (bg-completion "#2f447f")
-     (fg-completion white)
-     (bg-region "#3C435E")
-     (fg-region white)
 
-     (fg-heading-0 "#82aaff")
-     (fg-heading-1 "#82aaff")
-     (fg-heading-2 "#c792ea")
-     (fg-heading-3 "#bb80b3")
-     (fg-heading-4 "#a1bfff")
-
-     (fg-prose-verbatim "#c3e88d")
-     (bg-prose-block-contents "#232635")
-     (fg-prose-block-delimiter "#676E95")
-     (bg-prose-block-delimiter bg-prose-block-contents)
-
-     (accent-1 "#79a8ff")
-
-     (keyword "#89DDFF")
-     (builtin "#82aaff")
-     (comment "#676E95")
-     (string "#c3e88d")
-     (fnname "#82aaff")
-     (type "#c792ea")
-     (variable "#ffcb6b")
-     (docstring "#8d92af")
-     (constant "#f78c6c")))
-  :init
-  (load-theme 'modus-vivendi-tinted t))
-
+;;; -------------------- EMACS-SOLO CUSTOMS
 ;;; EMACS-SOLO-HOOKS
 ;;
 ;;  Custom functions to set/unset transparency
