@@ -9,6 +9,7 @@
   :ensure nil
   :bind
   (("M-o" . other-window)
+   ("M-j" . duplicate-dwim)
    ("C-x C-b" . ibuffer))
   :custom
   (column-number-mode nil)
