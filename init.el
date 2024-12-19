@@ -846,7 +846,7 @@ and restart Flymake to apply the changes."
      (border-mode-line-inactive bg-dim)
      (bg-tab-bar      "#242837")
      (bg-tab-current  bg-main)
-     (bg-tab-other    bg-active)
+     (bg-tab-other    "#242837")
      (fg-prompt "#c792ea")
      (bg-prompt unspecified)
      (bg-hover-secondary "#676E95")
