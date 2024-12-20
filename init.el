@@ -59,7 +59,7 @@
                      "show diff between the buffer and its file"))
 
   :init
-  (set-window-margins (selected-window) 1 0)
+  (set-window-margins (selected-window) 0 0)
 
   (toggle-frame-maximized)
   (select-frame-set-input-focus (selected-frame))
