@@ -570,7 +570,8 @@ by `group-function''s second \"transformation\" protocol."
   (setq diff-default-read-only t)
   (setq diff-advance-after-apply-hunk t)
   (setq diff-update-on-the-fly t)
-  (setq diff-font-lock-syntax 'hunk-also))
+  (setq diff-font-lock-syntax 'hunk-also)
+  (setq diff-font-lock-prettify nil))
 
 ;;; EDIFF
 (use-package ediff
