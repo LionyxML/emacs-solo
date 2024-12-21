@@ -1225,6 +1225,7 @@ Opening and closing delimiters will have matching colors."
       (let ((start (point)))
         (search-forward (char-to-string close) nil t)
         (backward-char) ;; Move back before the closing delimiter
+        (pulse-momentary-highlight-region start (point))
         (funcall op start (point)))))
 
   (defun viper-delete-inside-delimiters (open close)
@@ -1303,6 +1304,7 @@ The deleted text is saved to the kill ring."
     "Yank the entire compound word under the cursor into the kill ring."
     (interactive)
     (let ((bounds (viper-compound-word-bounds)))
+      (pulse-momentary-highlight-region (car bounds) (cdr bounds))
       (if bounds
           (kill-ring-save (car bounds) (cdr bounds))
         (message "No compound word under cursor"))))
@@ -1319,10 +1321,14 @@ A compound word includes letters, numbers, `-`, and `_`."
                     (point))))
         (when (< start end) (cons start end)))))
 
-  (defun viper-go-to-first-line ()
-    "Go to the first line of the document."
-    (interactive)
-    (goto-char (point-min)))
+  (defun viper-go-to-nth-or-first-line (arg)
+    "Go to the first line of the document, or the ARG-nth."
+    (interactive "P")
+    (if arg
+        (viper-goto-line arg)
+      (viper-goto-line 1))
+    (pulse-momentary-highlight-region
+     (line-beginning-position) (line-beginning-position 2)))
 
   (defun viper-go-to-last-line ()
     "Go to the last line of the document."
@@ -1373,7 +1379,7 @@ A compound word includes letters, numbers, `-`, and `_`."
   (define-key viper-vi-global-user-map (kbd "G") nil)
   (define-key viper-vi-global-user-map (kbd "GG") 'viper-go-to-last-line)
   (define-key viper-vi-global-user-map (kbd "g") nil)
-  (define-key viper-vi-global-user-map (kbd "gg") 'viper-go-to-first-line)
+  (define-key viper-vi-global-user-map (kbd "gg") 'viper-go-to-nth-or-first-line)
 
   ;; Delete/Yank current line or region
   (define-key viper-vi-global-user-map (kbd "dd") 'viper-delete-line-or-region)
