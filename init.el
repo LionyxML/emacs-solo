@@ -234,45 +234,6 @@ color (#rrrrggggbbbb)."
   ;; As first suggested by Zhengyi Fu:
   ;; https://mail.gnu.org/archive/html/help-gnu-emacs/2024-04/msg00126.html
   ;;
-  (defun icomplete--augment (md prospects)
-    "Augment completion strings in PROSPECTS with completion metadata MD.
-Return a list of strings (COMP PREFIX SUFFIX SECTION).  PREFIX
-and SUFFIX, if non-nil, are obtained from `affixation-function' or
-`annotation-function' metadata.  SECTION is obtained from
-`group-function'.  Consecutive `equal' sections are avoided.
-COMP is the element in PROSPECTS or a transformation also given
-by `group-function''s second \"transformation\" protocol."
-    (let* ((aff-fun (completion-metadata-get md 'affixation-function))
-           (ann-fun (completion-metadata-get md 'annotation-function))
-           (grp-fun (and completions-group
-                         (completion-metadata-get md 'group-function)))
-           (annotated
-            (cond (aff-fun
-                   (funcall aff-fun prospects))
-                  (ann-fun
-                   (mapcar
-                    (lambda (comp)
-                      (let ((suffix (or (funcall ann-fun comp) "")))
-                        (list comp ""
-                              ;; The default completion UI adds the
-                              ;; `completions-annotations' face if no
-                              ;; other faces are present.
-                              (if (text-property-not-all 0 (length suffix) 'face nil suffix)
-                                  suffix
-                                (propertize suffix 'face 'completions-annotations)))))
-                    prospects))
-                  (t (mapcar #'list prospects)))))
-      (if grp-fun
-          (cl-loop with section = nil
-                   for (c prefix suffix) in annotated
-                   for selectedp = (get-text-property 0 'icomplete-selected c)
-                   for tr = (propertize (or (funcall grp-fun c t) c)
-                                        'icomplete-selected selectedp)
-                   if (not (equal section (setq section (funcall grp-fun c nil))))
-                   collect (list tr prefix suffix section)
-                   else collect (list tr prefix suffix ))
-        annotated)))
-
   (cl-defun icomplete--render-vertical
       (comps md &aux scroll-above scroll-below
              (total-space ; number of mini-window lines available
@@ -348,14 +309,28 @@ by `group-function''s second \"transformation\" protocol."
        when section
        collect (propertize section 'face 'icomplete-section) into lines-aux
        and count 1 into nsections-aux
+ ;;; ------- NON ORIGINAL HERE...
+       for marker = (if (get-text-property 0 'icomplete-selected comp)
+                        ;; (propertize "» " 'face '(:foreground "#80adf0" :weight bold))
+                        (propertize "» " 'face 'font-lock-keyword-face)
+                      "  ")
+       do (setq comp (concat marker comp))
+ ;;; -------- NON ORIGINAL ENDS HERE...
        when (get-text-property 0 'icomplete-selected comp)
        do (add-face-text-property 0 (length comp)
                                   'icomplete-selected-match 'append comp)
+       ;; collect (concat prefix
+       ;;                 (make-string (- max-prefix-len (length prefix)) ? )
+       ;;                 (completion-lazy-hilit comp)
+       ;;                 (make-string (- max-comp-len (length comp)) ? )
+       ;;                 suffix)
+ ;;; ------- NON ORIGINAL HERE...
        collect (concat prefix
-                       (make-string (- max-prefix-len (length prefix)) ? )
+                       (make-string (max 0 (- max-prefix-len (length prefix))) ? )
                        (completion-lazy-hilit comp)
-                       (make-string (- max-comp-len (length comp)) ? )
+                       (make-string (max 0 (- max-comp-len (length comp))) ? )
                        suffix)
+ ;;; -------- NON ORIGINAL ENDS HERE...
        into lines-aux
        finally (setq lines lines-aux
                      nsections nsections-aux))
@@ -369,7 +344,7 @@ by `group-function''s second \"transformation\" protocol."
                    ((> (length scroll-above) (length scroll-below)) nsections)
                    (t (min (ceiling nsections 2) (length scroll-above))))
              lines))
-    ;;; ------- NON ORIGINAL HERE...
+ ;;; ------- NON ORIGINAL HERE...
       (when icomplete--in-region-buffer
         (let ((column
                (with-current-buffer icomplete--in-region-buffer
@@ -380,14 +355,11 @@ by `group-function''s second \"transformation\" protocol."
             (add-text-properties
              0 1 `(display ,(concat (make-string column ?\s) (substring l 0 1)))
              l))))
-    ;;; -------- NON ORIGINAL ENDS HERE...
+ ;;; -------- NON ORIGINAL ENDS HERE...
       ;; At long last, render final string return value.  This may still
       ;; kick out lines at the end.
       (concat " \n"
-              (cl-loop for l in lines repeat total-space concat l concat "\n"))))
-
-  )
-
+              (cl-loop for l in lines repeat total-space concat l concat "\n")))))
 
 
 ;;; DIRED
