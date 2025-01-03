@@ -581,25 +581,24 @@ color (#rrrrggggbbbb)."
                 (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date)))
 
 
-    (defun emacs-solo/vc-git-show-status ()
-      "Show the Git status of files in the `vc-log` buffer, prepended with '#'."
-      (interactive)
-      (let* ((fileset (vc-deduce-fileset t))
-             (backend (car fileset))
-             (files (nth 1 fileset)))
-        (if (eq backend 'Git)
-            (let ((output-buffer "*Git Status*")
-                  (status-output (shell-command-to-string "git status -v")))
-              (with-current-buffer (get-buffer-create output-buffer)
-                (read-only-mode -1)
-                (erase-buffer)
-                ;; Add '#' before each line
-                (dolist (line (split-string status-output "\n"))
-                  (insert (if (not (string-empty-p line)) (concat "# " line "\n") "\n")))
-                (pop-to-buffer output-buffer)))
-          (message "Not in a VC Git buffer."))))
+  (defun emacs-solo/vc-git-visualize-status ()
+  "Show the Git status of files in the `vc-log` buffer with terminal-like colors."
+  (interactive)
+  (let* ((fileset (vc-deduce-fileset t))
+         (backend (car fileset))
+         (files (nth 1 fileset)))
+    (if (eq backend 'Git)
+        (let ((output-buffer "*Git Status*"))
+          (with-current-buffer (get-buffer-create output-buffer)
+            (read-only-mode -1)
+            (erase-buffer)
+            ;; Capture the raw output including colors using 'git status --color=auto'
+            (call-process "git" nil output-buffer nil "status" "-v")
+            (pop-to-buffer output-buffer)))
+      (message "Not in a VC Git buffer.")))))
 
-    ))
+  (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
+  (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status))
 
 ;;; SMERGE
 (use-package smerge-mode
