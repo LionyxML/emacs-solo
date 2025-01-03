@@ -43,7 +43,7 @@
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta)
-    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130))
+    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 140))
 
   ;; Save manual customizations to other file than init.el
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
