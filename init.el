@@ -748,7 +748,15 @@ and restart Flymake to apply the changes."
 (use-package minibuffer
   :ensure nil
   :custom
-  (completion-styles '(partial-completion flex initials)))
+  (completion-styles '(partial-completion flex initials))
+  (completions-format 'vertical)
+  (completion-ignore-case t)
+  (completion-show-help t)
+  (read-file-name-completion-ignore-case t)
+  (read-buffer-completion-ignore-case t)
+  :config
+  (minibuffer-depth-indicate-mode 1)
+  (minibuffer-electric-default-mode 1))
 
 ;;; ELEC_PAIR
 (use-package elec-pair
