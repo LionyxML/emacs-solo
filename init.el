@@ -1621,7 +1621,6 @@ A compound word includes letters, numbers, `-`, and `_`."
     (setq-local git-gutter-diff-info result)
     result)
 
-
   (defun emacs-solo/git-gutter-add-mark (&rest args)
     "Add symbols to the left margin based on Git diff statuses."
     (interactive)
@@ -1646,16 +1645,21 @@ A compound word includes letters, numbers, `-`, and `_`."
                                                                          "tomato"))))))))
             (forward-line))))))
 
+  (defun emacs-solo/timed-git-gutter-on()
+    (run-at-time 0.1 nil #'emacs-solo/git-gutter-add-mark))
+
   (defun emacs-solo/git-gutter-off ()
     "Greedly remove all git gutter marks and other overlays."
     (interactive)
     (set-window-margins (selected-window) 1 0)
     (remove-overlays)
+    (remove-hook 'find-file-hook #'emacs-solo-git-gutter-on)
     (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
 
   (defun emacs-solo/git-gutter-on ()
     (interactive)
     (emacs-solo/git-gutter-add-mark)
+    (add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
     (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
 
   (global-set-key (kbd "M-9") 'emacs-solo/goto-previous-hunk)
@@ -1663,7 +1667,9 @@ A compound word includes letters, numbers, `-`, and `_`."
   (global-set-key (kbd "C-c g p") 'emacs-solo/goto-previous-hunk)
   (global-set-key (kbd "C-c g r") 'emacs-solo/git-gutter-off)
   (global-set-key (kbd "C-c g g") 'emacs-solo/git-gutter-on)
-  (global-set-key (kbd "C-c g n") 'emacs-solo/goto-next-hunk))
+  (global-set-key (kbd "C-c g n") 'emacs-solo/goto-next-hunk)
+
+  (add-hook 'after-init-hook #'emacs-solo/git-gutter-on))
 
 
 ;;; EMACS-SOLO-ACE-WINDOW
