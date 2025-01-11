@@ -1115,6 +1115,7 @@ Also first tries the local node_modules/.bin and later the global bin."
 
   (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file))
 
+
 ;;; EMACS-SOLO-TRANSPARENCY
 ;;
 ;;  Custom functions to set/unset transparency
@@ -1131,9 +1132,10 @@ Also first tries the local node_modules/.bin and later the global bin."
   (defun emacs-solo/transparency-unset ()
     "Unset frame transparency (Graphical Mode)."
     (interactive)
-    (set-frame-parameter (selected-frame) 'alpha '(100 100))))
+    (set-frame-parameter (selected-frame) 'alpha '(100 100)))
 
-;;; EMACS-SOLO-DIMINISH
+  (add-hook 'after-init-hook #'emacs-solo/transparency-set))
+
 
 ;;; EMACS-SOLO-MODE-LINE
 ;;
