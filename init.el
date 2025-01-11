@@ -1325,6 +1325,7 @@ Opening and closing delimiters will have matching colors."
         (pulse-momentary-highlight-region start (point))
         (funcall op start (point)))))
 
+  ;; FIXME: works for most common cases, misses (  bla bla (bla) |cursor-here| )
   (defun viper-delete-inside-delimiters (open close)
     "Delete text inside delimiters OPEN and CLOSE, saving it to the kill ring."
     (interactive "cEnter opening delimiter: \ncEnter closing delimiter: ")
@@ -1380,6 +1381,12 @@ The deleted text is saved to the kill ring."
           (kill-region (car bounds) (cdr bounds))
         (message "No word under cursor"))))
 
+  (defun viper-change-inner-word ()
+    "Change the current word under the cursor, handling edge cases."
+    (interactive)
+    (viper-delete-inner-word)
+    (viper-insert nil))
+
   (defun viper-yank-inner-word ()
     "Yank (copy) the current word under the cursor, handling edge cases."
     (interactive)
@@ -1396,6 +1403,12 @@ The deleted text is saved to the kill ring."
       (if bounds
           (kill-region (car bounds) (cdr bounds))
         (message "No compound word under cursor"))))
+
+  (defun viper-change-inner-compound-word ()
+    "Change the entire compound word under the cursor, including `-` and `_`."
+    (interactive)
+    (viper-delete-inner-compound-word)
+    (viper-insert nil))
 
   (defun viper-yank-inner-compound-word ()
     "Yank the entire compound word under the cursor into the kill ring."
@@ -1456,6 +1469,7 @@ A compound word includes letters, numbers, `-`, and `_`."
 
   ;; Delete inside delimiters
   (define-key viper-vi-global-user-map (kbd "di(") (lambda () (interactive) (viper-delete-inside-delimiters ?\( ?\))))
+  (define-key viper-vi-global-user-map (kbd "dib") (lambda () (interactive) (viper-delete-inside-delimiters ?\( ?\))))
   (define-key viper-vi-global-user-map (kbd "di{") (lambda () (interactive) (viper-delete-inside-delimiters ?{ ?})))
   (define-key viper-vi-global-user-map (kbd "di\"") (lambda () (interactive) (viper-delete-inside-delimiters ?\" ?\")))
   (define-key viper-vi-global-user-map (kbd "di'") (lambda () (interactive) (viper-delete-inside-delimiters ?' ?')))
@@ -1469,8 +1483,10 @@ A compound word includes letters, numbers, `-`, and `_`."
   ;; Delete/Yank current word
   (define-key viper-vi-global-user-map (kbd "diw") 'viper-delete-inner-word)
   (define-key viper-vi-global-user-map (kbd "yiw") 'viper-yank-inner-word)
+  (define-key viper-vi-global-user-map (kbd "ciw") 'viper-change-inner-word)
   (define-key viper-vi-global-user-map (kbd "diW") 'viper-delete-inner-compound-word)
   (define-key viper-vi-global-user-map (kbd "yiW") 'viper-yank-inner-compound-word)
+  (define-key viper-vi-global-user-map (kbd "ciW") 'viper-change-inner-compound-word)
 
   ;; Beginning/End buffer
   (define-key viper-vi-global-user-map (kbd "G") nil)
