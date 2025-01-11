@@ -1791,3 +1791,8 @@ Windows are labeled starting from the top-left window and proceeding top to bott
 
 (provide 'init)
 ;;; init.el ends here
+  ;; TODO
+  ;; - [ ] Function to print prefix
+  ;; - [ ] Option to turn on / select & edit prefix
+  ;; - [ ] Function to use in buffer completion aligned with the cursor
+  ;; - [ ] Option to turn on / off buffer completion aligned with the cursor
