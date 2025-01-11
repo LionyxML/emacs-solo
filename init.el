@@ -1134,13 +1134,52 @@ Also first tries the local node_modules/.bin and later the global bin."
     (set-frame-parameter (selected-frame) 'alpha '(100 100))))
 
 ;;; EMACS-SOLO-DIMINISH
+
+;;; EMACS-SOLO-MODE-LINE
 ;;
-;;  Custom functions to diminish modes from the mode-line
+;;  Customizations to the mode-line
 ;;
-(use-package emacs-solo-diminish
+(use-package emacs-solo-mode-line
   :ensure nil
   :defer t
   :init
+  ;; Shorten big branches names
+  (defun emacs-solo/shorten-vc-mode (vc)
+    "Shorten VC string to at most 20 characters.
+ Replacing `Git-' with a branch symbol."
+    (let* ((vc (replace-regexp-in-string "^ Git[:-]" "  " vc)))
+      (if (> (length vc) 20)
+          (concat (substring vc 0 20) "…")
+        vc)))
+
+  ;; Formats Modeline
+  (setq-default mode-line-format
+                '("%e" "  "
+                  (:propertize " " display (raise +0.2)) ;; Top padding
+                  (:propertize " " display (raise -0.2)) ;; Bottom padding
+                  (:propertize "λ  " face font-lock-keyword-face)
+
+                  (:propertize
+                   ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
+
+                  mode-line-frame-identification
+                  mode-line-buffer-identification
+                  "   "
+                  mode-line-position
+                  mode-line-format-right-align
+                  "  "
+                  (project-mode-line project-mode-line-format)
+                  "  "
+                  (vc-mode (:eval (emacs-solo/shorten-vc-mode vc-mode)))
+                  "  "
+                  mode-line-modes
+                  mode-line-misc-info
+                  "  ")
+                project-mode-line t
+                mode-line-buffer-identification '(" %b")
+                mode-line-position-column-line-format '(" %l:%c"))
+
+  ;; Provides the Diminish functionality
   (defvar emacs-solo-hidden-minor-modes
     '(abbrev-mode
       eldoc-mode
