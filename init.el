@@ -582,7 +582,7 @@ color (#rrrrggggbbbb)."
 
 
   (defun emacs-solo/vc-git-visualize-status ()
-  "Show the Git status of files in the `vc-log` buffer with terminal-like colors."
+  "Show the Git status of files in the `vc-log` buffer."
   (interactive)
   (let* ((fileset (vc-deduce-fileset t))
          (backend (car fileset))
@@ -1005,10 +1005,8 @@ and restart Flymake to apply the changes."
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
 
 
-;;; -------------------- EMACS-SOLO CUSTOMS
+;;; ------------------- EMACS-SOLO CUSTOMS
 ;;; EMACS-SOLO-HOOKS
-;;
-;;  Custom functions to set/unset transparency
 ;;
 (use-package emacs-solo-hooks
   :ensure nil
@@ -1040,6 +1038,7 @@ and restart Flymake to apply the changes."
     (outline-hide-sublevels 1))
 
   (add-hook 'emacs-lisp-mode-hook #'emacs-solo/elisp-mode-hook))
+
 
 ;;; EMACS-SOLO-MOVEMENTS
 ;;
@@ -1159,6 +1158,7 @@ Also first tries the local node_modules/.bin and later the global bin."
 
   (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes))
 
+
 ;;; EMACS-SOLO-EXEC-PATH-FROM-SHELL
 ;;
 ;;  Loads users default shell PATH settings into Emacs. Usefull
@@ -1221,6 +1221,7 @@ Opening and closing delimiters will have matching colors."
     (font-lock-ensure))
 
   (add-hook 'prog-mode-hook #'emacs-solo/rainbow-delimiters))
+
 
 ;;; EMACS-SOLO-PROJECT-SELECT
 ;;
