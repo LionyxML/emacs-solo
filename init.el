@@ -658,6 +658,9 @@ color (#rrrrggggbbbb)."
 
   (add-hook 'prog-mode-hook #'emacs-solo/eglot-setup)
 
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
+
   :bind (:map
          eglot-mode-map
          ("C-c l a" . eglot-code-actions)
