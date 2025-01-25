@@ -1086,15 +1086,7 @@ and restart Flymake to apply the changes."
     (interactive)
     (indent-tabs-mode -1))
 
-  (add-hook 'prog-mode-hook #'emacs-solo/prefer-tabs)
-
-
-  (defun emacs-solo/elisp-mode-hook ()
-    (interactive)
-    (outline-minor-mode 1)
-    (outline-hide-sublevels 1))
-
-  (add-hook 'emacs-lisp-mode-hook #'emacs-solo/elisp-mode-hook))
+  (add-hook 'prog-mode-hook #'emacs-solo/prefer-tabs))
 
 
 ;;; EMACS-SOLO-MOVEMENTS
