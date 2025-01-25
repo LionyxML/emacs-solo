@@ -740,7 +740,7 @@ by `icomplete-vertical-unselected-prefix-marker'."
               ("C-c ! t" . toggle-flymake-diagnostics-at-eol))
   :custom
   (flymake-show-diagnostics-at-end-of-line nil)
-  (flymake-show-diagnostics-at-end-of-line 'short)
+  ;; (flymake-show-diagnostics-at-end-of-line 'short)
   (flymake-indicator-type 'margins)
   (flymake-margin-indicators-string
    `((error "»" compilation-error)
