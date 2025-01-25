@@ -1838,10 +1838,45 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   (global-set-key (kbd "M-O") #'emacs-solo-ace-window/quick-window-jump))
 
 
+;; ---------- EMACS-SOLO-OLIVETTI
+(use-package emacs-solo-olivetti
+  :ensure nil
+  :defer t
+  :init
+  (defun emacs-solo/center-buffer-in-columns (width)
+    "Center the current buffer within WIDTH columns."
+    (let* ((total-width (frame-width))
+           (margin (/ (- total-width width) 2)))
+      (if (< total-width width)
+          (message "Width exceeds frame width")
+        (set-window-margins (selected-window) margin margin))))
+
+  (defun emacs-solo/reset-buffer-margins ()
+    (interactive)
+    "Reset the margins of the current buffer."
+    (set-window-margins (selected-window) 0 0))
+
+  (defun emacs-solo/center-visual-fill-on ()
+      (interactive)
+      (visual-line-mode 1)
+      (emacs-solo/center-buffer-in-columns 120))
+
+  (defun emacs-solo/timed-center-visual-fill-on()
+    (run-at-time 0.3 nil #'emacs-solo/center-visual-fill-on))
+
+  ;; Example hooks
+  ;; FIXME: not all works...
+  ;; (add-hook 'gnus-group-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+  ;; (add-hook 'gnus-summary-mode-hook 'emacs-solo/timed-center-visual-fill-on)p
+  ;; (add-hook 'gnus-article-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+
+  ;; (add-hook 'newsticker-treeview-list-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+  ;; (add-hook 'newsticker-treeview-item-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+
+  ;; Examples on how to rerun things with keybindingspp
+  ;; (global-set-key (kbd "C-c c") (lambda () (interactive) (emacs-solo/center-buffer-in-columns 80)))
+  ;; (global-set-key (kbd "C-c r") (lambda () (interactive) (emacs-solo/reset-buffer-margins)))
+  )
+
 (provide 'init)
 ;;; init.el ends here
-  ;; TODO
-  ;; - [ ] Function to print prefix
-  ;; - [ ] Option to turn on / select & edit prefix
-  ;; - [ ] Function to use in buffer completion aligned with the cursor
-  ;; - [ ] Option to turn on / off buffer completion aligned with the cursor
