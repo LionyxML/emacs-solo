@@ -42,6 +42,9 @@
   (treesit-font-lock-level 4)
   (truncate-lines t)
   (use-dialog-box nil)
+  (use-file-dialog nil)
+  (use-short-answers t)
+  (window-combination-resize t)
   :config
   (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 100)
 
@@ -66,6 +69,10 @@
                (list "d"
                      (lambda (buffer) (diff-buffer-with-file (buffer-file-name buffer)))
                      "show diff between the buffer and its file"))
+
+  ;; Unbinds C-z to (suspend-frame)
+  (global-unset-key (kbd "C-z"))
+  (global-unset-key (kbd "C-x C-z"))
 
   :init
   (set-window-margins (selected-window) 0 0)
