@@ -115,6 +115,11 @@
       (window-width . 75)
       (side . right)
       (slot . 0))
+     ("\\*\\(Ibuffer\\)\\*"
+      (display-buffer-in-side-window)
+      (window-width . 100)
+      (side . right)
+      (slot . 1))
      ("\\*\\(Flymake diagnostics\\|xref\\|Completions\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
