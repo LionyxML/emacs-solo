@@ -528,7 +528,9 @@ by `icomplete-vertical-unselected-prefix-marker'."
              "🐂")
            " " (number-to-string eshell-last-command-status)
            ")──("
-           "🧘 " (user-login-name)
+           "🧘 " (or (file-remote-p default-directory 'user) (user-login-name))
+           ")──("
+           "💻 " (or (file-remote-p default-directory 'host) (system-name))
            ")──("
            "🕝 " (format-time-string "%H:%M:%S" (current-time))
            ")──("
