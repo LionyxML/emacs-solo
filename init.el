@@ -237,12 +237,85 @@ color (#rrrrggggbbbb)."
   (advice-add 'completion-at-point
               :after #'minibuffer-hide-completions)
 
-  ;; FIXME - this is actually an override of internal icomplete to provide
-  ;;         in buffer on column completion
-  ;;
-  ;; As first suggested by Zhengyi Fu:
-  ;; https://mail.gnu.org/archive/html/help-gnu-emacs/2024-04/msg00126.html
-  ;;
+  (defcustom icomplete-vertical-selected-prefix-marker "» "
+    "Prefix string used to mark the selected completion candidate.
+If `icomplete-vertical-render-prefix-marker' is t, the string
+setted here is used as a prefix of the currently selected entry in the
+list.  It can be further customized by the face
+`icomplete-vertical-selected-prefix-face'."
+    :type 'string
+    :group 'icomplete
+    :version "31")
+
+  (defcustom icomplete-vertical-unselected-prefix-marker "  "
+    "Prefix string used on the unselected completion candidates.
+If `icomplete-vertical-render-prefix-marker' is t, the string
+setted here is used as a prefix for all unselected entries in the list.
+list.  It can be further customized by the face
+`icomplete-vertical-unselected-prefix-face'."
+    :type 'string
+    :group 'icomplete
+    :version "31")
+
+  (defcustom icomplete-vertical-in-buffer-adjust-list t
+    "Control whether in-buffer completion should align the cursor position.
+If this is t and `icomplete-in-buffer' is t, and `icomplete-vertical-mode'
+is activated, the in-buffer vertical completions are shown aligned to the
+cursor position when the completion started, not on the first column, as
+the default behaviour."
+    :type 'boolean
+    :group 'icomplete
+    :version "31")
+
+  (defcustom icomplete-vertical-render-prefix-marker t
+    "Control whether a marker is added as a prefix to each candidate.
+If this is t and `icomplete-vertical-mode' is activated, a marker,
+controlled by `icomplete-vertical-selected-prefix-marker' is shown
+as a prefix to the current under selection candidate, while the
+remaining of the candidates will receive the marker controlled
+by `icomplete-vertical-unselected-prefix-marker'."
+    :type 'boolean
+    :group 'icomplete
+    :version "31")
+
+  (defface icomplete-vertical-selected-prefix-face
+    '((t :inherit font-lock-keyword-face :weight bold :foreground "cyan"))
+    "Face used for the prefix set by `icomplete-vertical-selected-prefix-marker'."
+    :group 'icomplete
+    :version "31")
+
+  (defface icomplete-vertical-unselected-prefix-face
+    '((t :inherit font-lock-keyword-face :weight normal :foreground "gray"))
+    "Face used for the prefix set by `icomplete-vertical-unselected-prefix-marker'."
+    :group 'icomplete
+    :version "31")
+
+  (defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
+    "Adjust the LINES to align with the column in BUFFER based on DATA."
+    (if icomplete-vertical-in-buffer-adjust-list
+        (let ((column
+               (with-current-buffer buffer
+                 (save-excursion
+                   (goto-char (car data))
+                   (current-column)))))
+          (dolist (l lines)
+            (add-text-properties
+             0 1 `(display ,(concat (make-string column ?\s) (substring l 0 1)))
+             l))
+          lines)
+      lines))
+
+  (defun icomplete-vertical--add-marker-to-selected (comp)
+    "Add markers to the selected/unselected COMP completions."
+    (if (and icomplete-vertical-render-prefix-marker
+             (get-text-property 0 'icomplete-selected comp))
+        (concat (propertize icomplete-vertical-selected-prefix-marker
+                            'face 'icomplete-vertical-selected-prefix-face)
+                comp)
+      (concat (propertize icomplete-vertical-unselected-prefix-marker
+                          'face 'icomplete-vertical-unselected-prefix-face)
+              comp)))
+
   (cl-defun icomplete--render-vertical
       (comps md &aux scroll-above scroll-below
              (total-space ; number of mini-window lines available
@@ -258,7 +331,7 @@ color (#rrrrggggbbbb)."
     ;; - both nil, there is no manual scroll;
     ;; - both non-nil, there is a healthy manual scroll that doesn't need
     ;;   to be readjusted (user just moved around the minibuffer, for
-    ;;   example)l
+    ;;   example);
     ;; - non-nil and nil, respectively, a refiltering took place and we
     ;;   may need to readjust them to the new filtered `comps'.
     (when (and icomplete-scroll
@@ -318,28 +391,15 @@ color (#rrrrggggbbbb)."
        when section
        collect (propertize section 'face 'icomplete-section) into lines-aux
        and count 1 into nsections-aux
- ;;; ------- NON ORIGINAL HERE...
-       for marker = (if (get-text-property 0 'icomplete-selected comp)
-                        ;; (propertize "» " 'face '(:foreground "#80adf0" :weight bold))
-                        (propertize "» " 'face 'font-lock-keyword-face)
-                      "  ")
-       do (setq comp (concat marker comp))
- ;;; -------- NON ORIGINAL ENDS HERE...
+       for comp = (icomplete-vertical--add-marker-to-selected comp)
        when (get-text-property 0 'icomplete-selected comp)
        do (add-face-text-property 0 (length comp)
                                   'icomplete-selected-match 'append comp)
-       ;; collect (concat prefix
-       ;;                 (make-string (- max-prefix-len (length prefix)) ? )
-       ;;                 (completion-lazy-hilit comp)
-       ;;                 (make-string (- max-comp-len (length comp)) ? )
-       ;;                 suffix)
- ;;; ------- NON ORIGINAL HERE...
        collect (concat prefix
                        (make-string (max 0 (- max-prefix-len (length prefix))) ? )
                        (completion-lazy-hilit comp)
                        (make-string (max 0 (- max-comp-len (length comp))) ? )
                        suffix)
- ;;; -------- NON ORIGINAL ENDS HERE...
        into lines-aux
        finally (setq lines lines-aux
                      nsections nsections-aux))
@@ -353,18 +413,9 @@ color (#rrrrggggbbbb)."
                    ((> (length scroll-above) (length scroll-below)) nsections)
                    (t (min (ceiling nsections 2) (length scroll-above))))
              lines))
- ;;; ------- NON ORIGINAL HERE...
       (when icomplete--in-region-buffer
-        (let ((column
-               (with-current-buffer icomplete--in-region-buffer
-                 (save-excursion
-                   (goto-char (car completion-in-region--data))
-                   (current-column)))))
-          (dolist (l lines)
-            (add-text-properties
-             0 1 `(display ,(concat (make-string column ?\s) (substring l 0 1)))
-             l))))
- ;;; -------- NON ORIGINAL ENDS HERE...
+        (setq lines (icomplete-vertical--adjust-lines-for-column
+                     lines icomplete--in-region-buffer completion-in-region--data)))
       ;; At long last, render final string return value.  This may still
       ;; kick out lines at the end.
       (concat " \n"
