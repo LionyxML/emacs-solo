@@ -815,6 +815,7 @@ and restart Flymake to apply the changes."
   (completions-format 'vertical)
   (completion-ignore-case t)
   (completion-show-help t)
+  (completion-auto-select t)
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   :config
@@ -1078,14 +1079,7 @@ and restart Flymake to apply the changes."
 
   ;; TODO Do we need this?
   ;;      it looks like variable `completion-auto-select' does the same
-  (defun emacs-solo/jump-to-completions ()
-    "Hook function to move focus to *Completions* buffer."
-    (when (string= (buffer-name) "*Completions*")
-      (goto-char (point-min))
-      (switch-to-buffer-other-window "*Completions*")))
 
-  ;; Disabled in favor of icomplete
-  ;; (add-hook 'completion-list-mode-hook #'emacs-solo/jump-to-completions)
 
   (defun emacs-solo/prefer-tabs ()
     "Disables indent-tabs-mode, and prefer spaces over tabs."
