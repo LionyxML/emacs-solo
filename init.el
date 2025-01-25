@@ -19,6 +19,8 @@
   (completions-format 'one-column)
   (create-lockfiles nil)
   (delete-by-moving-to-trash t)
+  (remote-file-name-inhibit-delete-by-moving-to-trash t)
+  (remote-file-name-inhibit-auto-save t)
   (delete-selection-mode 1)
   (global-auto-revert-non-file-buffers t)
   (help-window-select t)
