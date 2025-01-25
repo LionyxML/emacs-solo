@@ -655,10 +655,10 @@ by `icomplete-vertical-unselected-prefix-marker'."
             ;; Capture the raw output including colors using 'git status --color=auto'
             (call-process "git" nil output-buffer nil "status" "-v")
             (pop-to-buffer output-buffer)))
-      (message "Not in a VC Git buffer.")))))
+      (message "Not in a VC Git buffer."))))
 
   (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-  (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status))
+  (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status)))
 
 ;;; SMERGE
 (use-package smerge-mode
