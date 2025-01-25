@@ -36,6 +36,9 @@
   (switch-to-buffer-obey-display-actions t)
   (tab-always-indent 'complete)
   (tab-width 4)
+  (tab-bar-close-button-show nil)
+  (tab-bar-new-button-show nil)
+  (tab-bar-tab-hints t)
   (treesit-font-lock-level 4)
   (truncate-lines t)
   (use-dialog-box nil)
@@ -1005,6 +1008,24 @@ and restart Flymake to apply the changes."
      (variable "#ffcb6b")
      (docstring "#8d92af")
      (constant "#f78c6c")))
+    :config
+    (modus-themes-with-colors
+      (custom-set-faces
+       `(tab-bar
+         ((,c
+           :background "#232635"
+           :foreground "#A6Accd"
+           :box (:line-width 1 :color "#676E95"))))
+       `(tab-bar-tab
+         ((,c
+           :background "#232635"
+           :underline t
+           :box (:line-width 1 :color "#676E95")
+         )))
+       `(tab-bar-tab-inactive
+         ((,c
+           :background "#232635"
+           :box (:line-width 1 :color "#676E95"))))))
   :init
   (load-theme 'modus-vivendi-tinted t))
 
