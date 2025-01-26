@@ -829,7 +829,7 @@ and restart Flymake to apply the changes."
   (completions-format 'vertical)
   (completion-ignore-case t)
   (completion-show-help t)
-  (completion-auto-select t)
+  ;; (completion-auto-select t) ;; only turn this on if not using icomplete
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   :config
