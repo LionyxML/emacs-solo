@@ -46,7 +46,7 @@
   (use-short-answers t)
   (window-combination-resize t)
   :config
-  (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 100)
+  (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 105)
 
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
@@ -1179,12 +1179,14 @@ Also first tries the local node_modules/.bin and later the global bin."
   (defun emacs-solo/transparency-set ()
     "Set frame transparency (Graphical Mode)."
     (interactive)
-    (set-frame-parameter (selected-frame) 'alpha '(90 90)))
+    (dolist (frame (frame-list))
+      (set-frame-parameter frame 'alpha-background 85)))
 
   (defun emacs-solo/transparency-unset ()
     "Unset frame transparency (Graphical Mode)."
     (interactive)
-    (set-frame-parameter (selected-frame) 'alpha '(100 100)))
+        (dolist (frame (frame-list))
+          (set-frame-parameter frame 'alpha-background 100)))
 
   (add-hook 'after-init-hook #'emacs-solo/transparency-set))
 
