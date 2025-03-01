@@ -92,11 +92,6 @@
                    (name . "^\\*Org Src")
                    (name . "^\\*Org Agenda\\*$")))
            ("tramp" (name . "^\\*tramp.*"))
-           ("magit" (or
-                     (mode . magit-mode)
-                     (mode . magit-diff-mode)
-                     (mode . magit-process-mode)
-                     (name . "^magit.*")))
            ("emacs" (or
                      (name . "^\\*scratch\\*$")
                      (name . "^\\*Messages\\*$")
