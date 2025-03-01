@@ -872,12 +872,6 @@ and restart Flymake to apply the changes."
   :defer
   :hook (after-init . electric-pair-mode))
 
-;;; SO-LONG
-;;  Makes Emacs more performannt with giant oneliners, like minified JS
-(use-package so-long
-  :ensure nil
-  :hook (after-init . global-so-long-mode))
-
 ;;; PAREN
 (use-package paren
   :ensure nil
