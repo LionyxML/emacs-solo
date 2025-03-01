@@ -495,6 +495,16 @@ by `icomplete-vertical-unselected-prefix-marker'."
   '(progn
      (define-key dired-mode-map (kbd "G") 'emacs-solo/window-dired-open-directory))))
 
+
+;;; WDIRED
+(use-package wdired
+  :ensure nil
+  :commands (wdired-change-to-wdired-mode)
+  :config
+  (setq wdired-allow-to-change-permissions t)
+  (setq wdired-create-parent-directories t))
+
+
 ;;; ESHELL
 (use-package eshell
   :ensure nil
