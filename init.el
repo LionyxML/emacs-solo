@@ -10,7 +10,11 @@
   :bind
   (("M-o" . other-window)
    ("M-j" . duplicate-dwim)
-   ("C-x C-b" . ibuffer))
+   ("C-x C-b" . ibuffer)
+   ("RET" . newline-and-indent)
+   ("C-z" . nil)
+   ("C-x C-z" . nil)
+   ("C-x C-k RET" . nil))
   :custom
   (column-number-mode nil)
   (line-number-mode nil)
@@ -29,6 +33,7 @@
   (initial-scratch-message "")
   (ispell-dictionary "en_US")
   (make-backup-files nil)
+  (backup-inhibited t)
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (ring-bell-function 'ignore)
@@ -45,6 +50,10 @@
   (use-file-dialog nil)
   (use-short-answers t)
   (window-combination-resize t)
+  (xref-search-program 'ripgrep)
+  (grep-command "rg -nS --noheading ")
+  (grep-find-ignored-directories
+   '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
   (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 105)
 
@@ -70,9 +79,10 @@
                      (lambda (buffer) (diff-buffer-with-file (buffer-file-name buffer)))
                      "show diff between the buffer and its file"))
 
-  ;; Unbinds C-z to (suspend-frame)
-  (global-unset-key (kbd "C-z"))
-  (global-unset-key (kbd "C-x C-z"))
+  ;; On Terminal: changes the vertical separator to a full vertical line
+  ;;              and truncation symbol to a right arrow
+  (set-display-table-slot standard-display-table 'vertical-border ?\u2502)
+  (set-display-table-slot standard-display-table 'truncation ?\u2192)
 
   :init
   (set-window-margins (selected-window) 0 0)
