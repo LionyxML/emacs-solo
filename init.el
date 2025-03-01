@@ -843,6 +843,14 @@ and restart Flymake to apply the changes."
    '((nntp "news.gwene.org"))))
 
 
+;;; MAN
+(use-package man
+  :ensure nil
+  :commands (man)
+  :config
+  (setq Man-notify-method 'pushy)) ; does not obey `display-buffer-alist'
+
+
 ;;; MINIBUFFER
 (use-package minibuffer
   :ensure nil
