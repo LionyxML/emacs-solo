@@ -1916,41 +1916,45 @@ Windows are labeled starting from the top-left window and proceeding top to bott
 ;; ---------- EMACS-SOLO-OLIVETTI
 (use-package emacs-solo-olivetti
   :ensure nil
+  :no-require t
   :defer t
   :init
-  (defun emacs-solo/center-buffer-in-columns (width)
-    "Center the current buffer within WIDTH columns."
-    (let* ((total-width (frame-width))
-           (margin (/ (- total-width width) 2)))
-      (if (< total-width width)
-          (message "Width exceeds frame width")
-        (set-window-margins (selected-window) margin margin))))
+  (defvar emacs-solo-center-document-desired-width 90
+    "The desired width of a document centered in the window.")
 
-  (defun emacs-solo/reset-buffer-margins ()
-    (interactive)
-    "Reset the margins of the current buffer."
-    (set-window-margins (selected-window) 0 0))
+  (defun emacs-solo/center-document--adjust-margins ()
+    ;; Reset margins first before recalculating
+    (set-window-parameter nil 'min-margins nil)
+    (set-window-margins nil nil)
 
-  (defun emacs-solo/center-visual-fill-on ()
-      (interactive)
-      (visual-line-mode 1)
-      (emacs-solo/center-buffer-in-columns 120))
+    ;; Adjust margins if the mode is on
+    (when emacs-solo/center-document-mode
+      (let ((margin-width (max 0
+                               (truncate
+                                (/ (- (window-width)
+                                      emacs-solo-center-document-desired-width)
+                                   2.0)))))
+        (when (> margin-width 0)
+          (set-window-parameter nil 'min-margins '(0 . 0))
+          (set-window-margins nil margin-width margin-width)))))
 
-  (defun emacs-solo/timed-center-visual-fill-on()
-    (run-at-time 0.3 nil #'emacs-solo/center-visual-fill-on))
+  (define-minor-mode emacs-solo/center-document-mode
+    "Toggle centered text layout in the current buffer."
+    :lighter " Centered"
+    :group 'editing
+    (if emacs-solo/center-document-mode
+        (add-hook 'window-configuration-change-hook #'emacs-solo/center-document--adjust-margins 'append 'local)
+      (remove-hook 'window-configuration-change-hook #'emacs-solo/center-document--adjust-margins 'local))
+    (emacs-solo/center-document--adjust-margins))
 
-  ;; Example hooks
-  ;; FIXME: not all works...
-  ;; (add-hook 'gnus-group-mode-hook 'emacs-solo/timed-center-visual-fill-on)
-  ;; (add-hook 'gnus-summary-mode-hook 'emacs-solo/timed-center-visual-fill-on)p
-  ;; (add-hook 'gnus-article-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+
+  (add-hook 'org-mode-hook #'emacs-solo/center-document-mode)
+  (add-hook 'gnus-group-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+  (add-hook 'gnus-summary-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+  (add-hook 'gnus-article-mode-hook 'emacs-solo/timed-center-visual-fill-on)
 
   ;; (add-hook 'newsticker-treeview-list-mode-hook 'emacs-solo/timed-center-visual-fill-on)
   ;; (add-hook 'newsticker-treeview-item-mode-hook 'emacs-solo/timed-center-visual-fill-on)
-
-  ;; Examples on how to rerun things with keybindingspp
-  ;; (global-set-key (kbd "C-c c") (lambda () (interactive) (emacs-solo/center-buffer-in-columns 80)))
-  ;; (global-set-key (kbd "C-c r") (lambda () (interactive) (emacs-solo/reset-buffer-margins)))
   )
 
 (provide 'init)
