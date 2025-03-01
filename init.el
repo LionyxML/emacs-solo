@@ -1259,13 +1259,14 @@ Also first tries the local node_modules/.bin and later the global bin."
 ;;
 (use-package emacs-solo-mode-line
   :ensure nil
+  :no-require t
   :defer t
   :init
   ;; Shorten big branches names
   (defun emacs-solo/shorten-vc-mode (vc)
     "Shorten VC string to at most 20 characters.
  Replacing `Git-' with a branch symbol."
-    (let* ((vc (replace-regexp-in-string "^ Git[:-]" "  " vc)))
+    (let* ((vc (replace-regexp-in-string "^ Git[:-]" "  " vc))) ;; Options:   ᚠ ⎇
       (if (> (length vc) 20)
           (concat (substring vc 0 20) "…")
         vc)))
@@ -1273,8 +1274,8 @@ Also first tries the local node_modules/.bin and later the global bin."
   ;; Formats Modeline
   (setq-default mode-line-format
                 '("%e" "  "
-                  (:propertize " " display (raise +0.2)) ;; Top padding
-                  (:propertize " " display (raise -0.2)) ;; Bottom padding
+                  ;; (:propertize " " display (raise +0.1)) ;; Top padding
+                  ;; (:propertize " " display (raise -0.1)) ;; Bottom padding
                   (:propertize "λ  " face font-lock-keyword-face)
 
                   (:propertize
