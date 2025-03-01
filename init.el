@@ -1957,26 +1957,36 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   ;; (add-hook 'newsticker-treeview-item-mode-hook 'emacs-solo/timed-center-visual-fill-on)
   )
 
-
-;; ---------- EMACS-SOLO-SUDO-EDIT
+;; ---------- EMACS-SOLO-0x0
 ;;
 ;; Inspired by: https://codeberg.org/daviwil/dotfiles/src/branch/master/Emacs.org#headline-28
-(use-package emacs-solo-sudo-edit
+(use-package emacs-solo-0x0
   :ensure nil
   :no-require t
   :defer t
   :init
-  (defun emacs-solo/sudo-edit (&optional arg)
-    "Edit currently visited file as root.
-With a prefix ARG prompt for a file to visit.
-Will also prompt for a file to visit if current
-buffer is not visiting a file."
-    (interactive "P")
-    (if (or arg (not buffer-file-name))
-        (find-file (concat "/sudo:root@localhost:"
-                           (completing-read "Find file(as root): ")))
-      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
+  (defun emacs-solo/0x0-upload-text ()
+    (interactive)
+    (let* ((contents (if (use-region-p)
+                         (buffer-substring-no-properties (region-beginning) (region-end))
+                       (buffer-string)))
+           (temp-file (make-temp-file "0x0" nil ".txt" contents)))
+      (message "Sending %s to 0x0.st..." temp-file)
+      (let ((url (string-trim-right
+                  (shell-command-to-string
+                   (format "curl -s -F'file=@%s' https://0x0.st" temp-file)))))
+        (message "The URL is %s" url)
+        (kill-new url)
+        (delete-file temp-file))))
 
+  (defun emacs-solo/0x0-upload-file (file-path)
+    (interactive "fSelect a file to upload: ")
+    (message "Sending %s to 0x0.st..." file-path)
+    (let ((url (string-trim-right
+                (shell-command-to-string
+                 (format "curl -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
+      (message "The URL is %s" url)
+      (kill-new url))))
 
 
 ;; ---------- EMACS-SOLO-SUDO-EDIT
