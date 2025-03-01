@@ -234,13 +234,15 @@ color (#rrrrggggbbbb)."
       (setq erc-modules (append erc-modules '(erc-load-highlight-nicknames))))))
 
 
+
 ;;; ICOMPLETE
 (use-package icomplete
   :bind (:map icomplete-minibuffer-map
               ("C-n" . icomplete-forward-completions)
               ("C-p" . icomplete-backward-completions)
               ("C-v" . icomplete-vertical-toggle)
-              ("RET" . icomplete-force-complete-and-exit))
+              ("RET" . icomplete-force-complete-and-exit)
+              ("C-j" . exit-minibuffer)) ;; So we can exit commands like `multi-file-replace-regexp-as-diff'
   :hook
   (after-init . (lambda ()
                   (fido-mode -1)
