@@ -888,9 +888,13 @@ and restart Flymake to apply the changes."
   (proced-enable-color-flag t)
   (proced-tree-flag t)
   (proced-auto-update-flag 'visible)
-  (proced-auto-update-interval 5)
+  (proced-auto-update-interval 1)
   (proced-descent t)
-  (proced-filter 'user)) ;; We can change interactively with `s'
+  (proced-filter 'user) ;; We can change interactively with `s'
+  :config
+  (add-hook 'proced-mode-hook
+            (lambda ()
+              (proced-toggle-auto-update 1))))
 
 ;;; ORG
 (use-package org
