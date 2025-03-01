@@ -1678,13 +1678,15 @@ A compound word includes letters, numbers, `-`, and `_`."
 ;;
 (use-package emacs-solo-highlight-keywords-mode
   :ensure nil
+  :no-require t
   :defer t
   :init
   (defcustom +highlight-keywords-faces
     '(("TODO" . error)
       ("FIXME" . error)
       ("HACK" . warning)
-      ("NOTE" . warning))
+      ("NOTE" . warning)
+      ("HERE" . compilation-info))
     "Alist of keywords to highlight and their face."
     :group '+highlight-keywords
     :type '(alist :key-type (string :tag "Keyword")
