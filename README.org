@@ -16,7 +16,7 @@
 #+END_SRC
 
 Emacs Solo is a configuration for when I wanna go back to the roots
-and test my self using Emacs with only built-in goodies.
+and test my self using Emacs with only =built-in= goodies.
 
 It is minimalist and powerful. A place I visit once in a while.
 
@@ -26,7 +26,7 @@ Clone this repository into a directory of your liking and run Emacs
 with:
 
 #+BEGIN_SRC sh
-emacs --init-directory=YOUR_DIR
+  emacs --init-directory=YOUR_DIR
 #+END_SRC
 
 You can also simply copy *init.el* and *early-init.el* into any folder
@@ -34,6 +34,10 @@ issue the same command as above
 
 And that's it, happy hacking! 🐂
 
+** External Dependencies
+- ripgrep (for quick project grep and xref)
+- gls (macos only)
+- curl (for 0x0)
 
 ** How do I...
 *** Copy the current word under cursor?
@@ -55,6 +59,11 @@ Next start the edit mode of the occur buffer with *e*.
 
 Make your changes, apply it with *C-c C-c*
 
+From Emacs 30.1 onward you can also use the combo:
+=replace-regexp-as-diff= for replacements in a single buffer,
+=multi-replace-regexp-as-diff= for multiple buffers, and
+=dired-do-replace-regexp-as-diff= to perform replace-regexp-as-diff
+
 *** Edit multiple search entries between several files at once?
 
 #+BEGIN_SRC text
@@ -67,3 +76,35 @@ some files and or folders with *m*.
 Use *dired-do-query-replace-regexp* or in a dired buffer hit *Q*.
 
 Confirm it all or one by one, use *?* to check the options.
+
+From Emacs 30.1 onward you can also use the combo:
+=replace-regexp-as-diff= for replacements in a single buffer,
+=multi-replace-regexp-as-diff= for multiple buffers, and
+=dired-do-replace-regexp-as-diff= to perform replace-regexp-as-diff
+
+*** Read news, like elfeed?
+
+You have two built-in options on Emacs.
+- =M-x gnus=
+- =M-x newsticker-treeview=
+
+*** How do I see logs and their diffs?
+
+=C-x v L= on a file inside your version controlled file. And over the
+line you have the commit, press =d= for diffing.
+
+If you wanna diff a range, mark the lines starting with =C-SPC= on the
+first line of the range, and again =C-SPC= in the last line of the range
+(the content of what you want must be selected, if ther cursor is on
+first column of the line it won't be included), now use =d= to diff.
+
+*** Use (neo)vi(m) keybindings?
+
+Emacs comes with =viper= which is a =vi= emulator. This means a lot of
+modern editing capabilities are missing.
+
+Take a look at =use-package emacs-solo-viper-extensions=, section of the
+=init.el= file. Emacs Solo extends viper mode to include a bunch of more
+modern =evil-like= bindings.
+
+Just give it a try ;) =M-x viper-mode=
