@@ -779,9 +779,9 @@ by `icomplete-vertical-unselected-prefix-marker'."
   ;; (flymake-show-diagnostics-at-end-of-line 'short)
   (flymake-indicator-type 'margins)
   (flymake-margin-indicators-string
-   `((error "»" compilation-error)
-     (warning "»" compilation-warning)
-     (note "»" compilation-info)))
+   `((error "E" compilation-error)      ;; Alternatives: »" compilation-error)
+     (warning "W" compilation-warning)
+     (note "i" compilation-info)))
   :config
   ;; Define the toggle function
   (defun toggle-flymake-diagnostics-at-eol ()
