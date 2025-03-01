@@ -931,6 +931,15 @@ and restart Flymake to apply the changes."
   (setq org-ellipsis " ▼ ")
   (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil))
 
+;;; UNIQUIFY
+(use-package uniquify
+  :ensure nil
+  :config
+  (setq uniquify-buffer-name-style 'forward)
+  (setq uniquify-strip-common-suffix t)
+  (setq uniquify-after-kill-buffer-p t))
+
+;;; WHICH-KEY
 (use-package which-key
   :defer t
   :ensure nil
@@ -1105,6 +1114,7 @@ and restart Flymake to apply the changes."
 ;;
 (use-package emacs-solo-hooks
   :ensure nil
+  :no-require t
   :defer t
   :init
 
@@ -1126,6 +1136,7 @@ and restart Flymake to apply the changes."
 ;;
 (use-package emacs-solo-movements
   :ensure nil
+  :no-require t
   :defer t
   :init
 
@@ -1289,6 +1300,7 @@ Also first tries the local node_modules/.bin and later the global bin."
 ;;
 (use-package emacs-solo-exec-path-from-shell
   :ensure nil
+  :no-require t
   :defer t
   :init
   (defun emacs-solo/set-exec-path-from-shell-PATH ()
@@ -1313,6 +1325,7 @@ Also first tries the local node_modules/.bin and later the global bin."
 ;;
 (use-package emacs-solo-rainbow-delimiters
   :ensure nil
+  :no-require t
   :defer t
   :init
   (defun emacs-solo/rainbow-delimiters ()
@@ -1353,6 +1366,7 @@ Opening and closing delimiters will have matching colors."
 ;;
 (use-package emacs-solo-project-select
   :ensure nil
+  :no-require t
   :init
   (defvar emacs-solo-default-projects-folder "~/Projects"
     "Default folder to search for projects.")
@@ -1393,6 +1407,7 @@ Opening and closing delimiters will have matching colors."
 ;;
 (use-package emacs-solo-viper-extensions
   :ensure nil
+  :no-require t
   :defer t
   :after viper
   :init
@@ -1692,6 +1707,7 @@ A compound word includes letters, numbers, `-`, and `_`."
 ;;
 (use-package emacs-solo-gutter
   :ensure nil
+  :no-require t
   :defer t
   :init
   (defun emacs-solo/goto-next-hunk ()
@@ -1818,6 +1834,7 @@ A compound word includes letters, numbers, `-`, and `_`."
 ;;
 (use-package emacs-solo-ace-window
   :ensure nil
+  :no-require t
   :defer t
   :init
   (defvar emacs-solo-ace-window/quick-window-overlays nil
