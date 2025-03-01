@@ -1610,8 +1610,7 @@ A compound word includes letters, numbers, `-`, and `_`."
   (define-key viper-vi-global-user-map (kbd "ciW") 'viper-change-inner-compound-word)
 
   ;; Beginning/End buffer
-  (define-key viper-vi-global-user-map (kbd "G") nil)
-  (define-key viper-vi-global-user-map (kbd "GG") 'viper-go-to-last-line)
+  (define-key viper-vi-global-user-map (kbd "G") 'viper-go-to-last-line)
   (define-key viper-vi-global-user-map (kbd "g") nil)
   (define-key viper-vi-global-user-map (kbd "gg") 'viper-go-to-nth-or-first-line)
 
