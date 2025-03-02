@@ -37,6 +37,7 @@ And that's it, happy hacking! 🐂
 ** External Dependencies
 - ripgrep (for quick project grep and xref)
 - gls (macos only)
+
 - curl (for 0x0)
 
 ** How do I...
@@ -98,6 +99,13 @@ first line of the range, and again =C-SPC= in the last line of the range
 (the content of what you want must be selected, if ther cursor is on
 first column of the line it won't be included), now use =d= to diff.
 
+*** How do I revert a hunk?
+
+=C-x v === will open the diff panel for the current file, restrict it to
+the hunk you'd like to revert with =r=, revert the direction of the diff
+with =R= and apply the diff with =C-c C-a=.
+
+
 *** Use (neo)vi(m) keybindings?
 
 Emacs comes with =viper= which is a =vi= emulator. This means a lot of
@@ -108,3 +116,28 @@ Take a look at =use-package emacs-solo-viper-extensions=, section of the
 modern =evil-like= bindings.
 
 Just give it a try ;) =M-x viper-mode=
+
+
+*** Temporaraly highlight some word?
+
+Use the powers of =highlight-regexp=! Over a word you want to make
+highlighted use =M-s h .=
+
+You can repeat it to other words and Emacs will handle different
+colors for you.
+
+To remove a highlight use =M-s h u= and select the highlighted regexp on
+the list.
+
+Find out about more options regarding highlighting with =M-s h ?=.
+
+
+*** Know what is changed when closing Emacs or several files?
+
+It is a common thing trying to close Emacs with =C-x C-c= just to find
+out one of your buffers has some modification and now Emacs asks if
+you'd like to save, override, etc.
+
+Emacs Solo provides the extra option =d=, which will generate a diff of
+the current file being asked to take action, so you can see if saving
+is needed.
