@@ -293,190 +293,263 @@ color (#rrrrggggbbbb)."
   (advice-add 'completion-at-point
               :after #'minibuffer-hide-completions)
 
-  (defcustom icomplete-vertical-selected-prefix-marker "» "
-    "Prefix string used to mark the selected completion candidate.
-If `icomplete-vertical-render-prefix-marker' is t, the string
-setted here is used as a prefix of the currently selected entry in the
-list.  It can be further customized by the face
-`icomplete-vertical-selected-prefix-face'."
-    :type 'string
-    :group 'icomplete
-    :version "31")
+  ;; === FIXME: I'm reviewing it to the icomplete PATCH
 
-  (defcustom icomplete-vertical-unselected-prefix-marker "  "
-    "Prefix string used on the unselected completion candidates.
-If `icomplete-vertical-render-prefix-marker' is t, the string
-setted here is used as a prefix for all unselected entries in the list.
-list.  It can be further customized by the face
-`icomplete-vertical-unselected-prefix-face'."
-    :type 'string
-    :group 'icomplete
-    :version "31")
+(defface icomplete-vertical-selected-prefix-indicator-face
+  '((t :inherit font-lock-keyword-face :weight bold :foreground "cyan"))
+  "Face used for the prefix set by `icomplete-vertical-selected-prefix-indicator'."
+  :group 'icomplete
+  :version "31.1")
 
-  (defcustom icomplete-vertical-in-buffer-adjust-list t
-    "Control whether in-buffer completion should align the cursor position.
+(defface icomplete-vertical-unselected-prefix-indicator-face
+  '((t :inherit font-lock-keyword-face :weight normal :foreground "gray"))
+  "Face used for the prefix set by `icomplete-vertical-unselected-prefix-indicator'."
+  :group 'icomplete
+  :version "31.1")
+
+(defcustom icomplete-vertical-in-buffer-adjust-list t
+  "Control whether in-buffer completion should align the cursor position.
 If this is t and `icomplete-in-buffer' is t, and `icomplete-vertical-mode'
 is activated, the in-buffer vertical completions are shown aligned to the
 cursor position when the completion started, not on the first column, as
-the default behaviour."
-    :type 'boolean
-    :group 'icomplete
-    :version "31")
+the default behaviour.
 
-  (defcustom icomplete-vertical-render-prefix-marker t
-    "Control whether a marker is added as a prefix to each candidate.
-If this is t and `icomplete-vertical-mode' is activated, a marker,
-controlled by `icomplete-vertical-selected-prefix-marker' is shown
+NOTE: this currently works better when lines are not wrapped, such as
+when `truncate-lines' is t."
+  :type 'boolean
+  :group 'icomplete
+  :version "31.1")
+
+(defcustom icomplete-vertical-render-prefix-indicator t
+  "Control whether a indicator is added as a prefix to each candidate.
+If this is t and `icomplete-vertical-mode' is activated, a indicator,
+controlled by `icomplete-vertical-selected-prefix-indicator' is shown
 as a prefix to the current under selection candidate, while the
-remaining of the candidates will receive the marker controlled
-by `icomplete-vertical-unselected-prefix-marker'."
-    :type 'boolean
-    :group 'icomplete
-    :version "31")
+remaining of the candidates will receive the indicator controlled
+by `icomplete-vertical-unselected-prefix-indicator'."
+  :type 'boolean
+  :group 'icomplete
+  :version "31.1")
 
-  (defface icomplete-vertical-selected-prefix-face
-    '((t :inherit font-lock-keyword-face :weight bold :foreground "cyan"))
-    "Face used for the prefix set by `icomplete-vertical-selected-prefix-marker'."
-    :group 'icomplete
-    :version "31")
+(defcustom icomplete-vertical-in-buffer-adjust-list t
+  "Control whether in-buffer completion should align the cursor position.
+If this is t and `icomplete-in-buffer' is t, and `icomplete-vertical-mode'
+is activated, the in-buffer vertical completions are shown aligned to the
+cursor position when the completion started, not on the first column, as
+the default behaviour.
 
-  (defface icomplete-vertical-unselected-prefix-face
-    '((t :inherit font-lock-keyword-face :weight normal :foreground "gray"))
-    "Face used for the prefix set by `icomplete-vertical-unselected-prefix-marker'."
-    :group 'icomplete
-    :version "31")
+NOTE: this currently works better when lines are not wrapped, such as
+when `truncate-lines' is t."
+  :type 'boolean
+  :group 'icomplete
+  :version "31.1")
 
-  (defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
-    "Adjust the LINES to align with the column in BUFFER based on DATA."
-    (if icomplete-vertical-in-buffer-adjust-list
-        (let ((column
-               (with-current-buffer buffer
-                 (save-excursion
-                   (goto-char (car data))
-                   (current-column)))))
-          (dolist (l lines)
-            (add-text-properties
-             0 1 `(display ,(concat (make-string column ?\s) (substring l 0 1)))
-             l))
-          lines)
-      lines))
+(defcustom icomplete-vertical-render-prefix-indicator nil
+  "Control whether a indicator is added as a prefix to each candidate.
+If this is t and `icomplete-vertical-mode' is activated, a indicator,
+controlled by `icomplete-vertical-selected-prefix-indicator' is shown
+as a prefix to the current under selection candidate, while the
+remaining of the candidates will receive the indicator controlled
+by `icomplete-vertical-unselected-prefix-indicator'."
+  :type 'boolean
+  :group 'icomplete
+  :version "31.1")
 
-  (defun icomplete-vertical--add-marker-to-selected (comp)
-    "Add markers to the selected/unselected COMP completions."
-    (if (and icomplete-vertical-render-prefix-marker
-             (get-text-property 0 'icomplete-selected comp))
-        (concat (propertize icomplete-vertical-selected-prefix-marker
-                            'face 'icomplete-vertical-selected-prefix-face)
-                comp)
-      (concat (propertize icomplete-vertical-unselected-prefix-marker
-                          'face 'icomplete-vertical-unselected-prefix-face)
-              comp)))
+(defcustom icomplete-vertical-selected-prefix-indicator "» "
+  "Prefix string used to mark the selected completion candidate.
+If `icomplete-vertical-render-prefix-indicator' is t, the string
+defined here is used as a prefix of the currently selected entry in the
+list.  It can be further customized by the face
+`icomplete-vertical-selected-prefix-indicator-face'."
+  :type 'string
+  :group 'icomplete
+  :version "31.1")
 
-  (cl-defun icomplete--render-vertical
-      (comps md &aux scroll-above scroll-below
-             (total-space ; number of mini-window lines available
-              (1- (min
-                   icomplete-prospects-height
-                   (truncate (max-mini-window-lines) 1)))))
-    ;; Welcome to loopapalooza!
-    ;;
-    ;; First, be mindful of `icomplete-scroll' and manual scrolls.  If
-    ;; `icomplete--scrolled-completions' and `icomplete--scrolled-past'
-    ;; are:
-    ;;
-    ;; - both nil, there is no manual scroll;
-    ;; - both non-nil, there is a healthy manual scroll that doesn't need
-    ;;   to be readjusted (user just moved around the minibuffer, for
-    ;;   example);
-    ;; - non-nil and nil, respectively, a refiltering took place and we
-    ;;   may need to readjust them to the new filtered `comps'.
-    (when (and icomplete-scroll
-               icomplete--scrolled-completions
-               (null icomplete--scrolled-past))
-      (cl-loop with preds
-               for (comp . rest) on comps
-               when (equal comp (car icomplete--scrolled-completions))
-               do
-               (setq icomplete--scrolled-past preds
-                     comps (cons comp rest))
-               (completion--cache-all-sorted-completions
-                (icomplete--field-beg)
-                (icomplete--field-end)
-                comps)
-               and return nil
-               do (push comp preds)
-               finally (setq icomplete--scrolled-completions nil)))
-    ;; Then, in this pretty ugly loop, collect completions to display
-    ;; above and below the selected one, considering scrolling
-    ;; positions.
-    (cl-loop with preds = icomplete--scrolled-past
-             with succs = (cdr comps)
-             with space-above = (- total-space
-                                   1
-                                   (cl-loop for (_ . r) on comps
-                                            repeat (truncate total-space 2)
-                                            while (listp r)
-                                            count 1))
-             repeat total-space
-             for neighbor = nil
-             if (and preds (> space-above 0)) do
-             (push (setq neighbor (pop preds)) scroll-above)
-             (cl-decf space-above)
-             else if (consp succs) collect
-             (setq neighbor (pop succs)) into scroll-below-aux
-             while neighbor
-             finally (setq scroll-below scroll-below-aux))
-    ;; Halfway there...
-    (let* ((selected (propertize (car comps) 'icomplete-selected t))
-           (chosen (append scroll-above (list selected) scroll-below))
-           (tuples (icomplete--augment md chosen))
-           max-prefix-len max-comp-len lines nsections)
-      (add-face-text-property 0 (length selected)
-                              'icomplete-selected-match 'append selected)
-      ;; Figure out parameters for horizontal spacing
-      (cl-loop
-       for (comp prefix) in tuples
-       maximizing (length prefix) into max-prefix-len-aux
-       maximizing (length comp) into max-comp-len-aux
-       finally (setq max-prefix-len max-prefix-len-aux
-                     max-comp-len max-comp-len-aux))
-      ;; Serialize completions and section titles into a list
-      ;; of lines to render
-      (cl-loop
-       for (comp prefix suffix section) in tuples
-       when section
-       collect (propertize section 'face 'icomplete-section) into lines-aux
-       and count 1 into nsections-aux
-       for comp = (icomplete-vertical--add-marker-to-selected comp)
-       when (get-text-property 0 'icomplete-selected comp)
-       do (add-face-text-property 0 (length comp)
-                                  'icomplete-selected-match 'append comp)
-       collect (concat prefix
-                       (make-string (max 0 (- max-prefix-len (length prefix))) ? )
-                       (completion-lazy-hilit comp)
-                       (make-string (max 0 (- max-comp-len (length comp))) ? )
-                       suffix)
-       into lines-aux
-       finally (setq lines lines-aux
-                     nsections nsections-aux))
-      ;; Kick out some lines from the beginning due to extra sections.
-      ;; This hopes to keep the selected entry more or less in the
-      ;; middle of the dropdown-like widget when `icomplete-scroll' is
-      ;; t.  Funky, but at least I didn't use `cl-loop'
-      (setq lines
-            (nthcdr
-             (cond ((<= (length lines) total-space) 0)
-                   ((> (length scroll-above) (length scroll-below)) nsections)
-                   (t (min (ceiling nsections 2) (length scroll-above))))
-             lines))
-      (when icomplete--in-region-buffer
-        (setq lines (icomplete-vertical--adjust-lines-for-column
-                     lines icomplete--in-region-buffer completion-in-region--data)))
-      ;; At long last, render final string return value.  This may still
-      ;; kick out lines at the end.
-      (concat " \n"
-              (cl-loop for l in lines repeat total-space concat l concat "\n")))))
+(defcustom icomplete-vertical-unselected-prefix-indicator "  "
+  "Prefix string used on the unselected completion candidates.
+If `icomplete-vertical-render-prefix-indicator' is t, the string
+defined here is used as a prefix for all unselected entries in the list.
+list.  It can be further customized by the face
+`icomplete-vertical-unselected-prefix-indicator-face'."
+  :type 'string
+  :group 'icomplete
+  :version "31.1")
 
+
+;; FIXME: fix and make this into PATCH
+(defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
+  "Adjust the LINES to align with the column in BUFFER based on DATA."
+  (if icomplete-vertical-in-buffer-adjust-list
+      (let ((column  (current-column))
+            (adjustment-width 5) ;; FIXME: for now, this looks like a magic number check with different prefix lenghts
+            (wrapped-line (with-current-buffer buffer
+                            (save-excursion
+                              (goto-char (car data))
+                              (beginning-of-line)
+                              (count-screen-lines (point) (car data)))))
+            (window-width (+ (window-hscroll) (window-body-width)))
+            (longest-line-width (apply #'max (mapcar #'length lines))))
+
+        (let ((spaces-to-add (max 0 (+ 1
+                                       (* (- wrapped-line 1) adjustment-width)
+                                       (- column (* (- (max 1 wrapped-line) 1) window-width))))))
+
+          (let ((spaces-to-add-avoiding-scrolling (if (>= (+ spaces-to-add longest-line-width adjustment-width) window-width)
+                                                      (- spaces-to-add longest-line-width)
+                                                    spaces-to-add)))
+            (dolist (l lines)
+              (add-text-properties
+               0 1 `(display ,(concat (make-string spaces-to-add-avoiding-scrolling ?\s) (substring l 0 1)))
+               l))
+            lines)))
+    lines))
+
+
+
+;; FIXME: delete this area
+;; TEST AREA 51
+;; (def bla bla )                                                                                                                                       (set    set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set
+
+;; FIXME: check if completions on same line already moves below or I added a bug
+
+
+;; FIXME: make this into PATCH
+(defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
+  "Ensure the completion list is visible.
+Scrolls the screen to be at least `'icomplete-prospects-height' real lines
+away from the bottom. Counts wrapped lines as real lines."
+  (ignore-errors
+    (let* ((window-height (window-body-height))
+           (current-line (count-screen-lines (window-start) (point)))
+           (lines-to-bottom (- window-height current-line)))
+      (when (< lines-to-bottom icomplete-prospects-height)
+        (scroll-up (- icomplete-prospects-height lines-to-bottom))))))
+
+
+(defun icomplete-vertical--add-indicator-to-selected (comp)
+  "Add indicators to the selected/unselected COMP completions."
+  (if (and icomplete-vertical-render-prefix-indicator
+           (get-text-property 0 'icomplete-selected comp))
+      (concat (propertize icomplete-vertical-selected-prefix-indicator
+                          'face 'icomplete-vertical-selected-prefix-indicator-face)
+              comp)
+    (concat (propertize icomplete-vertical-unselected-prefix-indicator
+                        'face 'icomplete-vertical-unselected-prefix-indicator-face)
+            comp)))
+
+
+(cl-defun icomplete--render-vertical
+    (comps md &aux scroll-above scroll-below
+           (total-space ; number of mini-window lines available
+            (1- (min
+                 icomplete-prospects-height
+                 (truncate (max-mini-window-lines) 1)))))
+  ;; Welcome to loopapalooza!
+  ;;
+  ;; First, be mindful of `icomplete-scroll' and manual scrolls.  If
+  ;; `icomplete--scrolled-completions' and `icomplete--scrolled-past'
+  ;; are:
+  ;;
+  ;; - both nil, there is no manual scroll;
+  ;; - both non-nil, there is a healthy manual scroll that doesn't need
+  ;;   to be readjusted (user just moved around the minibuffer, for
+  ;;   example);
+  ;; - non-nil and nil, respectively, a refiltering took place and we
+  ;;   may need to readjust them to the new filtered `comps'.
+  (when (and icomplete-scroll                                    ;; FIXME: make this into PATCH
+             (not icomplete--scrolled-completions)
+             (not icomplete--scrolled-past))
+    (icomplete-vertical--ensure-visible-lines-inside-buffer))
+  (when (and icomplete-scroll
+             icomplete--scrolled-completions
+             (null icomplete--scrolled-past))
+    (icomplete-vertical--ensure-visible-lines-inside-buffer)     ;; FIXME: make this into PATCH
+    (cl-loop with preds
+             for (comp . rest) on comps
+             when (equal comp (car icomplete--scrolled-completions))
+             do
+             (setq icomplete--scrolled-past preds
+                   comps (cons comp rest))
+             (completion--cache-all-sorted-completions
+              (icomplete--field-beg)
+              (icomplete--field-end)
+              comps)
+             and return nil
+             do (push comp preds)
+             finally (setq icomplete--scrolled-completions nil)))
+  ;; Then, in this pretty ugly loop, collect completions to display
+  ;; above and below the selected one, considering scrolling
+  ;; positions.
+  (cl-loop with preds = icomplete--scrolled-past
+           with succs = (cdr comps)
+           with space-above = (- total-space
+                                 1
+                                 (cl-loop for (_ . r) on comps
+                                          repeat (truncate total-space 2)
+                                          while (listp r)
+                                          count 1))
+           repeat total-space
+           for neighbor = nil
+           if (and preds (> space-above 0)) do
+           (push (setq neighbor (pop preds)) scroll-above)
+           (cl-decf space-above)
+           else if (consp succs) collect
+           (setq neighbor (pop succs)) into scroll-below-aux
+           while neighbor
+           finally (setq scroll-below scroll-below-aux))
+  ;; Halfway there...
+  (let* ((selected (propertize (car comps) 'icomplete-selected t))
+         (chosen (append scroll-above (list selected) scroll-below))
+         (tuples (icomplete--augment md chosen))
+         max-prefix-len max-comp-len lines nsections)
+    (add-face-text-property 0 (length selected)
+                            'icomplete-selected-match 'append selected)
+    ;; Figure out parameters for horizontal spacing
+    (cl-loop
+     for (comp prefix) in tuples
+     maximizing (length prefix) into max-prefix-len-aux
+     maximizing (length comp) into max-comp-len-aux
+     finally (setq max-prefix-len max-prefix-len-aux
+                   max-comp-len max-comp-len-aux))
+    ;; Serialize completions and section titles into a list
+    ;; of lines to render
+    (cl-loop
+     for (comp prefix suffix section) in tuples
+     when section
+     collect (propertize section 'face 'icomplete-section) into lines-aux
+     and count 1 into nsections-aux
+     for comp = (icomplete-vertical--add-indicator-to-selected comp)
+     when (get-text-property 0 'icomplete-selected comp)
+     do (add-face-text-property 0 (length comp)
+                                'icomplete-selected-match 'append comp)
+     collect (concat prefix
+                     (make-string (max 0 (- max-prefix-len (length prefix))) ? )
+                     (completion-lazy-hilit comp)
+                     (make-string (max 0 (- max-comp-len (length comp))) ? )
+                     suffix)
+     into lines-aux
+     finally (setq lines lines-aux
+                   nsections nsections-aux))
+    ;; Kick out some lines from the beginning due to extra sections.
+    ;; This hopes to keep the selected entry more or less in the
+    ;; middle of the dropdown-like widget when `icomplete-scroll' is
+    ;; t.  Funky, but at least I didn't use `cl-loop'
+    (setq lines
+          (nthcdr
+           (cond ((<= (length lines) total-space) 0)
+                 ((> (length scroll-above) (length scroll-below)) nsections)
+                 (t (min (ceiling nsections 2) (length scroll-above))))
+           lines))
+    (when icomplete--in-region-buffer
+      (setq lines (icomplete-vertical--adjust-lines-for-column
+                   lines icomplete--in-region-buffer completion-in-region--data)))
+    ;; At long last, render final string return value.  This may still
+    ;; kick out lines at the end.
+    (concat " \n"
+            (cl-loop for l in lines repeat total-space concat l concat "\n"))))
+
+;; end use-package
+)
 
 ;;; DIRED
 (use-package dired
