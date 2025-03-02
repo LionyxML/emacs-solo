@@ -1983,9 +1983,9 @@ Windows are labeled starting from the top-left window and proceeding top to bott
 
 
   (add-hook 'org-mode-hook #'emacs-solo/center-document-mode)
-  (add-hook 'gnus-group-mode-hook 'emacs-solo/timed-center-visual-fill-on)
-  (add-hook 'gnus-summary-mode-hook 'emacs-solo/timed-center-visual-fill-on)
-  (add-hook 'gnus-article-mode-hook 'emacs-solo/timed-center-visual-fill-on)
+  (add-hook 'gnus-group-mode-hook #'emacs-solo/center-document-mode)
+  (add-hook 'gnus-summary-mode-hook #'emacs-solo/center-document-mode)
+  (add-hook 'gnus-article-mode-hook #'emacs-solo/center-document-mode)
 
   ;; (add-hook 'newsticker-treeview-list-mode-hook 'emacs-solo/timed-center-visual-fill-on)
   ;; (add-hook 'newsticker-treeview-item-mode-hook 'emacs-solo/timed-center-visual-fill-on)
