@@ -1884,8 +1884,10 @@ A compound word includes letters, numbers, `-`, and `_`."
 
 
   (defun emacs-solo/git-gutter-process-git-diff ()
-    "Process git diff for adds/mods/removals. Marks lines as added, deleted, or changed."
+    "Process git diff for adds/mods/removals.
+Marks lines as added, deleted, or changed."
     (interactive)
+    (setq-local result '())
     (let* ((file-path (buffer-file-name))
            (grep-command "rg -Po")                         ; for rgrep
            ;; (grep-command (if (eq system-type 'darwin)   ; for grep / ggrep
@@ -1896,8 +1898,7 @@ A compound word includes letters, numbers, `-`, and `_`."
                      "git diff --unified=0 %s | %s '^@@ -[0-9]+(,[0-9]+)? \\+\\K[0-9]+(,[0-9]+)?(?= @@)'"
                      file-path
                      grep-command))))
-      (setq lines (split-string output "\n"))
-      (setq result '())
+      (setq-local lines (split-string output "\n"))
       (dolist (line lines)
         (if (string-match "\\(^[0-9]+\\),\\([0-9]+\\)\\(?:,0\\)?$" line)
             (let ((num (string-to-number (match-string 1 line)))
@@ -1908,43 +1909,43 @@ A compound word includes letters, numbers, `-`, and `_`."
                   (add-to-list 'result (cons (+ num i) "changed")))))
           (if (string-match "\\(^[0-9]+\\)$" line)
               (add-to-list 'result (cons (string-to-number line) "added"))))
-        (setq-local git-gutter-diff-info result)
-        result)))
+        (setq-local git-gutter-diff-info result))
+      result))
 
 
   (defun emacs-solo/git-gutter-add-mark (&rest args)
-  "Add symbols to the left margin based on Git diff statuses.
+    "Add symbols to the left margin based on Git diff statuses.
    - '+' for added lines (lightgreen)
    - '~' for changed lines (yellowish)
    - '-' for deleted lines (tomato)."
-  (interactive)
-  (emacs-solo/git-gutter-process-git-diff)
-  (set-window-margins (selected-window) 1 0) ;; change to 2 if you want more columns
-  (let ((lines-status (or git-gutter-diff-info result '())))
-    (save-excursion
-      (dolist (line-status lines-status)
-        (let ((line-num (car line-status))
-               (status (cdr line-status)))
-          (when (and line-num status)
-            (goto-char (point-min))
-            (forward-line (1- line-num))
-            (let ((overlay (make-overlay (point-at-bol) (point-at-bol))))
-              (overlay-put overlay 'emacs-solo--git-gutter-overlay t)
-              (overlay-put overlay 'before-string
-                           (propertize " "
-                                       'display
-                                       `((margin left-margin)
-                                         ,(propertize
-                                           (cond
-                                            ((string= status "added") "+")
-                                            ((string= status "changed") "~")
-                                            ((string= status "deleted") "-"))
-                                           'face
-                                           `(:foreground
-                                             ,(cond
-                                               ((string= status "added") "lightgreen")
-                                               ((string= status "changed") "gold")
-                                               ((string= status "deleted") "tomato"))))))))))))))
+    (interactive)
+    (set-window-margins (selected-window) 1 0) ;; change to 2 if you want more columns
+    (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
+    (let ((lines-status (or (emacs-solo/git-gutter-process-git-diff) '())))
+      (save-excursion
+        (dolist (line-status lines-status)
+          (let ((line-num (car line-status))
+                (status (cdr line-status)))
+            (when (and line-num status)
+              (goto-char (point-min))
+              (forward-line (1- line-num))
+              (let ((overlay (make-overlay (point-at-bol) (point-at-bol))))
+                (overlay-put overlay 'emacs-solo--git-gutter-overlay t)
+                (overlay-put overlay 'before-string
+                             (propertize " "
+                                         'display
+                                         `((margin left-margin)
+                                           ,(propertize
+                                             (cond
+                                              ((string= status "added") "+")
+                                              ((string= status "changed") "~")
+                                              ((string= status "deleted") "-"))
+                                             'face
+                                             `(:foreground
+                                               ,(cond
+                                                 ((string= status "added") "lightgreen")
+                                                 ((string= status "changed") "gold")
+                                                 ((string= status "deleted") "tomato"))))))))))))))
 
   (defun emacs-solo/timed-git-gutter-on()
     (run-at-time 0.1 nil #'emacs-solo/git-gutter-add-mark))
