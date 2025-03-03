@@ -1225,10 +1225,6 @@ and restart Flymake to apply the changes."
   :defer t
   :init
 
-  ;; TODO Do we need this?
-  ;;      it looks like variable `completion-auto-select' does the same
-
-
   (defun emacs-solo/prefer-tabs ()
     "Disables indent-tabs-mode, and prefer spaces over tabs."
     (interactive)
@@ -1509,7 +1505,8 @@ Opening and closing delimiters will have matching colors."
     "Find and switch to a project directory from ~/Projects."
     (interactive)
     (let* ((d (or directory emacs-solo-default-projects-folder))
-           (find-command (concat "find " d " -mindepth 1 -maxdepth 4 -type d"))
+           ;; (find-command (concat "fd --type d --max-depth 4 . " d))           ; with fd
+           (find-command (concat "find " d " -mindepth 1 -maxdepth 4 -type d"))  ; with find
            (project-list (split-string (shell-command-to-string find-command) "\n" t))
            (initial-input emacs-solo-default-projects-input))
       (let ((selected-project
