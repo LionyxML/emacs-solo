@@ -410,8 +410,8 @@ list.  It can be further customized by the face
 ;; TEST AREA 51
 ;; (def bla bla )                                                                                                                                       (set    set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set
 
-;; FIXME: check if completions on same line already moves below or I added a bug
-
+;; FIXME: check if completions on same line already moves below or I added a bug.
+;;   ANS: it dows, we made no new bugs.
 
 ;; FIXME: make this into PATCH
 (defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
