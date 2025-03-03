@@ -53,7 +53,7 @@
   (use-short-answers t)
   (window-combination-resize t)
   (xref-search-program 'ripgrep)
-  (grep-command "rg -nS --noheading ")
+  (grep-command "rg -nS --no-heading ")
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
@@ -116,7 +116,7 @@
   (add-hook 'ibuffer-mode-hook
             (lambda ()
               (ibuffer-switch-to-saved-filter-groups "default")))
-  (setq ibuffer-show-empty-filter-groups nil) ;; don't show empty groups
+  (setq ibuffer-show-empty-filter-groups nil) ; don't show empty groups
 
   :init
   (set-window-margins (selected-window) 2 0)
@@ -130,7 +130,7 @@
   (save-place-mode 1)
   (winner-mode)
   (xterm-mouse-mode 1)
-  (file-name-shadow-mode 1)
+  (file-name-shadow-mode 1) ; allows us to type a new path without having to delete the current one
 
   (with-current-buffer (get-buffer-create "*scratch*")
     (insert (format ";;
