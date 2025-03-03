@@ -37,6 +37,8 @@
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (ring-bell-function 'ignore)
+  (savehist-additional-variables '(register-alist kill-ring))
+  (set-mark-command-repeat-pop t) ; So we can use C-u C-SPC C-SPC C-SPC... instead of C-u C-SPC C-u C-SPC...
   (shr-use-colors nil)
   (switch-to-buffer-obey-display-actions t)
   (tab-always-indent 'complete)
