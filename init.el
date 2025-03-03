@@ -117,7 +117,7 @@
   (setq ibuffer-show-empty-filter-groups nil) ;; don't show empty groups
 
   :init
-  (set-window-margins (selected-window) 0 0)
+  (set-window-margins (selected-window) 2 0)
 
   (toggle-frame-maximized)
   (select-frame-set-input-focus (selected-frame))
@@ -1928,7 +1928,7 @@ Marks lines as added, deleted, or changed."
    - '~' for changed lines (yellowish)
    - '-' for deleted lines (tomato)."
     (interactive)
-    (set-window-margins (selected-window) 1 0) ;; change to 2 if you want more columns
+    (set-window-margins (selected-window) 2 0) ;; change to 1,2,3 if you want more columns
     (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
     (let ((lines-status (or (emacs-solo/git-gutter-process-git-diff) '())))
       (save-excursion
