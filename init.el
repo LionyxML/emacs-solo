@@ -444,12 +444,7 @@ list.  It can be further customized by the face
 ;;
 
 
-;; FIXME: delete this area
-;; TEST AREA 51
-;; (def bla bla )                                                                      (set    set                                                                                                    (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set                                                                                                                                 (set    set                              (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set                                                                                                                                 (set    set                              (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set                                                                                                                                 (set    set                              (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set))
-;;
-
-;; FIXME: make this into PATCH - OK
+;; FIXME: remove this after patch
 (defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
   "Ensure the completion list is visible in regular buffers only.
 Scrolls the screen to be at least `icomplete-prospects-height' real lines
@@ -492,14 +487,14 @@ away from the bottom.  Counts wrapped lines as real lines."
   ;;   example);
   ;; - non-nil and nil, respectively, a refiltering took place and we
   ;;   may need to readjust them to the new filtered `comps'.
-  (when (and icomplete-scroll                                    ;; FIXME: make this into PATCH
+  (when (and icomplete-scroll                                    ;; FIXME: remove this after patch
              (not icomplete--scrolled-completions)
              (not icomplete--scrolled-past))
     (icomplete-vertical--ensure-visible-lines-inside-buffer))
   (when (and icomplete-scroll
              icomplete--scrolled-completions
              (null icomplete--scrolled-past))
-    (icomplete-vertical--ensure-visible-lines-inside-buffer)     ;; FIXME: make this into PATCH
+    (icomplete-vertical--ensure-visible-lines-inside-buffer)     ;; FIXME: remove this after patch
     (cl-loop with preds
              for (comp . rest) on comps
              when (equal comp (car icomplete--scrolled-completions))
