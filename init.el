@@ -314,39 +314,12 @@ color (#rrrrggggbbbb)."
 If this is t and `icomplete-in-buffer' is t, and `icomplete-vertical-mode'
 is activated, the in-buffer vertical completions are shown aligned to the
 cursor position when the completion started, not on the first column, as
-the default behaviour.
-
-NOTE: this currently works better when lines are not wrapped, such as
-when `truncate-lines' is t."
+the default behaviour."
   :type 'boolean
   :group 'icomplete
   :version "31.1")
 
 (defcustom icomplete-vertical-render-prefix-indicator t
-  "Control whether a indicator is added as a prefix to each candidate.
-If this is t and `icomplete-vertical-mode' is activated, a indicator,
-controlled by `icomplete-vertical-selected-prefix-indicator' is shown
-as a prefix to the current under selection candidate, while the
-remaining of the candidates will receive the indicator controlled
-by `icomplete-vertical-unselected-prefix-indicator'."
-  :type 'boolean
-  :group 'icomplete
-  :version "31.1")
-
-(defcustom icomplete-vertical-in-buffer-adjust-list t
-  "Control whether in-buffer completion should align the cursor position.
-If this is t and `icomplete-in-buffer' is t, and `icomplete-vertical-mode'
-is activated, the in-buffer vertical completions are shown aligned to the
-cursor position when the completion started, not on the first column, as
-the default behaviour.
-
-NOTE: this currently works better when lines are not wrapped, such as
-when `truncate-lines' is t."
-  :type 'boolean
-  :group 'icomplete
-  :version "31.1")
-
-(defcustom icomplete-vertical-render-prefix-indicator nil
   "Control whether a indicator is added as a prefix to each candidate.
 If this is t and `icomplete-vertical-mode' is activated, a indicator,
 controlled by `icomplete-vertical-selected-prefix-indicator' is shown
@@ -377,50 +350,111 @@ list.  It can be further customized by the face
   :group 'icomplete
   :version "31.1")
 
-
-;; FIXME: fix and make this into PATCH
+;; FIXME: make this into PATCH - OK
 (defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
   "Adjust the LINES to align with the column in BUFFER based on DATA."
   (if icomplete-vertical-in-buffer-adjust-list
-      (let ((column  (current-column))
-            (adjustment-width 5) ;; FIXME: for now, this looks like a magic number check with different prefix lenghts
-            (wrapped-line (with-current-buffer buffer
-                            (save-excursion
-                              (goto-char (car data))
-                              (beginning-of-line)
-                              (count-screen-lines (point) (car data)))))
-            (window-width (+ (window-hscroll) (window-body-width)))
-            (longest-line-width (apply #'max (mapcar #'length lines))))
+      (let* ((column (current-column))
+             (prefix-indicator-width
+              (if icomplete-vertical-render-prefix-indicator
+                  (max (length icomplete-vertical-selected-prefix-indicator)
+                       (length icomplete-vertical-unselected-prefix-indicator))
+                0))
+             (wrapped-line (with-current-buffer buffer
+                             (save-excursion
+                               (goto-char (car data))
+                               (beginning-of-line)
+                               (count-screen-lines (point) (car data)))))
+             (window-width (+ (window-hscroll) (window-body-width)))
+             (longest-line-width (apply #'max (mapcar #'length lines)))
+             (spaces-to-add
+              (if (> wrapped-line 1)
+                  (- column (* (- wrapped-line 1) (- window-width 5)))
+                column))
+             (spaces-to-add-avoiding-scrolling
+              (if (>= (+ spaces-to-add longest-line-width prefix-indicator-width) window-width)
+                  (- spaces-to-add longest-line-width)
+                spaces-to-add)))
 
-        (let ((spaces-to-add (max 0 (+ 1
-                                       (* (- wrapped-line 1) adjustment-width)
-                                       (- column (* (- (max 1 wrapped-line) 1) window-width))))))
-
-          (let ((spaces-to-add-avoiding-scrolling (if (>= (+ spaces-to-add longest-line-width adjustment-width) window-width)
-                                                      (- spaces-to-add longest-line-width)
-                                                    spaces-to-add)))
-            (dolist (l lines)
-              (add-text-properties
-               0 1 `(display ,(concat (make-string spaces-to-add-avoiding-scrolling ?\s) (substring l 0 1)))
-               l))
-            lines)))
+        (dolist (l lines)
+          (add-text-properties
+           0 1 `(display ,(concat (make-string spaces-to-add-avoiding-scrolling ?\s) (substring l 0 1)))
+           l))
+        lines)
     lines))
 
+;; FIXME: what to demo/test:
+;;
+;; This patch provides two more new features, which improves icomplete-vertical-mode, 1 and 2,
+;; explained below:
+;;
+;;
+;; 1.) Improve feature provided by `icomplete-in-buffer'.
+;;     If user, besides setting `icomplete-in-buffer' to t, also set the
+;;     new `icomplete-vertical-in-buffer-adjust-list' to t, the following are fixed/ improved:
+;;
+;; Without the new `icomplete-vertical-in-buffer-adjust-list':
+;; - [ ] wrapped lines   - completion candidates on different columns always shows candidates at column 0
+;; - [ ] wrapped lines   - completion candidates on different lines always shows candidates at column 0
+;; - [ ] wrapped lines   - completion candidates close to the end of buffer won't be printed
+;; - [ ] truncated lines - completion candidates on different columns always shows candidates at column 0
+;; - [ ] truncated lines - completion candidates on horizontally scrolled windows won't appear on buffer
+;;                         as they're on column 0
+;; - [ ] truncated lines - completion candidates close to the end of buffer wont be shown
+;;
+;;
+;; With the new `icomplete-vertical-in-buffer-adjust-list':
+;; - [ ] wrapped lines   - fix    : completion candidates on different columns will always be printed
+;;                                  under the cursor
+;; - [ ] wrapped lines   - feature: completion candidates on different columns close to the end
+;;                                  of the buffer will adjust so they stay visible
+;; - [ ] wrapped lines   - fix:   : completion candidates on different lines always be printed under
+;;                                  the cursor
+;; - [ ] wrapped lines   - fix    : if icomplete-prospects-height won't fit from current line to the
+;;                                  end of vertical space, our window will be scrolled so we have at
+;;                                  least this amount of lines. This ensures our candidates list is
+;;                                  always visible
+;; - [ ] truncated lines - fix    : completion candidates on different columns will always be printed
+;;                                  under the cursor
+;; - [ ] truncated lines - feature: completion candidates on different columns close to the end
+;;                                  of the buffer will adjust so they stay visible even when we scroll
+;;                                  horizontally
+;; - [ ] truncated lines - feature: completion candidates on horizontally scrolled windows will be
+;;                                  printed under the cursor
+;; - [ ] wrapped lines   - feature: if icomplete-prospects-height won't fit from current line to the
+;;                                  end of vertical space, our window will be scrolled so we have at
+;;                                  least this amount of lines. This ensures our candidates list is
+;;                                  always visible
+;; - [ ] from wrapped    - feature: if we are on wrapped lines and manually horiontal scroll, the lines
+;;       to truncated               will become automatically truncated, in this case, all the features
+;;                                  above still works from either mode (wrapped or truncated).
+;;
+;;
+;; 2.) Implements new feature which provides customizable prefix indicators
+;;
+;; Setting `icomplete-vertical-render-prefix-indicator' to t will provide a prefix indicator
+;; to indicate the current selected candidate, by default "» ".
+;;
+;; This prefix is customizable through the variable `icomplete-vertical-selected-prefix-indicator'
+;; and de face `icomplete-vertical-selected-prefix-indicator-face'.
+;;
+;; Users can also customize an indicator to the not selected candidates trhough the use of
+;; the variable `icomplete-vertical-unselected-prefix-indicator', by default: "  ", and the face
+;; `icomplete-vertical-unselected-prefix-indicator-face'.
+;;
 
 
 ;; FIXME: delete this area
 ;; TEST AREA 51
-;; (def bla bla )                                                                                                                                       (set    set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set
+;; (def bla bla )                                                                      (set    set                                                                                                    (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set                                                                                                                                 (set    set                              (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set                                                                                                                                 (set    set                              (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set                                                                                                                                 (set    set                              (set                                                                                                                      (set)                      (set (def                                                                                                                                                  (set                                                                                                                      (set))
+;;
 
-;; FIXME: check if completions on same line already moves below or I added a bug.
-;;   ANS: it dows, we made no new bugs.
-
-;; FIXME: make this into PATCH
+;; FIXME: make this into PATCH - OK
 (defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
-  "Ensure the completion list is visible.
-Scrolls the screen to be at least `'icomplete-prospects-height' real lines
-away from the bottom. Counts wrapped lines as real lines."
-  (ignore-errors
+  "Ensure the completion list is visible in regular buffers only.
+Scrolls the screen to be at least `icomplete-prospects-height' real lines
+away from the bottom.  Counts wrapped lines as real lines."
+  (unless (minibufferp)
     (let* ((window-height (window-body-height))
            (current-line (count-screen-lines (window-start) (point)))
            (lines-to-bottom (- window-height current-line)))
@@ -1964,7 +1998,7 @@ Marks lines as added, deleted, or changed."
   (defun emacs-solo/git-gutter-off ()
     "Remove all `emacs-solo--git-gutter-overlay' marks and other overlays."
     (interactive)
-    (set-window-margins (selected-window) 1 0)
+    (set-window-margins (selected-window) 2 0)
     (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
     (remove-hook 'find-file-hook #'emacs-solo-git-gutter-on)
     (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
