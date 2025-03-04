@@ -1347,7 +1347,32 @@ Also first tries the local node_modules/.bin and later the global bin."
               (message "Formatted with %s - %.2f ms" source elapsed-time)))
         (message "No formatter found (biome or prettier)"))))
 
-  (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file))
+  (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file)
+
+
+  (defun emacs-solo/transpose-split ()
+    "Transpose a horizontal split into a vertical split, or vice versa."
+    (interactive)
+    (if (> (length (window-list)) 2)
+        (user-error "More than two windows present")
+      (let* ((this-win (selected-window))
+             (other-win (next-window))
+             (this-buf (window-buffer this-win))
+             (other-buf (window-buffer other-win))
+             (this-edges (window-edges this-win))
+             (other-edges (window-edges other-win))
+             (this-left (car this-edges))
+             (other-left (car other-edges))
+             (split-horizontally (not (= this-left other-left))))
+        (delete-other-windows)
+        (if split-horizontally
+            (split-window-vertically)
+          (split-window-horizontally))
+        (set-window-buffer (selected-window) this-buf)
+        (set-window-buffer (next-window) other-buf)
+        (select-window this-win))))
+
+  (global-set-key (kbd "C-x 4 t") #'emacs-solo/transpose-split))
 
 
 ;;; EMACS-SOLO-TRANSPARENCY
