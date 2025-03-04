@@ -830,7 +830,48 @@ away from the bottom.  Counts wrapped lines as real lines."
       (message "Not in a VC Git buffer."))))
 
   (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-  (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status)))
+  (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status))
+
+  (defun emacs-solo/vc-git-reflog ()
+    "Show git reflog in a new buffer with ANSI colors and custom keybindings."
+    (interactive)
+    (let* ((root (vc-root-dir)) ;; Capture VC root before creating buffer
+           (buffer (get-buffer-create "*vc-git-reflog*")))
+      (with-current-buffer buffer
+        (setq-local vc-git-reflog-root root) ;; Store VC root as a buffer-local variable
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (vc-git-command buffer nil nil
+                          "reflog"
+                          "--color=always"
+                          "--pretty=format:%C(yellow)%h%Creset %C(auto)%d%Creset %Cgreen%gd%Creset %s %Cblue(%cr)%Creset")
+          (goto-char (point-min))
+          (ansi-color-apply-on-region (point-min) (point-max)))
+
+        ;; Define a special mode for reflog
+        (let ((map (make-sparse-keymap)))
+
+          ;; FIXME: make d produce a diff
+          (define-key map (kbd "d")
+                      (lambda ()
+                        (interactive)
+                        (let* ((sha (thing-at-point 'word t))
+                               (root vc-git-reflog-root)) ;; Retrieve stored VC root
+                          (if (and sha root)
+                              (vc-diff-internal 'Git nil (list (concat sha "^!")) root)
+                            (message "No SHA or VC root found!")))))
+
+          (define-key map (kbd "/") #'isearch-forward)
+
+          (define-key map (kbd "q") #'kill-buffer-and-window)
+
+          (use-local-map map))
+
+        (setq buffer-read-only t)
+        (setq mode-name "Git-Reflog")
+        (setq major-mode 'special-mode))
+
+      (pop-to-buffer buffer))))
 
 ;;; SMERGE
 (use-package smerge-mode
