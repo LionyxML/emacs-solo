@@ -1224,6 +1224,12 @@ and restart Flymake to apply the changes."
   :init
   (load-theme 'modus-vivendi-tinted t))
 
+;;; -------------------- NON TREESITTER AREA
+;;; SASS-MODE
+(use-package scss-mode
+  :mode "\\.sass\\'"
+  :defer t)
+
 ;;; -------------------- TREESITTER AREA
 ;;; RUBY-TS-MODE
 (use-package ruby-ts-mode
@@ -1294,6 +1300,22 @@ and restart Flymake to apply the changes."
   (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
+
+;;; YAML-TS-MODE
+(use-package yaml-ts-mode
+  :ensure yaml-ts-mode
+  :mode "\\.yml\\'"
+  :defer 't
+  :config
+  (add-to-list 'treesit-language-source-alist '(yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "master" "src")))
+
+;;; DOCKERFILE-TS-MODE
+(use-package dockerfile-ts-mode
+  :ensure dockerfile-ts-mode
+  :mode "\\Dockerfile.*\\'"
+  :defer 't
+  :config
+  (add-to-list 'treesit-language-source-alist '(dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src")))
 
 
 ;;; ------------------- EMACS-SOLO CUSTOMS
