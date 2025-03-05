@@ -813,24 +813,24 @@ away from the bottom.  Counts wrapped lines as real lines."
                 (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date)))
 
 
-  (defun emacs-solo/vc-git-visualize-status ()
-  "Show the Git status of files in the `vc-log` buffer."
-  (interactive)
-  (let* ((fileset (vc-deduce-fileset t))
-         (backend (car fileset))
-         (files (nth 1 fileset)))
-    (if (eq backend 'Git)
-        (let ((output-buffer "*Git Status*"))
-          (with-current-buffer (get-buffer-create output-buffer)
-            (read-only-mode -1)
-            (erase-buffer)
-            ;; Capture the raw output including colors using 'git status --color=auto'
-            (call-process "git" nil output-buffer nil "status" "-v")
-            (pop-to-buffer output-buffer)))
-      (message "Not in a VC Git buffer."))))
+    (defun emacs-solo/vc-git-visualize-status ()
+      "Show the Git status of files in the `vc-log` buffer."
+      (interactive)
+      (let* ((fileset (vc-deduce-fileset t))
+             (backend (car fileset))
+             (files (nth 1 fileset)))
+        (if (eq backend 'Git)
+            (let ((output-buffer "*Git Status*"))
+              (with-current-buffer (get-buffer-create output-buffer)
+                (read-only-mode -1)
+                (erase-buffer)
+                ;; Capture the raw output including colors using 'git status --color=auto'
+                (call-process "git" nil output-buffer nil "status" "-v")
+                (pop-to-buffer output-buffer)))
+          (message "Not in a VC Git buffer."))))
 
-  (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-  (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status))
+    (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
+    (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status))
 
   (defun emacs-solo/vc-git-reflog ()
     "Show git reflog in a new buffer with ANSI colors and custom keybindings."
@@ -848,9 +848,7 @@ away from the bottom.  Counts wrapped lines as real lines."
           (goto-char (point-min))
           (ansi-color-apply-on-region (point-min) (point-max)))
 
-        ;; Define a special mode for reflog
         (let ((map (make-sparse-keymap)))
-
           ;; FIXME: make d produce a diff
           (define-key map (kbd "d")
                       (lambda ()
@@ -862,7 +860,8 @@ away from the bottom.  Counts wrapped lines as real lines."
                             (message "No SHA or VC root found!")))))
 
           (define-key map (kbd "/") #'isearch-forward)
-
+          (define-key map (kbd "p") #'previous-line)
+          (define-key map (kbd "n") #'next-line)
           (define-key map (kbd "q") #'kill-buffer-and-window)
 
           (use-local-map map))
