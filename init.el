@@ -118,6 +118,13 @@
               (ibuffer-switch-to-saved-filter-groups "default")))
   (setq ibuffer-show-empty-filter-groups nil) ; don't show empty groups
 
+  ;; Runs 'private.el' after Emacs inits
+  (add-hook 'after-init-hook
+            (lambda ()
+              (let ((private-file (expand-file-name "private.el" user-emacs-directory)))
+                (when (file-exists-p private-file)
+                  (load private-file)))))
+
   :init
   (set-window-margins (selected-window) 2 0)
 
@@ -150,6 +157,30 @@
 
   (message (emacs-init-time)))
 
+
+;;; AUTH-SOURCE
+(use-package auth-source
+  :ensure nil
+  :defer t
+  :config
+  (setq auth-sources
+        (list (expand-file-name ".authinfo.gpg" user-emacs-directory)))
+  (setq user-full-name "Rahul Martim Juliato"
+        user-mail-address "rahul.juliato@gmail.com")
+
+  ;; Use `pass` as an auth-source
+  (when (file-exists-p "~/.password-store")
+    (auth-source-pass-enable)))
+
+
+;;; CONF
+(use-package conf-mode
+  :ensure nil
+  :mode ("\\.env\\..*\\'" "\\.env\\'")
+  :init
+  (add-to-list 'auto-mode-alist '("\\.env\\'" . conf-mode)))
+
+
 ;;; WINDOW
 (use-package window
   :ensure nil
@@ -181,6 +212,24 @@
       (window-height . 0.25)
       (side . bottom)
       (slot . 1)))))
+
+
+;;; RCIRC
+(use-package rcirc
+  :ensure nil
+  :custom
+  (rcirc-default-nick "Lionyx")
+  (rcirc-default-user-name "Lionyx")
+  (rcirc-default-full-name "Lionyx")
+  (rcirc-server-alist `(("irc.libera.chat"
+                         :channels ("#emacs")
+                         :port 6697
+                        :encryption tls)))
+
+  (rcirc-reconnect-delay 5)
+  (rcirc-fill-column 90)
+  (rcirc-track-ignore-server-buffer-flag t))
+
 
 ;;; ERC
 (use-package erc
@@ -1070,6 +1119,23 @@ and restart Flymake to apply the changes."
   (minibuffer-depth-indicate-mode 1)
   (minibuffer-electric-default-mode 1))
 
+
+;;; NEWSTICKER
+(use-package newsticker
+  :ensure nil
+  :defer t
+  :init
+  (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
+    "Find a line starting with '* videoId: ' in the current buffer and plays it with mpv asynchronously."
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
+        (let ((video-id (match-string 1)))
+          (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
+          (message "Playing: %s" video-id))))))
+
+
 ;;; ELEC_PAIR
 (use-package elec-pair
   :ensure nil
@@ -1188,8 +1254,10 @@ and restart Flymake to apply the changes."
      (bg-mode-line-active "#232635")
      (fg-mode-line-inactive "#676E95")
      (bg-mode-line-inactive "#282c3d")
-     (border-mode-line-active "#676E95")
-     (border-mode-line-inactive bg-dim)
+     ;; (border-mode-line-active "#676E95")
+     ;; (border-mode-line-inactive bg-dim)
+     (border-mode-line-active nil)
+     (border-mode-line-inactive nil)
      (bg-tab-bar      "#242837")
      (bg-tab-current  bg-main)
      (bg-tab-other    "#242837")
@@ -1226,7 +1294,7 @@ and restart Flymake to apply the changes."
      (string "#c3e88d")
      (fnname "#82aaff")
      (type "#c792ea")
-     (variable "#ffcb6b")
+     (variable "#c792ea")
      (docstring "#8d92af")
      (constant "#f78c6c")))
     :config
@@ -1236,19 +1304,22 @@ and restart Flymake to apply the changes."
          ((,c
            :background "#232635"
            :foreground "#A6Accd"
-           :box (:line-width 1 :color "#676E95"))))
+           ;; :box (:line-width 1 :color "#676E95")
+           )))
        `(tab-bar-tab
          ((,c
-           :background "#232635"
-           :underline t
-           :box (:line-width 1 :color "#676E95")
+           ;; :background "#232635"
+           ;; :underline t
+           ;; :box (:line-width 1 :color "#676E95")
          )))
        `(tab-bar-tab-inactive
          ((,c
-           :background "#232635"
-           :box (:line-width 1 :color "#676E95"))))))
+           ;; :background "#232635"
+           ;; :box (:line-width 1 :color "#676E95")
+           )))))
   :init
   (load-theme 'modus-vivendi-tinted t))
+
 
 ;;; -------------------- NON TREESITTER AREA
 ;;; SASS-MODE
@@ -1370,6 +1441,17 @@ and restart Flymake to apply the changes."
   :no-require t
   :defer t
   :init
+  (defun emacs-solo/rename-buffer-and-move-to-new-window ()
+    "Promotes a side buffer to a new window."
+    (interactive)
+    (let ((temp-name (make-temp-name "temp-buffer-")))
+      (rename-buffer temp-name t)
+      (delete-window)
+      (split-window-right)
+      (switch-to-buffer temp-name)))
+
+  (global-set-key (kbd "C-x x x") 'emacs-solo/rename-buffer-and-move-to-new-window)
+
 
   (defun emacs-solo-movements/scroll-down-centralize ()
     (interactive)
@@ -2203,8 +2285,10 @@ Windows are labeled starting from the top-left window and proceeding top to bott
              (overlay (make-overlay start start (window-buffer window))))
         (overlay-put overlay 'after-string
                      (propertize (format " [%s] " key)
-                                 'face '(:foreground "#c3e88d" :background "#232635"
-                                                     :weight bold :height 180)))
+                                 'face '(:foreground "#c3e88d"
+                                         :background "#232635"
+                                         :weight bold
+                                         :height default)))
         (overlay-put overlay 'window window)
         (push overlay emacs-solo-ace-window/quick-window-overlays))))
 

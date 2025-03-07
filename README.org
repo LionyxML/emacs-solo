@@ -74,7 +74,7 @@ From Emacs 30.1 onward you can also use the combo:
 Open dired on the root folder of where you search will happen. Mark
 some files and or folders with *m*.
 
-Use *dired-do-query-replace-regexp* or in a dired buffer hit *Q*.
+Use =dired-do-query-replace-regexp= or in a dired buffer hit =Q=.
 
 Confirm it all or one by one, use *?* to check the options.
 
@@ -83,7 +83,7 @@ From Emacs 30.1 onward you can also use the combo:
 =multi-replace-regexp-as-diff= for multiple buffers, and
 =dired-do-replace-regexp-as-diff= to perform replace-regexp-as-diff
 
-*** Read news, like elfeed?
+*** Read news, like with elfeed?
 
 You have two built-in options on Emacs.
 - =M-x gnus=
@@ -106,7 +106,7 @@ the hunk you'd like to revert with =r=, revert the direction of the diff
 with =R= and apply the diff with =C-c C-a=.
 
 
-*** Use (neo)vi(m) keybindings?
+*** Use (neo)vi(m) keybindings (aka Evil keybindings)?
 
 Emacs comes with =viper= which is a =vi= emulator. This means a lot of
 modern editing capabilities are missing.
@@ -116,7 +116,6 @@ Take a look at =use-package emacs-solo-viper-extensions=, section of the
 modern =evil-like= bindings.
 
 Just give it a try ;) =M-x viper-mode=
-
 
 *** Temporaraly highlight some word?
 
