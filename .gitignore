@@ -62,3 +62,5 @@ custom-vars.el
 .newsrc.eld
 .nrewsrc.eld
 /newsticker
+.authinfo*
+private.el
