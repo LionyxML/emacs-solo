@@ -870,7 +870,33 @@ away from the bottom.  Counts wrapped lines as real lines."
         (setq mode-name "Git-Reflog")
         (setq major-mode 'special-mode))
 
-      (pop-to-buffer buffer))))
+      (pop-to-buffer buffer)))
+
+  (defun emacs-solo/vc-pull-merge-current-branch ()
+  "Pull the latest change from origin for the current branch and display output in a buffer."
+  (interactive)
+  (let* ((branch (vc-git--symbolic-ref "HEAD"))
+         (buffer (get-buffer-create "*Git Pull Output*"))
+         (command (format "git pull origin %s" branch)))
+    (if branch
+        (progn
+          (with-current-buffer buffer
+            (erase-buffer)
+            (insert (format "$ %s\n\n" command))
+            (call-process-shell-command command nil buffer t))
+          (display-buffer buffer))
+      (message "Could not determine current branch."))))
+
+(defun emacs-solo/vc-browse-remote ()
+  "Open the repository's remote URL in the browser."
+  (interactive)
+  (let* ((remote-url (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
+    (message "Opening remote on browser: %s "remote-url)
+    (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
+        (let ((host (match-string 1 remote-url))
+              (path (match-string 2 remote-url)))
+          (browse-url (format "https://%s/%s" host path)))
+      (message "Could not determine repository URL")))))
 
 ;;; SMERGE
 (use-package smerge-mode
