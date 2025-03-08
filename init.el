@@ -23,22 +23,41 @@
   (completions-format 'one-column)
   (create-lockfiles nil)
   (delete-by-moving-to-trash t)
-  (remote-file-name-inhibit-delete-by-moving-to-trash t)
-  (remote-file-name-inhibit-auto-save t)
+  (display-line-numbers-width 3)
+  (display-line-numbers-widen t)
   (delete-selection-mode 1)
+  (frame-resize-pixelwise t)
   (global-auto-revert-non-file-buffers t)
   (help-window-select t)
-  (history-length 25)
+  (history-length 300)
   (inhibit-startup-message t)
   (initial-scratch-message "")
   (ispell-dictionary "en_US")
-  (make-backup-files nil)
-  (backup-inhibited t)
+  (kill-do-not-save-duplicates t)
+  (create-lockfiles nil)   ; No backup files
+  (make-backup-files nil)  ; No backup files
+  (backup-inhibited t)     ; No backup files
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (ring-bell-function 'ignore)
-  (savehist-additional-variables '(register-alist kill-ring))
+  (recentf-max-saved-items 300) ; default is 20
+  (recentf-max-menu-items 15)
+  (recentf-auto-cleanup (if (daemonp) 300 'never))
+  (recentf-exclude (list "^/\\(?:ssh\\|su\\|sudo\\)?:"))
+  (remote-file-name-inhibit-delete-by-moving-to-trash t)
+  (remote-file-name-inhibit-auto-save t)
+  (resize-mini-windows 'grow-only)
+  (savehist-save-minibuffer-history t)    ; t is default
+  (savehist-additional-variables
+   '(kill-ring                            ; clipboard
+     register-alist                       ; macros
+     mark-ring global-mark-ring           ; marks
+     search-ring regexp-search-ring))     ; searches
+  (save-place-file (expand-file-name "saveplace" user-emacs-directory))
+  (save-place-limit 600)
   (set-mark-command-repeat-pop t) ; So we can use C-u C-SPC C-SPC C-SPC... instead of C-u C-SPC C-u C-SPC...
+  (split-width-threshold 170)     ; So vertical splits are preferred
+  (split-height-threshold nil)
   (shr-use-colors nil)
   (switch-to-buffer-obey-display-actions t)
   (tab-always-indent 'complete)
@@ -52,6 +71,7 @@
   (use-file-dialog nil)
   (use-short-answers t)
   (window-combination-resize t)
+  (window-resize-pixelwise nil)
   (xref-search-program 'ripgrep)
   (grep-command "rg -nS --no-heading ")
   (grep-find-ignored-directories
@@ -152,8 +172,8 @@
 ;;   Packages     : %s
 ;;
 "
-  (emacs-init-time)
-  (number-to-string (length package-activated-list)))))
+                    (emacs-init-time)
+                    (number-to-string (length package-activated-list)))))
 
   (message (emacs-init-time)))
 
@@ -801,6 +821,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   ;; does a great job of 'copying the current word under cursor'.
   (define-key isearch-mode-map (kbd "M-w") 'isearch-copy-selected-word))
 
+
 ;;; VC
 (use-package vc
   :ensure nil
@@ -814,6 +835,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (setq vc-git-revision-complete-only-branches nil)
   (setq vc-annotate-display-mode 'scale)
   (setq add-log-keep-changes-together t)
+  (setq vc-make-backup-files nil)          ; Do not backup version controlled files
 
   ;; This one is for editing commit messages
   (require 'log-edit)
