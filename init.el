@@ -1372,7 +1372,8 @@ and restart Flymake to apply the changes."
   :custom
   (js-indent-level 2)
   :config
-  (add-to-list 'treesit-language-source-alist '(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")))
+  (add-to-list 'treesit-language-source-alist '(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
+  (add-to-list 'treesit-language-source-alist '(jsdoc "https://github.com/tree-sitter/tree-sitter-jsdoc" "master" "src")))
 
 ;;; TYPESCRIPT-TS-MODE
 (use-package typescript-ts-mode
