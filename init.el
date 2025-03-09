@@ -1146,6 +1146,8 @@ and restart Flymake to apply the changes."
 (use-package newsticker
   :ensure nil
   :defer t
+  :custom
+  (newsticker-treeview-treewindow-width 40)
   :init
   (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
     "Find a line starting with '* videoId: ' in the current buffer and plays it with mpv asynchronously."
