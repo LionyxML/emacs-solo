@@ -1017,6 +1017,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (eglot-events-buffer-config '(:size 0 :format full))
   (eglot-prefer-plaintext t)
   (jsonrpc-event-hook nil)
+  (eglot-code-action-indications nil) ;; Emacs 31 -- annoying as hell
   :init
   (fset #'jsonrpc--log-event #'ignore)
 
