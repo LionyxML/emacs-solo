@@ -64,3 +64,4 @@ custom-vars.el
 /newsticker
 .authinfo*
 private.el
+saveplace
