@@ -29,7 +29,7 @@
   (display-line-numbers-width 3)
   (display-line-numbers-widen t)
   (delete-selection-mode 1)
-  (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))
+  (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
   (global-auto-revert-non-file-buffers t)
   (help-window-select t)
@@ -1238,6 +1238,45 @@ and restart Flymake to apply the changes."
   ;; Ellipsis styling
   (setq org-ellipsis " ▼ ")
   (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil))
+
+
+;;; TIME
+(use-package time
+  :ensure nil
+  ;; :hook (after-init . display-time-mode) ;; If we'd like to see it on the modeline
+  :custom
+  (world-clock-time-format "%A %d %B %r %Z")
+  (display-time-day-and-date t)
+  (display-time-default-load-average nil)
+  (display-time-mail-string "")
+  (zoneinfo-style-world-list                ; use `M-x worldclock RET' to see it
+   '(("America/Los_Angeles" "Los Angeles")
+     ("America/Vancouver" "Vancouver")
+     ("Canada/Pacific" "Canada/Pacific")
+     ("America/Chicago" "Chicago")
+     ("America/Toronto" "Toronto")
+     ("America/New_York" "New York")
+     ("Canada/Atlantic" "Canada/Atlantic")
+     ("Brazil/East" "Brasília")
+     ("America/Sao_Paulo" "São Paulo")
+     ("UTC" "UTC")
+     ("Europe/Lisbon" "Lisbon")
+     ("Europe/Brussels" "Brussels")
+     ("Europe/Athens" "Athens")
+     ("Asia/Riyadh" "Riyadh")
+     ("Asia/Tehran" "Tehran")
+     ("Asia/Tbilisi" "Tbilisi")
+     ("Asia/Yekaterinburg" "Yekaterinburg")
+     ("Asia/Kolkata" "Kolkata")
+     ("Asia/Singapore" "Singapore")
+     ("Asia/Shanghai" "Shanghai")
+     ("Asia/Seoul" "Seoul")
+     ("Asia/Tokyo" "Tokyo")
+     ("Asia/Vladivostok" "Vladivostok")
+     ("Australia/Brisbane" "Brisbane")
+     ("Australia/Sydney" "Sydney")
+     ("Pacific/Auckland" "Auckland"))))
+
 
 ;;; UNIQUIFY
 (use-package uniquify
