@@ -10,6 +10,9 @@
   :bind
   (("M-o" . other-window)
    ("M-j" . duplicate-dwim)
+   ("M-g r" . recentf)
+   ("M-s g" . grep)
+   ("M-s f" . find-name-dired)
    ("C-x C-b" . ibuffer)
    ("RET" . newline-and-indent)
    ("C-z" . nil)
@@ -26,6 +29,7 @@
   (display-line-numbers-width 3)
   (display-line-numbers-widen t)
   (delete-selection-mode 1)
+  (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))
   (frame-resize-pixelwise t)
   (global-auto-revert-non-file-buffers t)
   (help-window-select t)
@@ -67,6 +71,9 @@
   (tab-bar-tab-hints t)
   (treesit-font-lock-level 4)
   (truncate-lines t)
+  (undo-limit (* 13 160000))
+  (undo-strong-limit (* 13 240000))
+  (undo-outer-limit (* 13 24000000))
   (use-dialog-box nil)
   (use-file-dialog nil)
   (use-short-answers t)
@@ -231,7 +238,13 @@
       (display-buffer-in-side-window)
       (window-height . 0.25)
       (side . bottom)
-      (slot . 1)))))
+      (slot . 1))
+     ("\\*\\(grep\\|find\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 2))
+     )))
 
 
 ;;; RCIRC
