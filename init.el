@@ -414,11 +414,9 @@ list.  It can be further customized by the face
                   (- spaces-to-add longest-line-width)
                 spaces-to-add)))
 
-        (dolist (l lines)
-          (add-text-properties
-           0 1 `(display ,(concat (make-string spaces-to-add-avoiding-scrolling ?\s) (substring l 0 1)))
-           l))
-        lines)
+        (mapcar (lambda (line)
+                  (concat (make-string spaces-to-add-avoiding-scrolling ?\s) line))
+                lines))
     lines))
 
 ;; FIXME: what to demo/test:
