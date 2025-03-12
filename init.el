@@ -255,17 +255,22 @@
 (use-package rcirc
   :ensure nil
   :custom
+  (rcirc-debug t)
   (rcirc-default-nick "Lionyx")
   (rcirc-default-user-name "Lionyx")
   (rcirc-default-full-name "Lionyx")
   (rcirc-server-alist `(("irc.libera.chat"
-                         :channels ("#emacs")
+                         :channels ("#emacs" "#systemcrafters")
                          :port 6697
-                        :encryption tls)))
-
+                         :encryption tls)))
   (rcirc-reconnect-delay 5)
-  (rcirc-fill-column 90)
-  (rcirc-track-ignore-server-buffer-flag t))
+  (rcirc-fill-column 100)
+  (rcirc-track-ignore-server-buffer-flag t)
+  :config
+  (setopt rcirc-authinfo
+          `(("irc.libera.chat" certfp
+             ,(expand-file-name "cert.pem" user-emacs-directory)
+             ,(expand-file-name "cert.pem" user-emacs-directory)))))
 
 
 ;;; ERC
@@ -276,83 +281,23 @@
   (erc-join-buffer 'window)
   (erc-hide-list '("JOIN" "PART" "QUIT"))
   (erc-timestamp-format "[%H:%M]")
-  (erc-autojoin-channels-alist '((".*\\.libera\\.chat" "#emacs")))
-  :config
-
-  ;; --- --- Colorize nicks
-  (require 'erc-button)
-
-  (defface erc-highlight-nick-base-face
-    '((t nil))
-    "Base face used for highlighting nicks in erc. (Before the nick
-color is added)"
-    :group 'erc-faces)
-
-  (defvar erc-highlight-face-table
-    (make-hash-table :test 'equal)
-    "The hash table that contains unique erc nickname faces.")
-
-  (defun hexcolor-luminance (color)
-    "Returns the luminance of color COLOR. COLOR is a string \(e.g.
-\"#ffaa00\", \"blue\"\) `color-values' accepts. Luminance is a
-value of 0.299 red + 0.587 green + 0.114 blue and is always
-between 0 and 255."
-    (let* ((values (x-color-values color))
-           (r (car values))
-           (g (car (cdr values)))
-           (b (car (cdr (cdr values)))))
-      (floor (+ (* 0.299 r) (* 0.587 g) (* 0.114 b)) 256)))
-
-  (defun invert-color (color)
-    "Returns the inverted color of COLOR."
-    (let* ((values (x-color-values color))
-           (r (car values))
-           (g (car (cdr values)))
-           (b (car (cdr (cdr values)))))
-      (format "#%04x%04x%04x"
-              (- 65535 r) (- 65535 g) (- 65535 b))))
-
-  (defun erc-highlight-nicknames ()
-    "Searches for nicknames and highlights them. Uses the first
-twelve digits of the MD5 message digest of the nickname as
-color (#rrrrggggbbbb)."
-    (with-syntax-table erc-button-syntax-table
-      (let (bounds bound-start bound-end word color new-nick-face)
-        (goto-char (point-min))
-        (while (re-search-forward "\\w+" nil t)
-          (setq bounds (bounds-of-thing-at-point 'word))
-          (setq bound-start (car bounds))
-          (setq bound-end (cdr bounds))
-          (when (and bound-start bound-end)
-            (setq word (buffer-substring-no-properties bound-start bound-end))
-            (when (erc-get-server-user word)
-              (setq new-nick-face (gethash word erc-highlight-face-table))
-              (unless new-nick-face
-                (setq color (concat "#" (substring (md5 (downcase word)) 0 12)))
-                (if (equal (cdr (assoc 'background-mode (frame-parameters))) 'dark)
-                    ;; if too dark for background
-                    (when (< (hexcolor-luminance color) 85)
-                      (setq color (invert-color color)))
-                  ;; if to bright for background
-                  (when (> (hexcolor-luminance color) 170)
-                    (setq color (invert-color color))))
-                (setq new-nick-face (make-symbol (concat "erc-highlight-nick-" word "-face")))
-                (copy-face 'erc-highlight-nick-base-face new-nick-face)
-                (set-face-foreground new-nick-face color)
-                (puthash word new-nick-face erc-highlight-face-table))
-              (erc-button-add-face bound-start bound-end new-nick-face))
-            )
-          ))))
-
-  (define-erc-module erc-load-highlight-nicknames nil
-    "Search through the buffer for nicknames and highlight them."
-    ((add-hook 'erc-insert-modify-hook #'erc-highlight-nicknames t))
-    ((remove-hook 'erc-insert-modify-hook #'erc-highlight-nicknames)))
-
+  (erc-autojoin-channels-alist '((".*\\.libera\\.chat" "#emacs" "#systemcrafters")))
+  :init
   (with-eval-after-load 'erc
-    (unless (member 'erc-load-highlight-nicknames erc-modules)
-      (setq erc-modules (append erc-modules '(erc-load-highlight-nicknames))))))
+    (add-to-list 'erc-modules 'sasl))
 
+  (setopt erc-sasl-mechanism 'external)
+
+  (defun erc-liberachat ()
+    (interactive)
+    (erc-tls :server "irc.libera.chat"
+             :port 6697
+             :user "Lionyx"
+             :password ""
+             :client-certificate
+             (list
+              (expand-file-name "cert.pem" user-emacs-directory)
+              (expand-file-name "cert.pem" user-emacs-directory)))))
 
 
 ;;; ICOMPLETE
