@@ -19,16 +19,17 @@
    ("C-x C-z" . nil)
    ("C-x C-k RET" . nil))
   :custom
+  (ad-redefinition-action 'accept)
   (column-number-mode nil)
   (line-number-mode nil)
   (completion-ignore-case t)
   (completions-detailed t)
   (completions-format 'one-column)
-  (create-lockfiles nil)
   (delete-by-moving-to-trash t)
   (display-line-numbers-width 3)
   (display-line-numbers-widen t)
   (delete-selection-mode 1)
+  (enable-recursive minibuffers t)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
   (global-auto-revert-non-file-buffers t)
@@ -44,6 +45,7 @@
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (ring-bell-function 'ignore)
+  (read-answer-short t)
   (recentf-max-saved-items 300) ; default is 20
   (recentf-max-menu-items 15)
   (recentf-auto-cleanup (if (daemonp) 300 'never))
@@ -51,6 +53,7 @@
   (remote-file-name-inhibit-delete-by-moving-to-trash t)
   (remote-file-name-inhibit-auto-save t)
   (resize-mini-windows 'grow-only)
+  (ring-bell-function #'ignore)
   (savehist-save-minibuffer-history t)    ; t is default
   (savehist-additional-variables
    '(kill-ring                            ; clipboard
@@ -77,6 +80,7 @@
   (use-dialog-box nil)
   (use-file-dialog nil)
   (use-short-answers t)
+  (visible-bell nil)
   (window-combination-resize t)
   (window-resize-pixelwise nil)
   (xref-search-program 'ripgrep)
@@ -1149,9 +1153,15 @@ and restart Flymake to apply the changes."
   (completion-ignore-case t)
   (completion-show-help t)
   ;; (completion-auto-select t) ;; only turn this on if not using icomplete
+  (enable-recursive-minibuffers t)
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   :config
+  ;; Keep the cursor out of the read-only portions of the.minibuffer
+  (setq minibuffer-prompt-properties
+        '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
   (minibuffer-depth-indicate-mode 1)
   (minibuffer-electric-default-mode 1))
 
