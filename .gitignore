@@ -65,3 +65,4 @@ custom-vars.el
 .authinfo*
 private.el
 saveplace
+cert.pem
