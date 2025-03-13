@@ -1039,11 +1039,16 @@ and restart Flymake to apply the changes."
              (if flymake-show-diagnostics-at-end-of-line
                  "Enabled" "Disabled"))))
 
+
 ;;; WHITESPACE
 (use-package whitespace
   :ensure nil
   :defer t
-  :hook (before-save . whitespace-cleanup))
+  :hook (before-save . whitespace-cleanup)
+  ;; if we wanna remove this hook at any time, eval:
+  ;; (remove-hook 'before-save-hook #'whitespace-cleanup)
+  )
+
 
 ;;; GNUS
 (use-package gnus
