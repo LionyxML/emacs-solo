@@ -920,8 +920,9 @@ away from the bottom.  Counts wrapped lines as real lines."
         (setq buffer-read-only t)
         (setq mode-name "Git-Reflog")
         (setq major-mode 'special-mode))
-
       (pop-to-buffer buffer)))
+  (global-set-key (kbd "C-x v R") 'emacs-solo/vc-git-reflog)
+
 
   (defun emacs-solo/vc-pull-merge-current-branch ()
   "Pull the latest change from origin for the current branch and display output in a buffer."
@@ -938,16 +939,63 @@ away from the bottom.  Counts wrapped lines as real lines."
           (display-buffer buffer))
       (message "Could not determine current branch."))))
 
-(defun emacs-solo/vc-browse-remote ()
-  "Open the repository's remote URL in the browser."
+
+  (defun emacs-solo/vc-browse-remote ()
+    "Open the repository's remote URL in the browser."
+    (interactive)
+    (let* ((remote-url (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
+      (message "Opening remote on browser: %s "remote-url)
+      (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
+          (let ((host (match-string 1 remote-url))
+                (path (match-string 2 remote-url)))
+            (browse-url (format "https://%s/%s" host path)))
+        (message "Could not determine repository URL"))))
+  (global-set-key (kbd "C-x v B") 'emacs-solo/vc-browse-remote)
+
+
+  (defun emacs-solo/vc-browse-remote ()
+  "Open the repository's remote URL in the browser, pointing to the current branch, file, and line."
   (interactive)
-  (let* ((remote-url (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
-    (message "Opening remote on browser: %s "remote-url)
+  (let* ((remote-url (string-trim (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
+         (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
+         (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
+         (line (line-number-at-pos)))
+    (message "Opening remote on browser: %s" remote-url)
     (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
         (let ((host (match-string 1 remote-url))
               (path (match-string 2 remote-url)))
-          (browse-url (format "https://%s/%s" host path)))
-      (message "Could not determine repository URL")))))
+          ;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
+          (when (string-prefix-p "git@" host)
+            (setq host (replace-regexp-in-string "^git@" "" host)))
+          ;; Construct the URL
+          (browse-url (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)))
+      (message "Could not determine repository URL"))))
+
+
+  (defun emacs-solo/vc-diff-on-current-hunk ()
+    "Show the diff for the current file and jump to the hunk containing the current line."
+    (interactive)
+    (let ((current-line (line-number-at-pos)))
+      (message "Current line in file: %d" current-line)
+      (vc-diff) ; Generate the diff buffer
+      (with-current-buffer "*vc-diff*"
+        (goto-char (point-min))
+        (let ((found-hunk nil))
+          (while (and (not found-hunk)
+                      (re-search-forward "^@@ -\\([0-9]+\\), *[0-9]+ \\+\\([0-9]+\\), *\\([0-9]+\\) @@" nil t))
+            (let* ((start-line (string-to-number (match-string 2)))
+                   (line-count (string-to-number (match-string 3)))
+                   (end-line (+ start-line line-count)))
+              (message "Found hunk: %d to %d" start-line end-line)
+              (when (and (>= current-line start-line)
+                         (<= current-line end-line))
+                (message "Current line %d is within hunk range %d to %d" current-line start-line end-line)
+                (setq found-hunk t)
+                (goto-char (match-beginning 0))))) ; Jump to the beginning of the hunk
+          (unless found-hunk
+            (message "Current line %d is not within any hunk range." current-line)
+            (goto-char (point-min)))))))
+  (global-set-key (kbd "C-x v =") 'emacs-solo/vc-diff-on-current-hunk))
 
 ;;; SMERGE
 (use-package smerge-mode
