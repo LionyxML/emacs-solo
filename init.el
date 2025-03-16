@@ -219,6 +219,19 @@
   (add-to-list 'auto-mode-alist '("\\.env\\'" . conf-mode)))
 
 
+;;; COMPILATION
+(use-package compilation
+  :ensure nil
+  :hook
+  (;; Applies ansi-color filtering
+   (compilation-filter . #'ansi-color-compilation-filter)
+   ;; Not ideal, but I do not want this poluting the modeline
+   (compilation-start . (lambda () (setq compilation-in-progress nil))))
+  :custom
+  (compilation-always-kill t)
+  (compilation-scroll-output t))
+
+
 ;;; WINDOW
 (use-package window
   :ensure nil
