@@ -2533,18 +2533,6 @@ buffer is not visiting a file."
   ;; pattern (e.g., `*.js`), and displays the replacements as diffs in the
   ;; `*replace-diff*` buffer. This allows for easy review and application of changes
   ;; across multiple files.
-  (defun emacs-solo/glob-to-regexp (glob)
-    "Convert a GLOB pattern (e.g., '*.el') to a regexp that `directory-files-recursively` can use."
-    (concat "^" (replace-regexp-in-string
-                 (rx (any "*?."))
-                 (lambda (match)
-                   (pcase match
-                     ("*" ".*")
-                     ("?" ".")
-                     ("." "\\\\.") ; Properly escape the dot
-                     (_ match)))
-                 glob)
-            "$"))
   (defun emacs-solo/multi-file-replace-regexp-as-diff-with-glob (dir regexp to-string &optional delimited glob-pattern)
     "Wrapper for `multi-file-replace-regexp-as-diff` that accepts a directory and a glob pattern.
 DIR is the directory to search recursively.
@@ -2562,7 +2550,9 @@ GLOB-PATTERN is the glob pattern to match files (e.g., \"*.el\")."
            (glob-pattern (read-string "Glob pattern (e.g., *.el): " "*")))
        (list dir (nth 0 common) (nth 1 common) (nth 2 common) glob-pattern)))
 
-    (let* ((glob-regexp (emacs-solo/glob-to-regexp glob-pattern))
+    (let* ((glob-regexp (wildcard-to-regexp glob-pattern))
+           ;; file-expand-wildcards instead of directory-files-recursively, would
+           ;; not allow us to traverse directories
            (files (directory-files-recursively dir glob-regexp)))
 
       (if files
