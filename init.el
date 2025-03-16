@@ -2359,6 +2359,7 @@ Marks lines as added, deleted, or changed."
 ;;
 ;;  Based on: https://www.reddit.com/r/emacs/comments/1h0zjvq/comment/m0uy3bo/?context=3
 ;;
+;;  TODO: implement ace-swap like feature
 (use-package emacs-solo-ace-window
   :ensure nil
   :no-require t
