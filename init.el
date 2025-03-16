@@ -953,22 +953,11 @@ away from the bottom.  Counts wrapped lines as real lines."
       (message "Could not determine current branch."))))
 
 
-  (defun emacs-solo/vc-browse-remote ()
-    "Open the repository's remote URL in the browser."
-    (interactive)
-    (let* ((remote-url (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
-      (message "Opening remote on browser: %s "remote-url)
-      (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
-          (let ((host (match-string 1 remote-url))
-                (path (match-string 2 remote-url)))
-            (browse-url (format "https://%s/%s" host path)))
-        (message "Could not determine repository URL"))))
-  (global-set-key (kbd "C-x v B") 'emacs-solo/vc-browse-remote)
-
-
-  (defun emacs-solo/vc-browse-remote ()
-  "Open the repository's remote URL in the browser, pointing to the current branch, file, and line."
-  (interactive)
+  (defun emacs-solo/vc-browse-remote (&optional current-line)
+  "Open the repository's remote URL in the browser.
+If CURRENT-LINE is non-nil, point to the current branch, file, and line.
+Otherwise, open the repository's main page."
+  (interactive "P")
   (let* ((remote-url (string-trim (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
          (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
          (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
@@ -980,9 +969,15 @@ away from the bottom.  Counts wrapped lines as real lines."
           ;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
           (when (string-prefix-p "git@" host)
             (setq host (replace-regexp-in-string "^git@" "" host)))
-          ;; Construct the URL
-          (browse-url (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)))
+          ;; Construct the appropriate URL based on CURRENT-LINE
+          (browse-url
+           (if current-line
+               (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
+             (format "https://%s/%s" host path))))
       (message "Could not determine repository URL"))))
+  (global-set-key (kbd "C-x v B") 'emacs-solo/vc-browse-remote)
+  (global-set-key (kbd "C-x v o")
+                  '(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
 
 
   (defun emacs-solo/vc-diff-on-current-hunk ()
