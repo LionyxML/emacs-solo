@@ -41,14 +41,14 @@ And that's it, happy hacking! 🐂
 - curl (for 0x0)
 
 ** How do I...
-*** Copy the current word under cursor?
+*** 1.) Copy the current word under cursor?
 The usual answer is *M-b* to go back to the beginning of the
 word. *C-M-SPC* to expand the selection to the end of the word and *M-w*.
 
 *Custom Emacs-Solo Solution*: Use the isearch way to search a word (it has
 better completion than C-M-SPC), like *M-s M-.* you can now just *M-w*.
 
-*** Edit multiple search entries at once?
+*** 2.) Edit multiple search entries at once?
 
 #+BEGIN_SRC text
   Original problem: I usually consult-outline, then embark-collect and wgrep...
@@ -65,7 +65,7 @@ From Emacs 30.1 onward you can also use the combo:
 =multi-replace-regexp-as-diff= for multiple buffers, and
 =dired-do-replace-regexp-as-diff= to perform replace-regexp-as-diff
 
-*** Edit multiple search entries between several files at once?
+*** 3.) Edit multiple search entries between several files at once?
 
 #+BEGIN_SRC text
   Original problem: I usually consult-grep, then use embark collect and wgrep...
@@ -83,13 +83,13 @@ From Emacs 30.1 onward you can also use the combo:
 =multi-replace-regexp-as-diff= for multiple buffers, and
 =dired-do-replace-regexp-as-diff= to perform replace-regexp-as-diff
 
-*** Read news, like with elfeed?
+*** 4.) Read news, like with elfeed?
 
 You have two built-in options on Emacs.
 - =M-x gnus=
 - =M-x newsticker-treeview=
 
-*** How do I see logs and their diffs?
+*** 5.) How do I see logs and their diffs?
 
 =C-x v L= on a file inside your version controlled file. And over the
 line you have the commit, press =d= for diffing.
@@ -99,14 +99,13 @@ first line of the range, and again =C-SPC= in the last line of the range
 (the content of what you want must be selected, if ther cursor is on
 first column of the line it won't be included), now use =d= to diff.
 
-*** How do I revert a hunk?
+*** 6.) How do I revert a hunk?
 
 =C-x v === will open the diff panel for the current file, restrict it to
 the hunk you'd like to revert with =r=, revert the direction of the diff
 with =R= and apply the diff with =C-c C-a=.
 
-
-*** Use (neo)vi(m) keybindings (aka Evil keybindings)?
+*** 7.) Use (neo)vi(m) keybindings (aka Evil keybindings)?
 
 Emacs comes with =viper= which is a =vi= emulator. This means a lot of
 modern editing capabilities are missing.
@@ -117,7 +116,7 @@ modern =evil-like= bindings.
 
 Just give it a try ;) =M-x viper-mode=
 
-*** Temporaraly highlight some word?
+*** 8.) Temporaraly highlight some word?
 
 Use the powers of =highlight-regexp=! Over a word you want to make
 highlighted use =M-s h .=
@@ -130,8 +129,7 @@ the list.
 
 Find out about more options regarding highlighting with =M-s h ?=.
 
-
-*** Know what is changed when closing Emacs or several files?
+*** 9.) Know what is changed when closing Emacs or several files?
 
 It is a common thing trying to close Emacs with =C-x C-c= just to find
 out one of your buffers has some modification and now Emacs asks if
