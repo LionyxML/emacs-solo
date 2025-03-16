@@ -820,6 +820,22 @@ away from the bottom.  Counts wrapped lines as real lines."
   :ensure nil
   :defer t
   :config
+  (set-face-foreground 'vc-annotate-face-3F3FFF "#82aaff")
+  (setq vc-annotate-color-map
+        '((20 . "#c3e88d")
+          (40 . "#89DDFF")
+          (60 . "#82aaff")
+          (80 . "#676E95")
+          (100 . "#c792ea")
+          (120 . "#f78c6c")
+          (140 . "#79a8ff")
+          (160 . "#f5e0dc")
+          (180 . "#a6e3a1")
+          (200 . "#94e2d5")
+          (220 . "#89dceb")
+          (240 . "#74c7ec")
+          (260 . "#82aaff")
+          (280 . "#b4befe")))
   (setq vc-git-diff-switches '("--patch-with-stat" "--histogram")) ;; add stats to `git diff'
   (setq vc-git-log-switches '("--stat")) ;; add stats to `git log'
   (setq vc-git-log-edit-summary-target-len 50)
