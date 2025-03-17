@@ -820,38 +820,44 @@ away from the bottom.  Counts wrapped lines as real lines."
   :ensure nil
   :defer t
   :config
-  (set-face-foreground 'vc-annotate-face-3F3FFF "#82aaff")
-  (setq vc-annotate-color-map
-        '((20 . "#c3e88d")
-          (40 . "#89DDFF")
-          (60 . "#82aaff")
-          (80 . "#676E95")
-          (100 . "#c792ea")
-          (120 . "#f78c6c")
-          (140 . "#79a8ff")
-          (160 . "#f5e0dc")
-          (180 . "#a6e3a1")
-          (200 . "#94e2d5")
-          (220 . "#89dceb")
-          (240 . "#74c7ec")
-          (260 . "#82aaff")
-          (280 . "#b4befe")))
-  (setq vc-git-diff-switches '("--patch-with-stat" "--histogram")) ;; add stats to `git diff'
-  (setq vc-git-log-switches '("--stat")) ;; add stats to `git log'
-  (setq vc-git-log-edit-summary-target-len 50)
-  (setq vc-git-log-edit-summary-max-len 70)
-  (setq vc-git-print-log-follow t)
-  (setq vc-git-revision-complete-only-branches nil)
-  (setq vc-annotate-display-mode 'scale)
-  (setq add-log-keep-changes-together t)
-  (setq vc-make-backup-files nil)          ; Do not backup version controlled files
+  (setopt
+   vc-git-diff-switches '("--patch-with-stat" "--histogram")  ;; add stats to `git diff'
+   vc-git-log-switches '("--stat")                            ;; add stats to `git log'
+   vc-git-log-edit-summary-target-len 50
+   vc-git-log-edit-summary-max-len 70
+   vc-git-print-log-follow t
+   vc-git-revision-complete-only-branches nil
+   vc-annotate-display-mode 'scale
+   add-log-keep-changes-together t
+   vc-make-backup-files nil)                                  ;; Do not backup version controlled files
+
+  (with-eval-after-load 'vc-annotate
+    (setopt vc-annotate-color-map
+          '((20 . "#c3e88d")
+            (40 . "#89DDFF")
+            (60 . "#82aaff")
+            (80 . "#676E95")
+            (100 . "#c792ea")
+            (120 . "#f78c6c")
+            (140 . "#79a8ff")
+            (160 . "#f5e0dc")
+            (180 . "#a6e3a1")
+            (200 . "#94e2d5")
+            (220 . "#89dceb")
+            (240 . "#74c7ec")
+            (260 . "#82aaff")
+            (280 . "#b4befe")
+            (300 . "#b5b0ff")
+            (320 . "#8c9eff")
+            (340 . "#6a81ff")
+            (360 . "#5c6bd7"))))
 
   ;; This one is for editing commit messages
   (require 'log-edit)
-  (setq log-edit-confirm 'changed)
-  (setq log-edit-keep-buffer nil)
-  (setq log-edit-require-final-newline t)
-  (setq log-edit-setup-add-author nil)
+  (setopt log-edit-confirm 'changed
+          log-edit-keep-buffer nil
+          log-edit-require-final-newline t
+          log-edit-setup-add-author nil)
 
   ;; Removes the bottom window with modified files list
   (remove-hook 'log-edit-hook #'log-edit-show-files)
