@@ -1209,6 +1209,10 @@ and restart Flymake to apply the changes."
         '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
+  ;; Keep minibuffer lines unwrapped, long lines like on M-y will be truncated
+  (add-hook 'minibuffer-setup-hook
+          (lambda () (setq truncate-lines t)))
+
   (minibuffer-depth-indicate-mode 1)
   (minibuffer-electric-default-mode 1))
 
