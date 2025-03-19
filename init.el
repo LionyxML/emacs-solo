@@ -740,7 +740,7 @@ away from the bottom.  Counts wrapped lines as real lines."
 
   (require 'vc)
   (require 'vc-git)
-  (setq eshell-prompt-function
+  (setopt eshell-prompt-function
         (lambda ()
           (concat
            "┌─("
