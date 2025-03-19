@@ -88,6 +88,10 @@
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
+  ;; Makes everything accept utf-8 as default, so buffers with tsx and so
+  ;; won't ask for encoding (because undecided-unix) every single keystroke
+  (modify-coding-system-alist 'file "" 'utf-8)
+
   (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 105)
 
   (when (eq system-type 'darwin)
