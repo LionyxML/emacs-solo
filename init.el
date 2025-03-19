@@ -2335,10 +2335,10 @@ Marks lines as added, deleted, or changed."
                                          'display
                                          `((margin left-margin)
                                            ,(propertize
-                                             (cond
-                                              ((string= status "added") "+")
-                                              ((string= status "changed") "~")
-                                              ((string= status "deleted") "-"))
+                                             (cond                              ;; Alternatives:
+                                              ((string= status "added")   "│")  ;; +  │ ▏┃
+                                              ((string= status "changed") "│")  ;; ~
+                                              ((string= status "deleted") "│")) ;; _
                                              'face
                                              `(:foreground
                                                ,(cond
