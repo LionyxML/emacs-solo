@@ -1223,16 +1223,21 @@ and restart Flymake to apply the changes."
   :defer t
   :custom
   (newsticker-treeview-treewindow-width 40)
+  :hook
+  (newsticker-treeview-item-mode . (lambda ()
+                                     (define-key newsticker-treeview-item-mode-map
+                                                 (kbd "V")
+                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)))
   :init
   (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
-    "Find a line starting with '* videoId: ' in the current buffer and plays it with mpv asynchronously."
+    "Plays with mpv async, the current buffer found '* videoId: '."
     (interactive)
     (save-excursion
       (goto-char (point-min))
       (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
         (let ((video-id (match-string 1)))
           (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
-          (message "Playing: %s" video-id))))))
+          (message "Playing with mpv: %s" video-id))))))
 
 
 ;;; ELEC_PAIR
