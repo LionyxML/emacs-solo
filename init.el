@@ -1114,8 +1114,8 @@ Otherwise, open the repository's main page."
   ;; (flymake-show-diagnostics-at-end-of-line 'short)
   (flymake-indicator-type 'margins)
   (flymake-margin-indicators-string
-   `((error "E" compilation-error)      ;; Alternatives: »" compilation-error)
-     (warning "W" compilation-warning)
+   `((error "!" compilation-error)      ;; Alternatives: », E, W, i, !, ?)
+     (warning "?" compilation-warning)
      (note "i" compilation-info)))
   :config
   ;; Define the toggle function
