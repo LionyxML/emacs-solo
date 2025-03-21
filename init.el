@@ -225,16 +225,17 @@
 
 
 ;;; COMPILATION
-(use-package compilation
+(use-package compile
   :ensure nil
   :hook
-  (;; Applies ansi-color filtering
-   (compilation-filter . #'ansi-color-compilation-filter)
-   ;; Not ideal, but I do not want this poluting the modeline
+  (;; Not ideal, but I do not want this poluting the modeline
    (compilation-start . (lambda () (setq compilation-in-progress nil))))
   :custom
   (compilation-always-kill t)
-  (compilation-scroll-output t))
+  (compilation-scroll-output t)
+  (ansi-color-for-compilation-mode t)
+  :config
+  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
 
 
 ;;; WINDOW
@@ -940,16 +941,6 @@ away from the bottom.  Counts wrapped lines as real lines."
           (ansi-color-apply-on-region (point-min) (point-max)))
 
         (let ((map (make-sparse-keymap)))
-          ;; FIXME: make d produce a diff
-          (define-key map (kbd "d")
-                      (lambda ()
-                        (interactive)
-                        (let* ((sha (thing-at-point 'word t))
-                               (root vc-git-reflog-root)) ;; Retrieve stored VC root
-                          (if (and sha root)
-                              (vc-diff-internal 'Git nil (list (concat sha "^!")) root)
-                            (message "No SHA or VC root found!")))))
-
           (define-key map (kbd "/") #'isearch-forward)
           (define-key map (kbd "p") #'previous-line)
           (define-key map (kbd "n") #'next-line)
