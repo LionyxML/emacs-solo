@@ -37,8 +37,8 @@ And that's it, happy hacking! 🐂
 ** External Dependencies
 - ripgrep (for quick project grep and xref)
 - gls (macos only)
-
 - curl (for 0x0)
+- mpv (for newsticker)
 
 ** How do I...
 *** 1.) Copy the current word under cursor?
