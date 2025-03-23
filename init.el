@@ -651,6 +651,44 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches "-al --group-directories-first")
   :init
+  (defun emacs-solo/dired-rsync-copy (dest)
+  "Copy marked files in Dired to DEST using rsync asynchronously, with real-time processing of output."
+  (interactive
+   (list (expand-file-name (read-file-name "rsync to: "
+                                           (dired-dwim-target-directory)))))
+  (let* ((files (dired-get-marked-files nil current-prefix-arg))
+         (command (append '("rsync" "-hPur") (mapcar #'shell-quote-argument files) (list (shell-quote-argument dest))))
+         (buffer (get-buffer-create "*rsync*")))
+    (with-current-buffer buffer
+      (erase-buffer)
+      (insert "Running rsync...\n"))
+
+    (defun rsync-process-filter (proc string)
+      (with-current-buffer (process-buffer proc)
+        (goto-char (point-max))
+        (insert string)
+        (goto-char (point-max))
+        (while (re-search-backward "\r" nil t)
+          (replace-match "\n" nil nil))))
+
+    (make-process
+     :name "dired-rsync"
+     :buffer buffer
+     :command command
+     :filter 'rsync-process-filter
+     :sentinel
+     (lambda (_proc event)
+       (when (string-match-p "finished" event)
+         (with-current-buffer buffer
+           (goto-char (point-max))
+           (insert "\n* rsync done *\n"))
+         (dired-revert)))
+     :stderr buffer)
+
+    (display-buffer buffer)
+    (message "rsync started...")))
+
+
   (defun emacs-solo/window-dired-vc-root-left (&optional directory-path)
     "Creates *Dired-Side* like an IDE side explorer"
     (interactive)
