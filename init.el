@@ -24,7 +24,6 @@
   (line-number-mode nil)
   (completion-ignore-case t)
   (completions-detailed t)
-  (completions-format 'one-column)
   (delete-by-moving-to-trash t)
   (display-line-numbers-width 3)
   (display-line-numbers-widen t)
@@ -1229,10 +1228,11 @@ and restart Flymake to apply the changes."
   :ensure nil
   :custom
   (completion-styles '(partial-completion flex initials))
-  (completions-format 'vertical)
   (completion-ignore-case t)
   (completion-show-help t)
-  ;; (completion-auto-select t) ;; only turn this on if not using icomplete
+  ;; (completion-auto-select t) ;; NOTE: only turn this on if not using icomplete, can also be 'second-tab
+  (completions-max-height 20)
+  (completions-format 'one-column)
   (enable-recursive-minibuffers t)
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
