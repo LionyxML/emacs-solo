@@ -723,7 +723,7 @@ away from the bottom.  Counts wrapped lines as real lines."
 
   (eval-after-load 'dired
   '(progn
-     (define-key dired-mode-map (kbd "G") 'emacs-solo/window-dired-open-directory))))
+     (define-key dired-mode-map (kbd "C-<return>") 'emacs-solo/window-dired-open-directory))))
 
 
 ;;; WDIRED
