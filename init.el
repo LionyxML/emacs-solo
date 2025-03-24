@@ -348,8 +348,10 @@
   (setq icomplete-in-buffer t)
   (setq icomplete-max-delay-chars 0)
   (setq icomplete-scroll t)
-  (advice-add 'completion-at-point
-              :after #'minibuffer-hide-completions)
+
+  (if icomplete-in-buffer
+      (advice-add 'completion-at-point
+                  :after #'minibuffer-hide-completions))
 
   ;; === FIXME: I'm reviewing it to the icomplete PATCH
 
