@@ -2444,7 +2444,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
       (emacs-solo-ace-window/add-window-key-overlays window-map)
       (let ((key (read-key (format "Select window [%s]: " (string-join window-keys ", ")))))
         (emacs-solo-ace-window/remove-window-key-overlays)
-        (if-let ((selected-window (cdr (assoc (char-to-string key) window-map))))
+        (if-let* ((selected-window (cdr (assoc (char-to-string key) window-map))))
             (select-window selected-window)
           (message "No window assigned to key: %c" key)))))
 
