@@ -53,6 +53,8 @@
   (remote-file-name-inhibit-auto-save t)
   (resize-mini-windows 'grow-only)
   (ring-bell-function #'ignore)
+  (scroll-conservatively 8)
+  (scroll-margin 5)
   (savehist-save-minibuffer-history t)    ; t is default
   (savehist-additional-variables
    '(kill-ring                            ; clipboard
