@@ -354,6 +354,12 @@
       (advice-add 'completion-at-point
                   :after #'minibuffer-hide-completions))
 
+  ;; Emacs 31
+  ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-01/msg01919.html
+  ;;
+  ;; I'm currently proposing these features on bug#75784 (bug-gnu-emacs).
+  ;; If they get accepted we can get rid of this giant block.
+  ;;
   ;; === FIXME: I'm reviewing it to the icomplete PATCH
 
 (defface icomplete-vertical-selected-prefix-indicator-face
@@ -1569,7 +1575,9 @@ and restart Flymake to apply the changes."
   :config
   (add-to-list 'treesit-language-source-alist '(toml "https://github.com/ikatyang/tree-sitter-toml" "master" "src")))
 
-;;; MARKDOWN-TS-MODE
+;;; MARKDOWN-TS-MODE - Emacs 31
+;;  As I first proposed here:
+;;  https://lists.gnu.org/archive/html/emacs-devel/2025-02/msg00810.html
 (use-package markdown-ts-mode
   :ensure nil
   :mode "\\.md\\'"
