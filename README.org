@@ -20,6 +20,17 @@ and test my self using Emacs with only =built-in= goodies.
 
 It is minimalist and powerful. A place I visit once in a while.
 
+
+** Minimum Emacs Version
+
+Emacs-Solo always requires the latest stable release of Emacs, which
+is currently: =30.1=
+
+However, some bleeding-edge features may be tested as well. For those,
+you’ll need to compile Emacs from the master branch. I do my best to
+mark these features with the =Emacs 31= tag.
+
+
 ** Installation
 
 Clone this repository into a directory of your liking and run Emacs
