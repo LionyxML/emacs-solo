@@ -104,14 +104,13 @@
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
 
-
   ;; Set line-number-mode with relative numbering
   (setq display-line-numbers-type 'relative)
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
-
+  ;; A Protesilaos life savier HACK
   ;; Add option "d" to whenever using C-x s or C-x C-c, allowing a quick preview
-  ;; of the diff of what you're asked to save.
+  ;; of the diff (if you choose `d') of what you're asked to save.
   (add-to-list 'save-some-buffers-action-alist
                (list "d"
                      (lambda (buffer) (diff-buffer-with-file (buffer-file-name buffer)))
@@ -1624,7 +1623,7 @@ and restart Flymake to apply the changes."
   :defer t
   :init
   (defun emacs-solo/rename-buffer-and-move-to-new-window ()
-    "Promotes a side buffer to a new window."
+    "Promotes a side window buffer to a new regular window."
     (interactive)
     (let ((temp-name (make-temp-name "temp-buffer-")))
       (rename-buffer temp-name t)
