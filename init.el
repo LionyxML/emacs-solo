@@ -1590,7 +1590,7 @@ and restart Flymake to apply the changes."
 ;;; YAML-TS-MODE
 (use-package yaml-ts-mode
   :ensure yaml-ts-mode
-  :mode "\\.yml\\'"
+  :mode "\\.ya?ml\\'"
   :defer 't
   :config
   (add-to-list 'treesit-language-source-alist '(yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "master" "src")))
