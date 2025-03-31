@@ -20,7 +20,25 @@ and test my self using Emacs with only =built-in= goodies.
 
 It is minimalist and powerful. A place I visit once in a while.
 
+** Obligatory Screenshots
 
+*** Overall View
+   [[file:doc/demo-01-overall.png]]
+
+*** iComplete + Flymake + Gutter
+   [[file:doc/demo-02-icomplete-flymake-gutter.png]]
+
+*** Help Variable
+   [[file:doc/demo-03-help-var.png]]
+
+*** iComplete Vertical
+   [[file:doc/demo-04-icomplete-vertical.png]]
+
+*** Eshell
+   [[file:doc/demo-05-eshell.png]]
+
+And much more...
+   
 ** Minimum Emacs Version
 
 Emacs-Solo always requires the latest stable release of Emacs, which
