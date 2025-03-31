@@ -30,6 +30,32 @@ However, some bleeding-edge features may be tested as well. For those,
 you’ll need to compile Emacs from the master branch. I do my best to
 mark these features with the =Emacs 31= tag.
 
+** External Dependencies
+- =ripgrep= (rg)
+  
+  This provides quicker project grep and xref navigation.
+  
+  If you opt to use regular =grep=, reset the customization of =grep-command=.
+
+  
+- =gls=
+
+  MacOS comes with an implementation of =ls= that misses some nice
+  switches from the gnu implementation (=gls= on homebrew). If you opt
+  to use MacOS defaul =ls= you might need to change the
+  =dired-listing-switches= variable.
+
+  
+- =curl=
+
+  Only needed if you'd like to upload text/images directly to 0x0.st
+  site from Emacs Solo.
+
+  
+- =mpv=
+
+  Only needed if you'd like to play videos directly from news in =newsticker=.
+  
 
 ** Installation
 
@@ -45,11 +71,28 @@ issue the same command as above
 
 And that's it, happy hacking! 🐂
 
-** External Dependencies
-- ripgrep (for quick project grep and xref)
-- gls (macos only)
-- curl (for 0x0)
-- mpv (for newsticker)
+** Important Notice
+
+I’m happy to share this configuration with a catchy name, and I’d be
+genuinely delighted if you find it useful. 🙂
+
+However, this is *not* intended to be a distribution. This means I may
+not cover every user's needs, nor will I accept every contribution
+that pushes it in that direction. I use this configuration daily for
+both personal and professional work, and like any custom setup, it
+reflects my own preferences.
+
+For example, this config does not include Python-specific settings,
+whether for Eglot or Tree-sitter. Since this is a real working setup
+and I’m not currently using Python, its absence might seem like an
+oversight.
+
+If you'd like to add your own modifications while staying up to date
+with Emacs Solo, simply create a =private.el= file in the same directory
+as =init.el=. A hook is already in place to load this private file after
+Emacs initializes.
+
+Of course, you can also fork it! (please do 😊)
 
 ** How do I...
 *** 1.) Copy the current word under cursor?
@@ -111,8 +154,7 @@ first line of the range, and again =C-SPC= in the last line of the range
 first column of the line it won't be included), now use =d= to diff.
 
 *** 6.) How do I revert a hunk?
-
-=C-x v === will open the diff panel for the current file, restrict it to
+=C-x v == will open the diff panel for the current file, restrict it to
 the hunk you'd like to revert with =r=, revert the direction of the diff
 with =R= and apply the diff with =C-c C-a=.
 
