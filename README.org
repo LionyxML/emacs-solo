@@ -38,7 +38,19 @@ It is minimalist and powerful. A place I visit once in a while.
    [[file:doc/demo-05-eshell.png]]
 
 And much more...
-   
+
+
+** As seen on System Crafters!
+
+Also, check out the full demo of =Emacs Solo= in action, as seen on
+the System Crafters channel. In this video, David Wilson explores and
+learns from the configuration, showing how different settings and
+approaches are applied to create a more efficient and personalized
+Emacs setup.
+
+[[https://www.youtube.com/live/j_2QkCcf8zE?si=e8qvIFdyuV9j7d_y&t=1433][file:http://img.youtube.com/vi/j_2QkCcf8zE/0.jpg]]
+
+
 ** Minimum Emacs Version
 
 Emacs-Solo always requires the latest stable release of Emacs, which
