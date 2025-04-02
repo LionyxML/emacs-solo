@@ -2490,7 +2490,8 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   (global-set-key (kbd "M-O") #'emacs-solo-ace-window/quick-window-jump))
 
 
-;; ---------- EMACS-SOLO-OLIVETTI
+;;; EMACS-SOLO-OLIVETTI
+;;
 (use-package emacs-solo-olivetti
   :ensure nil
   :no-require t
@@ -2534,7 +2535,8 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   ;; (add-hook 'newsticker-treeview-item-mode-hook 'emacs-solo/timed-center-visual-fill-on)
   )
 
-;; ---------- EMACS-SOLO-0x0
+
+;;; EMACS-SOLO-0x0
 ;;
 ;; Inspired by: https://codeberg.org/daviwil/dotfiles/src/branch/master/Emacs.org#headline-28
 (use-package emacs-solo-0x0
@@ -2566,7 +2568,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
       (kill-new url))))
 
 
-;; ---------- EMACS-SOLO-SUDO-EDIT
+;;; EMACS-SOLO-SUDO-EDIT
 ;;
 ;; Inspired by: https://codeberg.org/daviwil/dotfiles/src/branch/master/Emacs.org#headline-28
 (use-package emacs-solo-sudo-edit
@@ -2586,7 +2588,7 @@ buffer is not visiting a file."
       (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
 
 
-;; ---------- EMACS-SOLO-REPLACE-AS-DIFF
+;;; EMACS-SOLO-REPLACE-AS-DIFF
 ;;
 (use-package emacs-solo/replace-regexp-as-diff
   :ensure nil
@@ -2673,8 +2675,7 @@ you can later apply as a patch after reviewing the changes."
             (multi-file-replace-regexp-as-diff files from to delimited))
         (message "No files found in marked items.")))))
 
-
-;; ---------- EMACS-SOLO-WEATER
+;;; EMACS-SOLO-WEATHER
 ;;
 (use-package emacs-solo-weather
   :ensure nil
@@ -2724,7 +2725,7 @@ If SECOND is non-nil, separate the results with a newline."
              (read-only-mode 1))))))))
 
 
-;; ---------- EMACS-SOLO-OLLAMA
+;;; EMACS-SOLO-OLLAMA
 ;;
 (use-package emacs-solo-ollama
   :ensure nil
