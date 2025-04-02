@@ -25,6 +25,9 @@ It is minimalist and powerful. A place I visit once in a while.
 *** Overall View
    [[file:doc/demo-01-overall.png]]
 
+#+html:<details>
+#+html:<summary><h3>More screenshots here...</h3></summary>
+
 *** iComplete + Flymake + Gutter
    [[file:doc/demo-02-icomplete-flymake-gutter.png]]
 
@@ -42,7 +45,7 @@ It is minimalist and powerful. A place I visit once in a while.
 
    [[file:doc/demo-07-dired-with-gutter-2.png]]
 
-And much more...
+#+html:</details>
 
 ** As seen on System Crafters!
 
@@ -57,7 +60,7 @@ Emacs setup.
 
 ** Minimum Emacs Version
 
-Emacs-Solo always requires the latest stable release of Emacs, which
+Emacs Solo always requires the latest stable release of Emacs, which
 is currently: =30.1=
 
 However, some bleeding-edge features may be tested as well. For those,
@@ -129,11 +132,14 @@ Emacs initializes.
 Of course, you can also fork it! (please do 😊)
 
 ** How do I...
+A FAQ like session of common questions of how to do X with only Emacs Solo.
+#+html:<details>
+#+html:<summary><h3>So, how do I...</h3></summary>
 *** 1.) Copy the current word under cursor?
 The usual answer is *M-b* to go back to the beginning of the
 word. *C-M-SPC* to expand the selection to the end of the word and *M-w*.
 
-*Custom Emacs-Solo Solution*: Use the isearch way to search a word (it has
+*Custom Emacs Solo Solution*: Use the isearch way to search a word (it has
 better completion than C-M-SPC), like *M-s M-.* you can now just *M-w*.
 
 *** 2.) Edit multiple search entries at once?
@@ -197,7 +203,7 @@ with =R= and apply the diff with =C-c C-a=.
 Emacs comes with =viper= which is a =vi= emulator. This means a lot of
 modern editing capabilities are missing.
 
-Take a look at =use-package emacs-solo-viper-extensions=, section of the
+Take a look at =use-package Emacs Solo-viper-extensions=, section of the
 =init.el= file. Emacs Solo extends viper mode to include a bunch of more
 modern =evil-like= bindings.
 
@@ -225,3 +231,5 @@ you'd like to save, override, etc.
 Emacs Solo provides the extra option =d=, which will generate a diff of
 the current file being asked to take action, so you can see if saving
 is needed.
+
+#+html:</details>
