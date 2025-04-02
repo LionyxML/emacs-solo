@@ -45,6 +45,9 @@ It is minimalist and powerful. A place I visit once in a while.
 
    [[file:doc/demo-07-dired-with-gutter-2.png]]
 
+*** Well behaved mode-line
+   [[file:doc/demo-08-mode-line.png]]
+
 #+html:</details>
 
 ** As seen on System Crafters!
