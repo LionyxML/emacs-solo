@@ -39,7 +39,7 @@ It is minimalist and powerful. A place I visit once in a while.
 
 *** Dired + Gutter
    [[file:doc/demo-06-dired-with-gutter.png]]
-   [[file:doc/demo-06-dired-with-gutter-2.png]]
+   [[file:doc/demo-07-dired-with-gutter-2.png]]
 
 And much more...
 
