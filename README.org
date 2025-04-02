@@ -37,8 +37,11 @@ It is minimalist and powerful. A place I visit once in a while.
 *** Eshell
    [[file:doc/demo-05-eshell.png]]
 
-And much more...
+*** Dired + Gutter
+   [[file:doc/demo-06-dired-with-gutter.png]]
+   [[file:doc/demo-06-dired-with-gutter-2.png]]
 
+And much more...
 
 ** As seen on System Crafters!
 
@@ -62,12 +65,12 @@ mark these features with the =Emacs 31= tag.
 
 ** External Dependencies
 - =ripgrep= (rg)
-  
+
   This provides quicker project grep and xref navigation.
-  
+
   If you opt to use regular =grep=, reset the customization of =grep-command=.
 
-  
+
 - =gls=
 
   MacOS comes with an implementation of =ls= that misses some nice
@@ -75,17 +78,17 @@ mark these features with the =Emacs 31= tag.
   to use MacOS defaul =ls= you might need to change the
   =dired-listing-switches= variable.
 
-  
+
 - =curl=
 
   Only needed if you'd like to upload text/images directly to 0x0.st
   site from Emacs Solo.
 
-  
+
 - =mpv=
 
   Only needed if you'd like to play videos directly from news in =newsticker=.
-  
+
 
 ** Installation
 
