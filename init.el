@@ -2807,12 +2807,13 @@ If a region is selected, prompt for additional input and pass it as a query."
   (defun emacs-solo/dired-git-status-overlay ()
     "Overlay Git status indicators on the first column in Dired."
     (interactive)
-    (when (and (not (file-remote-p default-directory)) emacs-solo-dired-gutter-enabled)
-      (let* ((git-root (expand-file-name (vc-git-root default-directory)))
-             (git-status (vc-git--run-command-string nil "status" "--porcelain" "--ignored" "--untracked-files=normal"))
-             (status-map (make-hash-table :test 'equal)))
-
-        (when git-root
+    (let ((git-root (vc-git-root default-directory)))
+      (when (and git-root
+                 (not (file-remote-p default-directory))
+                 emacs-solo-dired-gutter-enabled)
+        (setq git-root (expand-file-name git-root))
+        (let* ((git-status (vc-git--run-command-string nil "status" "--porcelain" "--ignored" "--untracked-files=normal"))
+               (status-map (make-hash-table :test 'equal)))
           (mapc #'delete-overlay emacs-solo/dired-git-status-overlays)
           (setq emacs-solo/dired-git-status-overlays nil)
 
