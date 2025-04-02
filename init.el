@@ -355,7 +355,7 @@
                   :after #'minibuffer-hide-completions))
 
   ;; Emacs 31
-  ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-01/msg01919.html
+  ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-03/msg02638.html
   ;;
   ;; I'm currently proposing these features on bug#75784 (bug-gnu-emacs).
   ;; If they get accepted we can get rid of this giant block.
