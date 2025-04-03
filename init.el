@@ -2807,7 +2807,8 @@ If a region is selected, prompt for additional input and pass it as a query."
   (defun emacs-solo/dired-git-status-overlay ()
     "Overlay Git status indicators on the first column in Dired."
     (interactive)
-    (let ((git-root (vc-git-root default-directory)))
+    (require 'vc-git)
+    (let ((git-root (ignore-errors (vc-git-root default-directory))))
       (when (and git-root
                  (not (file-remote-p default-directory))
                  emacs-solo-dired-gutter-enabled)
