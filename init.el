@@ -14,6 +14,10 @@
    ("M-s g" . grep)
    ("M-s f" . find-name-dired)
    ("C-x C-b" . ibuffer)
+   ("C-x w t"  . transpose-window-layout)            ; EMACS-31
+   ("C-x w r"  . rotate-windows)                     ; EMACS-31
+   ("C-x w f h"  . flip-window-layout-horizontally)  ; EMACS-31
+   ("C-x w f v"  . flip-window-layout-vertically)    ; EMACS-31
    ("RET" . newline-and-indent)
    ("C-z" . nil)
    ("C-x C-z" . nil)
@@ -354,7 +358,7 @@
       (advice-add 'completion-at-point
                   :after #'minibuffer-hide-completions))
 
-  ;; Emacs 31
+  ;; EMACS-31
   ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-03/msg02638.html
   ;;
   ;; I'm currently proposing these features on bug#75784 (bug-gnu-emacs).
@@ -658,9 +662,10 @@ away from the bottom.  Counts wrapped lines as real lines."
      (".*" "xdg-open" "open")))
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches "-al --group-directories-first")
+  (dired-hide-details-hide-absolute-location t)            ; EMACS-31
   :init
   (defun emacs-solo/dired-rsync-copy (dest)
-  "Copy marked files in Dired to DEST using rsync asynchronously, with real-time processing of output."
+  "Copy marked files in Dired to DEST using rsync async, with real-time processing of output."
   (interactive
    (list (expand-file-name (read-file-name "rsync to: "
                                            (dired-dwim-target-directory)))))
@@ -1117,7 +1122,7 @@ Otherwise, open the repository's main page."
   (eglot-events-buffer-config '(:size 0 :format full))
   (eglot-prefer-plaintext t)
   (jsonrpc-event-hook nil)
-  (eglot-code-action-indications nil) ;; Emacs 31 -- annoying as hell
+  (eglot-code-action-indications nil) ;; EMACS-31 -- annoying as hell
   :init
   (fset #'jsonrpc--log-event #'ignore)
 
@@ -1575,7 +1580,7 @@ and restart Flymake to apply the changes."
   :config
   (add-to-list 'treesit-language-source-alist '(toml "https://github.com/ikatyang/tree-sitter-toml" "master" "src")))
 
-;;; MARKDOWN-TS-MODE - Emacs 31
+;;; MARKDOWN-TS-MODE - EMACS-31
 ;;  As I first proposed here:
 ;;  https://lists.gnu.org/archive/html/emacs-devel/2025-02/msg00810.html
 (use-package markdown-ts-mode
@@ -2243,7 +2248,8 @@ A compound word includes letters, numbers, `-`, and `_`."
       ("FIXME" . error)
       ("HACK" . warning)
       ("NOTE" . warning)
-      ("HERE" . compilation-info))
+      ("HERE" . compilation-info)
+      ("EMACS-31" . compilation-info))
     "Alist of keywords to highlight and their face."
     :group '+highlight-keywords
     :type '(alist :key-type (string :tag "Keyword")
