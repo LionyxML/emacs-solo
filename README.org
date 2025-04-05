@@ -60,7 +60,6 @@ Emacs setup.
 
 [[https://www.youtube.com/live/j_2QkCcf8zE?si=e8qvIFdyuV9j7d_y&t=1433][file:http://img.youtube.com/vi/j_2QkCcf8zE/0.jpg]]
 
-
 ** Minimum Emacs Version
 
 Emacs Solo always requires the latest stable release of Emacs, which
@@ -95,7 +94,6 @@ mark these features with the =Emacs 31= tag.
 - =mpv=
 
   Only needed if you'd like to play videos directly from news in =newsticker=.
-
 
 ** Installation
 
@@ -234,5 +232,12 @@ you'd like to save, override, etc.
 Emacs Solo provides the extra option =d=, which will generate a diff of
 the current file being asked to take action, so you can see if saving
 is needed.
+
+*** 10.) Show/Hide (toggle) hidden files in Dired?
+
+Use =dired-omit-mode=, which you can toggle with =C-x M-o=. Notice that
+this mode uses the regular expression defined in the =dired-omit-files=
+variable. Emacs Solo already customizes this to ignore files matching
+=^\\.=
 
 #+html:</details>

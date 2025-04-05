@@ -687,6 +687,7 @@ away from the bottom.  Counts wrapped lines as real lines."
      (".*" "xdg-open" "open")))
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches "-al --group-directories-first")
+  (dired-omit-files "^\\.")                                ; with dired-omit-mode (C-x M-o)
   (dired-hide-details-hide-absolute-location t)            ; EMACS-31
   :init
   (defun emacs-solo/dired-rsync-copy (dest)
