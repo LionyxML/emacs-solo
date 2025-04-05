@@ -1,5 +1,15 @@
-;;; init.el --- Emacs-Solo (no external packages) Configuration  -*- lexical-binding: t; -*-
+;;; init.el --- Emacs Solo (no external packages) Configuration --- Init  -*- lexical-binding: t; -*-
+;;
+;; Author: Rahul Martim Juliato
+;; URL: https://github.com/LionyxML/emacs-solo
+;; Package-Requires: ((emacs "30.1"))
+;; Keywords: config
+;; SPDX-License-Identifier: GPL-3.0-or-later
+;;
+
 ;;; Commentary:
+;;  Init configuration for Emacs Solo
+;;
 
 ;;; Code:
 
