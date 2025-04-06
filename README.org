@@ -89,12 +89,25 @@ mark these features with the =Emacs 31= tag.
 - =curl=
 
   Only needed if you'd like to upload text/images directly to 0x0.st
-  site from Emacs Solo.
+  site from Emacs Solo, by using either =emacs-solo/0x0-upload-text= or
+  =emacs-solo/0x0-upload-file=.
 
 
 - =mpv=
 
-  Only needed if you'd like to play videos directly from news in =newsticker=.
+  Only needed if you'd like to play videos directly from news in
+  =newsticker=.
+
+
+- =rsync=
+
+  Only needed if you'd like to use =emacs-solo/dired-rsync-copy=.
+
+
+- =ollama=
+
+  Only needed if you'd like to use =emacs-solo/ollama-run-model=.
+
 
 ** Installation
 
