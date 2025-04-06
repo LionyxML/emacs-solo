@@ -74,7 +74,8 @@ mark these features with the =Emacs 31= tag.
 
   This provides quicker project grep and xref navigation.
 
-  If you opt to use regular =grep=, reset the customization of =grep-command=.
+  If you opt to use regular =grep=, reset the customization of variable
+  =grep-command=.
 
 
 - =gls=

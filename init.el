@@ -690,6 +690,8 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-omit-files "^\\.")                                ; with dired-omit-mode (C-x M-o)
   (dired-hide-details-hide-absolute-location t)            ; EMACS-31
   :init
+  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))) ;; Turning this ON also sets the C-x M-o binding.
+
   (defun emacs-solo/dired-rsync-copy (dest)
   "Copy marked files in Dired to DEST using rsync async, with real-time processing of output."
   (interactive
