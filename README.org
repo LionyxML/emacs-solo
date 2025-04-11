@@ -255,3 +255,15 @@ variable. Emacs Solo already customizes this to ignore files matching
 =^\\.=
 
 #+html:</details>
+*** 11.) Open multiple terms/shells?
+
+Ever felt the need of some =multi-term= package on Emacs? Well, you
+don't really need it, at least not with the internal implementations
+of terminals and =eshell=.
+
+Just use the =C-u= unversal argument command before calling your
+term/shell, like: =C-u M-x eshell= or =C-u C-x p e= or =C-u M-x term=, and
+so on.
+
+Now you have another instance of your term to work with, repeat this
+pattern if you need more instances.
