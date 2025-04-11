@@ -778,6 +778,8 @@ away from the bottom.  Counts wrapped lines as real lines."
 ;;; ESHELL
 (use-package eshell
   :ensure nil
+  :bind
+  (("C-c e" . eshell))
   :defer t
   :config
   (defun emacs-solo/eshell-pick-history ()
