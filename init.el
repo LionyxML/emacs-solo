@@ -260,11 +260,11 @@
   :custom
   (display-buffer-alist
    '(
-     ;; ("\\*.*e?shell\\*"
-     ;;  (display-buffer-in-side-window)
-     ;;  (window-height . 0.25)
-     ;;  (side . bottom)
-     ;;  (slot . -1))
+     ("\\*container\\*"
+      (display-buffer-in-side-window)
+      (window-width . 120)
+      (side . left)
+      (slot . -1))
      ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|Messages\\|Bookmark List\\|Occur\\|eldoc\\)\\*"
       (display-buffer-in-side-window)
       (window-height . 0.25)
@@ -2880,6 +2880,173 @@ If a region is selected, prompt for additional input and pass it as a query."
   (add-hook 'dired-after-readin-hook #'emacs-solo/dired-git-status-overlay))
 
 
+;;; EMACS-SOLO-CONTAINER
+;;
+;;  A proto 'control panel' for basic container management (docker and podman based)
+;;
+(use-package emacs-solo-container
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (require 'transient)
+  (require 'project)
+
+  (defvar container-backend 'podman
+    "Current container backend. Either 'docker or 'podman.")
+
+  (defvar container-profile 'dev
+    "Current profile: either 'prod or 'dev.")
+
+  (defconst container-buffer-name "*container*"
+    "Buffer name for container command output.")
+
+  (defvar container--process nil)
+
+  (defun container-toggle-backend ()
+    "Toggle between Docker and Podman."
+    (interactive)
+    (setq container-backend (if (eq container-backend 'docker) 'podman 'docker))
+    (message "Switched to backend: %s" container-backend))
+
+  (defun container-toggle-profile ()
+    "Toggle between prod and dev profiles."
+    (interactive)
+    (setq container-profile (if (eq container-profile 'prod) 'dev 'prod))
+    (message "Switched to profile: %s" container-profile))
+
+  (defun container--command ()
+    "Return the container backend command."
+    (pcase container-backend
+      ('docker "docker")
+      ('podman "podman")
+      (_ (error "Unknown backend: %s" container-backend))))
+
+  (defun container--compose-command ()
+    "Return the container backend compose command."
+    (pcase container-backend
+      ('docker "docker compose")
+      ('podman "podman compose")
+      (_ (error "Unknown backend: %s" container-backend))))
+
+  (defun container--project-name ()
+    "Return the base name of the current project or buffer."
+    (let* ((project (project-current))
+           (name (if project
+                     (file-name-nondirectory (directory-file-name (project-root project)))
+                   (file-name-base (or buffer-file-name default-directory)))))
+      (downcase name)))
+
+  (defun container--dockerfile ()
+    "Return the appropriate Dockerfile path based on profile and context."
+    (let ((base (container--project-name)))
+      (pcase container-profile
+        ('prod (or (car (file-expand-wildcards (format "%s.Dockerfile" base))) "Dockerfile"))
+        ('dev  (or (car (file-expand-wildcards (format "%s.Dockerfile.dev" base))) "Dockerfile.dev")))))
+
+  (defun container--compose-file ()
+    "Return the appropriate docker-compose file path based on profile and context."
+    (let ((project-root (or (project-root (project-current)) default-directory))  ;; Get the project root
+          (base (container--project-name)))
+      (pcase container-profile
+        ('prod (or (car (file-expand-wildcards (format "%s.docker-compose.yml" base))) (concat project-root "docker-compose.yml")))
+        ('dev  (or (car (file-expand-wildcards (format "%s.docker-compose-dev.yml" base))) (concat project-root "docker-compose-dev.yml"))))))
+
+  (defun container--run-to-buffer (cmd)
+    "Run CMD in a buffer named `*container*` with `comint-mode`."
+    (interactive "sCommand: ")
+    (let ((buf (get-buffer-create container-buffer-name)))
+      (with-current-buffer buf
+        (setq buffer-read-only nil)
+        (erase-buffer)
+        (comint-mode)
+        (ansi-color-for-comint-mode-on))
+      (setq container--process
+            (start-process-shell-command "container" buf cmd))
+      (set-process-filter container--process 'comint-output-filter)
+      (display-buffer buf)))
+
+  (defun container--run (args)
+    "Run a container command with ARGS."
+    (container--run-to-buffer (format "%s %s" (container--command) args)))
+
+  (defun container--run-compose (args)
+    "Run a compose command with ARGS using profile-specific file."
+    (container--run-to-buffer
+     (format "%s -f %s %s"
+             (container--compose-command)
+             (container--compose-file)
+             args)))
+
+  (defun container--run-interactive (prompt action)
+    "Prompt for a container/image name and run ACTION with it."
+    (let ((name (read-string prompt)))
+      (container--run (format "%s %s" action name))))
+
+  ;; === Container actions ===
+  (defun container-list () (interactive) (container--run "ps -a"))
+  (defun container-start () (interactive) (container--run-interactive "Start container: " "start"))
+  (defun container-stop () (interactive) (container--run-interactive "Stop container: " "stop"))
+  (defun container-restart () (interactive) (container--run-interactive "Restart container: " "restart"))
+  (defun container-remove () (interactive) (container--run-interactive "Remove container: " "rm"))
+  (defun container-logs () (interactive) (container--run-interactive "Logs for container: " "logs"))
+
+  ;; === Image actions ===
+  (defun container-list-images () (interactive) (container--run "images"))
+  (defun container-pull-image () (interactive) (container--run-interactive "Pull image: " "pull"))
+
+  (defun container-build-image ()
+    (interactive)
+    (let ((image (read-string "Tag image as: "))
+          (file (container--dockerfile)))
+      (container--run-to-buffer
+       (format "%s build -f %s -t %s ." (container--command) file image))))
+
+  ;; === Compose actions ===
+  (defun container-compose-up () (interactive) (container--run-compose "up -d"))
+  (defun container-compose-down () (interactive) (container--run-compose "down"))
+  (defun container-compose-logs () (interactive) (container--run-compose "logs"))
+  (defun container-compose-ps () (interactive) (container--run-compose "ps"))
+  (defun container-compose-build () (interactive) (container--run-compose "build"))
+  (defun container-compose-restart () (interactive) (container--run-compose "restart"))
+
+  (defun container-kill-buffer ()
+    "Kill the *container* buffer."
+    (interactive)
+    (let ((buf (get-buffer container-buffer-name)))
+      (when buf
+        (kill-buffer buf))))
+
+  ;; === Transient menu ===
+  (transient-define-prefix container-menu ()
+    "Container and Compose management menu."
+    [["Backend/Profile"
+      ("b" (lambda () (format "Toggle backend (%s)" container-backend))
+       container-toggle-backend :transient t)
+      ("p" (lambda () (format "Toggle profile (%s)" container-profile))
+       container-toggle-profile :transient t)
+      ("q" "Kill output buffer" container-kill-buffer :transient t)]
+     ["Containers"
+      ("l" "List containers" container-list :transient t)
+      ("s" "Start container" container-start :transient t)
+      ("t" "Stop container" container-stop :transient t)
+      ("r" "Restart container" container-restart :transient t)
+      ("R" "Remove container" container-remove :transient t)
+      ("L" "Logs" container-logs :transient t)]
+     ["Images"
+      ("i" "List images" container-list-images :transient t)
+      ("P" "Pull image" container-pull-image :transient t)
+      ("B" "Build image" container-build-image :transient t)]
+     ["Compose"
+      ("u" "Compose up" container-compose-up :transient t)
+      ("d" "Compose down" container-compose-down :transient t)
+      ("c" "Compose ps" container-compose-ps :transient t)
+      ("C" "Compose build" container-compose-build :transient t)
+      ("x" "Compose restart" container-compose-restart :transient t)
+      ("g" "Compose logs" container-compose-logs :transient t)]
+     ])
+
+  (global-set-key (kbd "C-c d") #'container-menu))
 
 
 (provide 'init)
