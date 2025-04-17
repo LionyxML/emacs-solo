@@ -84,9 +84,6 @@
   (switch-to-buffer-obey-display-actions t)
   (tab-always-indent 'complete)
   (tab-width 4)
-  (tab-bar-close-button-show nil)
-  (tab-bar-new-button-show nil)
-  (tab-bar-tab-hints t)
   (treesit-font-lock-level 4)
   (truncate-lines t)
   (undo-limit (* 13 160000))
@@ -291,6 +288,26 @@
       (side . bottom)
       (slot . 2))
      )))
+
+
+;;; TAB-BAR
+(use-package tab-bar
+  :ensure nil
+  :defer t
+  :custom
+  (tab-bar-close-button-show nil)
+  (tab-bar-new-button-show nil)
+  (tab-bar-tab-hints t)
+  (tab-bar-auto-width t)
+  (tab-bar-auto-width-min '(10 4))
+  (tab-bar-auto-width-max '(50 5))
+  :init
+  ;; HACK this is an override of the internal function so it
+  ;;      shows only the hint number with some decoration.
+  (defun tab-bar-tab-name-format-hints (name _tab i)
+  "Show absolute numbers on tabs in the tab bar before the tab name.
+It has effect when `tab-bar-tab-hints' is non-nil."
+  (if tab-bar-tab-hints (concat (format " »%d«" i) "") name)))
 
 
 ;;; RCIRC
@@ -1430,6 +1447,7 @@ and restart Flymake to apply the changes."
   (setq uniquify-strip-common-suffix t)
   (setq uniquify-after-kill-buffer-p t))
 
+
 ;;; WHICH-KEY
 (use-package which-key
   :defer t
@@ -1445,6 +1463,7 @@ and restart Flymake to apply the changes."
   (setq which-key-add-column-padding 1)
   (setq which-key-max-description-length 40))
 
+
 ;;; WEBJUMP
 (use-package webjump
   :defer t
@@ -1457,7 +1476,8 @@ and restart Flymake to apply the changes."
      ("YouTube" . [simple-query "www.youtube.com/feed/subscriptions" "www.youtube.com/rnesults?search_query=" ""])
      ("ChatGPT" . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
 
- ;;; THEMES
+
+;;; THEMES
 (use-package modus-themes
   :ensure nil
   :defer t
@@ -1548,6 +1568,7 @@ and restart Flymake to apply the changes."
   :mode "\\.sass\\'"
   :defer t)
 
+
 ;;; -------------------- TREESITTER AREA
 ;;; RUBY-TS-MODE
 (use-package ruby-ts-mode
@@ -1560,6 +1581,7 @@ and restart Flymake to apply the changes."
   (ruby-indent-level 2)
   (ruby-indent-tabs-mode nil))
 
+
 ;;; JS-TS-MODE
 (use-package js-ts-mode
   :ensure js ;; I care about js-base-mode but it is locked behind the feature "js"
@@ -1571,6 +1593,7 @@ and restart Flymake to apply the changes."
   (add-to-list 'treesit-language-source-alist '(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
   (add-to-list 'treesit-language-source-alist '(jsdoc "https://github.com/tree-sitter/tree-sitter-jsdoc" "master" "src")))
 
+
 ;;; TYPESCRIPT-TS-MODE
 (use-package typescript-ts-mode
   :mode "\\.ts\\'"
@@ -1580,6 +1603,7 @@ and restart Flymake to apply the changes."
   :config
   (add-to-list 'treesit-language-source-alist '(typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))
   (unbind-key "M-." typescript-ts-base-mode-map))
+
 
 ;;; TYPESCRIPT-TS-MODE
 (use-package tsx-ts-mode
@@ -1602,6 +1626,7 @@ and restart Flymake to apply the changes."
   :config
   (add-to-list 'treesit-language-source-alist '(rust "https://github.com/tree-sitter/tree-sitter-rust" "master" "src")))
 
+
 ;;; TOML-TS-MODE
 (use-package toml-ts-mode
   :ensure toml-ts-mode
@@ -1609,6 +1634,7 @@ and restart Flymake to apply the changes."
   :defer 't
   :config
   (add-to-list 'treesit-language-source-alist '(toml "https://github.com/ikatyang/tree-sitter-toml" "master" "src")))
+
 
 ;;; MARKDOWN-TS-MODE - EMACS-31
 ;;  As I first proposed here:
@@ -1618,9 +1644,10 @@ and restart Flymake to apply the changes."
   :mode "\\.md\\'"
   :defer 't
   :config
-  (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
+  ;; (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
+
 
 ;;; YAML-TS-MODE
 (use-package yaml-ts-mode
@@ -1629,6 +1656,7 @@ and restart Flymake to apply the changes."
   :defer 't
   :config
   (add-to-list 'treesit-language-source-alist '(yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "master" "src")))
+
 
 ;;; DOCKERFILE-TS-MODE
 (use-package dockerfile-ts-mode
