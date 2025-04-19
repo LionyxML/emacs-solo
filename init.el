@@ -22,6 +22,7 @@
    ("M-j" . duplicate-dwim)
    ("M-g r" . recentf)
    ("M-s g" . grep)
+   ("C-x ;" . comment-line)
    ("M-s f" . find-name-dired)
    ("C-x C-b" . ibuffer)
    ("C-x w t"  . transpose-window-layout)            ; EMACS-31
@@ -1770,6 +1771,7 @@ Also first tries the local node_modules/.bin and later the global bin."
         (message "No formatter found (biome or prettier)"))))
 
   (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file)
+  (global-set-key (kbd "C-c C-p") #'emacs-solo-movements/format-current-file)
 
 
   (defun emacs-solo/transpose-split ()
