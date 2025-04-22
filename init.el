@@ -1406,7 +1406,7 @@ and restart Flymake to apply the changes."
 ;;; TIME
 (use-package time
   :ensure nil
-  ;; :hook (after-init-hook . display-time-mode) ;; If we'd like to see it on the modeline
+  ;; :hook (after-init-hook . display-time-mode) ;; If we'd like to see it on the mode-line
   :custom
   (world-clock-time-format "%A %d %B %r %Z")
   (display-time-day-and-date t)
@@ -1864,12 +1864,12 @@ Also first tries the local node_modules/.bin and later the global bin."
           (concat (substring vc 0 20) "…")
         vc)))
 
-  ;; Formats Modeline
+  ;; Formats mode-line
   (setq-default mode-line-format
                 '("%e" "  "
                   ;; (:propertize " " display (raise +0.1)) ;; Top padding
                   ;; (:propertize " " display (raise -0.1)) ;; Bottom padding
-                  (:propertize "λ  " face font-lock-keyword-face)
+                  (:propertize "𝛌  " face font-lock-keyword-face)
 
                   (:propertize
                    ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
