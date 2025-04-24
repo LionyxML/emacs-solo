@@ -1188,7 +1188,7 @@ Otherwise, open the repository's main page."
   :bind (:map
          eglot-mode-map
          ("C-c l a" . eglot-code-actions)
-         ("C-c l o" . eglot-code-actions-organize-imports)
+         ("C-c l o" . eglot-code-action-organize-imports)
          ("C-c l r" . eglot-rename)
          ("C-c l f" . eglot-format)))
 
