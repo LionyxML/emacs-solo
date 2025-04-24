@@ -717,8 +717,36 @@ away from the bottom.  Counts wrapped lines as real lines."
      (list (expand-file-name (read-file-name "rsync to: "
                                              (dired-dwim-target-directory)))))
     (let* ((files (dired-get-marked-files nil current-prefix-arg))
-           (command (append '("rsync" "-hPur") (mapcar #'shell-quote-argument files) (list (shell-quote-argument dest))))
+           (dest-original dest)
+           (dest-rsync
+            (if (file-remote-p dest)
+                (let ((vec (tramp-dissect-file-name dest)))
+                  (concat (tramp-file-name-user vec)
+                          "@"
+                          (tramp-file-name-host vec)
+                          ":"
+                          (tramp-file-name-localname vec)))
+              dest))
+           (files-rsync
+            (mapcar
+             (lambda (f)
+               (if (file-remote-p f)
+                   (let ((vec (tramp-dissect-file-name f)))
+                     (concat (tramp-file-name-user vec)
+                             "@"
+                             (tramp-file-name-host vec)
+                             ":"
+                             (tramp-file-name-localname vec)))
+                 f))
+             files))
+           (command (append '("rsync" "-hPur") files-rsync (list dest-rsync)))
            (buffer (get-buffer-create "*rsync*")))
+
+      (message "[rsync] original dest: %s" dest-original)
+      (message "[rsync] converted dest: %s" dest-rsync)
+      (message "[rsync] source files: %s" files-rsync)
+      (message "[rsync] command: %s" (string-join command " "))
+
       (with-current-buffer buffer
         (erase-buffer)
         (insert "Running rsync...\n"))
