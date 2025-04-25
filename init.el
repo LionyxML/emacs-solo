@@ -1616,7 +1616,7 @@ and restart Flymake to apply the changes."
 (use-package js-ts-mode
   :ensure js ;; I care about js-base-mode but it is locked behind the feature "js"
   :mode "\\.jsx?\\'"
-  :defer 't
+  :defer t
   :custom
   (js-indent-level 2)
   :config
@@ -1627,7 +1627,7 @@ and restart Flymake to apply the changes."
 ;;; TYPESCRIPT-TS-MODE
 (use-package typescript-ts-mode
   :mode "\\.ts\\'"
-  :defer 't
+  :defer t
   :custom
   (typescript-indent-level 2)
   :config
@@ -1638,7 +1638,7 @@ and restart Flymake to apply the changes."
 ;;; TYPESCRIPT-TS-MODE
 (use-package tsx-ts-mode
   :mode "\\.tsx\\'"
-  :defer 't
+  :defer t
   :custom
   (typescript-indent-level 2)
   :config
@@ -1650,7 +1650,7 @@ and restart Flymake to apply the changes."
 (use-package rust-ts-mode
   :ensure rust-ts-mode
   :mode "\\.rs\\'"
-  :defer 't
+  :defer t
   :custom
   (rust-indent-level 2)
   :config
@@ -1661,7 +1661,7 @@ and restart Flymake to apply the changes."
 (use-package toml-ts-mode
   :ensure toml-ts-mode
   :mode "\\.toml\\'"
-  :defer 't
+  :defer t
   :config
   (add-to-list 'treesit-language-source-alist '(toml "https://github.com/ikatyang/tree-sitter-toml" "master" "src")))
 
@@ -1672,7 +1672,7 @@ and restart Flymake to apply the changes."
 (use-package markdown-ts-mode
   :ensure nil
   :mode "\\.md\\'"
-  :defer 't
+  :defer t
   :config
   ;; (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
@@ -1683,7 +1683,7 @@ and restart Flymake to apply the changes."
 (use-package yaml-ts-mode
   :ensure yaml-ts-mode
   :mode "\\.ya?ml\\'"
-  :defer 't
+  :defer t
   :config
   (add-to-list 'treesit-language-source-alist '(yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "master" "src")))
 
@@ -1692,9 +1692,20 @@ and restart Flymake to apply the changes."
 (use-package dockerfile-ts-mode
   :ensure dockerfile-ts-mode
   :mode "\\Dockerfile.*\\'"
-  :defer 't
+  :defer t
   :config
   (add-to-list 'treesit-language-source-alist '(dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src")))
+
+
+;;; GO-TS-MODE
+(use-package go-ts-mode
+  :ensure t
+  :mode "\\.go\\'"
+  :mode "go.mod\\'"
+  :mode "go.sum\\'"
+  :defer t
+  :custom
+  (go-ts-mode-indent-offset 4))
 
 
 ;;; ------------------- EMACS-SOLO CUSTOMS
