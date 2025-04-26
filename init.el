@@ -2609,7 +2609,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   :no-require t
   :defer t
   :init
-  (defvar emacs-solo-center-document-desired-width 90
+  (defvar emacs-solo-center-document-desired-width 120
     "The desired width of a document centered in the window.")
 
   (defun emacs-solo/center-document--adjust-margins ()
