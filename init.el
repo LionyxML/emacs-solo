@@ -1897,10 +1897,13 @@ Also first tries the local node_modules/.bin and later the global bin."
   ;; Shorten big branches names
   (defun emacs-solo/shorten-vc-mode (vc)
     "Shorten VC string to at most 20 characters.
- Replacing `Git-' with a branch symbol."
-    (let* ((vc (replace-regexp-in-string "^ Git[:-]" "  " vc))) ;; Options:   ᚠ ⎇
+Replacing `Git-' with a branch symbol."
+    (let* ((vc (replace-regexp-in-string "^ Git[:-]"
+                                         (if (char-displayable-p ?) "  " "Git: ")
+                                         vc))) ;; Options:   ᚠ ⎇
       (if (> (length vc) 20)
-          (concat (substring vc 0 20) "…")
+          (concat (substring vc 0 20)
+                  (if (char-displayable-p ?…) "…" "..."))
         vc)))
 
   ;; Formats mode-line
@@ -1930,14 +1933,16 @@ Also first tries the local node_modules/.bin and later the global bin."
                 mode-line-buffer-identification '(" %b")
                 mode-line-position-column-line-format '(" %l:%c"))
 
-  ;; Provides the Diminish functionality
-  (defvar emacs-solo-hidden-minor-modes
-    '(abbrev-mode
-      eldoc-mode
-      flyspell-mode
-      smooth-scroll-mode
-      outline-minor-mode
-      which-key-mode))
+  ;; EMACS-31
+  (setq mode-line-collapse-minor-modes
+        '(abbrev-mode
+          eldoc-mode
+          flyspell-mode
+          smooth-scroll-mode
+          outline-minor-mode
+          which-key-mode))
+
+  (defvar emacs-solo-hidden-minor-modes mode-line-collapse-minor-modes)
 
   (defun emacs-solo/purge-minor-modes ()
     (interactive)
@@ -1946,7 +1951,8 @@ Also first tries the local node_modules/.bin and later the global bin."
         (when trg
           (setcar trg "")))))
 
-  (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes))
+  (if (< emacs-major-version 31)
+      (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes)))
 
 
 ;;; EMACS-SOLO-EXEC-PATH-FROM-SHELL
