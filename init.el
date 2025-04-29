@@ -1348,20 +1348,31 @@ and restart Flymake to apply the changes."
   :custom
   (newsticker-treeview-treewindow-width 40)
   :hook
-  (newsticker-treeview-item-mode-hook . (lambda ()
-                                          (define-key newsticker-treeview-item-mode-map
-                                                      (kbd "V")
-                                                      'emacs-solo/newsticker-play-yt-video-from-buffer)))
+  (newsticker-treeview-mode-hook . (lambda ()
+                                     (define-key newsticker-treeview-mode-map
+                                                 (kbd "V")
+                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)
+                                     (define-key newsticker-treeview-list-mode-map
+                                                 (kbd "V")
+                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)
+                                     (define-key newsticker-treeview-item-mode-map
+                                                 (kbd "V")
+                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)))
   :init
   (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
-    "Plays with mpv async, the current buffer found '* videoId: '."
+    "Focus the window showing '*Newsticker Item*' and play the video."
     (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
-        (let ((video-id (match-string 1)))
-          (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
-          (message "Playing with mpv: %s" video-id))))))
+    (let ((window (get-buffer-window "*Newsticker Item*" t)))
+      (if window
+          (progn
+            (select-window window)
+            (save-excursion
+              (goto-char (point-min))
+              (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
+                (let ((video-id (match-string 1)))
+                  (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
+                  (message "Playing with mpv: %s" video-id))))))
+      (message "No window showing *Newsticker Item* buffer."))))
 
 
 ;;; ELEC_PAIR
