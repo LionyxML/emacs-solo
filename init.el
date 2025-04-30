@@ -831,6 +831,13 @@ away from the bottom.  Counts wrapped lines as real lines."
   (("C-c e" . eshell))
   :defer t
   :config
+  (defun emacs-solo/reset-scrolling-vars-for-term ()
+    "Locally reset scrolling behavior in term-like buffers."
+    (setq-local scroll-conservatively 0)
+    (setq-local scroll-margin 0))
+  (add-hook 'term-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
+  (add-hook 'eshell-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
+
   (defun emacs-solo/eshell-pick-history ()
     "Show Eshell history in a completing-read picker and insert the selected command."
     (interactive)
