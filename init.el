@@ -698,6 +698,8 @@ away from the bottom.  Counts wrapped lines as real lines."
   :ensure nil
   :bind
   (("M-i" . emacs-solo/window-dired-vc-root-left))
+  (:map dired-mode-map
+        ("-" . dired-up-directory))
   :custom
   (dired-dwim-target t)
   (dired-guess-shell-alist-user
