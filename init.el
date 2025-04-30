@@ -933,8 +933,8 @@ away from the bottom.  Counts wrapped lines as real lines."
 
   (setq eshell-visual-commands
         '("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
-          "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m"
-          "ncmpcpp" "newsbeuter" "nethack" "mutt")))
+          "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"
+          "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux" "docker" "podman")))
 
 ;;; ISEARCH
 (use-package isearch
