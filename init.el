@@ -1212,6 +1212,9 @@ Otherwise, open the repository's main page."
   :init
   (fset #'jsonrpc--log-event #'ignore)
 
+  (setq-default eglot-workspace-configuration (quote
+                                               (:gopls (:hints (:parameterNames t)))))
+
   (defun emacs-solo/eglot-setup ()
     "Setup eglot mode with specific exclusions."
     (unless (eq major-mode 'emacs-lisp-mode)
