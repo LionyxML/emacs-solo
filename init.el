@@ -1724,12 +1724,11 @@ and restart Flymake to apply the changes."
 (use-package go-ts-mode
   :ensure t
   :mode "\\.go\\'"
-  :mode "go.mod\\'"
-  :mode "go.sum\\'"
-  :defer t
-  :custom
-  (go-ts-mode-indent-offset 4))
-
+  :hook ((go-ts-mode-hook . (lambda ()
+                              (setq indent-tabs-mode t)  ; Use tabs, go likes tabs, go figure
+                              (setq tab-width 4)         ; Tabs *display* as 4 spaces
+                              (setq-local go-ts-mode-indent-offset tab-width))))
+  :defer t)
 
 ;;; ------------------- EMACS-SOLO CUSTOMS
 ;;; EMACS-SOLO-HOOKS
