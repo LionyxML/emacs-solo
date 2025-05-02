@@ -186,7 +186,6 @@
   (toggle-frame-maximized)
   (select-frame-set-input-focus (selected-frame))
   (global-auto-revert-mode 1)
-  (indent-tabs-mode -1)
   (recentf-mode 1)
   (repeat-mode 1)
   (savehist-mode 1)
@@ -1739,12 +1738,13 @@ and restart Flymake to apply the changes."
   :defer t
   :init
 
-  (defun emacs-solo/prefer-tabs ()
-    "Disables indent-tabs-mode, and prefer spaces over tabs."
+  (defun emacs-solo/prefer-spaces ()
+    "Disable indent-tabs-mode to prefer spaces over tabs."
     (interactive)
-    (indent-tabs-mode -1))
+    (setq indent-tabs-mode nil))
 
-  (add-hook 'prog-mode-hook #'emacs-solo/prefer-tabs))
+  ;; Only override where necessary
+  (add-hook 'emacs-lisp-mode-hook #'emacs-solo/prefer-spaces))
 
 
 ;;; EMACS-SOLO-MOVEMENTS
