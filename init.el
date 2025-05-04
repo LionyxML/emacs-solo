@@ -98,6 +98,7 @@
   (window-combination-resize t)
   (window-resize-pixelwise nil)
   (xref-search-program 'ripgrep)
+  (zone-programs '[zone-pgm-rat-race])
   (grep-command "rg -nS --no-heading ")
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
