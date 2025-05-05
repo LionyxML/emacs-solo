@@ -1508,13 +1508,89 @@ and restart Flymake to apply the changes."
   :hook
   (after-init-hook . which-key-mode)
   :config
-  (setq which-key-separator "  ")
-  (setq which-key-prefix-prefix "... ")
+  (setq which-key-separator " ")
+  (setq which-key-prefix-prefix "… ")
   (setq which-key-max-display-columns 3)
-  (setq which-key-idle-delay 1.5)
+  (setq which-key-idle-delay 1)
   (setq which-key-idle-secondary-delay 0.25)
   (setq which-key-add-column-padding 1)
-  (setq which-key-max-description-length 40))
+  (setq which-key-max-description-length 40)
+
+  ;; Inspired by: https://gist.github.com/mmarshall540/a12f95ab25b1941244c759b1da24296d
+  ;;
+  ;; By default, Which-key doesn't give much help for prefix-keys. It
+  ;; either shows the generic description, "+prefix", or the name of a
+  ;; prefix-command, which usually isn't as descriptive as we'd like.
+  ;;
+  ;; Here are some descriptions for the default bindings in `global-map'
+  ;; and `org-mode-map'.
+  (which-key-add-key-based-replacements
+    "<f1> 4" "help-other-win"
+    "<f1>" "help"
+    "<f2>" "2column"
+    "C-c" "mode-and-user"
+    "C-c !" "flymake"
+    "C-c g" "git-gutter"
+    "C-h 4" "help-other-win"
+    "C-h" "help"
+    "C-x 4" "other-window"
+    "C-x 5" "other-frame"
+    "C-x 6" "2-column"
+    "C-x 8" "insert-special"
+    "C-x 8 ^" "superscript (⁰, ¹, ², …)"
+    "C-x 8 _" "subscript (₀, ₁, ₂, …)"
+    "C-x 8 a" "arrows & æ (←, →, ↔, æ)"
+    "C-x 8 e" "emojis (🫎, 🇧🇷, 🇮🇹, …)"
+    "C-x 8 *" "common symbols ( , ¡, €, …)"
+    "C-x 8 =" "macron (Ā, Ē, Ḡ, …)"
+    "C-x 8 N" "macron (№)"
+    "C-x 8 O" "macron (œ)"
+    "C-x 8 ~" "tilde (~, ã, …)"
+    "C-x 8 /" "stroke (÷, ≠, ø, …)"
+    "C-x 8 ." "dot (·, ż)"
+    "C-x 8 ," "cedilla (¸, ç, ą, …)"
+    "C-x 8 '" "acute (á, é, í, …)"
+    "C-x 8 `" "grave (à, è, ì, …)"
+    "C-x 8 \"" "quotation/dieresis (\", ë, ß, …)"
+    "C-x 8 1" "†, 1/…"
+    "C-x 8 2" "‡"
+    "C-x 8 3" "3/…"
+    "C-x C-k C-q" "kmacro-counters"
+    "C-x C-k C-r a" "kmacro-add"
+    "C-x C-k C-r" "kmacro-register"
+    "C-x C-k" "keyboard-macros"
+    "C-x RET" "encoding/input"
+    "C-x a i" "abbrevs-inverse-add"
+    "C-x a" "abbrevs"
+    "C-x n" "narrowing"
+    "C-x p" "projects"
+    "C-x r" "reg/rect/bkmks"
+    "C-x t ^" "tab-bar-detach"
+    "C-x t" "tab-bar"
+    "C-x v M" "vc-mergebase"
+    "C-x v b" "vc-branch"
+    "C-x v" "version-control"
+    "C-x w ^" "window-detach"
+    "C-x w" "window-extras"
+    "C-x x" "buffer-extras"
+    "C-x" "extra-commands"
+    "M-g" "goto-map"
+    "M-s h" "search-highlight"
+    "M-s" "search-map")
+
+  ;; Upon loading, the built-in `page-ext' package turns "C-x C-p" into
+  ;; a prefix-key. If you know of other built-in packages that have
+  ;; this behavior, please let me know, so I can add them.
+  (with-eval-after-load 'page-ext
+    (which-key-add-key-based-replacements
+      "C-x C-p" "page-extras"))
+
+  ;; Org-mode provides some additional prefix-keys in `org-mode-map'.
+  (with-eval-after-load 'org
+    (which-key-add-keymap-based-replacements org-mode-map
+      "C-c \"" "org-plot"
+      "C-c C-v" "org-babel"
+      "C-c C-x" "org-extra-commands")))
 
 
 ;;; WEBJUMP
