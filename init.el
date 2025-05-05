@@ -1619,6 +1619,9 @@ and restart Flymake to apply the changes."
 ;;; SASS-MODE
 (use-package scss-mode
   :mode "\\.sass\\'"
+  :hook
+  ((sass-mode-hook . (lambda ()
+                       (setq indent-tabs-mode nil))))
   :defer t)
 
 
@@ -1640,6 +1643,9 @@ and restart Flymake to apply the changes."
   :ensure js ;; I care about js-base-mode but it is locked behind the feature "js"
   :mode "\\.jsx?\\'"
   :defer t
+  :hook
+  ((js-ts-mode-hook . (lambda ()
+                        (setq indent-tabs-mode nil))))
   :custom
   (js-indent-level 2)
   :config
@@ -1651,6 +1657,9 @@ and restart Flymake to apply the changes."
 (use-package typescript-ts-mode
   :mode "\\.ts\\'"
   :defer t
+  :hook
+  ((typescript-ts-mode-hook . (lambda ()
+                                (setq indent-tabs-mode nil))))
   :custom
   (typescript-indent-level 2)
   :config
@@ -1662,6 +1671,9 @@ and restart Flymake to apply the changes."
 (use-package tsx-ts-mode
   :mode "\\.tsx\\'"
   :defer t
+  :hook
+  ((tsx-ts-mode-hook . (lambda ()
+                         (setq indent-tabs-mode nil))))
   :custom
   (typescript-indent-level 2)
   :config
@@ -1724,10 +1736,11 @@ and restart Flymake to apply the changes."
 (use-package go-ts-mode
   :ensure t
   :mode "\\.go\\'"
-  :hook ((go-ts-mode-hook . (lambda ()
-                              (setq indent-tabs-mode t)  ; Use tabs, go likes tabs, go figure
-                              (setq tab-width 4)         ; Tabs *display* as 4 spaces
-                              (setq-local go-ts-mode-indent-offset tab-width))))
+  :hook
+  ((go-ts-mode-hook . (lambda ()
+                        (setq indent-tabs-mode t)  ; Use tabs, go likes tabs, go figure
+                        (setq tab-width 4)         ; Tabs *display* as 4 spaces
+                        (setq-local go-ts-mode-indent-offset tab-width))))
   :defer t)
 
 ;;; ------------------- EMACS-SOLO CUSTOMS
