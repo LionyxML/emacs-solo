@@ -887,43 +887,55 @@ away from the bottom.  Counts wrapped lines as real lines."
             (concat
              "┌─("
              (if (> eshell-last-command-status 0)
-                 "❌"
-               "🐂")
-             " " (number-to-string eshell-last-command-status)
+                 "🔴" "🟢")
+             "" (number-to-string eshell-last-command-status)
              ")──("
-             "🧘 " (or (file-remote-p default-directory 'user) (user-login-name))
+             "🫎" (or (file-remote-p default-directory 'user) (user-login-name))
              ")──("
-             "💻 " (or (file-remote-p default-directory 'host) (system-name))
+             "💻" (or (file-remote-p default-directory 'host) (system-name))
              ")──("
-             "🕝 " (format-time-string "%H:%M:%S" (current-time))
+             "🕒" (format-time-string "%H:%M:%S" (current-time))
              ")──("
-             "📁 "
+             "📁"
              (concat (if (>= (length (eshell/pwd)) 40)
-                         (concat "..." (car (last (butlast (split-string (eshell/pwd) "/") 0))))
+                         (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
                        (abbreviate-file-name (eshell/pwd))))
              ")\n"
 
              (when (and (fboundp 'vc-git-root) (vc-git-root default-directory))
                (concat
-                "├─(🌿 " (car (vc-git-branches))
+                "├─(🌿" (car (vc-git-branches))
                 (let* ((branch (car (vc-git-branches)))
                        (behind (string-to-number
                                 (shell-command-to-string
-                                 (concat "git rev-list --count HEAD..origin/" branch)))))
-                  (if (> behind 0)
-                      (concat "  ⬇️ " (number-to-string behind))))
+                                 (format "git rev-list --count origin/%s..HEAD" branch))))
+                       (ahead (string-to-number
+                               (shell-command-to-string
+                                (format "git rev-list --count HEAD..origin/%s" branch)))))
+                  (concat
+                   (when (> ahead 0)
+                     (format " ⬇️%d" ahead))
+                   (when (> behind 0)
+                     (format " ⬆️%d" behind))
+                   (when (and (> ahead 0) (> behind 0))
+                     "  🔀")))
 
                 (let ((modified (length (split-string
                                          (shell-command-to-string
                                           "git ls-files --modified") "\n" t)))
                       (untracked (length (split-string
                                           (shell-command-to-string
-                                           "git ls-files --others --exclude-standard") "\n" t))))
+                                           "git ls-files --others --exclude-standard") "\n" t)))
+                      (conflicts (length (split-string
+                                          (shell-command-to-string
+                                           "git diff --name-only --diff-filter=U") "\n" t))))
                   (concat
                    (if (> modified 0)
-                       (concat "  ✏️ " (number-to-string modified)))
+                       (format " ✏️%d" modified))
                    (if (> untracked 0)
-                       (concat "  📄 " ))))
+                       (format " ✨%d" untracked))
+                   (if (> conflicts 0)
+                       (format " ⚔️%d" conflicts))))
                 ")\n"))
              "└─➜ ")))
 
