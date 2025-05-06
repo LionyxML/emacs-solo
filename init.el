@@ -1708,7 +1708,7 @@ and restart Flymake to apply the changes."
 (use-package scss-mode
   :mode "\\.sass\\'"
   :hook
-  ((sass-mode-hook . (lambda ()
+  ((scss-mode-hook . (lambda ()
                        (setq indent-tabs-mode nil))))
   :defer t)
 
