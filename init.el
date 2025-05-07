@@ -839,8 +839,12 @@ away from the bottom.  Counts wrapped lines as real lines."
   (add-hook 'eshell-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
 
   (defun emacs-solo/eshell-pick-history ()
-    "Show Eshell history in a completing-read picker and insert the selected command."
+    "Show Eshell history combining memory and file persistence."
     (interactive)
+    ;; Write current session's history to file so it's always fresh
+    (when (bound-and-true-p eshell-history-ring)
+      (eshell-write-history))
+    ;; Then read the history from file
     (let* ((history-file (expand-file-name "eshell/history" user-emacs-directory))
            (history-entries (when (file-exists-p history-file)
                               (with-temp-buffer
