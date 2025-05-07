@@ -881,8 +881,7 @@ away from the bottom.  Counts wrapped lines as real lines."
               (local-set-key (kbd "C-l")
                              (lambda ()
                                (interactive)
-                               (eshell/clear 1)
-                               (eshell-send-input)))))
+                               (eshell/clear 1)))))
 
   (require 'vc)
   (require 'vc-git)
