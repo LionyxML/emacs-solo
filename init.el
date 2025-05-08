@@ -831,6 +831,16 @@ away from the bottom.  Counts wrapped lines as real lines."
   (("C-c e" . eshell))
   :defer t
   :config
+  (setopt eshell-banner-message
+          (concat
+           (propertize " ✨ Welcome to the Emacs Solo Shell ✨\n\n" 'face '(:weight bold :foreground "#f9e2af"))
+           (propertize " C-c t" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between prompts\n"
+           (propertize " C-c l" 'face '(:foreground "#89b4fa" :weight bold)) " - searches history\n"
+           (propertize " C-l  " 'face '(:foreground "#89b4fa" :weight bold)) " - clears scrolling\n\n"))
+
+
+  ;; DISABLE SCROLLING CONSERVATIVELY ON ESHELL
+  ;;
   (defun emacs-solo/reset-scrolling-vars-for-term ()
     "Locally reset scrolling behavior in term-like buffers."
     (setq-local scroll-conservatively 0)
@@ -838,6 +848,9 @@ away from the bottom.  Counts wrapped lines as real lines."
   (add-hook 'term-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
   (add-hook 'eshell-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
 
+
+  ;; MAKES C-c l GIVE AN ICOMPLETE LIKE SEARCH TO HISTORY COMMANDS
+  ;;
   (defun emacs-solo/eshell-pick-history ()
     "Show Eshell history combining memory and file persistence."
     (interactive)
@@ -855,6 +868,8 @@ away from the bottom.  Counts wrapped lines as real lines."
         (insert selection))))
 
 
+  ;; GIVES SYNTAX HIGHLIGHTING TO CAT
+  ;;
   (defun eshell/cat-with-syntax-highlighting (filename)
     "Like cat(1) but with syntax highlighting.
   Stole from aweshell"
@@ -875,77 +890,146 @@ away from the bottom.  Counts wrapped lines as real lines."
   (advice-add 'eshell/cat :override #'eshell/cat-with-syntax-highlighting)
 
 
+  ;; LOCAL ESHELL BINDINGS
+  ;;
   (add-hook 'eshell-mode-hook
             (lambda ()
               (local-set-key (kbd "C-c l") #'emacs-solo/eshell-pick-history)
+              (local-set-key (kbd "C-c t") #'emacs-solo/toggle-eshell-prompt)
               (local-set-key (kbd "C-l")
                              (lambda ()
                                (interactive)
                                (eshell/clear 1)))))
 
+
+  ;; CUSTOM ESHELL PROMPT
+  ;;
   (require 'vc)
   (require 'vc-git)
+
+  (defvar emacs-solo/eshell-full-prompt t
+    "When non-nil, show the full Eshell prompt. When nil, show minimal prompt.")
+
+  (defvar emacs-solo/eshell-lambda-symbol " 𝛌  "
+    "Symbol used for the minimal Eshell prompt.")
+
+  (defun emacs-solo/toggle-eshell-prompt ()
+    "Toggle between full and minimal Eshell prompt."
+    (interactive)
+    (setq emacs-solo/eshell-full-prompt (not emacs-solo/eshell-full-prompt))
+    (message "Eshell prompt: %s"
+             (if emacs-solo/eshell-full-prompt "full" "minimal"))
+    (when (derived-mode-p 'eshell-mode)
+      (eshell-reset)))
+
   (setopt eshell-prompt-function
           (lambda ()
-            (concat
-             "┌─("
-             (if (> eshell-last-command-status 0)
-                 "🔴" "🟢")
-             "" (number-to-string eshell-last-command-status)
-             ")──("
-             "🫎" (or (file-remote-p default-directory 'user) (user-login-name))
-             ")──("
-             "💻" (or (file-remote-p default-directory 'host) (system-name))
-             ")──("
-             "🕒" (format-time-string "%H:%M:%S" (current-time))
-             ")──("
-             "📁"
-             (concat (if (>= (length (eshell/pwd)) 40)
-                         (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
-                       (abbreviate-file-name (eshell/pwd))))
-             ")\n"
+            (if emacs-solo/eshell-full-prompt
+                ;; Full-blown prompt
+                (concat
+                 (propertize "" 'face `(:foreground "#212234"))
 
-             (when (and (fboundp 'vc-git-root) (vc-git-root default-directory))
-               (concat
-                "├─(🌿" (car (vc-git-branches))
-                (let* ((branch (car (vc-git-branches)))
-                       (behind (string-to-number
-                                (shell-command-to-string
-                                 (format "git rev-list --count origin/%s..HEAD" branch))))
-                       (ahead (string-to-number
-                               (shell-command-to-string
-                                (format "git rev-list --count HEAD..origin/%s" branch)))))
-                  (concat
-                   (when (> ahead 0)
-                     (format " ⬇️%d" ahead))
-                   (when (> behind 0)
-                     (format " ⬆️%d" behind))
-                   (when (and (> ahead 0) (> behind 0))
-                     "  🔀")))
+                 (propertize
+                  (if (> eshell-last-command-status 0) " 🔴 " " 🟢 ")
+                  'face `(:background "#212234"))
 
-                (let ((modified (length (split-string
-                                         (shell-command-to-string
-                                          "git ls-files --modified") "\n" t)))
-                      (untracked (length (split-string
-                                          (shell-command-to-string
-                                           "git ls-files --others --exclude-standard") "\n" t)))
-                      (conflicts (length (split-string
-                                          (shell-command-to-string
-                                           "git diff --name-only --diff-filter=U") "\n" t))))
-                  (concat
-                   (if (> modified 0)
-                       (format " ✏️%d" modified))
-                   (if (> untracked 0)
-                       (format " ✨%d" untracked))
-                   (if (> conflicts 0)
-                       (format " ⚔️%d" conflicts))))
-                ")\n"))
-             "└─➜ ")))
+                 (propertize (concat (number-to-string eshell-last-command-status) " ")
+                             'face `(:background "#212234"))
 
-  (setq eshell-prompt-regexp "└─➜ ")
+                 (propertize "" 'face `(:foreground "#212234" :background "#45475A"))
 
+                 (propertize
+                  (let ((remote-user (file-remote-p default-directory 'user))
+                        (is-remote (file-remote-p default-directory)))
+                    (concat
+                     (if is-remote "👽 " "🧙 ")
+                     (or remote-user (user-login-name))
+                     " "))
+                  'face `(:foreground "#89b4fa" :background "#45475A"))
+
+                 (propertize "" 'face `(:foreground "#45475A" :background "#212234"))
+
+                 (let ((remote-host (file-remote-p default-directory 'host))
+                       (is-remote (file-remote-p default-directory)))
+                   (propertize
+                    (concat (if is-remote " 🌐 " " 💻 ")
+                            (or remote-host (system-name))
+                            " ")
+                    'face `(:background "#212234" :foreground "#b4befe")))
+
+                 (propertize "" 'face `(:foreground "#212234" :background "#45475A"))
+
+                 (propertize
+                  (concat " 🕒 " (format-time-string "%H:%M:%S" (current-time)) " ")
+                  'face `(:foreground "#89b4fa" :background "#45475A"))
+
+                 (propertize "" 'face `(:foreground "#45475A" :background "#212234"))
+
+                 (propertize
+                  (concat " 📁 " (if (>= (length (eshell/pwd)) 40)
+                                     (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
+                                   (abbreviate-file-name (eshell/pwd))) " ")
+                  'face `(:background "#212234" :foreground "#A6E3A1"))
+
+                 (propertize "\n" 'face `(:foreground "#212234"))
+
+                 (when (and (fboundp 'vc-git-root) (vc-git-root default-directory))
+                   (concat
+                    (propertize "" 'face `(:foreground "#212234"))
+                    (propertize
+                     (concat
+                      " 🌿 " (car (vc-git-branches))
+                      (let* ((branch (car (vc-git-branches)))
+                             (behind (string-to-number
+                                      (shell-command-to-string
+                                       (format "git rev-list --count origin/%s..HEAD" branch))))
+                             (ahead (string-to-number
+                                     (shell-command-to-string
+                                      (format "git rev-list --count HEAD..origin/%s" branch)))))
+                        (concat
+                         (when (> ahead 0) (format " ⬇️%d" ahead))
+
+                         (when (> behind 0) (format " ⬆️%d" behind))
+
+                         (when (and (> ahead 0) (> behind 0)) "  🔀")))
+
+                      (let ((modified (length (split-string
+                                               (shell-command-to-string "git ls-files --modified")
+                                               "\n" t)))
+                            (untracked (length (split-string
+                                                (shell-command-to-string
+                                                 "git ls-files --others --exclude-standard")
+                                                "\n" t)))
+                            (conflicts (length (split-string
+                                                (shell-command-to-string
+                                                 "git diff --name-only --diff-filter=U")
+                                                "\n" t))))
+                        (concat
+                         (if (> modified 0) (format " ✏️%d" modified))
+
+                         (if (> untracked 0) (format " ✨%d" untracked))
+
+                         (if (> conflicts 0) (format " ⚔️%d" conflicts))))
+                      " ")
+                     'face `(:background "#212234" :foreground "#F9E2AF"))
+
+                    (propertize "\n" 'face `(:foreground "#212234"))))
+
+                 (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))
+
+              ;; Minimal prompt
+              (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))))
+
+  (setq eshell-prompt-regexp emacs-solo/eshell-lambda-symbol)
+
+
+  ;; SET TERM ENV SO MOST PROGRAMS WON'T COMPLAIN
+  ;;
   (add-hook 'eshell-mode-hook (lambda () (setenv "TERM" "xterm-256color")))
 
+
+  ;; LIST OF VISUAL COMMANDS TO RUN IN A SEPARATED ANSI-TERM
+  ;;
   (setq eshell-visual-commands
         '("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
           "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"

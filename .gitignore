@@ -67,3 +67,4 @@ private.el
 recentf.el*
 saveplace
 cert.pem
+multisession/
