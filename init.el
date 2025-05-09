@@ -910,7 +910,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (defvar emacs-solo/eshell-full-prompt t
     "When non-nil, show the full Eshell prompt. When nil, show minimal prompt.")
 
-  (defvar emacs-solo/eshell-lambda-symbol " 𝛌  "
+  (defvar emacs-solo/eshell-lambda-symbol "𝛌  "
     "Symbol used for the minimal Eshell prompt.")
 
   (defun emacs-solo/toggle-eshell-prompt ()
@@ -1030,10 +1030,16 @@ away from the bottom.  Counts wrapped lines as real lines."
 
   ;; LIST OF VISUAL COMMANDS TO RUN IN A SEPARATED ANSI-TERM
   ;;
+  (with-eval-after-load 'em-term
+    (add-to-list 'eshell-visual-subcommands '("jj" "resolve"))
+    (add-to-list 'eshell-visual-subcommands '("jj" "squash")))
+
   (setq eshell-visual-commands
         '("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
           "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"
-          "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux" "docker" "podman")))
+          "lazygit" "lazydocker" "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux"
+          "docker" "podman")))
+
 
 ;;; ISEARCH
 (use-package isearch
