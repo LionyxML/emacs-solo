@@ -3230,7 +3230,7 @@ If a region is selected, prompt for additional input and pass it as a query."
           (goto-char (point-min))
           (while (not (eobp))
             (condition-case nil
-                (when-let ((file (dired-get-filename nil t)))
+                (when-let* ((file (dired-get-filename nil t)))
                   (dired-move-to-filename)
                   (unless (looking-at-p icon-regex)
                     (insert (concat (emacs-solo/dired-icons-icon-for-file file) " "))))
