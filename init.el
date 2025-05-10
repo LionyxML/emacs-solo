@@ -2066,15 +2066,17 @@ Also first tries the local node_modules/.bin and later the global bin."
   :defer t
   :init
   (defun emacs-solo/clear-terminal-background-color (&optional frame)
+    "Unsets the background color in terminal mode, including line-number face."
     (interactive)
     (or frame (setq frame (selected-frame)))
-    "unsets the background color in terminal mode"
     (unless (display-graphic-p frame)
       ;; Set the terminal to a transparent version of the background color
       (send-string-to-terminal
        (format "\033]11;[90]%s\033\\"
                (face-attribute 'default :background)))
-      (set-face-background 'default "unspecified-bg" frame)))
+      (set-face-background 'default "unspecified-bg" frame)
+      (set-face-background 'line-number "unspecified-bg" frame)
+      (set-face-background 'line-number-current-line "unspecified-bg" frame)))
 
   (defun emacs-solo/transparency-set ()
     "Set frame transparency (Graphical Mode)."
