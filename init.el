@@ -1038,7 +1038,7 @@ away from the bottom.  Counts wrapped lines as real lines."
         '("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
           "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"
           "lazygit" "lazydocker" "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux"
-          "docker" "podman")))
+          "docker" "podman" "jqp")))
 
 
 ;;; ISEARCH
