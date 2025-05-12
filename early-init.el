@@ -38,7 +38,13 @@
 ;; Better Window Management handling
 (setq frame-resize-pixelwise t
       frame-inhibit-implied-resize t
-      frame-title-format '("Emacs"))
+      frame-title-format
+      '(:eval
+        (let ((project (project-current)))
+          (if project
+              (concat "Emacs - [p] "
+                      (file-name-nondirectory (directory-file-name (project-root project))))
+              (concat "Emacs - " (buffer-name))))))
 
 (setq inhibit-compacting-font-caches t)
 
