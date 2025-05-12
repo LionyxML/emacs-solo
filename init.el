@@ -25,10 +25,12 @@
    ("C-x ;" . comment-line)
    ("M-s f" . find-name-dired)
    ("C-x C-b" . ibuffer)
-   ("C-x w t"  . transpose-window-layout)            ; EMACS-31
-   ("C-x w r"  . rotate-windows)                     ; EMACS-31
-   ("C-x w f h"  . flip-window-layout-horizontally)  ; EMACS-31
-   ("C-x w f v"  . flip-window-layout-vertically)    ; EMACS-31
+   ("C-x w t"  . window-layout-transpose)            ; EMACS-31
+   ("C-x w r"  . window-layout-rotate-clockwise)     ; EMACS-31
+   ("C-x w f h"  . window-layout-flip-leftright)     ; EMACS-31
+   ("C-x w f v"  . window-layout-flip-topdown)       ; EMACS-31
+   ("C-x 5 l"  . select-frame-by-name)
+   ("C-x 5 s"  . set-frame-name)
    ("RET" . newline-and-indent)
    ("C-z" . nil)
    ("C-x C-z" . nil)
