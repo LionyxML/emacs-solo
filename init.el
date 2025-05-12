@@ -2080,30 +2080,27 @@ Also first tries the local node_modules/.bin and later the global bin."
       (set-face-background 'line-number "unspecified-bg" frame)
       (set-face-background 'line-number-current-line "unspecified-bg" frame)))
 
-  (defun emacs-solo/transparency-set ()
-    "Set frame transparency (Graphical Mode)."
+  (defun emacs-solo/transparency-set (&optional frame)
+    "Set frame transparency. If FRAME is nil, applies to all existing frames."
     (interactive)
-    (unless (display-graphic-p)
-      (add-hook 'after-make-frame-functions 'emacs-solo/clear-terminal-background-color)
+    (unless (display-graphic-p frame)
       (add-hook 'window-setup-hook 'emacs-solo/clear-terminal-background-color)
       (add-hook 'ef-themes-post-load-hook 'emacs-solo/clear-terminal-background-color))
 
-    (when (eq system-type 'darwin)
-      (set-frame-parameter (selected-frame) 'alpha '(90 90)))
+    (if frame
+        (progn
+          (when (eq system-type 'darwin)
+            (set-frame-parameter frame 'alpha '(90 90)))
+          (set-frame-parameter frame 'alpha-background 85))
 
-    (dolist (frame (frame-list))
-      (set-frame-parameter frame 'alpha-background 85)))
+      ;; Apply to all frames if no frame is passed
+      (dolist (frm (frame-list))
+        (when (eq system-type 'darwin)
+          (set-frame-parameter frm 'alpha '(90 90)))
+        (set-frame-parameter frm 'alpha-background 85))))
 
-
-  (defun emacs-solo/transparency-unset ()
-    "Unset frame transparency (Graphical Mode)."
-    (interactive)
-    (when (eq system-type 'darwin)
-      (set-frame-parameter (selected-frame) 'alpha '(100 100)))
-    (dolist (frame (frame-list))
-      (set-frame-parameter frame 'alpha-background 100)))
-
-  (add-hook 'after-init-hook #'emacs-solo/transparency-set))
+  (add-hook 'after-init-hook #'emacs-solo/transparency-set)
+  (add-hook 'after-make-frame-functions #'emacs-solo/transparency-set))
 
 
 ;;; EMACS-SOLO-MODE-LINE
