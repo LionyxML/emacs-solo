@@ -3418,5 +3418,136 @@ If a region is selected, prompt for additional input and pass it as a query."
   (global-set-key (kbd "C-c d") #'container-menu))
 
 
+;;; EMACS-SOLO-MPV-PLAYER
+;;
+(use-package emacs-solo-mpv-player
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (defvar emacs-solo/mpv-process nil
+    "Process object for the currently running mpv instance.")
+
+  (defvar emacs-solo/mpv-ipc-socket "/tmp/mpv-socket"
+    "Path to mpv's IPC UNIX domain socket.")
+
+  (defun emacs-solo/mpv-play-files ()
+    "Play marked files in Dired using mpv with IPC."
+    (interactive)
+    (unless (derived-mode-p 'dired-mode)
+      (user-error "Not in a Dired buffer"))
+    (let ((files (dired-get-marked-files)))
+      (when (file-exists-p emacs-solo/mpv-ipc-socket)
+        (delete-file emacs-solo/mpv-ipc-socket))
+      (when (process-live-p emacs-solo/mpv-process)
+        (kill-process emacs-solo/mpv-process))
+      (setq emacs-solo/mpv-process
+            (apply #'start-process
+                   "mpv" "*mpv*"
+                   "mpv"
+                   "--force-window=yes"
+                   (concat "--input-ipc-server=" emacs-solo/mpv-ipc-socket)
+                   files))))
+
+  (defun emacs-solo/mpv-stop ()
+    "Stop mpv playback."
+    (interactive)
+    (when (process-live-p emacs-solo/mpv-process)
+      (kill-process emacs-solo/mpv-process)
+      (setq emacs-solo/mpv-process nil)))
+
+  (defun emacs-solo/mpv-send-command (json-cmd)
+    "Send JSON-CMD to mpv's IPC socket directly."
+    (let ((socket emacs-solo/mpv-ipc-socket))
+      (if (file-exists-p socket)
+          (let ((proc (make-network-process
+                       :name "mpv-ipc"
+                       :family 'local
+                       :service socket
+                       :nowait t)))
+            (process-send-string proc (concat json-cmd "\n"))
+            (delete-process proc))
+        (message "❌ mpv IPC socket not found at %s" socket))))
+
+
+(defun emacs-solo/mpv-show-playlist ()
+  "Show the current mpv playlist in a readable buffer."
+  (interactive)
+  (let ((buf (get-buffer-create "*mpv-playlist*"))
+        (socket emacs-solo/mpv-ipc-socket)
+        (output ""))
+    (if (file-exists-p socket)
+        (let ((proc
+               (make-network-process
+                :name "mpv-ipc-playlist"
+                :family 'local
+                :service socket
+                :nowait nil
+                :filter (lambda (_proc chunk)
+                          (setq output (concat output chunk))))))
+          (process-send-string proc
+            "{\"command\": [\"get_property\", \"playlist\"]}\n")
+          (sleep-for 0.1)
+          (delete-process proc)
+
+          (with-current-buffer buf
+            (let ((inhibit-read-only t)
+                  (json-object-type 'alist)
+                  (json-array-type 'list)
+                  (json-key-type 'symbol))
+              (erase-buffer)
+              (let* ((json-data (ignore-errors (json-read-from-string output)))
+                     (playlist (alist-get 'data json-data)))
+                (if playlist
+                    (progn
+                      (insert "🎵 MPV Playlist:\n\n")
+                      (cl-loop for i from 0
+                               for entry in playlist do
+                               (insert
+                                (format "%s %s. %s\n"
+                                        (if (eq (alist-get 'current entry) t)
+                                            "now playing ➡️ " "")
+                                        (1+ i)
+                                        (alist-get 'filename entry)
+                                        ))))
+                  (insert "❌ Failed to parse playlist or playlist is empty."))))
+            (special-mode)
+            (goto-char (point-min)))
+          (display-buffer buf))
+      (message "❌ mpv IPC socket not found at %s" socket))))
+
+  (require 'transient)
+
+  (transient-define-prefix emacs-solo/mpv-transient ()
+    "🎵 MPV Controls"
+    [[" 🔅 Controls"
+      ("p" "⏸️ Pause/Resume"
+       (lambda () (interactive)
+         (emacs-solo/mpv-send-command
+          "{\"command\": [\"cycle\", \"pause\"]}")))
+      ("x" "⏹️ Stop" emacs-solo/mpv-stop)
+      ("n" "⏭️ Next"
+       (lambda () (interactive)
+         (emacs-solo/mpv-send-command
+          "{\"command\": [\"playlist-next\"]}")))
+      ("b" "⏮️ Previous"
+       (lambda () (interactive)
+         (emacs-solo/mpv-send-command
+          "{\"command\": [\"playlist-prev\"]}")))
+      ("l" "🔁 Loop"
+       (lambda () (interactive)
+         (emacs-solo/mpv-send-command
+          "{\"command\": [\"cycle\", \"loop\"]}")))]
+     [" 🎧 Playback"
+      ("RET" "▶️ Play marked" emacs-solo/mpv-play-files)
+      ("L"   "▶️ List playlist" emacs-solo/mpv-show-playlist)]])
+
+  (defun emacs-solo/mpv-dired-setup ()
+    (global-set-key (kbd "C-c m") #'emacs-solo/mpv-transient))
+
+  (add-hook 'dired-mode-hook #'emacs-solo/mpv-dired-setup))
+
+
+
 (provide 'init)
 ;;; init.el ends here
