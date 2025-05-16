@@ -56,13 +56,6 @@
 (if (fboundp 'tooltip-mode) (tooltip-mode -1))
 
 
-;; Resizing the Emacs frame can be a terribly expensive part of changing the
-;; font. By inhibiting this, we easily halve startup times with fonts that are
-;; larger than the system default.
-(setq frame-inhibit-implied-resize t
-      frame-resize-pixelwise t)
-
-
 ;; Avoid raising the *Messages* buffer if anything is still without
 ;; lexical bindings
 (setq warning-minimum-level :error)
