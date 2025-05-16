@@ -1,7 +1,31 @@
-#+TITLE: Emacs Solo
 #+AUTHOR: Rahul Martim Juliato
 #+EMAIL: rahul.juliato@gmail.com
 #+OPTIONS: toc: nil
+
+#+HTML: <p align="center">
+#+HTML:   <img src="doc/emacs-solo-logo.png" alt="Project Logo" width="200"/>
+#+HTML: </p>
+
+#+HTML: <p align="center">
+#+HTML:   A <em>fast</em>, <em>powerful</em> and <em>modular</em> Emacs configuration that favors built-in functionality over third-party packages.
+#+HTML: </p>
+
+#+HTML: <p align="center">
+#+HTML:   <a href="#obligatory-screenshots"><strong>Screenshots</strong></a> ·
+#+HTML:   <a href="#as-seen-on-system-crafters"><strong>As seen on System Crafters</strong></a> ·
+#+HTML:   <a href="#minimum-emacs-version"><strong>Emacs Version</strong></a> ·
+#+HTML:   <a href="#optional-dependencies"><strong>Optional System Dependencies</strong></a> ·
+#+HTML:   <a href="#installation"><strong>Installation</strong></a> ·
+#+HTML:   <a href="#disclaimer"><strong>Disclaimer</strong></a> ·
+#+HTML:   <a href="#how-do-i"><strong>FAQ</strong></a>
+#+HTML: </p>
+
+#+HTML: <hr />
+
+* Emacs Solo
+
+This is what you see as soon as you start Emacs:
+
 
 #+BEGIN_SRC elisp
   ███████╗███╗   ███╗ █████╗  ██████╗███████╗    ███████╗ ██████╗ ██╗      ██████╗
@@ -15,10 +39,20 @@
     Packages     : 0
 #+END_SRC
 
-Emacs Solo is a configuration for when I wanna go back to the roots
-and test my self using Emacs with only =built-in= goodies.
 
-It is minimalist and powerful. A place I visit once in a while.
+Emacs Solo is a configuration I use when I want to go back to the
+roots and challenge myself by using Emacs with only built-in features.
+
+
+It aims to be minimalist, at least in spirit. Yes, there are over 3000
+lines of code, but most of that comes from organizing things cleanly
+and building small, reusable modules. Compared to full-featured
+distributions, it's still lean and focused.
+
+
+The configuration favors Emacs built-ins, configured my way. But when
+something essential is missing (like margin git gutters), a small,
+hacky workaround is always added.
 
 ** Obligatory Screenshots
 
@@ -69,7 +103,10 @@ However, some bleeding-edge features may be tested as well. For those,
 you’ll need to compile Emacs from the master branch. I do my best to
 mark these features with the =Emacs 31= tag.
 
-** External Dependencies
+** Optional Dependencies
+
+It is recommended you have this programs in your system:
+
 - =ripgrep= (rg)
 
   This provides quicker project grep and xref navigation.
@@ -108,7 +145,6 @@ mark these features with the =Emacs 31= tag.
 
   Only needed if you'd like to use =emacs-solo/ollama-run-model=.
 
-
 ** Installation
 
 Clone this repository into a directory of your liking and run Emacs
@@ -123,7 +159,7 @@ issue the same command as above
 
 And that's it, happy hacking! 🐂
 
-** Important Notice
+** Disclaimer
 
 I’m happy to share this configuration with a catchy name, and I’d be
 genuinely delighted if you find it useful. 🙂
@@ -254,7 +290,6 @@ this mode uses the regular expression defined in the =dired-omit-files=
 variable. Emacs Solo already customizes this to ignore files matching
 =^\\.=
 
-#+html:</details>
 *** 11.) Open multiple terms/shells?
 
 Ever felt the need of some =multi-term= package on Emacs? Well, you
@@ -267,3 +302,5 @@ so on.
 
 Now you have another instance of your term to work with, repeat this
 pattern if you need more instances.
+
+#+html:</details>
