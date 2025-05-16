@@ -186,7 +186,6 @@
   :init
   (set-window-margins (selected-window) 2 0)
 
-  (toggle-frame-maximized)
   (select-frame-set-input-focus (selected-frame))
   (global-auto-revert-mode 1)
   (recentf-mode 1)

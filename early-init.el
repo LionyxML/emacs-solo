@@ -35,6 +35,10 @@
 (add-hook 'after-init-hook #'emacs-solo/reset-default-foreground)   ; HACK undo
 
 
+;; Always start Emacs and new frames maximized
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+
 ;; Better Window Management handling
 (setq frame-resize-pixelwise t
       frame-inhibit-implied-resize t
