@@ -39,6 +39,7 @@
   (ad-redefinition-action 'accept)
   (column-number-mode nil)
   (line-number-mode nil)
+  (line-spacing nil)
   (completion-ignore-case t)
   (completions-detailed t)
   (delete-by-moving-to-trash t)
@@ -114,7 +115,7 @@
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta)
-    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 140))
+    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130))
 
   ;; Save manual customizations to other file than init.el
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
