@@ -4,6 +4,9 @@
 
 #+HTML: <p align="center">
 #+HTML:   <img src="doc/emacs-solo-logo.png" alt="Project Logo" width="200"/>
+#+HTML:   <br/>
+#+HTML:   <img src="https://img.shields.io/badge/Emacs-30%2B-green.svg" alt="Emacs 30+"/>
+#+HTML:   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="GPLv3 License"/>
 #+HTML: </p>
 
 #+HTML: <p align="center">
