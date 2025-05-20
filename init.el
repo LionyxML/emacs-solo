@@ -305,6 +305,11 @@
       (window-height . 0.25)
       (side . bottom)
       (slot . 2))
+     ("\\*\\(M3U Playlist\\)"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 3))
      )))
 
 
@@ -3561,6 +3566,166 @@ If a region is selected, prompt for additional input and pass it as a query."
 
   (add-hook 'dired-mode-hook #'emacs-solo/mpv-dired-setup))
 
+
+;;; EMACS-SOLO-M3U-VISUALIZER (& Online Radio Player)
+;;
+;; TLDR: C-c r (select an online radio list to download)
+;;       RET - play with mpv
+;;       x   - stop with mpv
+;;
+(use-package emacs-solo-m3u-visualizer
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (defvar emacs-solo/m3u-radio-sources
+    '(("Full List" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/---everything-full.m3u")
+      ("60s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/60s.m3u")
+      ("70s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/70s.m3u")
+      ("80s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/80s.m3u")
+      ("90s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/90s.m3u"))
+    "Alist of named M3U radio sources.")
+
+  (defun emacs-solo/get-online-radio-list-m3u ()
+    "Select and download M3U playlist, then visualize it using `m3u-visualizer-mode'."
+    (interactive)
+    (let* ((choice (completing-read "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources))
+           (url (cdr (assoc choice emacs-solo/m3u-radio-sources)))
+           (dest-buffer (get-buffer-create "*M3U Radio List*")))
+      (url-retrieve
+       url
+       (lambda (_status)
+         (goto-char (point-min))
+         (when (re-search-forward "\n\n" nil t)
+           (let* ((body-start (point))
+                  (raw (buffer-substring-no-properties body-start (point-max)))
+                  (decoded (decode-coding-string raw 'utf-8)))
+             (with-current-buffer dest-buffer
+               (let ((inhibit-read-only t))
+                 (erase-buffer)
+                 (insert decoded)
+                 (goto-char (point-min))
+                 (m3u-visualize-buffer)))))
+         (kill-buffer (current-buffer))))))
+
+  (global-set-key (kbd "C-c r") #'emacs-solo/get-online-radio-list-m3u)
+
+
+  (defvar m3u-visualizer-mode-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "n") #'m3u-visualizer-next)
+      (define-key map (kbd "p") #'m3u-visualizer-prev)
+      (define-key map (kbd "RET") #'m3u-visualizer-play-current)
+      (define-key map (kbd "x") #'m3u-visualizer-stop-mpv)
+
+      map)
+    "Keymap for `m3u-visualizer-mode'.")
+
+  (define-derived-mode m3u-visualizer-mode special-mode "M3U-Visualizer"
+    "Major mode for viewing M3U playlist as a styled table."
+    (buffer-disable-undo)
+    (setq truncate-lines t))
+
+  (defvar-local m3u-visualizer--entries nil
+    "List of parsed entries (title group logo url).")
+
+  (defvar m3u-visualizer--mpv-process nil
+    "Holds the current mpv process instance.")
+
+  (defun m3u-visualizer--format-entry (entry)
+    "Return a propertized string for ENTRY."
+    (let ((title (propertize (truncate-string-to-width (nth 0 entry) 50 nil ?\s)
+                             'face 'font-lock-function-name-face))
+          (group (propertize (truncate-string-to-width (nth 1 entry) 20 nil ?\s)
+                             'face 'font-lock-keyword-face))
+          (logo (propertize (truncate-string-to-width (nth 2 entry) 40 nil ?\s)
+                            'face 'font-lock-string-face))
+          (url   (propertize (nth 3 entry) 'face 'font-lock-comment-face)))
+      (format "%s  %s  %s  %s" title group logo url)))
+
+  (defun m3u-visualizer--collect-entries ()
+    "Return parsed entries from the current buffer."
+    (let ((entries '()))
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward
+                ;; Match lines like: #EXTINF:-1 [optional attributes], Title
+                "^#EXTINF:-1\\(?:\\s-+\\([^,]+\\)\\)?[ \t]*,[ \t]*\\(.*?\\)[ \t]*[\r\n]+\\(http[^\r\n]+\\)"
+                nil t)
+          (let* ((attr-str (match-string 1))
+                 (title (match-string 2))
+                 (url (match-string 3))
+                 (logo "")
+                 (group ""))
+            ;; Optionally extract logo and group-title from attributes
+            (when attr-str
+              (when (string-match "tvg-logo=\"\\([^\"]*\\)\"" attr-str)
+                (setq logo (match-string 1 attr-str)))
+              (when (string-match "group-title=\"\\([^\"]*\\)\"" attr-str)
+                (setq group (match-string 1 attr-str))))
+            (push (list title group logo url) entries))))
+      (reverse entries)))
+
+  (defun m3u-visualize-buffer ()
+    "Visualize current M3U playlist in a formatted buffer."
+    (interactive)
+    (let ((entries (m3u-visualizer--collect-entries)))
+      (with-current-buffer (get-buffer-create "*M3U Playlist*")
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (setq m3u-visualizer--entries entries)
+          (dolist (entry entries)
+            (insert (m3u-visualizer--format-entry entry) "\n"))
+          (goto-char (point-min))
+          (m3u-visualizer-mode))
+        (pop-to-buffer (current-buffer)))))
+
+  (defun m3u-visualizer-current-url ()
+    "Extract the actual stream URL from the current line (last column)."
+    (save-excursion
+      (beginning-of-line)
+      (let ((line (buffer-substring (line-beginning-position)
+                                    (line-end-position))))
+        ;; Match last http URL in line
+        (when (string-match "\\(http[^\s]+\\)$" line)
+          (match-string 1 line)))))
+
+  (defun m3u-visualizer-play-current ()
+    "Play the stream URL at point using mpv asynchronously.
+If a stream is already playing, kill it before starting a new one."
+    (interactive)
+    (let ((url (m3u-visualizer-current-url)))
+      (if url
+          (progn
+            (when (and m3u-visualizer--mpv-process
+                       (process-live-p m3u-visualizer--mpv-process))
+              (kill-process m3u-visualizer--mpv-process)
+              (message "Stopped previous mpv stream."))
+            (setq m3u-visualizer--mpv-process
+                  (start-process "mpv-stream" "*mpv*" "mpv" url))
+            (message "Playing stream: %s" url))
+        (message "No stream URL on this line."))))
+
+  (defun m3u-visualizer-stop-mpv ()
+    "Stop the currently playing mpv process."
+    (interactive)
+    (if (and m3u-visualizer--mpv-process
+             (process-live-p m3u-visualizer--mpv-process))
+        (progn
+          (kill-process m3u-visualizer--mpv-process)
+          (setq m3u-visualizer--mpv-process nil)
+          (message "Stopped mpv."))
+      (message "No mpv process running.")))
+
+  (defun m3u-visualizer-next ()
+    "Go to next entry line."
+    (interactive)
+    (forward-line 1))
+
+  (defun m3u-visualizer-prev ()
+    "Go to previous entry line."
+    (interactive)
+    (forward-line -1)))
 
 
 (provide 'init)
