@@ -15,9 +15,9 @@
 
 #+HTML: <p align="center">
 #+HTML:   <a href="#obligatory-screenshots"><strong>Screenshots</strong></a> ·
-#+HTML:   <a href="#as-seen-on-system-crafters"><strong>As seen on System Crafters</strong></a> ·
+#+HTML:   <a href="#as-seen-on-system-crafters"><strong>System Crafters Demo</strong></a> ·
 #+HTML:   <a href="#minimum-emacs-version"><strong>Emacs Version</strong></a> ·
-#+HTML:   <a href="#optional-dependencies"><strong>Optional System Dependencies</strong></a> ·
+#+HTML:   <a href="#optional-dependencies"><strong>Optional Dependencies</strong></a> ·
 #+HTML:   <a href="#installation"><strong>Installation</strong></a> ·
 #+HTML:   <a href="#disclaimer"><strong>Disclaimer</strong></a> ·
 #+HTML:   <a href="#how-do-i"><strong>FAQ</strong></a>
