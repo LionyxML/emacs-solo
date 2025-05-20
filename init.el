@@ -13,6 +13,40 @@
 
 ;;; Code:
 
+;;; -------------------- EMACS SOLO CUSTOM OPTIONS
+;;
+;;  Some features Emacs Solo provides you can turn on/off
+(defcustom emacs-solo-enable-transparency nil
+  "Enable `emacs-solo-transparency'."
+  :type 'boolean
+  :group 'emacs-solo)
+
+(defcustom emacs-solo-enable-dired-icons t
+  "Enable `emacs-solo-dired-icons'."
+  :type 'boolean
+  :group 'emacs-solo)
+
+(defcustom emacs-solo-enable-dired-gutter t
+  "Enable `emacs-solo-enable-dired-gutter'."
+  :type 'boolean
+  :group 'emacs-solo)
+
+(defcustom emacs-solo-enable-highlight-keywords t
+  "Enable `emacs-solo-enable-highlight-keywords'."
+  :type 'boolean
+  :group 'emacs-solo)
+
+(defcustom emacs-solo-enable-rainbown-delimiters t
+  "Enable `emacs-solo-enable-rainbown-delimiters'."
+  :type 'boolean
+  :group 'emacs-solo)
+
+(defcustom emacs-solo-enable-buffer-gutter t
+  "Enable `emacs-solo-enable-gutter'."
+  :type 'boolean
+  :group 'emacs-solo)
+
+
 ;;; -------------------- GENERAL EMACS CONFIG
 ;;; EMACS
 (use-package emacs
@@ -2082,6 +2116,7 @@ Also first tries the local node_modules/.bin and later the global bin."
 ;;  Custom functions to set/unset transparency
 ;;
 (use-package emacs-solo-transparency
+  :if emacs-solo-enable-transparency
   :ensure nil
   :no-require t
   :defer t
@@ -2260,6 +2295,7 @@ Replacing `Git-' with a branch symbol."
 ;;  FIXME: Make it play nice with treesitter modes
 ;;
 (use-package emacs-solo-rainbow-delimiters
+  :if emacs-solo-enable-rainbown-delimiters
   :ensure nil
   :no-require t
   :defer t
@@ -2590,6 +2626,7 @@ A compound word includes letters, numbers, `-`, and `_`."
 ;;  Code borrowed from `alternateved'
 ;;
 (use-package emacs-solo-highlight-keywords-mode
+  :if emacs-solo-enable-highlight-keywords
   :ensure nil
   :no-require t
   :defer t
@@ -2645,6 +2682,7 @@ A compound word includes letters, numbers, `-`, and `_`."
 ;;  A **HIGHLY** `experimental' and slow and buggy git gutter like.
 ;;
 (use-package emacs-solo-gutter
+  :if emacs-solo-enable-buffer-gutter
   :ensure nil
   :no-require t
   :defer t
@@ -3122,6 +3160,7 @@ If a region is selected, prompt for additional input and pass it as a query."
 ;;; EMACS-SOLO-DIRED-GUTTER
 ;;
 (use-package emacs-solo-dired-gutter
+  :if emacs-solo-enable-dired-gutter
   :ensure nil
   :no-require t
   :defer t
@@ -3204,6 +3243,7 @@ If a region is selected, prompt for additional input and pass it as a query."
 ;;; EMACS-SOLO-DIRED-ICONS
 ;;
 (use-package emacs-solo-dired-icons
+  :if emacs-solo-enable-dired-icons
   :ensure nil
   :no-require t
   :defer t
@@ -3438,6 +3478,10 @@ If a region is selected, prompt for additional input and pass it as a query."
 
 
 ;;; EMACS-SOLO-MPV-PLAYER
+;;
+;; TLDR: M-x dired
+;;       mark files with `m'
+;;       C-c m to to open the music player with the selected files
 ;;
 (use-package emacs-solo-mpv-player
   :ensure nil
