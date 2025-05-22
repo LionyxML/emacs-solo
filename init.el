@@ -1614,6 +1614,25 @@ and restart Flymake to apply the changes."
   (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil))
 
 
+;;; SPEEDBAR
+;;
+(use-package speedbar
+  :ensure nil
+  :bind
+  (("M-I" . (lambda () ;; Toggles / focuses speedbar on side window
+              (interactive)
+              (speedbar-window) ;; EMACS-31
+              (let ((win (get-buffer-window speedbar-buffer)))
+                (when win
+                  (select-window win))))))
+  :custom
+  (speedbar-window-default-width 25)  ;; EMACS-31
+  (speedbar-window-max-width 25)      ;; EMACS-31
+  (speedbar-show-unknown-files t)
+  (speedbar-directory-unshown-regexp "^$")
+  (speedbar-indentation-width 2))
+
+
 ;;; TIME
 (use-package time
   :ensure nil
