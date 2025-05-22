@@ -136,7 +136,9 @@ It is recommended you have this programs in your system:
 - =mpv=
 
   Only needed if you'd like to play videos directly from news in
-  =newsticker=.
+  =newsticker=, play music from dired with dired music player =C-c m=,
+  play something from a m3u file with =m3u-visualize-buffer= or
+  listen to online radio with =C-c r=.
 
 
 - =rsync=
