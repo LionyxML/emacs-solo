@@ -79,6 +79,7 @@
   (delete-by-moving-to-trash t)
   (display-line-numbers-width 3)
   (display-line-numbers-widen t)
+  (display-fill-column-indicator-warning nil) ; EMACS-31
   (delete-selection-mode 1)
   (enable-recursive minibuffers t)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
@@ -88,8 +89,10 @@
   (history-length 300)
   (inhibit-startup-message t)
   (initial-scratch-message "")
+  (ibuffer-human-readable-size t) ; EMACS-31
   (ispell-dictionary "en_US")
   (kill-do-not-save-duplicates t)
+  (kill-region-dwim 'emacs-word)  ; EMACS-31
   (create-lockfiles nil)   ; No backup files
   (make-backup-files nil)  ; No backup files
   (backup-inhibited t)     ; No backup files
@@ -101,6 +104,7 @@
   (recentf-max-menu-items 15)
   (recentf-auto-cleanup (if (daemonp) 300 'never))
   (recentf-exclude (list "^/\\(?:ssh\\|su\\|sudo\\)?:"))
+  (register-use-preview t)
   (remote-file-name-inhibit-delete-by-moving-to-trash t)
   (remote-file-name-inhibit-auto-save t)
   (resize-mini-windows 'grow-only)
@@ -234,6 +238,9 @@
 
   :init
   (set-window-margins (selected-window) 2 0)
+
+  (tty-tip-mode nil)   ;; EMACS-31
+  (tooltip-mode nil)
 
   (select-frame-set-input-focus (selected-frame))
   (global-auto-revert-mode 1)
@@ -1356,6 +1363,8 @@ Otherwise, open the repository's main page."
 ;;; ELDOC
 (use-package eldoc
   :ensure nil
+  :custom
+  (eldoc-help-at-pt t) ;; EMACS-31
   :init
   (global-eldoc-mode))
 
@@ -2231,6 +2240,8 @@ Replacing `Git-' with a branch symbol."
                 project-mode-line t
                 mode-line-buffer-identification '(" %b")
                 mode-line-position-column-line-format '(" %l:%c"))
+
+  (setq mode-line-modes-delimiters '("" . ""))  ;; EMACS-31
 
   ;; EMACS-31
   (setq mode-line-collapse-minor-modes

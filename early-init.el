@@ -19,6 +19,7 @@
       gc-cons-percentage 0.6
       vc-handled-backends '(Git))
 
+(setopt native-comp-async-on-battery-power nil) ; EMACS-31
 
 ;; HACK: avoid being flashbanged
 (defun emacs-solo/avoid-initial-flash-of-light ()
