@@ -2674,7 +2674,11 @@ A compound word includes letters, numbers, `-`, and `_`."
       (emacs-solo/highlight-keywords-mode-off)))
 
   :hook
-  (prog-mode-hook . (lambda () (run-at-time "1 sec" nil #'emacs-solo/highlight-keywords-mode-on))))
+  (prog-mode-hook .
+   (lambda ()
+     (when (and buffer-file-name ; only if it's visiting a file
+                (not (string-match-p "^\\*" (buffer-name)))) ; avoid *scratch*, etc.
+       (run-at-time "1 sec" nil #'emacs-solo/highlight-keywords-mode-on)))))
 
 
 ;;; EMACS-SOLO-GUTTER
