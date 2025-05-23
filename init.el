@@ -162,6 +162,7 @@
   ;; Set line-number-mode with relative numbering
   (setq display-line-numbers-type 'relative)
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'text-mode-hook #'display-line-numbers-mode)
 
   ;; A Protesilaos life savier HACK
   ;; Add option "d" to whenever using C-x s or C-x C-c, allowing a quick preview
