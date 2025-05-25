@@ -761,8 +761,6 @@ away from the bottom.  Counts wrapped lines as real lines."
   :ensure nil
   :bind
   (("M-i" . emacs-solo/window-dired-vc-root-left))
-  (:map dired-mode-map
-        ("-" . dired-up-directory))
   :custom
   (dired-dwim-target t)
   (dired-guess-shell-alist-user
@@ -873,9 +871,32 @@ away from the bottom.  Counts wrapped lines as real lines."
     (interactive)
     (emacs-solo/window-dired-vc-root-left (dired-get-file-for-visit)))
 
+  (defun emacs-solo/window-dired-open-directory-back ()
+    "Open the parent directory of the current file/directory in *Dired-Side* side window."
+    (interactive)
+    (let* ((current-path (dired-get-file-for-visit))
+           (parent-dir (file-name-directory (directory-file-name current-path))))
+      (emacs-solo/window-dired-vc-root-left parent-dir))
+    (when (get-buffer "*Dired-Side*")
+      (with-current-buffer "*Dired-Side*"
+        (revert-buffer t t))))
+
+  (defun emacs-solo/window-dired-open-directory-back ()
+    "Open the parent directory in *Dired-Side* side window and refresh it."
+    (interactive)
+    (emacs-solo/window-dired-vc-root-left "../")
+    (when (get-buffer "*Dired-Side*")
+      (with-current-buffer "*Dired-Side*"
+        (revert-buffer t t))))
+
   (eval-after-load 'dired
     '(progn
-       (define-key dired-mode-map (kbd "C-<return>") 'emacs-solo/window-dired-open-directory))))
+       ;; Users should navigate with p/n, enter new directories with =, go back with q,
+       ;; quit with several q's, only use - to access stuff up on the tree from inicial
+       ;; directory.
+       (define-key dired-mode-map (kbd "=") 'emacs-solo/window-dired-open-directory)
+       (define-key dired-mode-map (kbd "-") 'emacs-solo/window-dired-open-directory-back)
+       )))
 
 
 ;;; WDIRED
