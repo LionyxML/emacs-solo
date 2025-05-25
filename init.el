@@ -1652,7 +1652,7 @@ and restart Flymake to apply the changes."
   :bind
   (("M-I" . (lambda () ;; Toggles / focuses speedbar on side window
               (interactive)
-              (speedbar-window) ;; EMACS-31
+              (speedbar-window)       ;; EMACS-31
               (let ((win (get-buffer-window speedbar-buffer)))
                 (when win
                   (select-window win))))))
@@ -1661,8 +1661,33 @@ and restart Flymake to apply the changes."
   (speedbar-window-max-width 25)      ;; EMACS-31
   (speedbar-show-unknown-files t)
   (speedbar-directory-unshown-regexp "^$")
-  (speedbar-indentation-width 2))
-
+  (speedbar-indentation-width 2)
+  (speedbar-use-images t)
+  :config
+  (setq speedbar-expand-image-button-alist
+   '(("<+>" . ezimage-directory) ;; previously ezimage-directory-plus
+     ("<->" . ezimage-directory-minus)
+     ("< >" . ezimage-directory)
+     ("[+]" . ezimage-page-plus)
+     ("[-]" . ezimage-page-minus)
+     ("[?]" . ezimage-page)
+     ("[ ]" . ezimage-page)
+     ("{+}" . ezimage-directory-plus) ;; previously ezimage-box-plus
+     ("{-}" . ezimage-directory-minus) ;; previously ezimage-box-minus
+     ("<M>" . ezimage-mail)
+     ("<d>" . ezimage-document-tag)
+     ("<i>" . ezimage-info-tag)
+     (" =>" . ezimage-tag)
+     (" +>" . ezimage-tag-gt)
+     (" ->" . ezimage-tag-v)
+     (">"   . ezimage-tag)
+     ("@"   . ezimage-tag-type)
+     ("  @" . ezimage-tag-type)
+     ("*"   . ezimage-checkout)
+     ("#"   . ezimage-object)
+     ("!"   . ezimage-object-out-of-date)
+     ("//"  . ezimage-label)
+     ("%"   . ezimage-lock))))
 
 ;;; TIME
 (use-package time
