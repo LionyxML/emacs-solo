@@ -108,7 +108,6 @@
   (remote-file-name-inhibit-delete-by-moving-to-trash t)
   (remote-file-name-inhibit-auto-save t)
   (resize-mini-windows 'grow-only)
-  (ring-bell-function #'ignore)
   (scroll-conservatively 8)
   (scroll-margin 5)
   (savehist-save-minibuffer-history t)    ; t is default
@@ -153,7 +152,9 @@
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta)
-    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130))
+    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130)
+    (set-fontset-font t '(#x1f000 . #x1faff)
+                      (font-spec :family "Apple Color Emoji" :size 10)))
 
   ;; Save manual customizations to other file than init.el
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
@@ -994,7 +995,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (defvar emacs-solo/eshell-full-prompt t
     "When non-nil, show the full Eshell prompt. When nil, show minimal prompt.")
 
-  (defvar emacs-solo/eshell-lambda-symbol "𝛌  "
+  (defvar emacs-solo/eshell-lambda-symbol " 𝛌  "
     "Symbol used for the minimal Eshell prompt.")
 
   (defun emacs-solo/toggle-eshell-prompt ()
@@ -1062,7 +1063,7 @@ away from the bottom.  Counts wrapped lines as real lines."
                     (propertize "" 'face `(:foreground "#212234"))
                     (propertize
                      (concat
-                      " 🌿 " (car (vc-git-branches))
+                      "  " (car (vc-git-branches))
                       (let* ((branch (car (vc-git-branches)))
                              (behind (string-to-number
                                       (shell-command-to-string
@@ -3357,15 +3358,16 @@ If a region is selected, prompt for additional input and pass it as a query."
       ("zst" . "📦")     ("tar.xz" . "📦")  ("tar.zst" . "📦") ("tar.gz" . "📦")
       ("tgz" . "📦")     ("bz2" . "📦")     ("mpg" . "🎬")     ("webp" . "🖼️")
       ("flv" . "🎬")     ("3gp" . "🎬")     ("ogv" . "🎬")     ("srt" . "🔠")
-      ("vtt" . "🔠")     ("cue" . "📀"))
+      ("vtt" . "🔠")     ("cue" . "📀")
+      ("direddir" . "📁") ("diredfile" . "📄"))
     "Icons for specific file extensions in Dired.")
 
   (defun emacs-solo/dired-icons-icon-for-file (file)
     (if (file-directory-p file)
-        "📁"
+        (assoc-default "direddir" emacs-solo/dired-icons-file-icons)
       (let* ((ext (file-name-extension file))
              (icon (and ext (assoc-default (downcase ext) emacs-solo/dired-icons-file-icons))))
-        (or icon "📄"))))
+        (or icon (assoc-default "diredfile" emacs-solo/dired-icons-file-icons)))))
 
   (defun emacs-solo/dired-icons-icons-regexp ()
     "Return a regexp that matches any icon we use."
