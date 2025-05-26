@@ -2735,8 +2735,9 @@ A compound word includes letters, numbers, `-`, and `_`."
     "Keywords and corresponding faces for `emacs-solo/highlight-keywords-mode'.")
 
   (defun emacs-solo/highlight-keywords-mode-on ()
-    (font-lock-add-keywords nil +highlight-keywords--keywords t)
-    (font-lock-flush))
+    (when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
+      (font-lock-add-keywords nil +highlight-keywords--keywords t)
+      (font-lock-flush)))
 
   (defun emacs-solo/highlight-keywords-mode-off ()
     (font-lock-remove-keywords nil +highlight-keywords--keywords)
@@ -2752,10 +2753,11 @@ A compound word includes letters, numbers, `-`, and `_`."
 
   :hook
   (prog-mode-hook .
-   (lambda ()
-     (when (and buffer-file-name ; only if it's visiting a file
-                (not (string-match-p "^\\*" (buffer-name)))) ; avoid *scratch*, etc.
-       (run-at-time "1 sec" nil #'emacs-solo/highlight-keywords-mode-on)))))
+                  (lambda ()
+                    (when (and buffer-file-name ; only if it's visiting a file
+                               (not (string-match-p "^\\*" (buffer-name)))) ; avoid *scratch*, etc.
+                      (message "running on buffer %s" (buffer-name))
+                      (run-with-idle-timer 1 nil #'emacs-solo/highlight-keywords-mode-on)))))
 
 
 ;;; EMACS-SOLO-GUTTER
