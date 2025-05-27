@@ -873,16 +873,6 @@ away from the bottom.  Counts wrapped lines as real lines."
     (emacs-solo/window-dired-vc-root-left (dired-get-file-for-visit)))
 
   (defun emacs-solo/window-dired-open-directory-back ()
-    "Open the parent directory of the current file/directory in *Dired-Side* side window."
-    (interactive)
-    (let* ((current-path (dired-get-file-for-visit))
-           (parent-dir (file-name-directory (directory-file-name current-path))))
-      (emacs-solo/window-dired-vc-root-left parent-dir))
-    (when (get-buffer "*Dired-Side*")
-      (with-current-buffer "*Dired-Side*"
-        (revert-buffer t t))))
-
-  (defun emacs-solo/window-dired-open-directory-back ()
     "Open the parent directory in *Dired-Side* side window and refresh it."
     (interactive)
     (emacs-solo/window-dired-vc-root-left "../")
