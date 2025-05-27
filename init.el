@@ -3901,11 +3901,11 @@ If a stream is already playing, kill it before starting a new one."
                      (left-fringe . 0)
                      (menu-bar-lines . 0)
                      (tool-bar-lines . 0)
+                     (tab-bar-lines . 0)
                      (line-spacing . 0)
                      (unsplittable . t)
                      (name . "emacs-solo-eldoc-box")))))
       (with-current-buffer buffer
-
         ;; Modes for eldoc-box frame
         (let ((supported-markdown-modes '(typescript-ts-mode tsx-ts-mode js-ts-mode)))
           (when (memq origin-major-mode supported-markdown-modes)
@@ -3929,7 +3929,6 @@ If a stream is already playing, kill it before starting a new one."
           (use-local-map map)))
       (set-window-buffer (frame-root-window frame) buffer)
       (make-frame-visible frame)
-      (select-frame-set-input-focus frame)
 
       ;; Darken background
       (let* ((bg (face-background 'default nil parent))
