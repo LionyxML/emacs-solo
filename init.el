@@ -1947,7 +1947,8 @@ and restart Flymake to apply the changes."
   :defer t
   :hook
   ((js-ts-mode-hook . (lambda ()
-                        (setq indent-tabs-mode nil))))
+                        (setq indent-tabs-mode nil)
+                        (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t))))
   :custom
   (js-indent-level 2)
   :config
@@ -2104,10 +2105,10 @@ and restart Flymake to apply the changes."
   (global-set-key (kbd "M-v") #'emacs-solo-movements/scroll-up-centralize)
 
 
-  (defun emacs-solo-movements/format-current-file ()
-    "Format the current file using biome if biome.json is present; otherwise, use prettier.
-Also first tries the local node_modules/.bin and later the global bin."
-    (interactive)
+  (defun emacs-solo-movements/format-current-file (&optional manual)
+    "Format the current file using biome or prettier if available.
+If MANUAL is non-nil, the function was called interactively."
+    (interactive (list t)) ;; sets manual to t if called via M-x
     (let* ((file (buffer-file-name))
            (project-root (locate-dominating-file file "node_modules"))
            (biome-config (and project-root (file-exists-p (expand-file-name "biome.json" project-root))))
@@ -2141,15 +2142,22 @@ Also first tries the local node_modules/.bin and later the global bin."
         (setq command (format "%s --write %s" formatter (shell-quote-argument file)))))
       (if command
           (progn
-            (save-buffer)
+            (when manual
+              (save-buffer))
             (shell-command command)
             (revert-buffer t t t)
             (let ((elapsed-time (* 1000 (- (float-time) start-time)))) ;; Calculate elapsed time in ms
               (message "Formatted with %s - %.2f ms" source elapsed-time)))
         (message "No formatter found (biome or prettier)"))))
 
-  (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file)
-  (global-set-key (kbd "C-c C-p") #'emacs-solo-movements/format-current-file)
+
+  (defun emacs-solo-movements/format-current-file-manual ()
+    "Manually invoke format for current file."
+    (interactive)
+    (emacs-solo-movements/format-current-file t))
+
+  (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file-manual)
+  (global-set-key (kbd "C-c C-p") #'emacs-solo-movements/format-current-file-manual)
 
 
   (defun emacs-solo/transpose-split ()
