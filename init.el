@@ -317,13 +317,7 @@
   :ensure nil
   :custom
   (display-buffer-alist
-   '(
-     ("\\*container\\*"
-      (display-buffer-in-side-window)
-      (window-width . 120)
-      (side . left)
-      (slot . -1))
-     ("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|Messages\\|Bookmark List\\|Occur\\|eldoc\\)\\*"
+   '(("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|Messages\\|Bookmark List\\|Occur\\|eldoc\\)\\*"
       (display-buffer-in-side-window)
       (window-height . 0.25)
       (side . bottom)
@@ -3472,7 +3466,10 @@ If a region is selected, prompt for additional input and pass it as a query."
     "Toggle between prod and dev profiles."
     (interactive)
     (setq container-profile (if (eq container-profile 'prod) 'dev 'prod))
-    (message "Switched to profile: %s" container-profile))
+    (message "Switched to profile: %s (%s)" container-profile
+             (if (eq container-profile 'prod)
+                 "Dockerfile / docker-compose.yml"
+               "Dockerfile.dev / docker-compose-dev.yml")))
 
   (defun container--command ()
     "Return the container backend command."
@@ -3511,19 +3508,22 @@ If a region is selected, prompt for additional input and pass it as a query."
         ('prod (or (car (file-expand-wildcards (format "%s.docker-compose.yml" base))) (concat project-root "docker-compose.yml")))
         ('dev  (or (car (file-expand-wildcards (format "%s.docker-compose-dev.yml" base))) (concat project-root "docker-compose-dev.yml"))))))
 
-  (defun container--run-to-buffer (cmd)
-    "Run CMD in a buffer named `*container*` with `comint-mode`."
-    (interactive "sCommand: ")
-    (let ((buf (get-buffer-create container-buffer-name)))
-      (with-current-buffer buf
-        (setq buffer-read-only nil)
-        (erase-buffer)
-        (comint-mode)
-        (ansi-color-for-comint-mode-on))
-      (setq container--process
-            (start-process-shell-command "container" buf cmd))
-      (set-process-filter container--process 'comint-output-filter)
-      (display-buffer buf)))
+  (defun container--run-to-buffer (cmd-template)
+    "Build CMD-TEMPLATE string, prompt user to edit it, then run it in *container* buffer."
+    (interactive)
+    (let* ((final-cmd (read-shell-command "Running command: " cmd-template)))
+      (let ((buf (get-buffer-create "*container*")))
+        (with-current-buffer buf
+          (setq buffer-read-only nil)
+          (erase-buffer)
+          (comint-mode)
+          (ansi-color-for-comint-mode-on))
+        (setq container--process
+              (start-process-shell-command "container" buf final-cmd))
+        (set-process-filter container--process 'comint-output-filter)
+        (display-buffer buf)
+        (select-window (get-buffer-window buf))
+        (delete-other-windows))))
 
   (defun container--run (args)
     "Run a container command with ARGS."
@@ -3543,20 +3543,20 @@ If a region is selected, prompt for additional input and pass it as a query."
       (container--run (format "%s %s" action name))))
 
   ;; === Container actions ===
-  (defun container-list () (interactive) (container--run "ps -a"))
-  (defun container-start () (interactive) (container--run-interactive "Start container: " "start"))
-  (defun container-stop () (interactive) (container--run-interactive "Stop container: " "stop"))
-  (defun container-restart () (interactive) (container--run-interactive "Restart container: " "restart"))
-  (defun container-remove () (interactive) (container--run-interactive "Remove container: " "rm"))
-  (defun container-logs () (interactive) (container--run-interactive "Logs for container: " "logs"))
+  (defun container-list () (interactive) (container--run "ps -a "))
+  (defun container-start () (interactive) (container--run "run -it --rm --platform linux/amd64 -p 3500:3500 "))
+  (defun container-stop () (interactive) (container--run "stop "))
+  (defun container-restart () (interactive) (container--run "restart "))
+  (defun container-remove () (interactive) (container--run "rm "))
+  (defun container-logs () (interactive) (container--run "logs "))
 
   ;; === Image actions ===
   (defun container-list-images () (interactive) (container--run "images"))
-  (defun container-pull-image () (interactive) (container--run-interactive "Pull image: " "pull"))
+  (defun container-pull-image () (interactive) (container--run "pull "))
 
   (defun container-build-image ()
     (interactive)
-    (let ((image (read-string "Tag image as: "))
+    (let ((image "TAG")
           (file (container--dockerfile)))
       (container--run-to-buffer
        (format "%s build -f %s -t %s ." (container--command) file image))))
