@@ -1957,12 +1957,58 @@ and restart Flymake to apply the changes."
 
 
 ;;; TYPESCRIPT-TS-MODE
+(defun emacs-solo/add-jsdoc-in-typescript-ts-mode ()
+  "Add jsdoc treesitter rules to typescript as a host language.
+As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_adding_jsdoc_highlighting_to"
+  ;; I copied this code from js.el (js-ts-mode), with minimal modifications.
+  (when (treesit-ready-p 'typescript)
+    (when (treesit-ready-p 'jsdoc t)
+      (setq-local treesit-range-settings
+                  (treesit-range-rules
+                   :embed 'jsdoc
+                   :host 'typescript
+                   :local t
+                   `(((comment) @capture (:match ,(rx bos "/**") @capture)))))
+      (setq c-ts-common--comment-regexp (rx (or "comment" "line_comment" "block_comment" "description")))
+
+      (defvar my/treesit-font-lock-settings-jsdoc
+        (treesit-font-lock-rules
+         :language 'jsdoc
+         :override t
+         :feature 'document
+         '((document) @font-lock-doc-face)
+
+         :language 'jsdoc
+         :override t
+         :feature 'keyword
+         '((tag_name) @font-lock-constant-face)
+
+         :language 'jsdoc
+         :override t
+         :feature 'bracket
+         '((["{" "}"]) @font-lock-bracket-face)
+
+         :language 'jsdoc
+         :override t
+         :feature 'property
+         '((type) @font-lock-type-face)
+
+         :language 'jsdoc
+         :override t
+         :feature 'definition
+         '((identifier) @font-lock-variable-face)))
+      (setq-local treesit-font-lock-settings
+                  (append treesit-font-lock-settings my/treesit-font-lock-settings-jsdoc)))))
+
 (use-package typescript-ts-mode
   :mode "\\.ts\\'"
   :defer t
   :hook
-  ((typescript-ts-mode-hook . (lambda ()
-                                (setq indent-tabs-mode nil))))
+  ((typescript-ts-mode-hook .
+                            (lambda ()
+                              (setq indent-tabs-mode nil)
+                              (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
+                              (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
   :custom
   (typescript-indent-level 2)
   :config
@@ -1970,13 +2016,15 @@ and restart Flymake to apply the changes."
   (unbind-key "M-." typescript-ts-base-mode-map))
 
 
-;;; TYPESCRIPT-TS-MODE
 (use-package tsx-ts-mode
   :mode "\\.tsx\\'"
   :defer t
   :hook
-  ((tsx-ts-mode-hook . (lambda ()
-                         (setq indent-tabs-mode nil))))
+  ((tsx-ts-mode-hook .
+                     (lambda ()
+                       (setq indent-tabs-mode nil)
+                       (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
+                       (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
   :custom
   (typescript-indent-level 2)
   :config
