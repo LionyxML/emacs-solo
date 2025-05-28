@@ -3947,9 +3947,16 @@ If a stream is already playing, kill it before starting a new one."
                      (left-fringe . 0)
                      (menu-bar-lines . 0)
                      (tool-bar-lines . 0)
+                     (tab-bar-lines-keep-state . 1)
                      (tab-bar-lines . 0)
                      (line-spacing . 0)
                      (unsplittable . t)
+                     (cursor-type . nil)
+                     (mouse-wheel-frame . nil)
+                     (no-other-frame . t)
+                     (inhibit-double-buffering . t)
+                     (drag-internal-border . t)
+                     (no-special-glyphs . t)
                      (name . "emacs-solo-eldoc-box")))))
       (with-current-buffer buffer
         ;; Modes for eldoc-box frame
@@ -3974,7 +3981,8 @@ If a stream is already playing, kill it before starting a new one."
                         (run-with-timer 0.05 nil (lambda () (eldoc-doc-buffer t)))))
           (use-local-map map)))
       (set-window-buffer (frame-root-window frame) buffer)
-      (make-frame-visible frame)
+
+      (set-frame-parameter frame 'visibility t)
 
       ;; Darken background
       (let* ((bg (face-background 'default nil parent))
