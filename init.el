@@ -1364,7 +1364,6 @@ Otherwise, open the repository's main page."
   :config
   (setq ediff-keep-variants nil)
   (setq ediff-make-buffers-readonly-at-startup nil)
-  (setq ediff-merge-revisions-with-ancestor t)
   (setq ediff-show-clashes-only t))
 
 ;;; ELDOC
