@@ -1425,7 +1425,7 @@ Otherwise, open the repository's main page."
   ;; (flymake-show-diagnostics-at-end-of-line 'short)
   (flymake-indicator-type 'margins)
   (flymake-margin-indicators-string
-   `((error "!" compilation-error)      ;; Alternatives: », E, W, i, !, ?)
+   `((error "!" compilation-error)      ;; Alternatives: », E, W, i, !, ?, ⚠️)
      (warning "?" compilation-warning)
      (note "i" compilation-info)))
   :config
@@ -1477,7 +1477,7 @@ and restart Flymake to apply the changes."
      gnus-thread-sort-by-subject
      (not gnus-thread-sort-by-total-score)
      gnus-thread-sort-by-most-recent-date))
-  (gnus-summary-line-format "%U%R%z: %[%d%] %4{ %-34,34n%} %3{  %}%(%1{%B%}%s%)\12")
+  (gnus-summary-line-format "%U %R %z : %[%d%] %4{🫂 %-34,34n%} %3{📧  %}%(%1{%B%}%s%)\12")
   (gnus-user-date-format-alist '((t . "%d-%m-%Y %H:%M")))
   (gnus-summary-thread-gathering-function 'gnus-gather-threads-by-references)
   (gnus-sum--tree-indent " ")
