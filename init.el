@@ -2083,6 +2083,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :mode "\\.go\\'"
   :hook
   ((go-ts-mode-hook . (lambda ()
+                        (add-hook 'before-save-hook #'eglot-format)
                         (setq indent-tabs-mode t)  ; Use tabs, go likes tabs, go figure
                         (setq tab-width 4)         ; Tabs *display* as 4 spaces
                         (setq-local go-ts-mode-indent-offset tab-width))))
