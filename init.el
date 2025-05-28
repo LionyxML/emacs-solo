@@ -1381,7 +1381,7 @@ Otherwise, open the repository's main page."
   (eglot-autoshutdown t)
   (eglot-events-buffer-size 0)
   (eglot-events-buffer-config '(:size 0 :format full))
-  (eglot-prefer-plaintext t)
+  (eglot-prefer-plaintext nil)
   (jsonrpc-event-hook nil)
   (eglot-code-action-indications nil) ;; EMACS-31 -- annoying as hell
   :init
@@ -1405,6 +1405,7 @@ Otherwise, open the repository's main page."
          ("C-c l a" . eglot-code-actions)
          ("C-c l o" . eglot-code-action-organize-imports)
          ("C-c l r" . eglot-rename)
+         ("C-c l i" . eglot-inlay-hints-mode)
          ("C-c l f" . eglot-format)))
 
 ;;; FLYMAKE
