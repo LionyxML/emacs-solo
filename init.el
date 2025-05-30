@@ -914,8 +914,18 @@ away from the bottom.  Counts wrapped lines as real lines."
     "Locally reset scrolling behavior in term-like buffers."
     (setq-local scroll-conservatively 0)
     (setq-local scroll-margin 0))
-  (add-hook 'term-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
   (add-hook 'eshell-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
+
+
+  ;; FIXME should e have a use-package term section?
+  (defun emacs-solo/disable-global-scrolling-in-ansi-term ()
+    "Disable global scrolling behavior in ansi-term buffers."
+    (when (and (eq major-mode 'term-mode)
+               (string-prefix-p "*ansi-term" (buffer-name)))
+      (setq-local scroll-conservatively 0)
+      (setq-local scroll-margin 0)
+      (setq-local scroll-step 0)))
+  (add-hook 'term-mode-hook #'emacs-solo/disable-global-scrolling-in-ansi-term)
 
 
   ;; MAKES C-c l GIVE AN ICOMPLETE LIKE SEARCH TO HISTORY COMMANDS
