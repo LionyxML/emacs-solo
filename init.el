@@ -241,7 +241,8 @@
   :init
   (set-window-margins (selected-window) 2 0)
 
-  (tty-tip-mode nil)   ;; EMACS-31
+  (when (>= emacs-major-version 31)
+    (tty-tip-mode nil))   ;; EMACS-31
   (tooltip-mode nil)
 
   (select-frame-set-input-focus (selected-frame))
