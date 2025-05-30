@@ -1555,7 +1555,16 @@ and restart Flymake to apply the changes."
                                                  'emacs-solo/newsticker-play-yt-video-from-buffer)
                                      (define-key newsticker-treeview-item-mode-map
                                                  (kbd "V")
-                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)))
+                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)
+                                     (define-key newsticker-treeview-mode-map
+                                                 (kbd "E")
+                                                 #'emacs-solo/newsticker-eww-current-article)
+                                     (define-key newsticker-treeview-list-mode-map
+                                                 (kbd "E")
+                                                 #'emacs-solo/newsticker-eww-current-article)
+                                     (define-key newsticker-treeview-item-mode-map
+                                                 (kbd "E")
+                                                 #'emacs-solo/newsticker-eww-current-article)))
   :init
   (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
     "Focus the window showing '*Newsticker Item*' and play the video."
@@ -1570,7 +1579,16 @@ and restart Flymake to apply the changes."
                 (let ((video-id (match-string 1)))
                   (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
                   (message "Playing with mpv: %s" video-id))))))
-      (message "No window showing *Newsticker Item* buffer."))))
+      (message "No window showing *Newsticker Item* buffer.")))
+
+  (defun emacs-solo/newsticker-eww-current-article ()
+    "Open the news item at point in EWW in the same window."
+    (interactive)
+    (with-current-buffer (newsticker--treeview-list-buffer)
+      (let ((url (get-text-property (point) :nt-link)))
+        (when url
+          (eww url)
+          (switch-to-buffer (get-buffer "*eww*")))))))
 
 
 ;;; ELEC_PAIR
