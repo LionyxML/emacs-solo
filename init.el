@@ -2829,7 +2829,7 @@ A compound word includes letters, numbers, `-`, and `_`."
                   (lambda ()
                     (when (and buffer-file-name ; only if it's visiting a file
                                (not (string-match-p "^\\*" (buffer-name)))) ; avoid *scratch*, etc.
-                      (message "running on buffer %s" (buffer-name))
+                      (message "[emacs-solo-highlight-keywords-mode]: running on buffer %s" (buffer-name))
                       (run-with-idle-timer 1 nil #'emacs-solo/highlight-keywords-mode-on)))))
 
 
@@ -2964,10 +2964,10 @@ Marks lines as added, deleted, or changed."
 
   (defun emacs-solo/git-gutter-on ()
     (interactive)
+    (add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
+    (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
     (when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
-      (emacs-solo/git-gutter-add-mark)
-      (add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
-      (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)))
+      (emacs-solo/git-gutter-add-mark)))
 
   (global-set-key (kbd "M-9") 'emacs-solo/goto-previous-hunk)
   (global-set-key (kbd "M-0") 'emacs-solo/goto-next-hunk)
