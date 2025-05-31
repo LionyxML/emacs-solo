@@ -1157,6 +1157,7 @@ away from the bottom.  Counts wrapped lines as real lines."
    vc-git-revision-complete-only-branches nil
    vc-annotate-display-mode 'scale
    add-log-keep-changes-together t
+   vc-dir-hide-up-to-date-on-revert t ;; EMACS-31
    vc-make-backup-files nil)                                  ;; Do not backup version controlled files
 
   (with-eval-after-load 'vc-annotate
