@@ -1569,6 +1569,15 @@ are defining or executing a macro."
   :hook
   (newsticker-treeview-mode-hook . (lambda ()
                                      (define-key newsticker-treeview-mode-map
+                                                 (kbd "C")
+                                                 'emacs-solo/fetch-yt-captions-to-buffer)
+                                     (define-key newsticker-treeview-list-mode-map
+                                                 (kbd "C")
+                                                 'emacs-solo/fetch-yt-captions-to-buffer)
+                                     (define-key newsticker-treeview-item-mode-map
+                                                 (kbd "C")
+                                                 'emacs-solo/fetch-yt-captions-to-buffer)
+                                     (define-key newsticker-treeview-mode-map
                                                  (kbd "V")
                                                  'emacs-solo/newsticker-play-yt-video-from-buffer)
                                      (define-key newsticker-treeview-list-mode-map
@@ -1587,6 +1596,104 @@ are defining or executing a macro."
                                                  (kbd "E")
                                                  #'emacs-solo/newsticker-eww-current-article)))
   :init
+  (defun emacs-solo/clean-subtitles (buffer-name)
+    "Clean SRT subtitles while perfectly preserving ^M in text (unless at line end)."
+    (with-current-buffer (get-buffer-create buffer-name)
+      ;; First: Remove SRT metadata (sequence numbers + timestamps)
+      (goto-char (point-min))
+      (while (re-search-forward "^[0-9]+\n[0-9:,]+ --> [0-9:,]+\n" nil t)
+        (replace-match ""))
+
+      ;; Second: Remove empty/whitespace-only lines (including ^M)
+      (goto-char (point-min))
+      (while (re-search-forward "^[ \t\r]*\n" nil t)
+        (replace-match ""))
+
+      ;; Third: Remove lines ending with ^M (carriage return)
+      (goto-char (point-min))
+      (while (re-search-forward ".*\r$" nil t)
+        (replace-match ""))
+
+      ;; Fourth: Remove duplicate consecutive lines
+      (let ((prev-line nil))
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let* ((bol (line-beginning-position))
+                 (eol (line-end-position))
+                 (current-line (buffer-substring bol eol)))
+            (if (equal current-line prev-line)
+                (delete-region bol (line-beginning-position 2))
+              (setq prev-line current-line)
+              (forward-line 1)))))
+
+      ;; Final cleanup: Remove leading/trailing blank lines
+      (goto-char (point-min))
+      (when (looking-at "\n+")
+        (delete-region (point) (match-end 0)))))
+
+  (defun emacs-solo/fetch-yt-captions-to-buffer ()
+    "Fetch YouTube captions with original auto-subs and display in buffer."
+    (interactive)
+    (let ((window (get-buffer-window "*Newsticker Item*" t)))
+      (if window
+          (progn
+            (select-window window)
+            (save-excursion
+              (goto-char (point-min))
+              (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
+                (let* ((video-id (match-string 1))
+                       (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
+                       (temp-dir (make-temp-file "emacs-yt-subs-" t "/"))
+                       (buffer-name (format "*YT Captions: %s*" video-id)))
+
+                  ;; Create temp directory and buffer
+                  (make-directory temp-dir t)
+                  (with-current-buffer (get-buffer-create buffer-name)
+                    (erase-buffer)
+                    (special-mode)
+                    (setq buffer-read-only t)
+                    (setq-local truncate-lines t)
+                    (let ((map (make-sparse-keymap)))
+                      (set-keymap-parent map special-mode-map)
+                      (define-key map (kbd "q") #'quit-window)
+                      (define-key map (kbd "n") #'forward-line)
+                      (define-key map (kbd "p") #'previous-line)
+                      (use-local-map map)))
+
+                  ;; Run yt-dlp process
+                  (make-process
+                   :name "yt-dlp-fetch-subs"
+                   :buffer nil
+                   :command `("yt-dlp"
+                              "--write-auto-subs"
+                              "--sub-lang" ".*-orig"
+                              "--convert-subs" "srt"
+                              "--skip-download"
+                              "--no-clean-infojson"
+                              "-o" ,(concat temp-dir "temp.%(ext)s")
+                              ,video-url)
+                   :sentinel
+                   (lambda (process _event)
+                     (when (eq (process-status process) 'exit)
+                       (if (zerop (process-exit-status process))
+                           (let ((subs-file (car (directory-files temp-dir t ".*-orig.*"))))
+                             (if (and subs-file (file-exists-p subs-file))
+                                 (with-current-buffer (get-buffer-create buffer-name)
+                                   (let ((inhibit-read-only t))
+                                     (erase-buffer)
+                                     (insert-file-contents subs-file)
+                                     (emacs-solo/clean-subtitles buffer-name))
+                                   (switch-to-buffer-other-window (current-buffer))
+                                   (message "Loaded subtitles: %s" (file-name-nondirectory subs-file))
+                                   (delete-directory temp-dir t))
+                               (message "No -orig subtitles found in %s" temp-dir)
+                               (delete-directory temp-dir t)))
+                         (message "Failed to fetch subtitles")
+                         (delete-directory temp-dir t))))))))
+            (message "No *Newsticker Item* buffer found.")))))
+
+
+
   (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
     "Focus the window showing '*Newsticker Item*' and play the video."
     (interactive)
