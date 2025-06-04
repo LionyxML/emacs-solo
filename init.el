@@ -165,6 +165,11 @@
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
   (add-hook 'text-mode-hook #'display-line-numbers-mode)
 
+  ;; Starts `completion-preview-mode' automatically in some modes
+  (add-hook 'prog-mode-hook #'completion-preview-mode)
+  (add-hook 'text-mode-hook #'completion-preview-mode)
+  (add-hook 'rcirc-mode-hook #'completion-preview-mode)
+
   ;; A Protesilaos life savier HACK
   ;; Add option "d" to whenever using C-x s or C-x C-c, allowing a quick preview
   ;; of the diff (if you choose `d') of what you're asked to save.
@@ -3333,6 +3338,7 @@ Directories themselves are excluded from the final list."
                       (cl-remove-if #'file-directory-p files))
              else if (file-regular-p item) ; Ensure only regular files are included
              collect item))
+
   (defun emacs-solo/dired-do-replace-regexp-as-diff (from to &optional delimited)
     "Do `replace-regexp' of FROM with TO as diff, on all marked files and directories.
 If a marked item is a directory, all files within it (recursively) are included.
