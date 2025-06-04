@@ -2537,6 +2537,7 @@ Replacing `Git-' with a branch symbol."
           flyspell-mode
           smooth-scroll-mode
           outline-minor-mode
+          completion-preview-mode
           which-key-mode))
 
   (defvar emacs-solo-hidden-minor-modes mode-line-collapse-minor-modes)
