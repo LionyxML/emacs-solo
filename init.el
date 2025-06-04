@@ -1524,7 +1524,7 @@ and restart Flymake to apply the changes."
 (use-package minibuffer
   :ensure nil
   :custom
-  (completion-styles '(partial-completion flex initials))
+  ;; (completion-styles '(partial-completion flex initials)) ;;  NOTE: see simple-orderless-completion below
   (completion-ignore-case t)
   (completion-show-help t)
   ;; (completion-auto-select t) ;; NOTE: only turn this on if not using icomplete, can also be 'second-tab
@@ -1534,6 +1534,43 @@ and restart Flymake to apply the changes."
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   :config
+  (defun emacs-solo/setup-simple-orderless ()
+    (defun simple-orderless-completion (string table pred point)
+      "Enhanced orderless completion with better partial matching.
+As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--building-your-own-orderless-style-completion-in-emacs-lisp/"
+      (let* ((words (split-string string "[-, ]+"))
+             (patterns (mapcar (lambda (word)
+                                 (concat "\\b.*" (regexp-quote word) ".*"))
+                               words))
+             (full-regexp (mapconcat 'identity patterns "")))
+        (if (string-empty-p string)
+            (all-completions "" table pred)
+          (cl-remove-if-not
+           (lambda (candidate)
+             (let ((case-fold-search completion-ignore-case))
+               (and (cl-every (lambda (word)
+                                (string-match-p
+                                 (concat "\\b.*" (regexp-quote word))
+                                 candidate))
+                              words)
+                    t)))
+           (all-completions "" table pred)))))
+
+    (add-to-list 'completion-styles-alist
+                 '(simple-orderless simple-orderless-completion
+                                    simple-orderless-completion))
+
+    (defun setup-minibuffer-completion-styles ()
+      "Use orderless completion in minibuffer, regular completion elsewhere."
+      ;; For minibuffer: use orderless first, then fallback to flex and basic
+      (setq-local completion-styles '(basic simple-orderless flex substring)))
+
+    (add-hook 'minibuffer-setup-hook #'setup-minibuffer-completion-styles)
+    (message ">>> emacs-solo: simple orderless loaded!"))
+
+  (emacs-solo/setup-simple-orderless)
+
+
   ;; Makes C-g behave (as seen on https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/)
   (define-advice keyboard-quit
       (:around (quit) quit-current-context)
