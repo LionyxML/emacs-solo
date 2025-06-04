@@ -4132,10 +4132,11 @@ If a stream is already playing, kill it before starting a new one."
            (desired-lines (min max-lines (max min-lines line-count)))
            (frame (make-frame
                    `((parent-frame . ,parent)
-                     (no-accept-focus . nil)
-                     (no-focus-on-map . nil)
+                     (no-accept-focus . t)
+                     (no-focus-on-map . t)
                      (internal-border-width . 1)
                      (undecorated . t)
+                     (fullscreen . nil)
                      (left . ,(+ (window-pixel-left) (car (posn-x-y (posn-at-point)))))
                      (top . ,(+ (cdr (posn-x-y (posn-at-point)))
                                 (frame-char-height)))
@@ -4159,33 +4160,28 @@ If a stream is already playing, kill it before starting a new one."
                      (drag-internal-border . t)
                      (no-special-glyphs . t)
                      (name . "emacs-solo-eldoc-box")))))
+
+      ;; Turn on markdown-ts-mode on some modes
       (with-current-buffer buffer
-        ;; Modes for eldoc-box frame
         (let ((supported-markdown-modes '(typescript-ts-mode tsx-ts-mode js-ts-mode)))
           (when (memq origin-major-mode supported-markdown-modes)
             (markdown-ts-mode)
             (font-lock-ensure)))
-        (setq mode-line-format nil)
         (visual-line-mode 1)
-        (display-line-numbers-mode -1)
+        (display-line-numbers-mode -1))
 
-        ;; Keybindings when eldoc-box is opened and focoused
-        ;;
-        ;; FIXME: maybe a nicer idea would add this as we do with fn `simple-eldoc-box--enable-auto-close'
-        ;;        and avoid "focusing" the childframe all togheter
-        (let ((map (make-sparse-keymap)))
-          (define-key map (kbd "q") #'simple-eldoc-box--delete-frame)
-          (define-key map (kbd "C-g") #'simple-eldoc-box--delete-frame)
-          (define-key map (kbd "o")
-                      (lambda ()
-                        (interactive)
-                        (run-with-timer 0.05 nil (lambda () (eldoc-doc-buffer t)))))
-          (use-local-map map)))
+      ;; Force-disable mode line in all windows of this frame
+      (walk-windows
+       (lambda (win)
+         (when (eq (window-frame win) frame)
+           (set-window-parameter win 'mode-line-format 'none)
+           (set-window-parameter win 'header-line-format 'none))
+         nil frame))
+
       (set-window-buffer (frame-root-window frame) buffer)
-
       (set-frame-parameter frame 'visibility t)
 
-      ;; Darken background
+      ;; Darker background
       (let* ((bg (face-background 'default nil parent))
              (rgb (color-name-to-rgb bg))
              (darker (apply #'color-rgb-to-hex
@@ -4195,7 +4191,21 @@ If a stream is already playing, kill it before starting a new one."
           (face-remap-add-relative 'default `(:background ,darker))))
 
       (setq simple-eldoc-box--child-frame frame)
+
       (simple-eldoc-box--enable-auto-close)
+
+      (let ((key (read-key "Eldoc Box: Press q(uit) / o(pen) doc on new window")))
+        (cond
+         ((equal key ?q)
+          (simple-eldoc-box--delete-frame))
+         ((equal key ?o)
+          (simple-eldoc-box--delete-frame)
+          (run-with-idle-timer 0.05 nil
+                               (lambda ()
+                                 (eldoc-doc-buffer t))))
+         (t
+          (simple-eldoc-box--delete-frame))))
+
       frame))
 
   ;; CLOSES THE BOX FRAME
