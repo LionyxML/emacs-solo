@@ -2435,7 +2435,6 @@ If MANUAL is non-nil, the function was called interactively."
 ;;  Custom functions to set/unset transparency
 ;;
 (use-package emacs-solo-transparency
-  :if emacs-solo-enable-transparency
   :ensure nil
   :no-require t
   :defer t
@@ -2457,6 +2456,7 @@ If MANUAL is non-nil, the function was called interactively."
     "Set frame transparency. If FRAME is nil, applies to all existing frames."
     (interactive)
     (unless (display-graphic-p frame)
+      (emacs-solo/clear-terminal-background-color)
       (add-hook 'window-setup-hook 'emacs-solo/clear-terminal-background-color)
       (add-hook 'ef-themes-post-load-hook 'emacs-solo/clear-terminal-background-color))
 
@@ -2480,8 +2480,10 @@ If MANUAL is non-nil, the function was called interactively."
     (dolist (frame (frame-list))
       (set-frame-parameter frame 'alpha-background 100)))
 
-  (add-hook 'after-init-hook #'emacs-solo/transparency-set)
-  (add-hook 'after-make-frame-functions #'emacs-solo/transparency-set))
+  (when emacs-solo-enable-transparency
+
+    (add-hook 'after-init-hook #'emacs-solo/transparency-set)
+    (add-hook 'after-make-frame-functions #'emacs-solo/transparency-set)))
 
 
 ;;; EMACS-SOLO-MODE-LINE
