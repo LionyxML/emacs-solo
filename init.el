@@ -46,6 +46,10 @@
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-eldoc-box t
+  "Enable `emacs-solo-eldoc-box'."
+  :type 'boolean
+  :group 'emacs-solo)
 
 ;;; -------------------- GENERAL EMACS CONFIG
 ;;; EMACS
@@ -4110,6 +4114,7 @@ If a stream is already playing, kill it before starting a new one."
 ;;  A hacky eldoc-box inspired by the famous casouri package
 ;;
 (use-package emacs-solo-eldoc-box
+  :if emacs-solo-enable-eldoc-box
   :ensure nil
   :no-require t
   :defer t
