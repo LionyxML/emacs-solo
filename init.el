@@ -1528,7 +1528,7 @@ and restart Flymake to apply the changes."
 (use-package minibuffer
   :ensure nil
   :custom
-  ;; (completion-styles '(partial-completion flex initials)) ;;  NOTE: see simple-orderless-completion below
+  (completion-styles '(partial-completion flex initials)) ;;  NOTE: for minibuffer we use another one, see below
   (completion-ignore-case t)
   (completion-show-help t)
   ;; (completion-auto-select t) ;; NOTE: only turn this on if not using icomplete, can also be 'second-tab
