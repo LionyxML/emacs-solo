@@ -2682,7 +2682,7 @@ Opening and closing delimiters will have matching colors."
   (defvar emacs-solo-default-projects-folder "~/Projects"
     "Default folder to search for projects.")
 
-  (defvar emacs-solo-default-projects-input "**"
+  (defvar emacs-solo-default-projects-input ""
     "Default input to use when finding a project.")
 
   (defun emacs-solo/find-projects-and-switch (&optional directory)
