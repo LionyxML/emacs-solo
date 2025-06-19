@@ -2702,13 +2702,6 @@ Opening and closing delimiters will have matching colors."
         (when (and selected-project (file-directory-p selected-project))
           (project-switch-project selected-project)))))
 
-  (defun emacs-solo/minibuffer-move-cursor ()
-    "Move cursor between `*` characters when minibuffer is populated with `**`."
-    (when (string-prefix-p emacs-solo-default-projects-input (minibuffer-contents))
-      (goto-char (+ (minibuffer-prompt-end) 1))))
-
-  (add-hook 'minibuffer-setup-hook #'emacs-solo/minibuffer-move-cursor)
-
   :bind (:map project-prefix-map
               ("P" . emacs-solo/find-projects-and-switch)))
 
