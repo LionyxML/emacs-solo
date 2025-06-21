@@ -3289,7 +3289,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
       (message "Sending %s to 0x0.st..." temp-file)
       (let ((url (string-trim-right
                   (shell-command-to-string
-                   (format "curl -s -F'file=@%s' https://0x0.st" temp-file)))))
+                   (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" temp-file)))))
         (message "The URL is %s" url)
         (kill-new url)
         (delete-file temp-file))))
@@ -3299,7 +3299,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
     (message "Sending %s to 0x0.st..." file-path)
     (let ((url (string-trim-right
                 (shell-command-to-string
-                 (format "curl -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
+                 (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
       (message "The URL is %s" url)
       (kill-new url))))
 
