@@ -164,6 +164,9 @@
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
 
+  ;; For OSC 52 compatible terminals support
+  (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
+
   ;; Set line-number-mode with relative numbering
   (setq display-line-numbers-type 'relative)
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
