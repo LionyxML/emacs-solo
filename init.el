@@ -915,7 +915,8 @@ away from the bottom.  Counts wrapped lines as real lines."
   (setopt eshell-banner-message
           (concat
            (propertize " ✨ Welcome to the Emacs Solo Shell ✨\n\n" 'face '(:weight bold :foreground "#f9e2af"))
-           (propertize " C-c t" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between prompts\n"
+           (propertize " C-c t" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between prompts (full / minimum)\n"
+           (propertize " C-c T" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between full prompts (lighter / heavier)\n"
            (propertize " C-c l" 'face '(:foreground "#89b4fa" :weight bold)) " - searches history\n"
            (propertize " C-l  " 'face '(:foreground "#89b4fa" :weight bold)) " - clears scrolling\n\n"))
 
@@ -987,6 +988,7 @@ away from the bottom.  Counts wrapped lines as real lines."
             (lambda ()
               (local-set-key (kbd "C-c l") #'emacs-solo/eshell-pick-history)
               (local-set-key (kbd "C-c t") #'emacs-solo/toggle-eshell-prompt)
+              (local-set-key (kbd "C-c T") #'emacs-solo/toggle-eshell-prompt-resource-intensive)
               (local-set-key (kbd "C-l")
                              (lambda ()
                                (interactive)
@@ -999,7 +1001,26 @@ away from the bottom.  Counts wrapped lines as real lines."
   (require 'vc-git)
 
   (defvar emacs-solo/eshell-full-prompt t
-    "When non-nil, show the full Eshell prompt. When nil, show minimal prompt.")
+    "When non-nil, show the full Eshell prompt. When nil, show minimal prompt.
+
+The minimal version shows only the `emacs-solo/eshell-lambda-symbol', like:
+ 𝛌
+
+The full version shows something like:
+
+ 🟢 0 🧙 user  💻 hostname  🕒 23:03:12  📁 ~/Projects/emacs-solo 
+  main 
+
+There is also `emacs-solo/eshell-full-prompt-resource-intensive' which will
+print some extra `expensive' information, like conflicts, remote status, and
+more, like:
+
+ 🟢 0 🧙 user  💻 hostname  🕒 23:03:12  📁 ~/Projects/emacs-solo 
+  main ✏️2 ✨1 ")
+
+  (defvar emacs-solo/eshell-full-prompt-resource-intensive nil
+    "When non-nil, and emacs-solo/eshell-full-prompt t. Also show slower operations.
+Check `emacs-solo/eshell-full-prompt' for more info.")
 
   (defvar emacs-solo/eshell-lambda-symbol " 𝛌  "
     "Symbol used for the minimal Eshell prompt.")
@@ -1010,6 +1031,16 @@ away from the bottom.  Counts wrapped lines as real lines."
     (setq emacs-solo/eshell-full-prompt (not emacs-solo/eshell-full-prompt))
     (message "Eshell prompt: %s"
              (if emacs-solo/eshell-full-prompt "full" "minimal"))
+    (when (derived-mode-p 'eshell-mode)
+      (eshell-reset)))
+
+  (defun emacs-solo/toggle-eshell-prompt-resource-intensive ()
+    "Toggle between full and minimal Eshell prompt."
+    (interactive)
+    (setq emacs-solo/eshell-full-prompt-resource-intensive
+          (not emacs-solo/eshell-full-prompt-resource-intensive))
+    (message "Eshell prompt: %s"
+             (if emacs-solo/eshell-full-prompt-resource-intensive "lighter" "heavier"))
     (when (derived-mode-p 'eshell-mode)
       (eshell-reset)))
 
@@ -1070,37 +1101,38 @@ away from the bottom.  Counts wrapped lines as real lines."
                     (propertize
                      (concat
                       "  " (car (vc-git-branches))
-                      (let* ((branch (car (vc-git-branches)))
-                             (behind (string-to-number
-                                      (shell-command-to-string
-                                       (format "git rev-list --count origin/%s..HEAD" branch))))
-                             (ahead (string-to-number
-                                     (shell-command-to-string
-                                      (format "git rev-list --count HEAD..origin/%s" branch)))))
-                        (concat
-                         (when (> ahead 0) (format " ⬇️%d" ahead))
 
-                         (when (> behind 0) (format " ⬆️%d" behind))
+                      (when emacs-solo/eshell-full-prompt-resource-intensive
+                        (let* ((branch (car (vc-git-branches)))
+                               (behind (string-to-number
+                                        (shell-command-to-string
+                                         (format "git rev-list --count origin/%s..HEAD" branch))))
+                               (ahead (string-to-number
+                                       (shell-command-to-string
+                                        (format "git rev-list --count HEAD..origin/%s" branch)))))
+                          (concat
+                           (when (> ahead 0) (format " ⬇️%d" ahead))
 
-                         (when (and (> ahead 0) (> behind 0)) "  🔀")))
+                           (when (> behind 0) (format " ⬆️%d" behind))
 
-                      (let ((modified (length (split-string
-                                               (shell-command-to-string "git ls-files --modified")
-                                               "\n" t)))
-                            (untracked (length (split-string
-                                                (shell-command-to-string
-                                                 "git ls-files --others --exclude-standard")
-                                                "\n" t)))
-                            (conflicts (length (split-string
-                                                (shell-command-to-string
-                                                 "git diff --name-only --diff-filter=U")
-                                                "\n" t))))
-                        (concat
-                         (if (> modified 0) (format " ✏️%d" modified))
+                           (when (and (> ahead 0) (> behind 0)) "  🔀")))
 
-                         (if (> untracked 0) (format " ✨%d" untracked))
+                        (let ((modified (length (split-string
+                                                 (shell-command-to-string "git ls-files --modified")
+                                                 "\n" t)))
+                              (untracked (length (split-string
+                                                  (shell-command-to-string
+                                                   "git ls-files --others --exclude-standard")
+                                                  "\n" t)))
+                              (conflicts (length (split-string
+                                                  (shell-command-to-string
+                                                   "git diff --name-only --diff-filter=U")
+                                                  "\n" t))))
+                          (concat
+                           (if (> modified 0) (format " ✏️%d" modified))
+                           (if (> untracked 0) (format " ✨%d" untracked))
+                           (if (> conflicts 0) (format " ⚔️%d" conflicts)))))
 
-                         (if (> conflicts 0) (format " ⚔️%d" conflicts))))
                       " ")
                      'face `(:background "#212234" :foreground "#F9E2AF"))
 
