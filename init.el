@@ -1886,29 +1886,29 @@ are defining or executing a macro."
   (speedbar-use-images t)
   :config
   (setq speedbar-expand-image-button-alist
-   '(("<+>" . ezimage-directory) ;; previously ezimage-directory-plus
-     ("<->" . ezimage-directory-minus)
-     ("< >" . ezimage-directory)
-     ("[+]" . ezimage-page-plus)
-     ("[-]" . ezimage-page-minus)
-     ("[?]" . ezimage-page)
-     ("[ ]" . ezimage-page)
-     ("{+}" . ezimage-directory-plus) ;; previously ezimage-box-plus
-     ("{-}" . ezimage-directory-minus) ;; previously ezimage-box-minus
-     ("<M>" . ezimage-mail)
-     ("<d>" . ezimage-document-tag)
-     ("<i>" . ezimage-info-tag)
-     (" =>" . ezimage-tag)
-     (" +>" . ezimage-tag-gt)
-     (" ->" . ezimage-tag-v)
-     (">"   . ezimage-tag)
-     ("@"   . ezimage-tag-type)
-     ("  @" . ezimage-tag-type)
-     ("*"   . ezimage-checkout)
-     ("#"   . ezimage-object)
-     ("!"   . ezimage-object-out-of-date)
-     ("//"  . ezimage-label)
-     ("%"   . ezimage-lock))))
+        '(("<+>" . ezimage-directory) ;; previously ezimage-directory-plus
+          ("<->" . ezimage-directory-minus)
+          ("< >" . ezimage-directory)
+          ("[+]" . ezimage-page-plus)
+          ("[-]" . ezimage-page-minus)
+          ("[?]" . ezimage-page)
+          ("[ ]" . ezimage-page)
+          ("{+}" . ezimage-directory-plus) ;; previously ezimage-box-plus
+          ("{-}" . ezimage-directory-minus) ;; previously ezimage-box-minus
+          ("<M>" . ezimage-mail)
+          ("<d>" . ezimage-document-tag)
+          ("<i>" . ezimage-info-tag)
+          (" =>" . ezimage-tag)
+          (" +>" . ezimage-tag-gt)
+          (" ->" . ezimage-tag-v)
+          (">"   . ezimage-tag)
+          ("@"   . ezimage-tag-type)
+          ("  @" . ezimage-tag-type)
+          ("*"   . ezimage-checkout)
+          ("#"   . ezimage-object)
+          ("!"   . ezimage-object-out-of-date)
+          ("//"  . ezimage-label)
+          ("%"   . ezimage-lock))))
 
 ;;; TIME
 (use-package time
@@ -3914,51 +3914,51 @@ If a region is selected, prompt for additional input and pass it as a query."
         (message "❌ mpv IPC socket not found at %s" socket))))
 
 
-(defun emacs-solo/mpv-show-playlist ()
-  "Show the current mpv playlist in a readable buffer."
-  (interactive)
-  (let ((buf (get-buffer-create "*mpv-playlist*"))
-        (socket emacs-solo/mpv-ipc-socket)
-        (output ""))
-    (if (file-exists-p socket)
-        (let ((proc
-               (make-network-process
-                :name "mpv-ipc-playlist"
-                :family 'local
-                :service socket
-                :nowait nil
-                :filter (lambda (_proc chunk)
-                          (setq output (concat output chunk))))))
-          (process-send-string proc
-            "{\"command\": [\"get_property\", \"playlist\"]}\n")
-          (sleep-for 0.1)
-          (delete-process proc)
+  (defun emacs-solo/mpv-show-playlist ()
+    "Show the current mpv playlist in a readable buffer."
+    (interactive)
+    (let ((buf (get-buffer-create "*mpv-playlist*"))
+          (socket emacs-solo/mpv-ipc-socket)
+          (output ""))
+      (if (file-exists-p socket)
+          (let ((proc
+                 (make-network-process
+                  :name "mpv-ipc-playlist"
+                  :family 'local
+                  :service socket
+                  :nowait nil
+                  :filter (lambda (_proc chunk)
+                            (setq output (concat output chunk))))))
+            (process-send-string proc
+                                 "{\"command\": [\"get_property\", \"playlist\"]}\n")
+            (sleep-for 0.1)
+            (delete-process proc)
 
-          (with-current-buffer buf
-            (let ((inhibit-read-only t)
-                  (json-object-type 'alist)
-                  (json-array-type 'list)
-                  (json-key-type 'symbol))
-              (erase-buffer)
-              (let* ((json-data (ignore-errors (json-read-from-string output)))
-                     (playlist (alist-get 'data json-data)))
-                (if playlist
-                    (progn
-                      (insert "🎵 MPV Playlist:\n\n")
-                      (cl-loop for i from 0
-                               for entry in playlist do
-                               (insert
-                                (format "%s %s. %s\n"
-                                        (if (eq (alist-get 'current entry) t)
-                                            "now playing ➡️ " "")
-                                        (1+ i)
-                                        (alist-get 'filename entry)
-                                        ))))
-                  (insert "❌ Failed to parse playlist or playlist is empty."))))
-            (special-mode)
-            (goto-char (point-min)))
-          (display-buffer buf))
-      (message "❌ mpv IPC socket not found at %s" socket))))
+            (with-current-buffer buf
+              (let ((inhibit-read-only t)
+                    (json-object-type 'alist)
+                    (json-array-type 'list)
+                    (json-key-type 'symbol))
+                (erase-buffer)
+                (let* ((json-data (ignore-errors (json-read-from-string output)))
+                       (playlist (alist-get 'data json-data)))
+                  (if playlist
+                      (progn
+                        (insert "🎵 MPV Playlist:\n\n")
+                        (cl-loop for i from 0
+                                 for entry in playlist do
+                                 (insert
+                                  (format "%s %s. %s\n"
+                                          (if (eq (alist-get 'current entry) t)
+                                              "now playing ➡️ " "")
+                                          (1+ i)
+                                          (alist-get 'filename entry)
+                                          ))))
+                    (insert "❌ Failed to parse playlist or playlist is empty."))))
+              (special-mode)
+              (goto-char (point-min)))
+            (display-buffer buf))
+        (message "❌ mpv IPC socket not found at %s" socket))))
 
   (require 'transient)
 
