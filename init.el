@@ -371,16 +371,55 @@
   (tab-bar-close-button-show nil)
   (tab-bar-new-button-show nil)
   (tab-bar-tab-hints t)
-  (tab-bar-auto-width t)
-  (tab-bar-auto-width-min '(10 4))
-  (tab-bar-auto-width-max '(50 5))
+  (tab-bar-auto-width nil)
+  (tab-bar-separator " ")
+  (tab-bar-format '(tab-bar-format-tabs-groups
+                    Tab-bar-format-tabs tab-bar-separator
+                    tab-bar-format-add-tab))
   :init
-  ;; HACK this is an override of the internal function so it
-  ;;      shows only the hint number with some decoration.
+  ;;; --- OPTIONAL INTERNAL FN OVERRIDES TO DECORATE NAMES
   (defun tab-bar-tab-name-format-hints (name _tab i)
-    "Show absolute numbers on tabs in the tab bar before the tab name.
-It has effect when `tab-bar-tab-hints' is non-nil."
-    (if tab-bar-tab-hints (concat (format " »%d«" i) "") name)))
+      (if tab-bar-tab-hints (concat (format "»%d«" i) "") name))
+
+  (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
+    (propertize
+     (concat (funcall tab-bar-tab-group-function tab))
+     'face (if current-p 'tab-bar-tab-group-current 'tab-bar-tab-group-inactive)))
+
+
+  ;;; --- UTILITIES FUNCTIONS
+  (defun emacs-solo/tab-group-from-project ()
+    "Call `tab-group` with the current project name as the group."
+    (interactive)
+    (when-let* ((proj (project-current))
+                (name (file-name-nondirectory
+                       (directory-file-name (project-root proj)))))
+      (tab-group (format "[%s]" name))))
+
+  (defun emacs-solo/tab-switch-to-group ()
+  "Prompt for a tab group and switch to its first tab.
+Uses position instead of index field."
+  (interactive)
+  (let* ((tabs (funcall tab-bar-tabs-function)))
+    (let* ((groups (delete-dups (mapcar (lambda (tab)
+                                          (funcall tab-bar-tab-group-function tab))
+                                        tabs)))
+           (group (completing-read "Switch to group: " groups nil t)))
+      (let ((i 1) (found nil))
+        (dolist (tab tabs)
+          (let ((tab-group (funcall tab-bar-tab-group-function tab)))
+            (when (and (not found)
+                       (string= tab-group group))
+              (setq found t)
+              (tab-bar-select-tab i)))
+          (setq i (1+ i)))))))
+
+  ;;; --- EXTRA KEYBINDINGS
+  (global-set-key (kbd "C-x t P") #'emacs-solo/tab-group-from-project)
+  (global-set-key (kbd "C-x t g") #'emacs-solo/tab-switch-to-group)
+
+  ;;; --- TURNS ON BY DEFAULT
+  (tab-bar-mode 1))
 
 
 ;;; RCIRC
@@ -2137,14 +2176,29 @@ are defining or executing a macro."
          )))
      `(tab-bar-tab
        ((,c
-         ;; :background "#232635"
-         ;; :underline t
+         :background "#232635"
+         :underline t
          ;; :box (:line-width 1 :color "#676E95")
          )))
      `(tab-bar-tab-inactive
        ((,c
          ;; :background "#232635"
          ;; :box (:line-width 1 :color "#676E95")
+         )))
+     `(tab-bar-tab-group-current
+       ((,c
+         ;; :background "#232635"
+         ;; :box (:line-width 1 :color "#676E95")
+         :background "#232635"
+         :foreground "#A6Accd"
+         :underline t
+         )))
+     `(tab-bar-tab-group-inactive
+       ((,c
+         ;; :background "#232635"
+         ;; :box (:line-width 1 :color "#676E95")
+         :background "#232635"
+         :foreground "#777"
          )))))
   :init
   (load-theme 'modus-vivendi-tinted t))
