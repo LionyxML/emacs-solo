@@ -3515,8 +3515,8 @@ you can later apply as a patch after reviewing the changes."
     (interactive)
     (let* ((city (shell-quote-argument emacs-solo-weather-city))
            (buffer (get-buffer-create "*Weather*"))
-           (url1 (format "curl -s 'wttr.in/%s'" city))
-           (url2 (format "curl -s 'v2d.wttr.in/%s'" city)))
+           (url1 (format "curl -s 'wttr.in/%s?format'" city))
+           (url2 (format "curl -s 'v2d.wttr.in/%s?format'" city)))
       (with-current-buffer buffer
         (read-only-mode -1)
         (erase-buffer)
