@@ -111,6 +111,11 @@
   (register-use-preview t)
   (remote-file-name-inhibit-delete-by-moving-to-trash t)
   (remote-file-name-inhibit-auto-save t)
+  (remote-file-name-inhibit-locks t)
+  (remote-file-name-inhibit-auto-save-visited t)
+  (tramp-use-scp-direct-remote-copying t)
+  (tramp-copy-size-limit (* 2 1024 1024)) ;; 2MB
+  (tramp-verbose 2)
   (resize-mini-windows 'grow-only)
   (scroll-conservatively 8)
   (scroll-margin 5)
@@ -166,6 +171,21 @@
 
   ;; For OSC 52 compatible terminals support
   (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
+
+  ;; TRAMP specific HACKs
+  ;; See https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
+  (connection-local-set-profile-variables
+   'remote-direct-async-process
+   '((tramp-direct-async-process . t)))
+
+  (connection-local-set-profiles
+   '(:application tramp :protocol "scp")
+   'remote-direct-async-process)
+
+  (with-eval-after-load 'tramp
+    (with-eval-after-load 'compile
+    (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
+
 
   ;; Set line-number-mode with relative numbering
   (setq display-line-numbers-type 'relative)
