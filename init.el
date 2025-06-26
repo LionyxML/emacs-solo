@@ -387,7 +387,13 @@
 (use-package tab-bar
   :ensure nil
   :defer t
+  :bind
+  (("C-x t <left>" . tab-bar-history-back)
+   ("C-x t <right>" . tab-bar-history-forward)
+   ("C-x t P" . #'emacs-solo/tab-group-from-project)
+   ("C-x t g" . #'emacs-solo/tab-switch-to-group))
   :custom
+  (tab-bar-new-tab-choice "*scratch*")
   (tab-bar-close-button-show nil)
   (tab-bar-new-button-show nil)
   (tab-bar-tab-hints t)
@@ -434,12 +440,9 @@ Uses position instead of index field."
               (tab-bar-select-tab i)))
           (setq i (1+ i)))))))
 
-  ;;; --- EXTRA KEYBINDINGS
-  (global-set-key (kbd "C-x t P") #'emacs-solo/tab-group-from-project)
-  (global-set-key (kbd "C-x t g") #'emacs-solo/tab-switch-to-group)
-
   ;;; --- TURNS ON BY DEFAULT
-  (tab-bar-mode 1))
+  (tab-bar-mode 1)
+  (tab-bar-history-mode 1))
 
 
 ;;; RCIRC
