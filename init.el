@@ -46,6 +46,11 @@
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-custom-orderless nil
+  "Enable `emacs-solo-completions-box'."
+  :type 'boolean
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-enable-eldoc-box t
   "Enable `emacs-solo-eldoc-box'."
   :type 'boolean
@@ -1627,7 +1632,7 @@ and restart Flymake to apply the changes."
 (use-package minibuffer
   :ensure nil
   :custom
-  (completion-styles '(partial-completion flex initials)) ;;  NOTE: for minibuffer we use another one, see below
+  (completion-styles '(partial-completion flex initials)) ;;  NOTE: for minibuffer we can use emacs-solo-enable-custom-orderless custom
   (completion-ignore-case t)
   (completion-show-help t)
   ;; (completion-auto-select t) ;; NOTE: only turn this on if not using icomplete, can also be 'second-tab
@@ -1671,7 +1676,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
     (add-hook 'minibuffer-setup-hook #'setup-minibuffer-completion-styles)
     (message ">>> emacs-solo: simple orderless loaded!"))
 
-  (emacs-solo/setup-simple-orderless)
+  (when emacs-solo-enable-custom-orderless
+    (emacs-solo/setup-simple-orderless))
 
 
   ;; Makes C-g behave (as seen on https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/)
