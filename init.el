@@ -166,7 +166,7 @@
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta)
-    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130)
+    (set-face-attribute 'default nil :family "Menlo" :height 120)
     (set-fontset-font t '(#x1f000 . #x1faff)
                       (font-spec :family "Apple Color Emoji" :size 10)))
 
