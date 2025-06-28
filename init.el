@@ -1092,7 +1092,7 @@ more, like:
     "When non-nil, and emacs-solo/eshell-full-prompt t. Also show slower operations.
 Check `emacs-solo/eshell-full-prompt' for more info.")
 
-  (defvar emacs-solo/eshell-lambda-symbol " 𝛌  "
+  (defvar emacs-solo/eshell-lambda-symbol "  $ "
     "Symbol used for the minimal Eshell prompt.")
 
   (defun emacs-solo/toggle-eshell-prompt ()
