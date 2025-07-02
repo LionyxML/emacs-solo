@@ -13,6 +13,26 @@
 
 ;;; Code:
 
+(defcustom emacs-solo-avoid-flash-options
+  '((enabled . t)
+    (background . "#292D3E")
+    (foreground . "#292D3E")
+    (reset-background . "#292D3E")
+    (reset-foreground . "#EEFFFF"))
+  "Options to avoid flash of light on Emacs startup.
+- `enabled`: Whether to apply the workaround.
+- `background`, `foreground`: Initial colors to use.
+- `reset-background`, `reset-foreground`: Optional explicit colors to restore after startup.
+
+NOTE: The default values here presented are set for the default
+`emacs-solo' custom theme.  If you'd like to turn this ON with another
+theme, change the background/foreground variables.
+
+If reset values are nil, nothing is reset."
+  :type '(alist :key-type symbol :value-type (choice (const nil) string))
+  :group 'emacs-solo)
+
+
 ;;; -------------------- PERFORMANCE & HACKS
 ;; HACK: inscrease startup speed
 (setq gc-cons-threshold most-positive-fixnum
@@ -23,17 +43,25 @@
 
 ;; HACK: avoid being flashbanged
 (defun emacs-solo/avoid-initial-flash-of-light ()
-  "Avoid flash of light when starting Emacs."
-  (setq mode-line-format nil)
-  ;; These colors should match your selected theme for maximum effect
-  (set-face-attribute 'default nil :background "#292D3E" :foreground "#292D3E"))
+  "Avoid flash of light when starting Emacs, based on `emacs-solo-avoid-flash-options`."
+  (when (alist-get 'enabled emacs-solo-avoid-flash-options)
+    (setq mode-line-format nil)
+    (set-face-attribute 'default nil
+                        :background (alist-get 'background emacs-solo-avoid-flash-options)
+                        :foreground (alist-get 'foreground emacs-solo-avoid-flash-options))))
 
-(defun emacs-solo/reset-default-foreground ()
-  "Reset the foreground color of the default face."
-    (set-face-attribute 'default nil :foreground (face-foreground 'default)))
+(defun emacs-solo/reset-default-colors ()
+  "Reset any explicitly defined reset values in `emacs-solo-avoid-flash-options`."
+  (when (alist-get 'enabled emacs-solo-avoid-flash-options)
+    (let ((bg (alist-get 'reset-background emacs-solo-avoid-flash-options))
+          (fg (alist-get 'reset-foreground emacs-solo-avoid-flash-options)))
+      (when bg
+        (set-face-attribute 'default nil :background bg))
+      (when fg
+        (set-face-attribute 'default nil :foreground fg)))))
 
-(emacs-solo/avoid-initial-flash-of-light)                           ; HACK start
-(add-hook 'after-init-hook #'emacs-solo/reset-default-foreground)   ; HACK undo
+(emacs-solo/avoid-initial-flash-of-light)
+(add-hook 'after-init-hook #'emacs-solo/reset-default-colors)
 
 
 ;; Always start Emacs and new frames maximized

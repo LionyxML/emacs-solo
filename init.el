@@ -56,6 +56,16 @@
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-use-custom-theme t
+  "Enable `emacs-solo' customizations to modus-theme.
+
+IMPORTANT NOTE: If you'd like to disable this custom theme, also check the
+`emacs-solo-avoid-flash-options' variable: turn it OFF or customize its
+colors to match your new theme."
+  :type 'boolean
+  :group 'emacs-solo)
+
+
 ;;; -------------------- GENERAL EMACS CONFIG
 ;;; EMACS
 (use-package emacs
@@ -2135,6 +2145,7 @@ are defining or executing a macro."
 
 ;;; THEMES
 (use-package modus-themes
+  :if emacs-solo-use-custom-theme
   :ensure nil
   :defer t
   :custom
@@ -2196,39 +2207,38 @@ are defining or executing a macro."
      (constant "#f78c6c")))
   :config
   (modus-themes-with-colors
-    (custom-set-faces
-     `(tab-bar
-       ((,c
-         :background "#232635"
-         :foreground "#A6Accd"
-         ;; :box (:line-width 1 :color "#676E95")
-         )))
-     `(tab-bar-tab
-       ((,c
-         :background "#232635"
-         :underline t
-         ;; :box (:line-width 1 :color "#676E95")
-         )))
-     `(tab-bar-tab-inactive
-       ((,c
-         ;; :background "#232635"
-         ;; :box (:line-width 1 :color "#676E95")
-         )))
-     `(tab-bar-tab-group-current
-       ((,c
-         ;; :background "#232635"
-         ;; :box (:line-width 1 :color "#676E95")
-         :background "#232635"
-         :foreground "#A6Accd"
-         :underline t
-         )))
-     `(tab-bar-tab-group-inactive
-       ((,c
-         ;; :background "#232635"
-         ;; :box (:line-width 1 :color "#676E95")
-         :background "#232635"
-         :foreground "#777"
-         )))))
+   (custom-set-faces
+    `(tab-bar
+      ((,c
+        :background "#232635"
+        :foreground "#A6Accd"
+        ;; :box (:line-width 1 :color "#676E95")
+        )))
+    `(tab-bar-tab
+      ((,c
+        :background "#232635"
+        :underline t
+        ;; :box (:line-width 1 :color "#676E95")
+        )))
+    `(tab-bar-tab-inactive
+      ((,c
+        ;; :background "#232635"
+        ;; :box (:line-width 1 :color "#676E95")
+        )))
+    `(tab-bar-tab-group-current
+      ((,c
+        ;; :background "#232635"
+        ;; :box (:line-width 1 :color "#676E95")
+        :background "#232635"
+        :foreground "#A6Accd"
+        :underline t
+        )))
+    `(tab-bar-tab-group-inactive
+      ((,c
+        ;; :background "#232635"
+        ;; :box (:line-width 1 :color "#676E95")
+        :background "#232635"
+        :foreground "#777")))))
   :init
   (load-theme 'modus-vivendi-tinted t))
 
