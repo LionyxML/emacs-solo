@@ -176,9 +176,13 @@ colors to match your new theme."
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta)
-    (set-face-attribute 'default nil :family "Menlo" :height 120)
+
+    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 120)
+
+    (set-fontset-font t '(#xe0b0 . #xe0bF)
+                      (font-spec :family "JetBrainsMono Nerd Font" :size 11))
     (set-fontset-font t '(#x1f000 . #x1faff)
-                      (font-spec :family "Apple Color Emoji" :size 10)))
+                      (font-spec :family "Apple Color Emoji" :size 8)))
 
   ;; Save manual customizations to other file than init.el
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
@@ -1102,7 +1106,7 @@ more, like:
     "When non-nil, and emacs-solo/eshell-full-prompt t. Also show slower operations.
 Check `emacs-solo/eshell-full-prompt' for more info.")
 
-  (defvar emacs-solo/eshell-lambda-symbol "  $ "
+  (defvar emacs-solo/eshell-lambda-symbol "  λ "
     "Symbol used for the minimal Eshell prompt.")
 
   (defun emacs-solo/toggle-eshell-prompt ()
@@ -2642,7 +2646,7 @@ Replacing `Git-' with a branch symbol."
                 '("%e" "  "
                   ;; (:propertize " " display (raise +0.1)) ;; Top padding
                   ;; (:propertize " " display (raise -0.1)) ;; Bottom padding
-                  (:propertize "𝛌  " face font-lock-keyword-face)
+                  (:propertize "λ  " face font-lock-keyword-face)
 
                   (:propertize
                    ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
