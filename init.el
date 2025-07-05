@@ -497,22 +497,28 @@ Uses position instead of index field."
   (erc-hide-list '("JOIN" "PART" "QUIT"))
   (erc-timestamp-format "[%H:%M]")
   (erc-autojoin-channels-alist '((".*\\.libera\\.chat" "#emacs" "#systemcrafters")))
+  (erc-server-reconnect-attempts 10)
+  (erc-server-reconnect-timeout 3)
+  (erc-fill-function 'erc-fill-wrap)
   :init
   (with-eval-after-load 'erc
-    (add-to-list 'erc-modules 'sasl))
+    (add-to-list 'erc-modules 'sasl)
+    (add-to-list 'erc-modules 'scrolltobottom))
 
   (setopt erc-sasl-mechanism 'external)
 
   (defun erc-liberachat ()
-    (interactive)
-    (erc-tls :server "irc.libera.chat"
-             :port 6697
-             :user "Lionyx"
-             :password ""
-             :client-certificate
-             (list
-              (expand-file-name "cert.pem" user-emacs-directory)
-              (expand-file-name "cert.pem" user-emacs-directory)))))
+  (interactive)
+  (let ((buf (erc-tls :server "irc.libera.chat"
+                      :port 6697
+                      :user "Lionyx"
+                      :password ""
+                      :client-certificate
+                      (list
+                       (expand-file-name "cert.pem" user-emacs-directory)
+                       (expand-file-name "cert.pem" user-emacs-directory)))))
+    (when (bufferp buf)
+      (pop-to-buffer buf)))))
 
 
 ;;; ICOMPLETE
