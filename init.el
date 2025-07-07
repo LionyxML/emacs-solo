@@ -1809,6 +1809,7 @@ are defining or executing a macro."
       (if window
           (progn
             (select-window window)
+            (message "Loaded subtitles...")
             (save-excursion
               (goto-char (point-min))
               (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
@@ -1860,10 +1861,8 @@ are defining or executing a macro."
                                (message "No -orig subtitles found in %s" temp-dir)
                                (delete-directory temp-dir t)))
                          (message "Failed to fetch subtitles")
-                         (delete-directory temp-dir t))))))))
-            (message "No *Newsticker Item* buffer found.")))))
-
-
+                         (delete-directory temp-dir t)))))))))
+        (message "No *Newsticker Item* buffer found."))))
 
   (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
     "Focus the window showing '*Newsticker Item*' and play the video."
@@ -1877,8 +1876,8 @@ are defining or executing a macro."
               (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
                 (let ((video-id (match-string 1)))
                   (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
-                  (message "Playing with mpv: %s" video-id))))))
-      (message "No window showing *Newsticker Item* buffer.")))
+                  (message "Playing with mpv: %s" video-id)))))
+        (message "No window showing *Newsticker Item* buffer."))))
 
   (defun emacs-solo/newsticker-eww-current-article ()
     "Open the news item at point in EWW in the same window."
