@@ -177,7 +177,7 @@ colors to match your new theme."
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta)
 
-    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 120)
+    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130)
 
     (set-fontset-font t '(#xe0b0 . #xe0bF)
                       (font-spec :family "JetBrainsMono Nerd Font" :size 11))
@@ -417,10 +417,9 @@ colors to match your new theme."
   (tab-bar-new-button-show nil)
   (tab-bar-tab-hints t)
   (tab-bar-auto-width nil)
-  (tab-bar-separator " ")
+  (tab-bar-separator "  ")
   (tab-bar-format '(tab-bar-format-tabs-groups
-                    Tab-bar-format-tabs tab-bar-separator
-                    tab-bar-format-add-tab))
+                    tab-bar-separator))
   :init
   ;;; --- OPTIONAL INTERNAL FN OVERRIDES TO DECORATE NAMES
   (defun tab-bar-tab-name-format-hints (name _tab i)
