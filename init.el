@@ -982,7 +982,9 @@ away from the bottom.  Counts wrapped lines as real lines."
        ;; directory.
        (define-key dired-mode-map (kbd "=") 'emacs-solo/window-dired-open-directory)
        (define-key dired-mode-map (kbd "-") 'emacs-solo/window-dired-open-directory-back)
-       )))
+
+       ;; A better "BACK" keybiding
+       (define-key dired-mode-map (kbd "b") 'dired-up-directory))))
 
 
 ;;; WDIRED
