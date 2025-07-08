@@ -79,8 +79,10 @@ If reset values are nil, nothing is reset."
                       (file-name-nondirectory (directory-file-name (project-root project))))
               (concat "Emacs - " (buffer-name))))))
 
-(setq inhibit-compacting-font-caches t)
+(when (eq system-type 'darwin)
+  (setq ns-use-proxy-icon nil))
 
+(setq inhibit-compacting-font-caches t)
 
 ;; Disables unused UI Elements
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
