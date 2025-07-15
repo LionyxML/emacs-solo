@@ -1739,34 +1739,16 @@ are defining or executing a macro."
   :custom
   (newsticker-treeview-treewindow-width 40)
   :hook
-  (newsticker-treeview-mode-hook . (lambda ()
-                                     (define-key newsticker-treeview-mode-map
-                                                 (kbd "C")
-                                                 'emacs-solo/fetch-yt-captions-to-buffer)
-                                     (define-key newsticker-treeview-list-mode-map
-                                                 (kbd "C")
-                                                 'emacs-solo/fetch-yt-captions-to-buffer)
-                                     (define-key newsticker-treeview-item-mode-map
-                                                 (kbd "C")
-                                                 'emacs-solo/fetch-yt-captions-to-buffer)
-                                     (define-key newsticker-treeview-mode-map
-                                                 (kbd "V")
-                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)
-                                     (define-key newsticker-treeview-list-mode-map
-                                                 (kbd "V")
-                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)
-                                     (define-key newsticker-treeview-item-mode-map
-                                                 (kbd "V")
-                                                 'emacs-solo/newsticker-play-yt-video-from-buffer)
-                                     (define-key newsticker-treeview-mode-map
-                                                 (kbd "E")
-                                                 #'emacs-solo/newsticker-eww-current-article)
-                                     (define-key newsticker-treeview-list-mode-map
-                                                 (kbd "E")
-                                                 #'emacs-solo/newsticker-eww-current-article)
-                                     (define-key newsticker-treeview-item-mode-map
-                                                 (kbd "E")
-                                                 #'emacs-solo/newsticker-eww-current-article)))
+  (newsticker-treeview-mode-hook
+   . (lambda ()
+       (dolist (map '(newsticker-treeview-mode-map
+                      newsticker-treeview-list-mode-map
+                      newsticker-treeview-item-mode-map))
+         (let ((kmap (symbol-value map)))
+           (define-key kmap (kbd "T") #'emacs-solo/show-yt-thumbnail)
+           (define-key kmap (kbd "C") #'emacs-solo/fetch-yt-captions-to-buffer)
+           (define-key kmap (kbd "V") #'emacs-solo/newsticker-play-yt-video-from-buffer)
+           (define-key kmap (kbd "E") #'emacs-solo/newsticker-eww-current-article)))))
   :init
   (defun emacs-solo/clean-subtitles (buffer-name)
     "Clean SRT subtitles while perfectly preserving ^M in text (unless at line end)."
@@ -1813,7 +1795,7 @@ are defining or executing a macro."
             (message "Loaded subtitles...")
             (save-excursion
               (goto-char (point-min))
-              (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
+              (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
                 (let* ((video-id (match-string 1))
                        (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
                        (temp-dir (make-temp-file "emacs-yt-subs-" t "/"))
@@ -1828,7 +1810,11 @@ are defining or executing a macro."
                     (setq-local truncate-lines t)
                     (let ((map (make-sparse-keymap)))
                       (set-keymap-parent map special-mode-map)
-                      (define-key map (kbd "q") #'quit-window)
+                      (define-key map (kbd "q") (lambda ()
+                                                  (interactive)
+                                                  (let ((win (get-buffer-window)))
+                                                    (when (window-live-p win)
+                                                      (quit-window 'kill win)))))
                       (define-key map (kbd "n") #'forward-line)
                       (define-key map (kbd "p") #'previous-line)
                       (use-local-map map)))
@@ -1863,7 +1849,53 @@ are defining or executing a macro."
                                (delete-directory temp-dir t)))
                          (message "Failed to fetch subtitles")
                          (delete-directory temp-dir t)))))))))
+
         (message "No *Newsticker Item* buffer found."))))
+
+  (defun emacs-solo/show-yt-thumbnail ()
+    "Show YouTube thumbnail from a videoId in the current buffer."
+    (interactive)
+    (let ((window (get-buffer-window "*Newsticker Item*" t)))
+      (if window
+          (progn
+            (select-window window)
+            (save-excursion
+              (goto-char (point-min))
+              (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
+                (let* ((video-id (match-string 1))
+                       (thumb-url (format "https://img.youtube.com/vi/%s/sddefault.jpg" video-id))
+                       (thumb-buffer-name (format "*YT Thumbnail: %s*" video-id)))
+
+                  ;; Try to fetch the video thumbnail
+                  (url-retrieve
+                   thumb-url
+                   (lambda (_status)
+                     (goto-char (point-min))
+                     (re-search-forward "\n\n") ;; Skip headers
+                     (let* ((image-data (buffer-substring (point) (point-max)))
+                            (img (create-image image-data nil t :scale 1.0)))
+
+                       ;; Create temp buffer
+                       (with-current-buffer (get-buffer-create thumb-buffer-name)
+                         (read-only-mode -1)
+                         (erase-buffer)
+                         (insert-image img)
+                         (insert (format "\n\nVideo ID: %s\n" video-id))
+                         (special-mode)
+                         (let ((map (make-sparse-keymap)))
+                           (define-key map (kbd "q")
+                                       (lambda ()
+                                         (interactive)
+                                         (let ((win (get-buffer-window)))
+                                           (when (window-live-p win)
+                                             (quit-window 'kill win)))))
+                           (use-local-map map))
+                         (display-buffer (current-buffer))
+                         (select-window (get-buffer-window (current-buffer))))))
+                   nil t)))))
+
+        (message "No *Newsticker Item* buffer found."))))
+
 
   (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
     "Focus the window showing '*Newsticker Item*' and play the video."
@@ -1874,10 +1906,11 @@ are defining or executing a macro."
             (select-window window)
             (save-excursion
               (goto-char (point-min))
-              (when (re-search-forward "^\\* videoId: \\(\\w+\\)" nil t)
+              (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
                 (let ((video-id (match-string 1)))
                   (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
                   (message "Playing with mpv: %s" video-id)))))
+
         (message "No window showing *Newsticker Item* buffer."))))
 
   (defun emacs-solo/newsticker-eww-current-article ()
