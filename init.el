@@ -1890,8 +1890,8 @@ are defining or executing a macro."
           (switch-to-buffer (get-buffer "*eww*")))))))
 
 
-;;; ELEC_PAIR
-(use-package elec-pair
+;;; ELECTRIC-PAIR
+(use-package electric-pair
   :ensure nil
   :defer
   :hook (after-init-hook . electric-pair-mode))
