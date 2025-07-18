@@ -3068,6 +3068,9 @@ A compound word includes letters, numbers, `-`, and `_`."
   (define-key viper-vi-global-user-map (kbd "g") nil)
   (define-key viper-vi-global-user-map (kbd "gg") 'viper-go-to-nth-or-first-line)
 
+  ;; Vertically position to center
+  (define-key viper-vi-global-user-map (kbd "zz") 'recenter-top-bottom)
+
   ;; Delete/Yank current line or region
   (define-key viper-vi-global-user-map (kbd "dd") 'viper-delete-line-or-region)
   (define-key viper-vi-global-user-map (kbd "yy") 'viper-yank-line-or-region)
