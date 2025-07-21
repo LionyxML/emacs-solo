@@ -3299,9 +3299,9 @@ Marks lines as added, deleted, or changed."
                                          `((margin left-margin)
                                            ,(propertize
                                              (cond                              ;; Alternatives:
-                                              ((string= status "added")   "│")  ;; +  │ ▏┃
-                                              ((string= status "changed") "│")  ;; ~
-                                              ((string= status "deleted") "│")) ;; _
+                                              ((string= status "added")   "┃")  ;; +  │ ▏┃
+                                              ((string= status "changed") "┃")  ;; ~
+                                              ((string= status "deleted") "┃")) ;; _
                                              'face
                                              `(:foreground
                                                ,(cond
