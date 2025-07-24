@@ -181,7 +181,22 @@ colors to match your new theme."
 
     (set-fontset-font t '(#xe0b0 . #xe0bF)
                       (font-spec :family "JetBrainsMono Nerd Font" :size 11))
-    (set-fontset-font t '(#x1f000 . #x1faff)
+
+    (set-fontset-font t '(#x2600 . #x26FF) ; Miscellaneous Symbols (includes ☕ ⚡)
+                      (font-spec :family "Apple Color Emoji" :size 8))
+    (set-fontset-font t '(#x2700 . #x27BF) ; Dingbats
+                      (font-spec :family "Apple Color Emoji" :size 8))
+    (set-fontset-font t '(#x1F000 . #x1FAFF) ; Full emoji range
+                      (font-spec :family "Apple Color Emoji" :size 8))
+    (set-fontset-font t '(#x1F100 . #x1F1FF) ; Enclosed Alphanumeric Supplement (🅲, etc.)
+                      (font-spec :family "Apple Color Emoji" :size 8))
+    (set-fontset-font t '(#x1F300 . #x1F5FF) ; Miscellaneous Symbols and Pictographs
+                      (font-spec :family "Apple Color Emoji" :size 8))
+    (set-fontset-font t '(#x1F600 . #x1F64F) ; Emoticons
+                      (font-spec :family "Apple Color Emoji" :size 8))
+    (set-fontset-font t '(#x1F680 . #x1F6FF) ; Transport & Map symbols
+                      (font-spec :family "Apple Color Emoji" :size 8))
+    (set-fontset-font t '(#x1F700 . #x1F77F) ; Alchemical Symbols
                       (font-spec :family "Apple Color Emoji" :size 8)))
 
   ;; Save manual customizations to other file than init.el
