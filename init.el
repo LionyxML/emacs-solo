@@ -11,11 +11,53 @@
 ;;  Init configuration for Emacs Solo
 ;;
 
+;;; Welcome to:
+;;; ┌─────────────────────────────────────────────────────────────────────────┐
+;;; │ ███████╗███╗   ███╗ █████╗  ██████╗███████╗                             │
+;;; │ ██╔════╝████╗ ████║██╔══██╗██╔════╝██╔════╝                             │
+;;; │ █████╗  ██╔████╔██║███████║██║     ███████╗                             │
+;;; │ ██╔══╝  ██║╚██╔╝██║██╔══██║██║     ╚════██║                             │
+;;; │ ███████╗██║ ╚═╝ ██║██║  ██║╚██████╗███████║                             │
+;;; │ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝                             │
+;;; │                                                                         │
+;;; │                                      ███████╗ ██████╗ ██╗      ██████╗  │
+;;; │                                      ██╔════╝██╔═══██╗██║     ██╔═══██╗ │
+;;; │                                      ███████╗██║   ██║██║     ██║   ██║ │
+;;; │                                      ╚════██║██║   ██║██║     ██║   ██║ │
+;;; │                                      ███████║╚██████╔╝███████╗╚██████╔╝ │
+;;; │                                      ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝  │
+;;; └─────────────────────────────────────────────────────────────────────────┘
+
+;;; ┌─────────────────────────────────────────────────────────────────────────┐
+;;; │                       HELP, WHERE IS MY CONFIG?                         │
+;;; ├─────────────────────────────────────────────────────────────────────────┤
+;;; │ If you're opening this file inside Emacs Solo, it's likely collapsed    │
+;;; │ by default to help you better navigate its structure.  Use outline-mode │
+;;; │ keybindings to explore sections as needed:                              │
+;;; │                                                                         │
+;;; │   C-c @ C-a → Show all sections                                         │
+;;; │   C-c @ C-q → Hide all sections                                         │
+;;; │   C-c @ C-c → Toggle section at point                                   │
+;;; │                                                                         │
+;;; │ If you're viewing this file on a code forge (e.g., GitHub, Codeberg)    │
+;;; │ or in another editor, you might see it fully expanded.  For the best    │
+;;; │ viewing and navigation experience, use Emacs Solo.                      │
+;;; │                                                                         │
+;;; │ To disable automatic folding on load, set:                              │
+;;; │   (setq emacs-solo-enable-outline-init nil)                             │
+;;; └─────────────────────────────────────────────────────────────────────────┘
+
+
 ;;; Code:
 
-;;; -------------------- EMACS SOLO CUSTOM OPTIONS
+;;; ┌──────────────────── EMACS SOLO CUSTOM OPTIONS
 ;;
 ;;  Some features Emacs Solo provides you can turn on/off
+(defcustom emacs-solo-enable-outline-init t
+  "Enable init.el starting all collapsed."
+  :type 'boolean
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-enable-transparency nil
   "Enable `emacs-solo-transparency'."
   :type 'boolean
@@ -66,8 +108,8 @@ colors to match your new theme."
   :group 'emacs-solo)
 
 
-;;; -------------------- GENERAL EMACS CONFIG
-;;; EMACS
+;;; ┌──────────────────── GENERAL EMACS CONFIG
+;;; │ EMACS
 (use-package emacs
   :ensure nil
   :bind
@@ -167,6 +209,15 @@ colors to match your new theme."
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".jj" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
+  ;; Sets outline-mode for the `init.el' file
+  (defun emacs-solo/outline-init-file ()
+    (when (and (buffer-file-name)
+               (string-match-p "init\\.el\\'" (buffer-file-name)))
+      (outline-minor-mode 1)
+      (outline-hide-sublevels 1)))
+  (when emacs-solo-enable-outline-init
+    (add-hook 'emacs-lisp-mode-hook #'emacs-solo/outline-init-file))
+
   ;; Makes everything accept utf-8 as default, so buffers with tsx and so
   ;; won't ask for encoding (because undecided-unix) every single keystroke
   (modify-coding-system-alist 'file "" 'utf-8)
@@ -345,7 +396,7 @@ colors to match your new theme."
   (message (emacs-init-time)))
 
 
-;;; AUTH-SOURCE
+;;; │ AUTH-SOURCE
 (use-package auth-source
   :ensure nil
   :defer t
@@ -360,7 +411,7 @@ colors to match your new theme."
     (auth-source-pass-enable)))
 
 
-;;; CONF
+;;; │ CONF
 (use-package conf-mode
   :ensure nil
   :mode ("\\.env\\..*\\'" "\\.env\\'")
@@ -368,7 +419,7 @@ colors to match your new theme."
   (add-to-list 'auto-mode-alist '("\\.env\\'" . conf-mode)))
 
 
-;;; COMPILATION
+;;; │ COMPILATION
 (use-package compile
   :ensure nil
   :custom
@@ -384,7 +435,7 @@ colors to match your new theme."
   (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
 
 
-;;; WINDOW
+;;; │ WINDOW
 (use-package window
   :ensure nil
   :custom
@@ -422,7 +473,7 @@ colors to match your new theme."
      )))
 
 
-;;; TAB-BAR
+;;; │ TAB-BAR
 (use-package tab-bar
   :ensure nil
   :defer t
@@ -483,7 +534,7 @@ Uses position instead of index field."
   (tab-bar-history-mode 1))
 
 
-;;; RCIRC
+;;; │ RCIRC
 (use-package rcirc
   :ensure nil
   :custom
@@ -507,7 +558,7 @@ Uses position instead of index field."
            ,(expand-file-name "cert.pem" user-emacs-directory)))))
 
 
-;;; ERC
+;;; │ ERC
 (use-package erc
   :ensure nil
   :defer t
@@ -540,7 +591,7 @@ Uses position instead of index field."
       (pop-to-buffer buf)))))
 
 
-;;; ICOMPLETE
+;;; │ ICOMPLETE
 (use-package icomplete
   :bind (:map icomplete-minibuffer-map
               ("C-n" . icomplete-forward-completions)
@@ -872,7 +923,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   ;; end use-package
   )
 
-;;; DIRED
+;;; │ DIRED
 (use-package dired
   :ensure nil
   :bind
@@ -1007,7 +1058,7 @@ away from the bottom.  Counts wrapped lines as real lines."
        (define-key dired-mode-map (kbd "b") 'dired-up-directory))))
 
 
-;;; WDIRED
+;;; │ WDIRED
 (use-package wdired
   :ensure nil
   :commands (wdired-change-to-wdired-mode)
@@ -1016,7 +1067,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (setq wdired-create-parent-directories t))
 
 
-;;; ESHELL
+;;; │ ESHELL
 (use-package eshell
   :ensure nil
   :bind
@@ -1275,7 +1326,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
           "docker" "podman" "jqp")))
 
 
-;;; ISEARCH
+;;; │ ISEARCH
 (use-package isearch
   :ensure nil
   :config
@@ -1297,7 +1348,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   (define-key isearch-mode-map (kbd "M-w") 'isearch-copy-selected-word))
 
 
-;;; VC
+;;; │ VC
 (use-package vc
   :ensure nil
   :defer t
@@ -1501,7 +1552,7 @@ Otherwise, open the repository's main page."
             (goto-char (point-min)))))))
   (global-set-key (kbd "C-x v =") 'emacs-solo/vc-diff-on-current-hunk))
 
-;;; SMERGE
+;;; │ SMERGE
 (use-package smerge-mode
   :ensure nil
   :bind (:map smerge-mode-map
@@ -1510,7 +1561,7 @@ Otherwise, open the repository's main page."
               ("C-c ^ n" . smerge-next)
               ("C-c ^ p" . smerge-previous)))
 
-;;; DIFF
+;;; │ DIFF
 (use-package diff-mode
   :ensure nil
   :defer t
@@ -1521,7 +1572,7 @@ Otherwise, open the repository's main page."
   (setq diff-font-lock-syntax 'hunk-also)
   (setq diff-font-lock-prettify nil))
 
-;;; EDIFF
+;;; │ EDIFF
 (use-package ediff
   :ensure nil
   :commands (ediff-buffers ediff-files ediff-buffers3 ediff-files3)
@@ -1533,7 +1584,7 @@ Otherwise, open the repository's main page."
   (setq ediff-make-buffers-readonly-at-startup nil)
   (setq ediff-show-clashes-only t))
 
-;;; ELDOC
+;;; │ ELDOC
 (use-package eldoc
   :ensure nil
   :custom
@@ -1541,7 +1592,7 @@ Otherwise, open the repository's main page."
   :init
   (global-eldoc-mode))
 
-;;; EGLOT
+;;; │ EGLOT
 (use-package eglot
   :ensure nil
   :custom
@@ -1575,7 +1626,7 @@ Otherwise, open the repository's main page."
          ("C-c l i" . eglot-inlay-hints-mode)
          ("C-c l f" . eglot-format)))
 
-;;; FLYMAKE
+;;; │ FLYMAKE
 (use-package flymake
   :ensure nil
   :defer t
@@ -1610,7 +1661,7 @@ and restart Flymake to apply the changes."
                  "Enabled" "Disabled"))))
 
 
-;;; WHITESPACE
+;;; │ WHITESPACE
 (use-package whitespace
   :ensure nil
   :defer t
@@ -1620,7 +1671,7 @@ and restart Flymake to apply the changes."
   )
 
 
-;;; GNUS
+;;; │ GNUS
 (use-package gnus
   :ensure nil
   :defer t
@@ -1661,7 +1712,7 @@ and restart Flymake to apply the changes."
    '((nntp "news.gwene.org"))))
 
 
-;;; MAN
+;;; │ MAN
 (use-package man
   :ensure nil
   :commands (man)
@@ -1669,7 +1720,7 @@ and restart Flymake to apply the changes."
   (setq Man-notify-method 'pushy)) ; does not obey `display-buffer-alist'
 
 
-;;; MINIBUFFER
+;;; │ MINIBUFFER
 (use-package minibuffer
   :ensure nil
   :custom
@@ -1752,7 +1803,7 @@ are defining or executing a macro."
   (minibuffer-electric-default-mode 1))
 
 
-;;; NEWSTICKER
+;;; │ NEWSTICKER
 (use-package newsticker
   :ensure nil
   :defer t
@@ -1943,13 +1994,13 @@ are defining or executing a macro."
           (switch-to-buffer (get-buffer "*eww*")))))))
 
 
-;;; ELECTRIC-PAIR
+;;; │ ELECTRIC-PAIR
 (use-package electric-pair
   :ensure nil
   :defer
   :hook (after-init-hook . electric-pair-mode))
 
-;;; PAREN
+;;; │ PAREN
 (use-package paren
   :ensure nil
   :hook (after-init-hook . show-paren-mode)
@@ -1958,7 +2009,7 @@ are defining or executing a macro."
   (show-paren-style 'mixed)
   (show-paren-context-when-offscreen t)) ;; show matches within window splits
 
-;;; PROCED
+;;; │ PROCED
 (use-package proced
   :ensure nil
   :defer t
@@ -1974,7 +2025,7 @@ are defining or executing a macro."
             (lambda ()
               (proced-toggle-auto-update 1))))
 
-;;; ORG
+;;; │ ORG
 (use-package org
   :ensure nil
   :defer t
@@ -2010,7 +2061,7 @@ are defining or executing a macro."
   (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil))
 
 
-;;; SPEEDBAR
+;;; │ SPEEDBAR
 ;;
 (use-package speedbar
   :ensure nil
@@ -2054,7 +2105,7 @@ are defining or executing a macro."
           ("//"  . ezimage-label)
           ("%"   . ezimage-lock))))
 
-;;; TIME
+;;; │ TIME
 (use-package time
   :ensure nil
   ;; :hook (after-init-hook . display-time-mode) ;; If we'd like to see it on the mode-line
@@ -2092,7 +2143,7 @@ are defining or executing a macro."
      ("Pacific/Auckland" "Auckland"))))
 
 
-;;; UNIQUIFY
+;;; │ UNIQUIFY
 (use-package uniquify
   :ensure nil
   :config
@@ -2101,7 +2152,7 @@ are defining or executing a macro."
   (setq uniquify-after-kill-buffer-p t))
 
 
-;;; WHICH-KEY
+;;; │ WHICH-KEY
 (use-package which-key
   :defer t
   :ensure nil
@@ -2193,7 +2244,7 @@ are defining or executing a macro."
       "C-c C-x" "org-extra-commands")))
 
 
-;;; WEBJUMP
+;;; │ WEBJUMP
 (use-package webjump
   :defer t
   :ensure nil
@@ -2206,7 +2257,7 @@ are defining or executing a macro."
      ("ChatGPT" . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
 
 
-;;; THEMES
+;;; │ THEMES
 (use-package modus-themes
   :if emacs-solo-use-custom-theme
   :ensure nil
@@ -2306,8 +2357,8 @@ are defining or executing a macro."
   (load-theme 'modus-vivendi-tinted t))
 
 
-;;; -------------------- NON TREESITTER AREA
-;;; SASS-MODE
+;;; ├──────────────────── NON TREESITTER AREA
+;;; │ SASS-MODE
 (use-package scss-mode
   :mode "\\.sass\\'"
   :hook
@@ -2316,8 +2367,8 @@ are defining or executing a macro."
   :defer t)
 
 
-;;; -------------------- TREESITTER AREA
-;;; RUBY-TS-MODE
+;;; ├──────────────────── TREESITTER AREA
+;;; │ RUBY-TS-MODE
 (use-package ruby-ts-mode
   :ensure nil
   :mode "\\.rb\\'"
@@ -2329,7 +2380,7 @@ are defining or executing a macro."
   (ruby-indent-tabs-mode nil))
 
 
-;;; JS-TS-MODE
+;;; │ JS-TS-MODE
 (use-package js-ts-mode
   :ensure js ;; I care about js-base-mode but it is locked behind the feature "js"
   :mode "\\.jsx?\\'"
@@ -2345,7 +2396,7 @@ are defining or executing a macro."
   (add-to-list 'treesit-language-source-alist '(jsdoc "https://github.com/tree-sitter/tree-sitter-jsdoc" "master" "src")))
 
 
-;;; TYPESCRIPT-TS-MODE
+;;; │ TYPESCRIPT-TS-MODE
 (defun emacs-solo/add-jsdoc-in-typescript-ts-mode ()
   "Add jsdoc treesitter rules to typescript as a host language.
 As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_adding_jsdoc_highlighting_to"
@@ -2421,7 +2472,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (unbind-key "M-." typescript-ts-base-mode-map))
 
 
-;;; RUST-TS-MODE
+;;; │ RUST-TS-MODE
 (use-package rust-ts-mode
   :ensure rust-ts-mode
   :mode "\\.rs\\'"
@@ -2432,7 +2483,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (add-to-list 'treesit-language-source-alist '(rust "https://github.com/tree-sitter/tree-sitter-rust" "master" "src")))
 
 
-;;; TOML-TS-MODE
+;;; │ TOML-TS-MODE
 (use-package toml-ts-mode
   :ensure toml-ts-mode
   :mode "\\.toml\\'"
@@ -2441,7 +2492,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (add-to-list 'treesit-language-source-alist '(toml "https://github.com/ikatyang/tree-sitter-toml" "master" "src")))
 
 
-;;; MARKDOWN-TS-MODE - EMACS-31
+;;; │ MARKDOWN-TS-MODE - EMACS-31
 ;;  As I first proposed here:
 ;;  https://lists.gnu.org/archive/html/emacs-devel/2025-02/msg00810.html
 (use-package markdown-ts-mode
@@ -2454,7 +2505,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
 
 
-;;; YAML-TS-MODE
+;;; │ YAML-TS-MODE
 (use-package yaml-ts-mode
   :ensure yaml-ts-mode
   :mode "\\.ya?ml\\'"
@@ -2463,7 +2514,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (add-to-list 'treesit-language-source-alist '(yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "master" "src")))
 
 
-;;; DOCKERFILE-TS-MODE
+;;; │ DOCKERFILE-TS-MODE
 (use-package dockerfile-ts-mode
   :ensure dockerfile-ts-mode
   :mode "\\Dockerfile.*\\'"
@@ -2472,7 +2523,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (add-to-list 'treesit-language-source-alist '(dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src")))
 
 
-;;; GO-TS-MODE
+;;; │ GO-TS-MODE
 (use-package go-ts-mode
   :ensure t
   :mode "\\.go\\'"
@@ -2484,8 +2535,8 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
                         (setq-local go-ts-mode-indent-offset tab-width))))
   :defer t)
 
-;;; ------------------- EMACS-SOLO CUSTOMS
-;;; EMACS-SOLO-HOOKS
+;;; ┌──────────────────── EMACS-SOLO CUSTOMS
+;;; │ EMACS-SOLO-HOOKS
 ;;
 (use-package emacs-solo-hooks
   :ensure nil
@@ -2502,7 +2553,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (add-hook 'emacs-lisp-mode-hook #'emacs-solo/prefer-spaces))
 
 
-;;; EMACS-SOLO-MOVEMENTS
+;;; │ EMACS-SOLO-MOVEMENTS
 ;;
 ;;  Functions to better move around text and Emacs
 ;;
@@ -2623,7 +2674,7 @@ If MANUAL is non-nil, the function was called interactively."
   (global-set-key (kbd "C-x 4 t") #'emacs-solo/transpose-split))
 
 
-;;; EMACS-SOLO-TRANSPARENCY
+;;; │ EMACS-SOLO-TRANSPARENCY
 ;;
 ;;  Custom functions to set/unset transparency
 ;;
@@ -2679,7 +2730,7 @@ If MANUAL is non-nil, the function was called interactively."
     (add-hook 'after-make-frame-functions #'emacs-solo/transparency-set)))
 
 
-;;; EMACS-SOLO-MODE-LINE
+;;; │ EMACS-SOLO-MODE-LINE
 ;;
 ;;  Customizations to the mode-line
 ;;
@@ -2752,7 +2803,7 @@ Replacing `Git-' with a branch symbol."
       (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes)))
 
 
-;;; EMACS-SOLO-EXEC-PATH-FROM-SHELL
+;;; │ EMACS-SOLO-EXEC-PATH-FROM-SHELL
 ;;
 ;;  Loads users default shell PATH settings into Emacs. Usefull
 ;;  when calling Emacs directly from GUI systems.
@@ -2820,7 +2871,7 @@ This works with bash, zsh, or fish)."
   (add-hook 'after-init-hook #'emacs-solo/fix-asdf-path))
 
 
-;;; EMACS-SOLO-RAINBOW-DELIMITERS
+;;; │ EMACS-SOLO-RAINBOW-DELIMITERS
 ;;
 ;;  Colorizes matching delimiters
 ;;
@@ -2863,7 +2914,7 @@ Opening and closing delimiters will have matching colors."
   (add-hook 'prog-mode-hook #'emacs-solo/rainbow-delimiters))
 
 
-;;; EMACS-SOLO-PROJECT-SELECT
+;;; │ EMACS-SOLO-PROJECT-SELECT
 ;;
 ;;  Interactively finds a project in a Projects folder and sets it
 ;;  to current `project.el' project.
@@ -2899,7 +2950,7 @@ Opening and closing delimiters will have matching colors."
               ("P" . emacs-solo/find-projects-and-switch)))
 
 
-;;; EMACS-SOLO-VIPER-EXTENSIONS
+;;; │ EMACS-SOLO-VIPER-EXTENSIONS
 ;;
 ;;  Better VIM (and not VI) bindings for viper-mode
 ;;
@@ -3148,7 +3199,7 @@ A compound word includes letters, numbers, `-`, and `_`."
 
 
 
-;;; EMACS-SOLO-HIGHLIGHT-KEYWORDS-MODE
+;;; │ EMACS-SOLO-HIGHLIGHT-KEYWORDS-MODE
 ;;
 ;;  Highlights a list of words like TODO, FIXME...
 ;;  Code borrowed from `alternateved'
@@ -3211,7 +3262,7 @@ A compound word includes letters, numbers, `-`, and `_`."
                       (run-with-idle-timer 1 nil #'emacs-solo/highlight-keywords-mode-on)))))
 
 
-;;; EMACS-SOLO-GUTTER
+;;; │ EMACS-SOLO-GUTTER
 ;;
 ;;  A **HIGHLY** `experimental' and slow and buggy git gutter like.
 ;;
@@ -3357,7 +3408,7 @@ Marks lines as added, deleted, or changed."
   (add-hook 'after-init-hook #'emacs-solo/git-gutter-on))
 
 
-;;; EMACS-SOLO-ACE-WINDOW
+;;; │ EMACS-SOLO-ACE-WINDOW
 ;;
 ;;  Based on: https://www.reddit.com/r/emacs/comments/1h0zjvq/comment/m0uy3bo/?context=3
 ;;
@@ -3420,7 +3471,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   (global-set-key (kbd "M-O") #'emacs-solo-ace-window/quick-window-jump))
 
 
-;;; EMACS-SOLO-OLIVETTI
+;;; │ EMACS-SOLO-OLIVETTI
 ;;
 (use-package emacs-solo-olivetti
   :ensure nil
@@ -3466,7 +3517,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   )
 
 
-;;; EMACS-SOLO-0x0
+;;; │ EMACS-SOLO-0x0
 ;;
 ;; Inspired by: https://codeberg.org/daviwil/dotfiles/src/branch/master/Emacs.org#headline-28
 (use-package emacs-solo-0x0
@@ -3498,7 +3549,7 @@ Windows are labeled starting from the top-left window and proceeding top to bott
       (kill-new url))))
 
 
-;;; EMACS-SOLO-SUDO-EDIT
+;;; │ EMACS-SOLO-SUDO-EDIT
 ;;
 ;; Inspired by: https://codeberg.org/daviwil/dotfiles/src/branch/master/Emacs.org#headline-28
 (use-package emacs-solo-sudo-edit
@@ -3518,7 +3569,7 @@ buffer is not visiting a file."
       (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
 
 
-;;; EMACS-SOLO-REPLACE-AS-DIFF
+;;; │ EMACS-SOLO-REPLACE-AS-DIFF
 ;;
 (use-package emacs-solo/replace-regexp-as-diff
   :ensure nil
@@ -3606,7 +3657,7 @@ you can later apply as a patch after reviewing the changes."
             (multi-file-replace-regexp-as-diff files from to delimited))
         (message "No files found in marked items.")))))
 
-;;; EMACS-SOLO-WEATHER
+;;; │ EMACS-SOLO-WEATHER
 ;;
 (use-package emacs-solo-weather
   :ensure nil
@@ -3656,7 +3707,7 @@ If SECOND is non-nil, separate the results with a newline."
              (read-only-mode 1))))))))
 
 
-;;; EMACS-SOLO-OLLAMA
+;;; │ EMACS-SOLO-OLLAMA
 ;;
 (use-package emacs-solo-ollama
   :ensure nil
@@ -3693,7 +3744,7 @@ If a region is selected, prompt for additional input and pass it as a query."
           (term-send-raw-string "\n"))))))
 
 
-;;; EMACS-SOLO-DIRED-GUTTER
+;;; │ EMACS-SOLO-DIRED-GUTTER
 ;;
 (use-package emacs-solo-dired-gutter
   :if emacs-solo-enable-dired-gutter
@@ -4020,7 +4071,7 @@ If a region is selected, prompt for additional input and pass it as a query."
   (global-set-key (kbd "C-c d") #'container-menu))
 
 
-;;; EMACS-SOLO-MPV-PLAYER
+;;; │ EMACS-SOLO-MPV-PLAYER
 ;;
 ;; TLDR: M-x dired
 ;;       mark files with `m'
@@ -4154,7 +4205,7 @@ If a region is selected, prompt for additional input and pass it as a query."
   (add-hook 'dired-mode-hook #'emacs-solo/mpv-dired-setup))
 
 
-;;; EMACS-SOLO-M3U-VISUALIZER (& Online Radio Player)
+;;; │ EMACS-SOLO-M3U-VISUALIZER (& Online Radio Player)
 ;;
 ;; TLDR: C-c r (select an online radio list to download)
 ;;       RET - play with mpv
@@ -4315,7 +4366,7 @@ If a stream is already playing, kill it before starting a new one."
     (forward-line -1)))
 
 
-;;; EMACS-SOLO-CLIPBOARD
+;;; │ EMACS-SOLO-CLIPBOARD
 ;;
 ;;  Allows proper copy/pasting on terminals
 ;;
@@ -4375,7 +4426,7 @@ If a stream is already playing, kill it before starting a new one."
             (shell-command-to-string "xclip -selection clipboard -o"))))))
 
 
-;;; EMACS-SOLO-ELDOC-BOX
+;;; │ EMACS-SOLO-ELDOC-BOX
 ;;
 ;;  A hacky eldoc-box inspired by the famous casouri package
 ;;
