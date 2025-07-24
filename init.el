@@ -1766,7 +1766,7 @@ are defining or executing a macro."
                       newsticker-treeview-item-mode-map))
          (let ((kmap (symbol-value map)))
            (define-key kmap (kbd "T") #'emacs-solo/show-yt-thumbnail)
-           (define-key kmap (kbd "C") #'emacs-solo/fetch-yt-captions-to-buffer)
+           (define-key kmap (kbd "S") #'emacs-solo/fetch-yt-subtitles-to-buffer)
            (define-key kmap (kbd "V") #'emacs-solo/newsticker-play-yt-video-from-buffer)
            (define-key kmap (kbd "E") #'emacs-solo/newsticker-eww-current-article)))))
   :init
@@ -1805,8 +1805,8 @@ are defining or executing a macro."
       (when (looking-at "\n+")
         (delete-region (point) (match-end 0)))))
 
-  (defun emacs-solo/fetch-yt-captions-to-buffer ()
-    "Fetch YouTube captions with original auto-subs and display in buffer."
+  (defun emacs-solo/fetch-yt-subtitles-to-buffer ()
+    "Fetch YouTube subtitles with original auto-subs and display in buffer."
     (interactive)
     (let ((window (get-buffer-window "*Newsticker Item*" t)))
       (if window
@@ -1819,7 +1819,7 @@ are defining or executing a macro."
                 (let* ((video-id (match-string 1))
                        (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
                        (temp-dir (make-temp-file "emacs-yt-subs-" t "/"))
-                       (buffer-name (format "*YT Captions: %s*" video-id)))
+                       (buffer-name (format "*YT Subtitles: %s*" video-id)))
 
                   ;; Create temp directory and buffer
                   (make-directory temp-dir t)
