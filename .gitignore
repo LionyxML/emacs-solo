@@ -68,3 +68,4 @@ recentf.el*
 saveplace
 cert.pem
 multisession/
+tmp/
