@@ -1677,7 +1677,7 @@ and restart Flymake to apply the changes."
   (completion-ignore-case t)
   (completion-show-help t)
   ;; (completion-auto-select t) ;; NOTE: only turn this on if not using icomplete, can also be 'second-tab
-  (completions-max-height 20)
+  (completions-max-height 100)
   (completions-format 'one-column)
   (enable-recursive-minibuffers t)
   (read-file-name-completion-ignore-case t)
