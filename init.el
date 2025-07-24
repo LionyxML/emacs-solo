@@ -90,6 +90,7 @@ colors to match your new theme."
    ("C-x C-k RET" . nil))
   :custom
   (ad-redefinition-action 'accept)
+  (auto-save-default t)
   (column-number-mode nil)
   (line-number-mode nil)
   (line-spacing nil)
@@ -112,9 +113,8 @@ colors to match your new theme."
   (ispell-dictionary "en_US")
   (kill-do-not-save-duplicates t)
   (kill-region-dwim 'emacs-word)  ; EMACS-31
-  (create-lockfiles nil)   ; No backup files
+  (create-lockfiles nil)   ; No lock files
   (make-backup-files nil)  ; No backup files
-  (backup-inhibited t)     ; No backup files
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (ring-bell-function 'ignore)
@@ -187,6 +187,11 @@ colors to match your new theme."
   ;; Save manual customizations to other file than init.el
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
   (load custom-file 'noerror 'nomessage)
+
+  ;; We want auto-save, but no #file# cluterring, so everything goes under our config tmp/
+  (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+  (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
+        auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
 
   ;; For OSC 52 compatible terminals support
   (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
