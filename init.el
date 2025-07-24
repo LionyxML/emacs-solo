@@ -63,6 +63,11 @@
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-eshell-icons t
+  "Enable `emacs-solo-eshell-icons'."
+  :type 'boolean
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-enable-dired-icons t
   "Enable `emacs-solo-dired-icons'."
   :type 'boolean
@@ -3827,7 +3832,47 @@ If a region is selected, prompt for additional input and pass it as a query."
   (add-hook 'dired-after-readin-hook #'emacs-solo/dired-git-status-overlay))
 
 
-;;; EMACS-SOLO-DIRED-ICONS
+;;; │ EMACS-SOLO-FILE-ICONS
+;;
+;;  Here we set the icons to be used by other `emacs-solo' features,
+;;  like `emacs-solo-dired-icons' and `emacs-solo-eshell-icons'
+(use-package emacs-solo-file-icons
+  :if (or emacs-solo-enable-dired-icons emacs-solo-enable-eshell-icons)
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (defvar emacs-solo/file-icons
+    '(("el" . "📜")       ("rb" . "💎")       ("js" . "⚙️")      ("ts" . "⚙️")
+      ("json" . "🗂️")     ("md" . "📝")       ("txt" . "📝")     ("html" . "🌐")
+      ("css" . "🎨")      ("scss" . "🎨")     ("png" . "🖼️")     ("jpg" . "🖼️")
+      ("jpeg" . "🖼️")     ("gif" . "🖼️")      ("svg" . "🖼️")     ("pdf" . "📄")
+      ("zip" . "📦")      ("tar" . "📦")      ("gz" . "📦")      ("bz2" . "📦")
+      ("7z" . "📦")       ("org" . "🦄")      ("sh" . "💻")      ("c" . "🅲")
+      ("h" . "📘")        ("cpp" . "🅲")      ("hpp" . "📘")     ("py" . "🐍")
+      ("java" . "☕")    ("go" . "🌍")       ("rs" . "💨")      ("php" . "🐘")
+      ("pl" . "🐍")       ("lua" . "🎮")      ("ps1" . "🔧")     ("exe" . "⚡")
+      ("dll" . "🔌")      ("bat" . "⚡")     ("yaml" . "⚙️")    ("toml" . "⚙️")
+      ("ini" . "⚙️")      ("csv" . "📊")      ("xls" . "📊")     ("xlsx" . "📊")
+      ("sql" . "🗄️")      ("log" . "📝")      ("apk" . "📱")     ("dmg" . "💻")
+      ("iso" . "💿")      ("torrent" . "🧲")  ("bak" . "🗃️")     ("tmp" . "⚠️")
+      ("desktop" . "🖥️")  ("md5" . "🔐")      ("sha256" . "🔐")  ("pem" . "🔐")
+      ("sqlite" . "🗄️")   ("db" . "🗄️")       ("gpg" . "🔐")
+      ("mp3" . "🎶")      ("wav" . "🎶")      ("flac" . "🎶" )
+      ("ogg" . "🎶")      ("m4a" . "🎶")      ("mp4" . "🎬")     ("avi" . "🎬")
+      ("mov" . "🎬")      ("mkv" . "🎬")      ("webm" . "🎬")    ("flv" . "🎬")
+      ("ico" . "🖼️")      ("ttf" . "🔠")      ("otf" . "🔠")     ("eot" . "🔠")
+      ("woff" . "🔠")     ("woff2" . "🔠")    ("epub" . "📚")    ("mobi" . "📚")
+      ("azw3" . "📚")     ("fb2" . "📚")      ("chm" . "📚")     ("tex" . "📚")
+      ("bib" . "📚")      ("apk" . "📱")      ("rar" . "📦")     ("xz" . "📦")
+      ("zst" . "📦")      ("tar.xz" . "📦")   ("tar.zst" . "📦") ("tar.gz" . "📦")
+      ("tgz" . "📦")      ("bz2" . "📦")      ("mpg" . "🎬")     ("webp" . "🖼️")
+      ("flv" . "🎬")      ("3gp" . "🎬")      ("ogv" . "🎬")     ("srt" . "🔠")
+      ("vtt" . "🔠")      ("cue" . "📀")
+      ("direddir" . "📁") ("diredfile" . "📄"))
+    "Icons for specific file extensions in Dired and Eshell."))
+
+;;; │ EMACS-SOLO-DIRED-ICONS
 ;;
 (use-package emacs-solo-dired-icons
   :if emacs-solo-enable-dired-icons
@@ -3835,68 +3880,123 @@ If a region is selected, prompt for additional input and pass it as a query."
   :no-require t
   :defer t
   :init
-  (defvar emacs-solo/dired-icons-file-icons
-    '(("el" . "📜")      ("rb" . "💎")      ("js" . "⚙️")      ("ts" . "⚙️")
-      ("json" . "🗂️")    ("md" . "📝")      ("txt" . "📝")     ("html" . "🌐")
-      ("css" . "🎨")     ("scss" . "🎨")    ("png" . "🖼️")    ("jpg" . "🖼️")
-      ("jpeg" . "🖼️")   ("gif" . "🖼️")    ("svg" . "🖼️")    ("pdf" . "📄")
-      ("zip" . "📦")     ("tar" . "📦")     ("gz" . "📦")      ("bz2" . "📦")
-      ("7z" . "📦")      ("org" . "📝")    ("sh" . "💻")      ("c" . "🔧")
-      ("h" . "📘")       ("cpp" . "➕")     ("hpp" . "📘")     ("py" . "🐍")
-      ("java" . "☕")    ("go" . "🌍")      ("rs" . "💨")      ("php" . "🐘")
-      ("pl" . "🐍")      ("lua" . "🎮")     ("ps1" . "🔧")     ("exe" . "⚡")
-      ("dll" . "🔌")     ("bat" . "⚡")      ("yaml" . "⚙️")    ("toml" . "⚙️")
-      ("ini" . "⚙️")     ("csv" . "📊")     ("xls" . "📊")     ("xlsx" . "📊")
-      ("sql" . "🗄️")    ("log" . "📝")     ("apk" . "📱")     ("dmg" . "💻")
-      ("iso" . "💿")     ("torrent" . "⏳") ("bak" . "🗃️")    ("tmp" . "⚠️")
-      ("desktop" . "🖥️") ("md5" . "🔐")     ("sha256" . "🔐")  ("pem" . "🔐")
-      ("sqlite" . "🗄️")  ("db" . "🗄️")
-      ("mp3" . "🎶")     ("wav" . "🎶")     ("flac" . "🎶")
-      ("ogg" . "🎶")     ("m4a" . "🎶")     ("mp4" . "🎬")     ("avi" . "🎬")
-      ("mov" . "🎬")     ("mkv" . "🎬")     ("webm" . "🎬")    ("flv" . "🎬")
-      ("ico" . "🖼️")     ("ttf" . "🔠")     ("otf" . "🔠")     ("eot" . "🔠")
-      ("woff" . "🔠")    ("woff2" . "🔠")   ("epub" . "📚")    ("mobi" . "📚")
-      ("azw3" . "📚")    ("fb2" . "📚")     ("chm" . "📚")     ("tex" . "📚")
-      ("bib" . "📚")     ("apk" . "📱")     ("rar" . "📦")     ("xz" . "📦")
-      ("zst" . "📦")     ("tar.xz" . "📦")  ("tar.zst" . "📦") ("tar.gz" . "📦")
-      ("tgz" . "📦")     ("bz2" . "📦")     ("mpg" . "🎬")     ("webp" . "🖼️")
-      ("flv" . "🎬")     ("3gp" . "🎬")     ("ogv" . "🎬")     ("srt" . "🔠")
-      ("vtt" . "🔠")     ("cue" . "📀")
-      ("direddir" . "📁") ("diredfile" . "📄"))
-    "Icons for specific file extensions in Dired.")
-
   (defun emacs-solo/dired-icons-icon-for-file (file)
     (if (file-directory-p file)
-        (assoc-default "direddir" emacs-solo/dired-icons-file-icons)
+        (assoc-default "direddir" emacs-solo/file-icons)
       (let* ((ext (file-name-extension file))
-             (icon (and ext (assoc-default (downcase ext) emacs-solo/dired-icons-file-icons))))
-        (or icon (assoc-default "diredfile" emacs-solo/dired-icons-file-icons)))))
+             (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
+        (or icon (assoc-default "diredfile" emacs-solo/file-icons)))))
 
   (defun emacs-solo/dired-icons-icons-regexp ()
     "Return a regexp that matches any icon we use."
-    (let ((icons (mapcar #'cdr emacs-solo/dired-icons-file-icons)))
+    (let ((icons (mapcar #'cdr emacs-solo/file-icons)))
       (concat "^\\(" (regexp-opt (cons "📁" icons)) "\\) ")))
 
   (defun emacs-solo/dired-icons-add-icons ()
-    "Add icons to filenames in Dired buffer."
+    "Add icons and suffixes as overlays to filenames in Dired buffer."
     (when (derived-mode-p 'dired-mode)
       (let ((inhibit-read-only t)
             (icon-regex (emacs-solo/dired-icons-icons-regexp)))
+        (remove-overlays (point-min) (point-max) 'emacs-solo-dired-icon-overlay t)
+
         (save-excursion
           (goto-char (point-min))
           (while (not (eobp))
             (condition-case nil
                 (when-let* ((file (dired-get-filename nil t)))
                   (dired-move-to-filename)
-                  (unless (looking-at-p icon-regex)
-                    (insert (concat (emacs-solo/dired-icons-icon-for-file file) " "))))
-              (error nil))  ;; gracefully skip invalid lines
+                  (let* ((beg (point))
+                         (end (line-end-position))
+                         (icon (emacs-solo/dired-icons-icon-for-file file))
+                         (suffix
+                          (cond
+                           ((file-directory-p file)
+                            (propertize "/" 'face 'dired-directory))
+                           ((file-executable-p file)
+                            (propertize "*" 'face '(:foreground "#79a8ff")))
+                           (t ""))))
+                    ;; Add icon before filename
+                    (let ((ov1 (make-overlay beg beg)))
+                      (overlay-put ov1 'before-string (concat icon " "))
+                      (overlay-put ov1 'emacs-solo-dired-icon-overlay t))
+                    ;; Add styled suffix after filename
+                    (let ((ov2 (make-overlay end end)))
+                      (overlay-put ov2 'after-string suffix)
+                      (overlay-put ov2 'emacs-solo-dired-icon-overlay t))))
+              (error nil))
             (forward-line 1))))))
 
   (add-hook 'dired-after-readin-hook #'emacs-solo/dired-icons-add-icons))
 
 
-;;; EMACS-SOLO-CONTAINER
+;;; │ EMACS-SOLO-ESHELL-ICONS
+;;
+;; Inspired by: https://www.reddit.com/r/emacs/comments/xboh0y/how_to_put_icons_into_eshell_ls/
+(use-package emacs-solo-eshell-icons
+  :if emacs-solo-enable-eshell-icons
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (defun emacs-solo/eshell-icons (file)
+    "Return a cons of propertized display string and file metadata.
+FILE is a list (NAME IS-DIR EXECUTABLE ...), like from `eshell/ls`.
+The full list is like:
+(FILENAME IS-DIR SIZE OWNER GROUP MOD-TIME ACCESS-TIME CHANGE-TIME
+SIZE-LONG PERMS HARDLINKS INODE DEVICE).
+"
+    (let* ((filename (car file))
+           (is-dir (eq (cadr file) t))
+           (perms (nth 9 file))
+           (is-exec (and perms (string-match-p "x" perms)))
+           (ext (and (not is-dir) (file-name-extension filename)))
+           (icon (if is-dir
+                     (cdr (assoc "direddir" emacs-solo/file-icons))
+                   (or (cdr (assoc ext emacs-solo/file-icons))
+                       (cdr (assoc "diredfile" emacs-solo/file-icons)))))
+           (suffix (cond
+                    (is-dir "/")
+                    (is-exec "*")
+                    (t "")))
+           (display-text (propertize
+                          (concat icon " " filename suffix)
+                          'file-name filename
+                          'mouse-face 'highlight
+                          'help-echo (concat "Open " filename)
+                          'keymap eshell-ls-file-keymap)))
+      (cons display-text (cdr file))))
+
+
+  (defvar eshell-ls-file-keymap
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "RET") #'eshell-ls-find-file)
+      (define-key map (kbd "<return>") #'eshell-ls-find-file)
+      (define-key map [mouse-1] #'eshell-ls-find-file)
+      (define-key map (kbd "D") #'eshell-ls-delete-file)
+      map)
+    "Keymap active on Eshell file entries.")
+
+  (defun eshell-ls-file-at-point ()
+    "Get the full path of the Eshell listing at point."
+    (get-text-property (point) 'file-name))
+
+  (defun eshell-ls-find-file ()
+    "Open the Eshell listing at point."
+    (interactive)
+    (find-file (eshell-ls-file-at-point)))
+
+  (defun eshell-ls-delete-file ()
+    "Delete the Eshell listing at point."
+    (interactive)
+    (let ((file (eshell-ls-file-at-point)))
+      (when (yes-or-no-p (format "Delete file %s?" file))
+        (delete-file file 'trash))))
+
+  (advice-remove 'eshell-ls-decorated-name #'emacs-solo/eshell-icons)
+  (advice-add #'eshell-ls-annotate :filter-return #'emacs-solo/eshell-icons))
+
+
+;;; │ EMACS-SOLO-CONTAINER
 ;;
 ;;  A proto 'control panel' for basic container management (docker and podman based)
 ;;
@@ -4564,4 +4664,4 @@ If a stream is already playing, kill it before starting a new one."
 
 
 (provide 'init)
-;;; init.el ends here
+;;; │ init.el ends here
