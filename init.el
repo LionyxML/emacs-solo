@@ -1812,7 +1812,7 @@ are defining or executing a macro."
       (if window
           (progn
             (select-window window)
-            (message "Loaded subtitles...")
+            (message "Loading subtitles...")
             (save-excursion
               (goto-char (point-min))
               (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
