@@ -1382,7 +1382,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
 ;;; │ VC
 (use-package vc
   :ensure nil
-  :defer t
+  :defer nil
   :config
   (setopt
    vc-git-diff-switches '("--patch-with-stat" "--histogram")  ;; add stats to `git diff'
@@ -1448,21 +1448,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (defun emacs-solo/vc-git-reset (&optional revision vc-fileset comment)
       (interactive "P")
       (emacs-solo/vc-git-command "Unstaged"
-                                 (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--"))))
-
-
-    ;; Bind S and U in vc-dir-mode-map
-    (define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
-    (define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
-
-    ;; Bind S and U in vc-prefix-map for general VC usage
-    (define-key vc-prefix-map (kbd "S") #'emacs-solo/vc-git-add)
-    (define-key vc-prefix-map (kbd "U") #'emacs-solo/vc-git-reset)
-
-    ;; Bind g to hide up to date files after refreshing in vc-dir
-    ;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
-    (define-key vc-dir-mode-map (kbd "g")
-                (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date)))
+                                 (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--")))))
 
 
     (defun emacs-solo/vc-git-visualize-status ()
@@ -1481,8 +1467,6 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                 (pop-to-buffer output-buffer)))
           (message "Not in a VC Git buffer."))))
 
-    (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-    (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status))
 
   (defun emacs-solo/vc-git-reflog ()
     "Show git reflog in a new buffer with ANSI colors and custom keybindings."
@@ -1512,7 +1496,6 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
         (setq mode-name "Git-Reflog")
         (setq major-mode 'special-mode))
       (pop-to-buffer buffer)))
-  (global-set-key (kbd "C-x v R") 'emacs-solo/vc-git-reflog)
 
 
   (defun emacs-solo/vc-pull-merge-current-branch ()
@@ -1553,9 +1536,6 @@ Otherwise, open the repository's main page."
                  (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
                (format "https://%s/%s" host path))))
         (message "Could not determine repository URL"))))
-  (global-set-key (kbd "C-x v B") 'emacs-solo/vc-browse-remote)
-  (global-set-key (kbd "C-x v o")
-                  '(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
 
 
   (defun emacs-solo/vc-diff-on-current-hunk ()
@@ -1581,7 +1561,65 @@ Otherwise, open the repository's main page."
           (unless found-hunk
             (message "Current line %d is not within any hunk range." current-line)
             (goto-char (point-min)))))))
-  (global-set-key (kbd "C-x v =") 'emacs-solo/vc-diff-on-current-hunk))
+
+
+  (defun emacs-solo/vc-switch-to-git-modified-buffer ()
+    "Parse git status from an expanded path and switch to a file."
+    (interactive)
+    (let ((repo-root (vc-git-root default-directory)))
+      (if (not repo-root)
+          (message "Not inside a Git repository.")
+        (let* ((expanded-root (expand-file-name repo-root))
+               (command-to-run (format "git -C %s status --porcelain=v1"
+                                       (shell-quote-argument expanded-root)))
+               (cmd-output (shell-command-to-string command-to-run))
+               (target-files
+                (let (files)
+                  (dolist (line (split-string cmd-output "\n" t) (nreverse files))
+                    (when (> (length line) 3)
+                      (let ((status (substring line 0 2))
+                            (path-info (substring line 3)))
+                        ;; Check for Rename FIRST, because its path format is special.
+                        (if (string-match "^R" status)
+                            (let* ((paths (split-string path-info " -> " t))
+                                   (new-path (cadr paths)))
+                              (when new-path
+                                (push new-path files)))
+                          ;; If not a rename, then check for modification.
+                          (when (string-match "M" status)
+                            (push path-info files)))))))))
+          (if (not target-files)
+              (message "No modified or renamed files found.")
+            (let* ((candidates (delete-dups (copy-sequence target-files)))
+                   (selection (completing-read "Switch to buffer (Git modified): " candidates nil t)))
+              (when (and selection (not (string-empty-p selection)))
+                (find-file (expand-file-name selection expanded-root)))))))))
+
+
+  ;; For *vc-dir* buffer:
+  (with-eval-after-load 'vc-dir
+    (define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
+    (define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
+    (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
+    ;; Bind g to hide up to date files after refreshing in vc-dir
+
+    ;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
+    (define-key vc-dir-mode-map (kbd "g")
+                (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date))))
+
+
+  ;; For C-x v ... bindings:
+  (define-key vc-prefix-map (kbd "S") #'emacs-solo/vc-git-add)
+  (define-key vc-prefix-map (kbd "U") #'emacs-solo/vc-git-reset)
+  (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
+  (define-key vc-prefix-map (kbd "R") #'emacs-solo/vc-git-reflog)
+  (define-key vc-prefix-map (kbd "B") #'emacs-solo/vc-browse-remote)
+  (define-key vc-prefix-map (kbd "o") '(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
+  (define-key vc-prefix-map (kbd "=") #'emacs-solo/vc-diff-on-current-hunk)
+
+  ;; Switch-buffer between modified files
+  (global-set-key (kbd "C-x M-b") 'emacs-solo/vc-switch-to-git-modified-buffer))
+
 
 ;;; │ SMERGE
 (use-package smerge-mode
