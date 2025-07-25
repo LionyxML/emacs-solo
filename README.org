@@ -331,4 +331,8 @@ From Emacs 31, we have after =C-x v == a new =C-c RET n=
 From =C-x v L=, you can press =e= and you'll be editing the commit
 message. This is available from Emacs 31 onward.
 
+*** 14.) How do I amend commits?
+
+From =C-x v v=, you can press =C-c C-e= and you'll be on 'amend' mode.
+
 #+html:</details>
