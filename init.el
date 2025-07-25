@@ -125,6 +125,7 @@ colors to match your new theme."
    ("C-x ;" . comment-line)
    ("M-s f" . find-name-dired)
    ("C-x C-b" . ibuffer)
+   ("C-x p l". project-list-buffers)
    ("C-x w t"  . window-layout-transpose)            ; EMACS-31
    ("C-x w r"  . window-layout-rotate-clockwise)     ; EMACS-31
    ("C-x w f h"  . window-layout-flip-leftright)     ; EMACS-31
@@ -349,6 +350,31 @@ colors to match your new theme."
             (lambda ()
               (ibuffer-switch-to-saved-filter-groups "default")))
   (setq ibuffer-show-empty-filter-groups nil) ; don't show empty groups
+
+
+  (defun emacs-solo/filtered-project-buffer-completer (project files-only)
+    "A custom `project-buffers-viewer` that filters '*...*' buffers and uses `completing-read`."
+    (let* ((project-buffers (project-buffers project))
+           (filtered-buffers
+            (cl-remove-if
+             (lambda (buffer)
+               (let* ((name (buffer-name buffer))
+                      (trimmed-name (string-trim name)))
+                 (or
+                  (and (> (length trimmed-name) 1)
+                       (string-prefix-p "*" trimmed-name)
+                       (string-suffix-p "*" trimmed-name))
+                  (and files-only (not (buffer-file-name buffer))))))
+             project-buffers)))
+
+      (if filtered-buffers
+          (let* ((buffer-names (mapcar #'buffer-name filtered-buffers))
+                 (selection (completing-read "Switch to project buffer: " buffer-names nil t)))
+            (when selection
+              (switch-to-buffer selection)))
+        (message "No suitable project buffers to switch to."))))
+  ;; Tell project.el filter out *special buffers* on `C-x p C-b'
+  (setq project-buffers-viewer 'emacs-solo/filtered-project-buffer-completer)
 
 
   ;; So eshell git commands open an instance of THIS config of Emacs
