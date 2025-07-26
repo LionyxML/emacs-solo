@@ -981,23 +981,27 @@ away from the bottom.  Counts wrapped lines as real lines."
            (dest-original dest)
            (dest-rsync
             (if (file-remote-p dest)
-                (let ((vec (tramp-dissect-file-name dest)))
-                  (concat (tramp-file-name-user vec)
-                          "@"
-                          (tramp-file-name-host vec)
+                (let* ((vec (tramp-dissect-file-name dest))
+                       (user (tramp-file-name-user vec))
+                       (host (tramp-file-name-host vec))
+                       (path (tramp-file-name-localname vec)))
+                  (concat (if user (concat user "@") "")
+                          host
                           ":"
-                          (tramp-file-name-localname vec)))
+                          path))
               dest))
            (files-rsync
             (mapcar
              (lambda (f)
                (if (file-remote-p f)
                    (let ((vec (tramp-dissect-file-name f)))
-                     (concat (tramp-file-name-user vec)
-                             "@"
-                             (tramp-file-name-host vec)
-                             ":"
-                             (tramp-file-name-localname vec)))
+                     (let ((user (tramp-file-name-user vec))
+                           (host (tramp-file-name-host vec))
+                           (path (tramp-file-name-localname vec)))
+                       (concat (if user (concat user "@") "")
+                               host
+                               ":"
+                               path)))
                  f))
              files))
            (command (append '("rsync" "-hPur") files-rsync (list dest-rsync)))
@@ -1024,7 +1028,7 @@ away from the bottom.  Counts wrapped lines as real lines."
        :name "dired-rsync"
        :buffer buffer
        :command command
-       :filter 'rsync-process-filter
+       :filter #'rsync-process-filter
        :sentinel
        (lambda (_proc event)
          (when (string-match-p "finished" event)
