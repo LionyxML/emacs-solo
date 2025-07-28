@@ -1109,6 +1109,42 @@ away from the bottom.  Counts wrapped lines as real lines."
   (("C-c e" . eshell))
   :defer t
   :config
+  (setq eshell-history-size 100000)
+  (setq eshell-hist-ignoredups t)
+
+
+  ;; MAKE ALL INSTANCES OF ESHELL SHARE/MERGE ITS COMMAND HISTORY
+  ;;
+  (defun emacs-solo/eshell--collect-all-history ()
+    "Return a list of all eshell history entries from all buffers and disk."
+    (let ((history-from-buffers
+           (cl-loop for buf in (buffer-list)
+                    when (with-current-buffer buf (derived-mode-p 'eshell-mode))
+                    append (with-current-buffer buf
+                             (when (boundp 'eshell-history-ring)
+                               (ring-elements eshell-history-ring)))))
+          (history-from-file
+           (when (file-exists-p eshell-history-file-name)
+             (with-temp-buffer
+               (insert-file-contents eshell-history-file-name)
+               (split-string (buffer-string) "\n" t)))))
+      (seq-uniq (append history-from-buffers history-from-file))))
+
+  (defun emacs-solo/eshell--save-merged-history ()
+    "Save all eshell buffer histories merged into `eshell-history-file-name`."
+    (let ((all-history (emacs-solo/eshell--collect-all-history)))
+      (with-temp-file eshell-history-file-name
+        (insert (mapconcat #'identity all-history "\n")))))
+
+  (add-hook 'kill-emacs-hook #'emacs-solo/eshell--save-merged-history)
+
+  (add-hook 'eshell-mode-hook
+            (lambda ()
+              (eshell-read-history)))
+
+
+  ;; CUSTOM WELCOME BANNER
+  ;;
   (setopt eshell-banner-message
           (concat
            (propertize " ✨ Welcome to the Emacs Solo Shell ✨\n\n" 'face '(:weight bold :foreground "#f9e2af"))
@@ -1141,19 +1177,48 @@ away from the bottom.  Counts wrapped lines as real lines."
   ;; MAKES C-c l GIVE AN ICOMPLETE LIKE SEARCH TO HISTORY COMMANDS
   ;;
   (defun emacs-solo/eshell-pick-history ()
-    "Show Eshell history combining memory and file persistence."
+    "Show a unified and unique Eshell history from all open sessions and the history file.
+Pre-fills the minibuffer with current Eshell input (from prompt to point)."
     (interactive)
-    ;; Write current session's history to file so it's always fresh
-    (when (bound-and-true-p eshell-history-ring)
-      (eshell-write-history))
-    ;; Then read the history from file
-    (let* ((history-file (expand-file-name "eshell/history" user-emacs-directory))
-           (history-entries (when (file-exists-p history-file)
-                              (with-temp-buffer
-                                (insert-file-contents history-file)
-                                (split-string (buffer-string) "\n" t))))
-           (selection (completing-read "Eshell History: " history-entries)))
+    (unless (derived-mode-p 'eshell-mode)
+      (user-error "This command must be called from an Eshell buffer"))
+    (let* (;; Safely get current input from prompt to point
+           (bol (save-excursion (eshell-bol) (point)))
+           (eol (point))
+           (current-input (buffer-substring-no-properties bol eol))
+
+           ;; Path to Eshell history file
+           (history-file (expand-file-name eshell-history-file-name
+                                           eshell-directory-name))
+
+           ;; Read from history file
+           (history-from-file
+            (when (file-exists-p history-file)
+              (with-temp-buffer
+                (insert-file-contents-literally history-file)
+                (split-string (buffer-string) "\n" t))))
+
+           ;; Read from in-memory Eshell buffers
+           (history-from-rings
+            (cl-loop for buf in (buffer-list)
+                     when (with-current-buffer buf (derived-mode-p 'eshell-mode))
+                     append (with-current-buffer buf
+                              (when (bound-and-true-p eshell-history-ring)
+                                (ring-elements eshell-history-ring)))))
+
+           ;; Deduplicate and sort
+           (all-history (reverse
+                         (seq-uniq
+                          (seq-filter (lambda (s) (and s (not (string-empty-p s))))
+                                      (append history-from-rings history-from-file)))))
+
+           ;; Prompt user with current input as initial suggestion
+           (selection (completing-read "Eshell History: " all-history
+                                       nil t current-input)))
+
       (when selection
+        ;; Replace current input with selected history entry
+        (delete-region bol eol)
         (insert selection))))
 
 
