@@ -118,6 +118,12 @@ It is recommended you have this programs in your system:
   =grep-command=.
 
 
+- =ghostscript=
+
+  This is necessary if you want to be able to use =doc-view= to see
+  documents like PDFs.
+
+
 - =gls=
 
   MacOS comes with an implementation of =ls= that misses some nice
@@ -153,11 +159,11 @@ It is recommended you have this programs in your system:
   Only needed if you'd like to use =emacs-solo/ollama-run-model=.
 
 
+In order to proper copy/paste from terminals (TUI), you need:
+
 - =pbcopy/pbpaste= (macos)
 - =wl-copy/wl-paste= (Linux with Wayland)
 - =xclip= (Linux with Xorg)
-
-  In order to proper copy/paste from terminals, you need:
 
 
 ** Installation
