@@ -427,6 +427,58 @@ colors to match your new theme."
   (message (emacs-init-time)))
 
 
+;;; │ ABBREV
+(use-package abbrev
+  :ensure nil
+  :config
+  ;; Define global abbrevs
+  ;;   The idea here is to call abbrevs manually with C-x '
+  ;;   this way, the extra emacs-lisp is executed.
+  (define-abbrev-table 'global-abbrev-table
+    '(
+      ;; Arrows
+      ("ra" "→")
+      ("la" "←")
+      ("ua" "↑")
+      ("da" "↓")
+
+      ;; Console logging (with cursor jump)
+      ("clog" "console.log(\">>> LOG:\", {@})"
+       (lambda () (search-backward "@") (delete-char 1)))
+      ("cwarn" "console.warn(\">>> WARN:\", {@})"
+       (lambda () (search-backward "@") (delete-char 1)))
+      ("cerr" "console.error(\">>> ERR:\", {@})"
+       (lambda () (search-backward "@") (delete-char 1)))
+
+      ;; JS/TS snippets
+      ("fn" "function() {\n  \n}"
+       (lambda () (search-backward "}") (forward-line -1) (end-of-line)))
+      ("afn" "async function() {\n  \n}"
+       (lambda () (search-backward "}") (forward-line -1) (end-of-line)))
+      ("ife" "(function() {\n  \n})();"
+       (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
+
+      ;; React/JSX
+      ("rfc" "const ${1:ComponentName} = () => {\n  return (\n    <div>@</div>\n  );\n};"
+       (lambda () (search-backward "@") (delete-char 1)))
+      ("imp" "import {} from '@';"
+       (lambda () (search-backward "@") (delete-char 1)))
+
+      ;; Markdown
+      ("cb" "```@\n\n```"
+       (lambda () (search-backward "@") (delete-char 1)))
+
+      ;; Emojis for context markers
+      ("todo"  "⚙ TODO:")
+      ("fixme" "🔧 FIXME:")
+      ("note"  "🗒 NOTE:")
+
+      ;; HTML entities
+      ("nb" "&nbsp;")
+      ("lt" "&lt;")
+      ("gt" "&gt;"))))
+
+
 ;;; │ AUTH-SOURCE
 (use-package auth-source
   :ensure nil
