@@ -1758,6 +1758,8 @@ Otherwise, open the repository's main page."
 (use-package diff-mode
   :ensure nil
   :defer t
+  :bind (:map diff-mode-map
+              ("M-o" . other-window))
   :config
   (setq diff-default-read-only t)
   (setq diff-advance-after-apply-hunk t)
