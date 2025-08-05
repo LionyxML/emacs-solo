@@ -145,7 +145,7 @@ colors to match your new theme."
   (completion-ignore-case t)
   (completions-detailed t)
   (delete-by-moving-to-trash t)
-  (display-line-numbers-width 3)
+  (display-line-numbers-width 4)
   (display-line-numbers-widen t)
   (display-fill-column-indicator-warning nil) ; EMACS-31
   (delete-selection-mode 1)
