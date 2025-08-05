@@ -163,6 +163,7 @@ colors to match your new theme."
   (kill-region-dwim 'emacs-word)  ; EMACS-31
   (create-lockfiles nil)   ; No lock files
   (make-backup-files nil)  ; No backup files
+  (native-comp-async-on-battery-power nil)  ; No compilations when on battery EMACS-31
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (ring-bell-function 'ignore)
@@ -198,6 +199,7 @@ colors to match your new theme."
   (tab-always-indent 'complete)
   (tab-width 4)
   (treesit-font-lock-level 4)
+  (treesit-auto-install-grammar t) ; EMACS-31
   (truncate-lines t)
   (undo-limit (* 13 160000))
   (undo-strong-limit (* 13 240000))
@@ -1506,6 +1508,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   :defer nil
   :config
   (setopt
+   vc-auto-revert-mode t              ; EMACS-31
    vc-git-diff-switches '("--patch-with-stat" "--histogram")  ;; add stats to `git diff'
    vc-git-log-switches '("--stat")                            ;; add stats to `git log'
    vc-git-log-edit-summary-target-len 50
@@ -1514,7 +1517,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
    vc-git-revision-complete-only-branches nil
    vc-annotate-display-mode 'scale
    add-log-keep-changes-together t
-   vc-dir-hide-up-to-date-on-revert t ;; EMACS-31
+   vc-dir-hide-up-to-date-on-revert t ; EMACS-31
    vc-make-backup-files nil)                                  ;; Do not backup version controlled files
 
   (with-eval-after-load 'vc-annotate
@@ -2235,6 +2238,7 @@ are defining or executing a macro."
    ;; Org styling, hide markup etc.
    org-hide-emphasis-markers t
    org-pretty-entities t
+   org-use-sub-superscripts nil ;; We want the above but no _ subscripts ^ superscripts
 
    ;; Agenda styling
    org-agenda-tags-column 0
@@ -2301,6 +2305,7 @@ are defining or executing a macro."
   ;; :hook (after-init-hook . display-time-mode) ;; If we'd like to see it on the mode-line
   :custom
   (world-clock-time-format "%A %d %B %r %Z")
+  (world-clock-sort-order "%FT%T") ; EMACS-31
   (display-time-day-and-date t)
   (display-time-default-load-average nil)
   (display-time-mail-string "")
@@ -3742,6 +3747,9 @@ Windows are labeled starting from the top-left window and proceeding top to bott
 ;;; │ EMACS-SOLO-SUDO-EDIT
 ;;
 ;; Inspired by: https://codeberg.org/daviwil/dotfiles/src/branch/master/Emacs.org#headline-28
+;;
+;; From EMACS-31 onwards this wont be necessary, as C-x x @ will call
+;; `tramp-revert-buffer-with-sudo'.
 (use-package emacs-solo-sudo-edit
   :ensure nil
   :no-require t
