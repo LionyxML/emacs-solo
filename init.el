@@ -3916,31 +3916,23 @@ If SECOND is non-nil, separate the results with a newline."
   :init
   (defun emacs-solo/ollama-run-model ()
     "Run `ollama list`, let the user choose a model, and open it in `ansi-term`.
-Asks for a prompt when run. If none is passed (RET), starts it interactive.
-If a region is selected, prompt for additional input and pass it as a query."
+If a region is selected, use it as a query. If a prompt is provided, it's prepended."
     (interactive)
     (let* ((output (shell-command-to-string "ollama list"))
-           (models (let ((lines (split-string output "\n" t)))
-                     (mapcar (lambda (line) (car (split-string line))) (cdr lines))))
+           (models (mapcar (lambda (line) (car (split-string line)))
+                           (cdr (split-string output "\n" t))))
            (selected (completing-read "Select Ollama model: " models nil t))
            (region-text (when (use-region-p)
-                          (shell-quote-argument
-                           (replace-regexp-in-string "\n" " "
-                                                     (buffer-substring-no-properties
-                                                      (region-beginning)
-                                                      (region-end))))))
-           (prompt (read-string "Ollama Prompt (leave it blank for interactive): " nil nil nil)))
+                          (buffer-substring-no-properties (region-beginning)
+                                                          (region-end))))
+           (prompt (read-string "Ollama Prompt (optional): " nil nil nil)))
       (when (and selected (not (string-empty-p selected)))
         (ansi-term "/bin/sh")
         (sit-for 1)
-        (let ((args (list (format "ollama run %s"
-                                  selected))))
-          (when (and prompt (not (string-empty-p prompt)))
-            (setq args (append args (list (format "\"%s\"" prompt)))))
-          (when region-text
-            (setq args (append args (list (format "\"%s\"" region-text)))))
-
-          (term-send-raw-string (string-join args " "))
+        (let* ((body (string-join (delq nil (list prompt region-text)) "\n"))
+               (escaped-body (replace-regexp-in-string "\"" "\\\\\"" body))
+               (command (format "printf \"%s\" | ollama run %s" escaped-body selected)))
+          (term-send-raw-string command)
           (term-send-raw-string "\n"))))))
 
 
