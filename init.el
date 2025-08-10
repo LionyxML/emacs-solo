@@ -3085,14 +3085,13 @@ This works with bash, zsh, or fish)."
     "Apply simple rainbow coloring to parentheses, brackets, and braces in the current buffer.
 Opening and closing delimiters will have matching colors."
     (interactive)
-    (let ((colors '(font-lock-keyword-face
+    (let ((colors '(font-lock-function-name-face
+                    font-lock-builtin-face
                     font-lock-type-face
-                    font-lock-function-name-face
+                    font-lock-keyword-face
                     font-lock-variable-name-face
                     font-lock-constant-face
-                    font-lock-builtin-face
-                    font-lock-string-face
-                    )))
+                    font-lock-string-face)))
       (font-lock-add-keywords
        nil
        `((,(rx (or "(" ")" "[" "]" "{" "}"))
