@@ -3545,17 +3545,25 @@ Marks lines as added, deleted, or changed."
 
   (defun emacs-solo/git-gutter-add-mark (&rest args)
     "Add symbols to the left margin based on Git diff statuses.
-   - '+' for added lines (lightgreen)
-   - '~' for changed lines (yellowish)
-   - '-' for deleted lines (tomato)."
+- '+' for added lines (uses `success` face)
+- '~' for changed lines (uses `warning` face)
+- '-' for deleted lines (uses `error` face)."
     (interactive)
-    (set-window-margins (selected-window) 2 0) ;; change to 1,2,3 if you want more columns
+    (set-window-margins (selected-window) 2 0)
     (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
     (let ((lines-status (or (emacs-solo/git-gutter-process-git-diff) '())))
       (save-excursion
         (dolist (line-status lines-status)
-          (let ((line-num (car line-status))
-                (status (cdr line-status)))
+          (let* ((line-num (car line-status))
+                 (status (cdr line-status))
+                 (symbol (cond
+                          ((string= status "added")   "┃")
+                          ((string= status "changed") "┃")
+                          ((string= status "deleted") "┃")))
+                 (face (cond
+                        ((string= status "added")   'success)
+                        ((string= status "changed") 'warning)
+                        ((string= status "deleted") 'error))))
             (when (and line-num status)
               (goto-char (point-min))
               (forward-line (1- line-num))
@@ -3565,17 +3573,7 @@ Marks lines as added, deleted, or changed."
                              (propertize " "
                                          'display
                                          `((margin left-margin)
-                                           ,(propertize
-                                             (cond                              ;; Alternatives:
-                                              ((string= status "added")   "┃")  ;; +  │ ▏┃
-                                              ((string= status "changed") "┃")  ;; ~
-                                              ((string= status "deleted") "┃")) ;; _
-                                             'face
-                                             `(:foreground
-                                               ,(cond
-                                                 ((string= status "added") "lightgreen")
-                                                 ((string= status "changed") "gold")
-                                                 ((string= status "deleted") "tomato"))))))))))))))
+                                           ,(propertize symbol 'face face)))))))))))
 
   (defun emacs-solo/timed-git-gutter-on()
     (run-at-time 0.1 nil #'emacs-solo/git-gutter-add-mark))
