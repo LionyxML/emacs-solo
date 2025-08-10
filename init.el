@@ -2980,6 +2980,7 @@ Replacing `Git-' with a branch symbol."
   ;; EMACS-31
   (setq mode-line-collapse-minor-modes
         '(abbrev-mode
+          auto-revert-mode
           eldoc-mode
           flyspell-mode
           smooth-scroll-mode
