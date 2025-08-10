@@ -3556,10 +3556,10 @@ Marks lines as added, deleted, or changed."
         (dolist (line-status lines-status)
           (let* ((line-num (car line-status))
                  (status (cdr line-status))
-                 (symbol (cond
-                          ((string= status "added")   "┃")
-                          ((string= status "changed") "┃")
-                          ((string= status "deleted") "┃")))
+                 (symbol (cond                                ;; Alternatives:
+                          ((string= status "added")   "┃")    ;; +  │ ▏┃
+                          ((string= status "changed") "┃")    ;; ~  │ ▏┃
+                          ((string= status "deleted") "┃")))  ;; _  _‾ x
                  (face (cond
                         ((string= status "added")   'success)
                         ((string= status "changed") 'warning)
