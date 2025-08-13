@@ -4042,9 +4042,9 @@ If SECOND is non-nil, separate the results with a newline."
              (read-only-mode 1))))))))
 
 
-;;; │ EMACS-SOLO-OLLAMA
+;;; │ EMACS-SOLO-AI
 ;;
-(use-package emacs-solo-ollama
+(use-package emacs-solo-ai
   :ensure nil
   :no-require t
   :defer t
@@ -4068,7 +4068,47 @@ If a region is selected, use it as a query. If a prompt is provided, it's prepen
                (escaped-body (replace-regexp-in-string "\"" "\\\\\"" body))
                (command (format "printf \"%s\" | ollama run %s" escaped-body selected)))
           (term-send-raw-string command)
-          (term-send-raw-string "\n"))))))
+          (term-send-raw-string "\n")))))
+
+
+  (defun emacs-solo/gemini-run-model (&optional interactive)
+    "Run the `gemini` CLI with optional prompt and/or selected region.
+
+If INTERACTIVE (prefix arg), start `gemini -i` inside `ansi-term`
+and preload the query from a temp file inside the project root.
+
+Otherwise, run non-interactive with `gemini -p` and show output in
+the *gemini* buffer."
+    (interactive "P")
+    (let* ((region (when (use-region-p)
+                     (buffer-substring-no-properties (region-beginning) (region-end))))
+           (prompt (read-string "Gemini Prompt (optional): " nil nil nil))
+           (body (string-join (delq nil (list prompt region)) "\n")))
+      (if interactive
+          ;; Interactive: temp file inside project root
+          (let* ((proj-root (or (vc-root-dir) default-directory))
+                 (tmpfile (expand-file-name
+                           (format ".gemini-query-%s.txt" (format-time-string "%s"))
+                           proj-root))
+                 (relpath (file-relative-name tmpfile proj-root)))
+            (with-temp-file tmpfile (insert body))
+            (ansi-term "/bin/bash")
+            (sit-for 0.1)
+            ;; must be relative to project root for Gemini to accept it
+            (term-send-raw-string (format "gemini -i @%s\n" relpath))
+            ;; delete temp file after 10 seconds
+            (run-at-time "10 sec" nil
+                         (lambda (f)
+                           (when (file-exists-p f)
+                             (delete-file f)))
+                         tmpfile))
+        ;; Non-interactive
+        (let ((buf (get-buffer-create "*gemini*")))
+          (with-current-buffer buf (erase-buffer))
+          (start-process "gemini" buf "gemini" "-p" body)
+          (pop-to-buffer buf)
+          (visual-line-mode)
+          (markdown-ts-mode))))))
 
 
 ;;; │ EMACS-SOLO-DIRED-GUTTER
