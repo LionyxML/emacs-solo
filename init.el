@@ -1366,21 +1366,38 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (when (derived-mode-p 'eshell-mode)
       (eshell-reset)))
 
+  (unless (eq emacs-solo-use-custom-theme 'catppuccin)
+    (defvar eshell-solo/color-bg-dark "#212234")
+    (defvar eshell-solo/color-bg-mid "#45475A")
+    (defvar eshell-solo/color-fg-user "#89b4fa")
+    (defvar eshell-solo/color-fg-host "#b4befe")
+    (defvar eshell-solo/color-fg-dir "#A6E3A1")
+    (defvar eshell-solo/color-fg-git "#F9E2AF"))
+
+  (when (eq emacs-solo-use-custom-theme 'catppuccin)
+    (defvar eshell-solo/color-bg-dark "#363a4f")
+    (defvar eshell-solo/color-bg-mid  "#494d64")
+    (defvar eshell-solo/color-fg-user "#89b4fa")
+    (defvar eshell-solo/color-fg-host "#b4befe")
+    (defvar eshell-solo/color-fg-dir  "#a6e3a1")
+    (defvar eshell-solo/color-fg-git  "#f9e2af"))
+
   (setopt eshell-prompt-function
           (lambda ()
             (if emacs-solo/eshell-full-prompt
                 ;; Full-blown prompt
                 (concat
-                 (propertize "" 'face `(:foreground "#212234"))
+                 (propertize "" 'face `(:foreground ,eshell-solo/color-bg-dark))
 
                  (propertize
                   (if (> eshell-last-command-status 0) " 🔴 " " 🟢 ")
-                  'face `(:background "#212234"))
+                  'face `(:background ,eshell-solo/color-bg-dark))
 
                  (propertize (concat (number-to-string eshell-last-command-status) " ")
-                             'face `(:background "#212234"))
+                             'face `(:background ,eshell-solo/color-bg-dark))
 
-                 (propertize "" 'face `(:foreground "#212234" :background "#45475A"))
+                 (propertize "" 'face `(:foreground ,eshell-solo/color-bg-dark
+                                                     :background ,eshell-solo/color-bg-mid))
 
                  (propertize
                   (let ((remote-user (file-remote-p default-directory 'user))
@@ -1389,9 +1406,11 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                      (if is-remote "👽 " "🧙 ")
                      (or remote-user (user-login-name))
                      " "))
-                  'face `(:foreground "#89b4fa" :background "#45475A"))
+                  'face `(:foreground ,eshell-solo/color-fg-user
+                                      :background ,eshell-solo/color-bg-mid))
 
-                 (propertize "" 'face `(:foreground "#45475A" :background "#212234"))
+                 (propertize "" 'face `(:foreground ,eshell-solo/color-bg-mid
+                                                     :background ,eshell-solo/color-bg-dark))
 
                  (let ((remote-host (file-remote-p default-directory 'host))
                        (is-remote (file-remote-p default-directory)))
@@ -1399,27 +1418,32 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                     (concat (if is-remote " 🌐 " " 💻 ")
                             (or remote-host (system-name))
                             " ")
-                    'face `(:background "#212234" :foreground "#b4befe")))
+                    'face `(:background ,eshell-solo/color-bg-dark
+                                        :foreground ,eshell-solo/color-fg-host)))
 
-                 (propertize "" 'face `(:foreground "#212234" :background "#45475A"))
+                 (propertize "" 'face `(:foreground ,eshell-solo/color-bg-dark
+                                                     :background ,eshell-solo/color-bg-mid))
 
                  (propertize
                   (concat " 🕒 " (format-time-string "%H:%M:%S" (current-time)) " ")
-                  'face `(:foreground "#89b4fa" :background "#45475A"))
+                  'face `(:foreground ,eshell-solo/color-fg-user
+                                      :background ,eshell-solo/color-bg-mid))
 
-                 (propertize "" 'face `(:foreground "#45475A" :background "#212234"))
+                 (propertize "" 'face `(:foreground ,eshell-solo/color-bg-mid
+                                                     :background ,eshell-solo/color-bg-dark))
 
                  (propertize
                   (concat " 📁 " (if (>= (length (eshell/pwd)) 40)
                                      (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
                                    (abbreviate-file-name (eshell/pwd))) " ")
-                  'face `(:background "#212234" :foreground "#A6E3A1"))
+                  'face `(:background ,eshell-solo/color-bg-dark
+                                      :foreground ,eshell-solo/color-fg-dir))
 
-                 (propertize "\n" 'face `(:foreground "#212234"))
+                 (propertize "\n" 'face `(:foreground ,eshell-solo/color-bg-dark))
 
                  (when (and (fboundp 'vc-git-root) (vc-git-root default-directory))
                    (concat
-                    (propertize "" 'face `(:foreground "#212234"))
+                    (propertize "" 'face `(:foreground ,eshell-solo/color-bg-dark))
                     (propertize
                      (concat
                       "  " (car (vc-git-branches))
@@ -1434,9 +1458,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                                         (format "git rev-list --count HEAD..origin/%s" branch)))))
                           (concat
                            (when (> ahead 0) (format " ⬇️%d" ahead))
-
                            (when (> behind 0) (format " ⬆️%d" behind))
-
                            (when (and (> ahead 0) (> behind 0)) "  🔀")))
 
                         (let ((modified (length (split-string
@@ -1456,14 +1478,16 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                            (if (> conflicts 0) (format " ⚔️%d" conflicts)))))
 
                       " ")
-                     'face `(:background "#212234" :foreground "#F9E2AF"))
+                     'face `(:background ,eshell-solo/color-bg-dark
+                                         :foreground ,eshell-solo/color-fg-git))
 
-                    (propertize "\n" 'face `(:foreground "#212234"))))
+                    (propertize "\n" 'face `(:foreground ,eshell-solo/color-bg-dark))))
 
                  (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))
 
               ;; Minimal prompt
               (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))))
+
 
   (setq eshell-prompt-regexp emacs-solo/eshell-lambda-symbol)
 
