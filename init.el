@@ -103,13 +103,19 @@
   :type 'boolean
   :group 'emacs-solo)
 
-(defcustom emacs-solo-use-custom-theme t
-  "Enable `emacs-solo' customizations to modus-theme.
+(defcustom emacs-solo-use-custom-theme 'crafters
+  "Select which `emacs-solo` customization theme to use.
 
-IMPORTANT NOTE: If you'd like to disable this custom theme, also check the
-`emacs-solo-avoid-flash-options' variable: turn it OFF or customize its
-colors to match your new theme."
-  :type 'boolean
+- nil: Disable custom theme
+- 'catppuccin: Use customizations for Catppuccin
+- 'crafters: Use customizations for the Crafters theme
+
+IMPORTANT NOTE: If you disable this or choose another theme, also check
+`emacs-solo-avoid-flash-options` to ensure compatibility."
+  :type '(choice
+          (const :tag "Disabled" nil)
+          (const :tag "Catppuccin" catppuccin)
+          (const :tag "Crafters" crafters))
   :group 'emacs-solo)
 
 
@@ -2454,9 +2460,143 @@ are defining or executing a macro."
      ("ChatGPT" . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
 
 
-;;; │ THEMES
+;;; ┌──────────────────── THEMES
+;;; │ Cattpuccin Mocha Based Theme (hacked Modus)
+;;
+;; This tries to follow: https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md
+;; With the colors from: https://github.com/catppuccin/catppuccin/ (Mocha)
 (use-package modus-themes
-  :if emacs-solo-use-custom-theme
+  :if (eq emacs-solo-use-custom-theme 'catppuccin)
+  :ensure nil
+  :defer t
+  :custom
+  (modus-themes-italic-constructs t)
+  (modus-themes-bold-constructs t)
+  (modus-themes-mixed-fonts nil)
+  (modus-themes-prompts '(bold intense))
+  (modus-themes-common-palette-overrides
+   `((bg-main "#1e1e2e")
+     (bg-active bg-main)
+     (fg-main "#cdd6f4")
+     (fg-active fg-main)
+     (fg-mode-line-active "#bac2de")
+     (bg-mode-line-active "#181825")
+     (fg-mode-line-inactive "#585b70")
+     (bg-mode-line-inactive "#181825")
+     (border-mode-line-active nil)
+     (border-mode-line-inactive nil)
+     (bg-tab-bar      "#1e1e2e")
+     (bg-tab-current  bg-main)
+     (bg-tab-other    "#1e1e2e")
+     (fg-prompt "#cba6f7")
+     (bg-prompt unspecified)
+     (bg-hover-secondary "#585b70")
+     (bg-completion "#45475a")
+     (fg-completion "#cdd6f4")
+     (bg-region "#585b70")
+     (fg-region "#cdd6f4")
+     (bg-hl-line "#2a2b3d")
+
+     (fg-line-number-active "#b4befe")
+     (fg-line-number-inactive "#7f849c")
+     (bg-line-number-active unspecified)
+     (bg-line-number-inactive "#1e1e2e")
+     (fringe "#1e1e2e")
+
+     (fg-heading-0 "#f38ba8")
+     (fg-heading-1 "#fab387")
+     (fg-heading-2 "#f9e2af")
+     (fg-heading-3 "#a6e3a1")
+     (fg-heading-4 "#74c7ec")
+
+     (fg-prose-verbatim "#a6e3a1")
+     (bg-prose-block-contents "#313244")
+     (fg-prose-block-delimiter "#9399b2")
+     (bg-prose-block-delimiter bg-prose-block-contents)
+
+     (accent-0 "#89b4fa")
+     (accent-1 "#89dceb")
+
+     (bg-changed "#3e4b6c")
+     (bg-changed-refine "#515D7B")
+     (bg-added "#364144")
+     (bg-added-refine "#4A5457")
+     (bg-removed "#443245")
+     (bg-removed-refine "#574658")
+
+     (bg-mark-delete "#443245")
+     (fg-mark-delete "#f38ba8")
+     (bg-mark-select "#3e4b6c")
+     (fg-mark-select "#89b4fa")
+
+     (bg-prominent-err "#443245")
+     (fg-prominent-err "#f38ba8")
+
+     (fg-completion-match-0 "#89b4fa")
+     (bg-completion-match-0 "#1e1e2e")
+     (fg-completion-match-1 "#f38ba8")
+     (bg-completion-match-1 "#1e1e2e")
+     (fg-completion-match-2 "#a6e3a1")
+     (bg-completion-match-2 "#1e1e2e")
+     (fg-completion-match-3 "#fab387")
+     (bg-completion-match-3 "#1e1e2e")
+
+     (property "#89b4fa")
+     (number "#fab387")
+     (cursor  "#f5e0dc")
+     (warning "#f9e2af")
+     (err     "#f38ba8")
+     (info    "#94e2d5")
+     (fg-link  "#89b4fa")
+     (keyword "#cba6f7")
+     (builtin "#89b4fa")
+     (comment "#9399b2")
+     (string "#a6e3a1")
+     (keyword   "#cba6f7")
+     (fnname    "#89b4fa")
+     (type      "#f9e2af")
+     (variable  "#fab387")
+     (docstring "#a6adc8")
+     (constant  "#f38ba8")))
+  :config
+  (modus-themes-with-colors
+    (custom-set-faces
+     `(newsticker-extra-face ((,c :foreground "#9399b2" :height 0.8 :slant italic)))
+     `(newsticker-feed-face ((,c :foreground "#f38ba8" :height 1.2 :weight bold)))
+     `(newsticker-treeview-selection-face ((,c :background "#3e5768" :foreground "#cdd6f5")))
+     `(newsticker-treeview-face ((,c :foreground "#cdd6f4")))
+     `(match ((,c :background "#3e5768" :foreground "#cdd6f5")))
+     `(gnus-header-from ((,c :foreground "#cba6f7")))
+     `(gnus-header-name ((,c :foreground "#a6e3a1")))
+     `(gnus-group-mail-3-empty ((,c :foreground "#8aadf4")))
+     `(gnus-group-mail-3 ((,c :foreground "#8aadf4")))
+     `(gnus-header-subject ((,c :foreground "#8aadf4")))
+     `(gnus-header-content ((,c :foreground "#7dc4e4")))
+     `(gnus-button ((,c :foreground "#8aadf4")))
+     `(vc-dir-header-value ((,c :foreground "#b4befe")))
+     `(vc-dir-file ((,c :foreground "#89b4fa")))
+     `(change-log-acknowledgment ((,c :foreground "#b4befe")))
+     `(change-log-name ((,c :foreground "#fab387")))
+     `(change-log-date ((,c :foreground "#a6e3a1")))
+     `(log-view-message ((,c :foreground "#b4befe")))
+     `(diff-context ((,c :foreground "#89b4fa")))
+     `(diff-header ((,c :foreground "#89b4fa")))
+     `(diff-file-header ((,c :foreground "#f5c2e7")))
+     `(diff-hunk-header ((,c :foreground "#fab387")))
+     `(modus-themes-search-current ((,c :background "#f38ba8" :foreground "#11111b" ))) ;; :foreground "#cdd6f4" -- Catppuccin default, not that visible...
+     `(modus-themes-search-lazy ((,c :background "#3e5768" :foreground "#cdd6f5")))     ;; :foreground "#cdd6f4" :background "#94e2d5" -- Catppuccin default, not that visible...
+     `(tab-bar ((,c :background "#1e1e2e" :foreground "#bac2de")))
+     `(tab-bar-tab ((,c :background "#1e1e2e" :underline t)))
+     `(tab-bar-tab-inactive ((,c :background "#1e1e2e" :foreground "#a6adc8")))
+     `(tab-bar-tab-group-current ((,c :background "#1e1e2e" :foreground "#bac2de" :underline t)))
+     `(tab-bar-tab-group-inactive ((,c :background "#1e1e2e" :foreground "#9399b2")))))
+  :init
+  (load-theme 'modus-vivendi-tinted t))
+
+
+;;; │ #SystemCrafters  Based Theme (hacked Modus)
+(use-package modus-themes
+  :if (eq emacs-solo-use-custom-theme 'crafters)
   :ensure nil
   :defer t
   :custom
@@ -2477,9 +2617,9 @@ are defining or executing a macro."
      ;; (border-mode-line-inactive bg-dim)
      (border-mode-line-active nil)
      (border-mode-line-inactive nil)
-     (bg-tab-bar      "#242837")
+     (bg-tab-bar      "#292D3E")
      (bg-tab-current  bg-main)
-     (bg-tab-other    "#242837")
+     (bg-tab-other    "#292D3E")
      (fg-prompt "#c792ea")
      (bg-prompt unspecified)
      (bg-hover-secondary "#676E95")
@@ -2518,38 +2658,11 @@ are defining or executing a macro."
      (constant "#f78c6c")))
   :config
   (modus-themes-with-colors
-   (custom-set-faces
-    `(tab-bar
-      ((,c
-        :background "#232635"
-        :foreground "#A6Accd"
-        ;; :box (:line-width 1 :color "#676E95")
-        )))
-    `(tab-bar-tab
-      ((,c
-        :background "#232635"
-        :underline t
-        ;; :box (:line-width 1 :color "#676E95")
-        )))
-    `(tab-bar-tab-inactive
-      ((,c
-        ;; :background "#232635"
-        ;; :box (:line-width 1 :color "#676E95")
-        )))
-    `(tab-bar-tab-group-current
-      ((,c
-        ;; :background "#232635"
-        ;; :box (:line-width 1 :color "#676E95")
-        :background "#232635"
-        :foreground "#A6Accd"
-        :underline t
-        )))
-    `(tab-bar-tab-group-inactive
-      ((,c
-        ;; :background "#232635"
-        ;; :box (:line-width 1 :color "#676E95")
-        :background "#232635"
-        :foreground "#777")))))
+    (custom-set-faces
+     `(tab-bar ((,c :background "#292D3E" :foreground "#A6Accd")))
+     `(tab-bar-tab ((,c :background "#292D3E" :underline t)))
+     `(tab-bar-tab-group-current ((,c :background "#292D3E" :foreground "#A6Accd" :underline t)))
+     `(tab-bar-tab-group-inactive ((,c :background "#292D3E" :foreground "#777")))))
   :init
   (load-theme 'modus-vivendi-tinted t))
 
