@@ -2992,6 +2992,20 @@ If MANUAL is non-nil, the function was called interactively."
   (global-set-key (kbd "C-c C-p") #'emacs-solo-movements/format-current-file-manual)
 
 
+  (defun emacs-solo/add-format-on-save ()
+    "Add `emacs-solo-movements/format-current-file` to the current buffer's `after-save-hook`."
+    (interactive)
+    (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
+    (message "Format-on-save enabled for this buffer."))
+
+
+  (defun emacs-solo/remove-format-on-save ()
+    "Remove `emacs-solo-movements/format-current-file` from the current buffer's `after-save-hook`."
+    (interactive)
+    (remove-hook 'after-save-hook #'emacs-solo-movements/format-current-file t)
+    (message "Format-on-save disabled for this buffer."))
+
+
   (defun emacs-solo/transpose-split ()
     "Transpose a horizontal split into a vertical split, or vice versa."
     (interactive)
