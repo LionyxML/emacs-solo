@@ -63,14 +63,14 @@
   :type 'boolean
   :group 'emacs-solo)
 
-(defcustom emacs-solo-enable-eshell-icons t
-  "Enable `emacs-solo-eshell-icons'."
-  :type 'boolean
-  :group 'emacs-solo)
-
-(defcustom emacs-solo-enable-dired-icons t
-  "Enable `emacs-solo-dired-icons'."
-  :type 'boolean
+(defcustom emacs-solo-enabled-icons
+  '(dired eshell ibuffer)
+  "List of Emacs Solo icon features that are enabled.
+Possible values include `dired', `eshell', `ibuffer', etc."
+  :type '(set :tag "Enabled Emacs Solo icon features"
+              (const :tag "Dired Icons" dired)
+              (const :tag "Eshell Icons" eshell)
+              (const :tag "Ibuffer Icons" ibuffer))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-dired-gutter t
@@ -4222,7 +4222,7 @@ the *gemini* buffer."
 ;;  Here we set the icons to be used by other `emacs-solo' features,
 ;;  like `emacs-solo-dired-icons' and `emacs-solo-eshell-icons'
 (use-package emacs-solo-file-icons
-  :if (or emacs-solo-enable-dired-icons emacs-solo-enable-eshell-icons)
+  :if emacs-solo-enabled-icons
   :ensure nil
   :no-require t
   :defer t
@@ -4253,14 +4253,15 @@ the *gemini* buffer."
       ("zst" . "📦")      ("tar.xz" . "📦")   ("tar.zst" . "📦") ("tar.gz" . "📦")
       ("tgz" . "📦")      ("bz2" . "📦")      ("mpg" . "🎬")     ("webp" . "🖼️")
       ("flv" . "🎬")      ("3gp" . "🎬")      ("ogv" . "🎬")     ("srt" . "🔠")
-      ("vtt" . "🔠")      ("cue" . "📀")
-      ("direddir" . "📁") ("diredfile" . "📄"))
+      ("vtt" . "🔠")      ("cue" . "📀")      ("terminal" . "💻") ("info" . "ℹ️")
+      ("direddir" . "📁") ("diredfile" . "📄") ("wranch" . "🔧"))
     "Icons for specific file extensions in Dired and Eshell."))
+
 
 ;;; │ EMACS-SOLO-DIRED-ICONS
 ;;
 (use-package emacs-solo-dired-icons
-  :if emacs-solo-enable-dired-icons
+  :if (memq 'dired emacs-solo-enabled-icons)
   :ensure nil
   :no-require t
   :defer t
@@ -4314,11 +4315,52 @@ the *gemini* buffer."
   (add-hook 'dired-after-readin-hook #'emacs-solo/dired-icons-add-icons))
 
 
+;;; │ EMACS-SOLO-IBUFFER-ICONS
+;;
+(use-package emacs-solo-ibuffer-icons
+  :if (memq 'ibuffer emacs-solo-enabled-icons)
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (defun emacs-solo/ibuffer-icon-for-buffer (buf)
+    "Return an icon for BUF: file-extension emoji if visiting a file,
+otherwise mode-based emoji."
+    (with-current-buffer buf
+      (if-let ((file (buffer-file-name)))
+          ;; File-based icons
+          (let* ((ext (file-name-extension file))
+                 (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
+            (or icon (assoc-default "diredfile" emacs-solo/file-icons)))
+        ;; Mode-based icons for non-file buffers
+        (cond
+         ((derived-mode-p 'dired-mode)  (assoc-default "direddir" emacs-solo/file-icons))
+         ((derived-mode-p 'eshell-mode) (assoc-default "terminal" emacs-solo/file-icons))
+         ((derived-mode-p 'org-mode)    (assoc-default "terminal" emacs-solo/file-icons))
+         ((derived-mode-p 'shell-mode)  (assoc-default "terminal" emacs-solo/file-icons))
+         ((derived-mode-p 'term-mode)   (assoc-default "terminal" emacs-solo/file-icons))
+         ((derived-mode-p 'help-mode)   (assoc-default "info" emacs-solo/file-icons))
+         (t                             (assoc-default "wranch" emacs-solo/file-icons))))))
+
+  (define-ibuffer-column icon
+    (:name " ")
+    (emacs-solo/ibuffer-icon-for-buffer buffer))
+
+  ;; Update ibuffer formats
+  (setq ibuffer-formats
+        '((mark modified read-only locked " "
+                (icon 2 2 :left) " "
+                (name 30 30 :left :elide) " "
+                (size 9 -1 :right) " "
+                (mode 16 16 :left :elide) " "
+                filename-and-process))))
+
+
 ;;; │ EMACS-SOLO-ESHELL-ICONS
 ;;
 ;; Inspired by: https://www.reddit.com/r/emacs/comments/xboh0y/how_to_put_icons_into_eshell_ls/
 (use-package emacs-solo-eshell-icons
-  :if emacs-solo-enable-eshell-icons
+  :if (memq 'eshell emacs-solo-enabled-icons)
   :ensure nil
   :no-require t
   :defer t
