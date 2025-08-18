@@ -247,27 +247,22 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta)
 
-    (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 130)
+    ;; Default font
+    (set-face-attribute 'default nil
+                        :family "JetBrainsMono Nerd Font"
+                        :height 130)
 
+    ;; JetBrainsMono Nerd Font glyphs (icons/powerline symbols)
     (set-fontset-font t '(#xe0b0 . #xe0bF)
-                      (font-spec :family "JetBrainsMono Nerd Font" :size 11))
+                      (font-spec :family "JetBrainsMono Nerd Font"))
 
-    (set-fontset-font t '(#x2600 . #x26FF) ; Miscellaneous Symbols (includes ☕ ⚡)
-                      (font-spec :family "Apple Color Emoji" :size 8))
-    (set-fontset-font t '(#x2700 . #x27BF) ; Dingbats
-                      (font-spec :family "Apple Color Emoji" :size 8))
-    (set-fontset-font t '(#x1F000 . #x1FAFF) ; Full emoji range
-                      (font-spec :family "Apple Color Emoji" :size 8))
-    (set-fontset-font t '(#x1F100 . #x1F1FF) ; Enclosed Alphanumeric Supplement (🅲, etc.)
-                      (font-spec :family "Apple Color Emoji" :size 8))
-    (set-fontset-font t '(#x1F300 . #x1F5FF) ; Miscellaneous Symbols and Pictographs
-                      (font-spec :family "Apple Color Emoji" :size 8))
-    (set-fontset-font t '(#x1F600 . #x1F64F) ; Emoticons
-                      (font-spec :family "Apple Color Emoji" :size 8))
-    (set-fontset-font t '(#x1F680 . #x1F6FF) ; Transport & Map symbols
-                      (font-spec :family "Apple Color Emoji" :size 8))
-    (set-fontset-font t '(#x1F700 . #x1F77F) ; Alchemical Symbols
-                      (font-spec :family "Apple Color Emoji" :size 8)))
+    ;; Assign Apple Color Emoji for the general emoji range
+    ;; Covers most pictographs, symbols, flags, etc.
+    (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'append)
+
+    ;; Rescale emoji font so it matches JetBrainsMono line height
+    (add-to-list 'face-font-rescale-alist '("Apple Color Emoji" . 0.8)))
+
 
   ;; Save manual customizations to other file than init.el
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
