@@ -163,6 +163,7 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
   (global-auto-revert-non-file-buffers t)
+  (global-goto-address-mode t)
   (help-window-select t)
   (history-length 300)
   (inhibit-startup-message t)
