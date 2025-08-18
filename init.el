@@ -2729,6 +2729,15 @@ are defining or executing a macro."
   (add-to-list 'treesit-language-source-alist '(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
   (add-to-list 'treesit-language-source-alist '(jsdoc "https://github.com/tree-sitter/tree-sitter-jsdoc" "master" "src")))
 
+;;; │ JSON-TS-MODE
+(use-package json-ts-mode
+  :mode "\\.json\\'"
+  :defer t
+  :hook
+  ((json-ts-mode-hook . (lambda ()
+                        (setq indent-tabs-mode nil)
+                        (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)))))
+
 
 ;;; │ TYPESCRIPT-TS-MODE
 (defun emacs-solo/add-jsdoc-in-typescript-ts-mode ()
