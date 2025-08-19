@@ -477,9 +477,9 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
        (lambda () (search-backward "@") (delete-char 1)))
 
       ;; Emojis for context markers
-      ("todo"  "⚙ TODO:")
+      ("todo"  "👷 TODO:")
       ("fixme" "🔧 FIXME:")
-      ("note"  "🗒 NOTE:")
+      ("note"  "ℹ️ NOTE:")
 
       ;; HTML entities
       ("nb" "&nbsp;")
