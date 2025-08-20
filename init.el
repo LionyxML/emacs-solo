@@ -2605,6 +2605,9 @@ are defining or executing a macro."
      (fg-completion-match-3 "#fab387")
      (bg-completion-match-3 "#1e1e2e")
 
+     (date-weekday "#89b4fa")
+     (date-weekend "#fab387")
+
      (property "#89b4fa")
      (number "#fab387")
      (cursor  "#f5e0dc")
