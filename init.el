@@ -2345,6 +2345,7 @@ are defining or executing a macro."
   (speedbar-directory-unshown-regexp "^$")
   (speedbar-indentation-width 2)
   (speedbar-use-images t)
+  (speedbar-update-flag nil)
   :config
   (setq speedbar-expand-image-button-alist
         '(("<+>" . ezimage-directory) ;; previously ezimage-directory-plus
