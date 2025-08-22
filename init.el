@@ -2610,6 +2610,7 @@ are defining or executing a macro."
      (date-weekend "#fab387")
 
      (property "#89b4fa")
+     (name "#89b4fa")
      (number "#fab387")
      (cursor  "#f5e0dc")
      (warning "#f9e2af")
@@ -2617,6 +2618,7 @@ are defining or executing a macro."
      (info    "#94e2d5")
      (fg-link  "#89b4fa")
      (keyword "#cba6f7")
+     (identifier "#cba6f7")
      (builtin "#89b4fa")
      (comment "#9399b2")
      (string "#a6e3a1")
