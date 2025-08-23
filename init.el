@@ -2915,14 +2915,21 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 ;;; │ GO-TS-MODE
 (use-package go-ts-mode
   :ensure t
-  :mode "\\.go\\'"
+  :mode ("\\.go\\'" . go-ts-mode)
+  :mode ("go\\.mod\\'" . go-mod-ts-mode)
   :hook
-  ((go-ts-mode-hook . (lambda ()
-                        (add-hook 'before-save-hook #'eglot-format)
-                        (setq indent-tabs-mode t)  ; Use tabs, go likes tabs, go figure
-                        (setq tab-width 4)         ; Tabs *display* as 4 spaces
-                        (setq-local go-ts-mode-indent-offset tab-width))))
+  ((go-ts-mode-hook . emacs-solo/go-common-setup)
+   (go-mod-ts-mode-hook . emacs-solo/go-common-setup))
   :defer t)
+
+(defun emacs-solo/go-common-setup ()
+  "Common settings for Go tree-sitter modes."
+  (add-hook 'before-save-hook #'eglot-format nil t) ; buffer-local
+  (setq indent-tabs-mode t)                         ; Go likes tabs
+  (setq tab-width 4)                                ; Tabs *display* as 4 spaces
+  (when (derived-mode-p 'go-ts-mode)
+    (setq-local go-ts-mode-indent-offset tab-width)))
+
 
 ;;; ┌──────────────────── EMACS-SOLO CUSTOMS
 ;;; │ EMACS-SOLO-HOOKS
