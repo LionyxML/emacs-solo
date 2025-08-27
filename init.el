@@ -1826,10 +1826,10 @@ The completion candidates include the Git status of each file."
 (use-package smerge-mode
   :ensure nil
   :bind (:map smerge-mode-map
-              ("C-c ^ u" . smerge-keep-upper)
-              ("C-c ^ l" . smerge-keep-lower)
-              ("C-c ^ n" . smerge-next)
-              ("C-c ^ p" . smerge-previous)))
+              ("C-c C-s C-u" . smerge-keep-upper)
+              ("C-c C-s C-l" . smerge-keep-lower)
+              ("C-c C-s C-n" . smerge-next)
+              ("C-c C-s C-p" . smerge-prev)))
 
 ;;; │ DIFF
 (use-package diff-mode
