@@ -149,8 +149,8 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   :custom
   (ad-redefinition-action 'accept)
   (auto-save-default t)
-  (column-number-mode nil)
-  (line-number-mode nil)
+  (column-number-mode t)
+  (line-number-mode t)
   (line-spacing nil)
   (completion-ignore-case t)
   (completions-detailed t)
