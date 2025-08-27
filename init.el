@@ -4390,7 +4390,7 @@ the *gemini* buffer."
     "Return an icon for BUF: file-extension emoji if visiting a file,
 otherwise mode-based emoji."
     (with-current-buffer buf
-      (if-let ((file (buffer-file-name)))
+      (if-let* ((file (buffer-file-name)))
           ;; File-based icons
           (let* ((ext (file-name-extension file))
                  (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
