@@ -1758,9 +1758,11 @@ Otherwise, open the repository's main page."
             (goto-char (point-min)))))))
 
 
-  (defun emacs-solo/vc-switch-to-git-modified-buffer ()
-    "Parse git status from an expanded path and switch to a file."
+  (defun emacs-solo/git-status-find-file ()
+    "Parse git status from an expanded path and switch to a file.
+The completion candidates include the Git status of each file."
     (interactive)
+    (require 'vc-git)
     (let ((repo-root (vc-git-root default-directory)))
       (if (not repo-root)
           (message "Not inside a Git repository.")
@@ -1774,21 +1776,25 @@ Otherwise, open the repository's main page."
                     (when (> (length line) 3)
                       (let ((status (substring line 0 2))
                             (path-info (substring line 3)))
-                        ;; Check for Rename FIRST, because its path format is special.
+                        ;; Handle rename specially
                         (if (string-match "^R" status)
                             (let* ((paths (split-string path-info " -> " t))
                                    (new-path (cadr paths)))
                               (when new-path
-                                (push new-path files)))
-                          ;; If not a rename, then check for modification.
-                          (when (string-match "M" status)
-                            (push path-info files)))))))))
+                                (push (cons (format "R %s" new-path) new-path) files)))
+                          ;; Modified or untracked
+                          (when (or (string-match "M" status)
+                                    (string-match "\\?\\?" status))
+                            (push (cons (format "%s %s" status path-info) path-info) files)))))))))
           (if (not target-files)
               (message "No modified or renamed files found.")
-            (let* ((candidates (delete-dups (copy-sequence target-files)))
-                   (selection (completing-read "Switch to buffer (Git modified): " candidates nil t)))
-              (when (and selection (not (string-empty-p selection)))
-                (find-file (expand-file-name selection expanded-root)))))))))
+            (let* ((candidates target-files)
+                   (selection (completing-read "Switch to buffer (Git modified): "
+                                               (mapcar #'car candidates) nil t)))
+              (when selection
+                (let ((file-path (cdr (assoc selection candidates))))
+                  (when file-path
+                    (find-file (expand-file-name file-path expanded-root)))))))))))
 
 
   ;; For *vc-dir* buffer:
@@ -1813,7 +1819,7 @@ Otherwise, open the repository's main page."
   (define-key vc-prefix-map (kbd "=") #'emacs-solo/vc-diff-on-current-hunk)
 
   ;; Switch-buffer between modified files
-  (global-set-key (kbd "C-x M-b") 'emacs-solo/vc-switch-to-git-modified-buffer))
+  (global-set-key (kbd "C-x C-g") 'emacs-solo/git-status-find-file))
 
 
 ;;; │ SMERGE
