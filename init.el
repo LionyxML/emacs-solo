@@ -407,6 +407,7 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   (tooltip-mode nil)
 
   (select-frame-set-input-focus (selected-frame))
+  (blink-cursor-mode 0)
   (global-auto-revert-mode 1)
   (recentf-mode 1)
   (repeat-mode 1)
