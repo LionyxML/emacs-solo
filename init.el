@@ -5080,6 +5080,11 @@ If a stream is already playing, kill it before starting a new one."
           (when (memq origin-major-mode supported-markdown-modes)
             (markdown-ts-mode)
             (font-lock-ensure)))
+
+        (when (memq origin-major-mode '(go-ts-mode))
+            (go-ts-mode)
+            (font-lock-ensure))
+
         (visual-line-mode 1)
         (display-line-numbers-mode -1))
 
