@@ -1759,7 +1759,7 @@ Otherwise, open the repository's main page."
             (goto-char (point-min)))))))
 
 
-  (defun emacs-solo/git-status-find-file ()
+  (defun emacs-solo/switch-git-status-buffer ()
     "Parse git status from an expanded path and switch to a file.
 The completion candidates include the Git status of each file."
     (interactive)
@@ -1820,7 +1820,7 @@ The completion candidates include the Git status of each file."
   (define-key vc-prefix-map (kbd "=") #'emacs-solo/vc-diff-on-current-hunk)
 
   ;; Switch-buffer between modified files
-  (global-set-key (kbd "C-x C-g") 'emacs-solo/git-status-find-file))
+  (global-set-key (kbd "C-x C-g") 'emacs-solo/switch-git-status-buffer))
 
 
 ;;; │ SMERGE
