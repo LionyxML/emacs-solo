@@ -163,7 +163,8 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
   (global-auto-revert-non-file-buffers t)
-  (global-goto-address-mode t)
+  (global-goto-address-mode t)                            ;     C-c RET on URLs open in default browser
+  (browse-url-secondary-browser-function 'eww-browse-url) ; C-u C-c RET on URLs open in ERC
   (help-window-select t)
   (history-length 300)
   (inhibit-startup-message t)
