@@ -666,7 +666,10 @@ Uses position instead of index field."
   :init
   (with-eval-after-load 'erc
     (add-to-list 'erc-modules 'sasl)
-    (add-to-list 'erc-modules 'scrolltobottom))
+
+    ;; EMACS-31 (no more dependency between scrolltobottom and erc-fill-wrap THX!!!)
+    (when (< emacs-major-version 31)
+      (add-to-list 'erc-modules 'scrolltobottom)))
 
   (setopt erc-sasl-mechanism 'external)
 
