@@ -1952,6 +1952,7 @@ and restart Flymake to apply the changes."
   :ensure nil
   :defer t
   :custom
+  (gnus-mode-line-logo nil)
   (gnus-init-file (concat user-emacs-directory ".gnus.el"))
   (gnus-startup-file (concat user-emacs-directory ".newsrc"))
   (gnus-init-file (concat user-emacs-directory ".newsrc.eld"))
@@ -1985,7 +1986,9 @@ and restart Flymake to apply the changes."
   (gnus-select-method '(nnnil nil))
   (gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
   (gnus-secondary-select-methods
-   '((nntp "news.gwene.org"))))
+   '((nntp "news.gwene.org")))
+  :init
+  (run-at-time 1 nil (lambda () (setq gnus-logo-colors '("#676E95")))))
 
 
 ;;; │ MAN
