@@ -123,6 +123,11 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-preferred-font t
+  "Enable `emacs-solo-enable-preferred-font'."
+  :type 'boolean
+  :group 'emacs-solo)
+
 ;;; ┌──────────────────── GENERAL EMACS CONFIG
 ;;; │ EMACS
 (use-package emacs
@@ -242,28 +247,31 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   ;; won't ask for encoding (because undecided-unix) every single keystroke
   (modify-coding-system-alist 'file "" 'utf-8)
 
-  (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 105)
+  ;; Setup preferred fonts when present on System
+  (defun emacs-solo/setup-font ()
+    "Set default font, preferring JetBrainsMono Nerd Font if available.
+If not installed, keep system default family and only adjust size."
+    (let* ((jetbrains "JetBrainsMono Nerd Font")
+           (have-jetbrains (find-font (font-spec :family jetbrains)))
+           (size (if (eq system-type 'darwin) 130 105)))
+      (set-face-attribute 'default nil
+                          :family (when (and have-jetbrains emacs-solo-enable-preferred-font) jetbrains)
+                          :height size)
 
+      ;; macOS specific fine-tuning
+      (when (and (eq system-type 'darwin) have-jetbrains emacs-solo-enable-preferred-font)
+        ;; Glyphs for powerline/icons
+        (set-fontset-font t '(#xe0b0 . #xe0bF) (font-spec :family jetbrains))
+        ;; Emojis
+        (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'append)
+        (add-to-list 'face-font-rescale-alist '("Apple Color Emoji" . 0.8)))))
+
+  (emacs-solo/setup-font)
+
+  ;; MacOS specific customizations
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
-    (setq mac-command-modifier 'meta)
-
-    ;; Default font
-    (set-face-attribute 'default nil
-                        :family "JetBrainsMono Nerd Font"
-                        :height 130)
-
-    ;; JetBrainsMono Nerd Font glyphs (icons/powerline symbols)
-    (set-fontset-font t '(#xe0b0 . #xe0bF)
-                      (font-spec :family "JetBrainsMono Nerd Font"))
-
-    ;; Assign Apple Color Emoji for the general emoji range
-    ;; Covers most pictographs, symbols, flags, etc.
-    (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'append)
-
-    ;; Rescale emoji font so it matches JetBrainsMono line height
-    (add-to-list 'face-font-rescale-alist '("Apple Color Emoji" . 0.8)))
-
+    (setq mac-command-modifier 'meta))
 
   ;; Save manual customizations to other file than init.el
   (setq custom-file (locate-user-emacs-file "custom-vars.el"))
