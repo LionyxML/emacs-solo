@@ -1763,7 +1763,7 @@ Otherwise, open the repository's main page."
 
 
   (defun emacs-solo/switch-git-status-buffer ()
-    "Parse git status from an expanded path and switch to a file.
+    "Switch to a buffer visiting a modified or renamed file in the current Git repo.
 The completion candidates include the Git status of each file."
     (interactive)
     (require 'vc-git)
@@ -1771,26 +1771,25 @@ The completion candidates include the Git status of each file."
       (if (not repo-root)
           (message "Not inside a Git repository.")
         (let* ((expanded-root (expand-file-name repo-root))
-               (command-to-run (format "git -C %s status --porcelain=v1"
-                                       (shell-quote-argument expanded-root)))
-               (cmd-output (shell-command-to-string command-to-run))
+               (cmd-output (vc-git--run-command-string nil "status" "--porcelain=v1"))
                (target-files
                 (let (files)
                   (dolist (line (split-string cmd-output "\n" t) (nreverse files))
-                    (when (> (length line) 3)
+                    (when (>= (length line) 3)
                       (let ((status (substring line 0 2))
                             (path-info (substring line 3)))
-                        ;; Handle rename specially
-                        (if (string-match "^R" status)
-                            (let* ((paths (split-string path-info " -> " t))
-                                   (new-path (cadr paths)))
-                              (when new-path
-                                (push (cons (format "R %s" new-path) new-path) files)))
-                          ;; Modified or untracked
-                          (when (or (string-match "M" status)
-                                    (string-match "\\?\\?" status))
-                            (push (cons (format "%s %s" status path-info) path-info) files)))))))))
-          (if (not target-files)
+                        (cond
+                         ;; Renamed files
+                         ((string-prefix-p "R" status)
+                          (let* ((paths (split-string path-info " -> " t))
+                                 (new-path (cadr paths)))
+                            (when new-path
+                              (push (cons (format "R %s" new-path) new-path) files))))
+                         ;; Modified or untracked
+                         ((or (string-match "M" status)
+                              (string-match "\\?\\?" status))
+                          (push (cons (format "%s %s" status path-info) path-info) files)))))))))
+          (if (null target-files)
               (message "No modified or renamed files found.")
             (let* ((candidates target-files)
                    (selection (completing-read "Switch to buffer (Git modified): "
