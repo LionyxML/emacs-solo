@@ -671,6 +671,25 @@ Uses position instead of index field."
   (erc-server-reconnect-attempts 10)
   (erc-server-reconnect-timeout 3)
   (erc-fill-function 'erc-fill-wrap)
+  :config
+  (defun emacs-solo/erc-get-color-for-nick (nick)
+    "Return a Catppuccin Mocha Like color string for NICK based on its hash."
+    (let* ((colors '("#f38ba8" "#a6e3a1" "#f9e2af" "#89b4fa"
+                     "#cba6f7" "#fab387" "#b4befe" "#eba0ac"
+                     "#f5c2e7"))
+           (hash (mod (abs (sxhash nick)) (length colors))))
+      (nth hash colors)))
+
+  (defun emacs-solo/erc-colorize-nick ()
+    "Colorize nicknames in ERC buffer."
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "\\(<\\)\\([^ >]+\\)\\(>\\)" nil t)
+        (let* ((nick (match-string 2))
+               (color (emacs-solo/erc-get-color-for-nick nick)))
+          (put-text-property (match-beginning 2) (match-end 2)
+                             'face `(:foreground ,color :weight bold))))))
+  (add-hook 'erc-insert-modify-hook #'emacs-solo/erc-colorize-nick)
   :init
   (with-eval-after-load 'erc
     (add-to-list 'erc-modules 'sasl)
@@ -682,17 +701,17 @@ Uses position instead of index field."
   (setopt erc-sasl-mechanism 'external)
 
   (defun erc-liberachat ()
-  (interactive)
-  (let ((buf (erc-tls :server "irc.libera.chat"
-                      :port 6697
-                      :user "Lionyx"
-                      :password ""
-                      :client-certificate
-                      (list
-                       (expand-file-name "cert.pem" user-emacs-directory)
-                       (expand-file-name "cert.pem" user-emacs-directory)))))
-    (when (bufferp buf)
-      (pop-to-buffer buf)))))
+    (interactive)
+    (let ((buf (erc-tls :server "irc.libera.chat"
+                        :port 6697
+                        :user "Lionyx"
+                        :password ""
+                        :client-certificate
+                        (list
+                         (expand-file-name "cert.pem" user-emacs-directory)
+                         (expand-file-name "cert.pem" user-emacs-directory)))))
+      (when (bufferp buf)
+        (pop-to-buffer buf)))))
 
 
 ;;; │ ICOMPLETE
