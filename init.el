@@ -5517,7 +5517,7 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
     (setq tabulated-list-padding 2)
     (tabulated-list-init-header))
 
-  (defun emacs-solo-khard-list ()
+  (defun emacs-solo/khard-list ()
     "Run khard and display contacts in a tabulated buffer."
     (interactive)
     (let* ((output (shell-command-to-string "khard"))
@@ -5528,7 +5528,7 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
         (tabulated-list-print t)
         (switch-to-buffer (current-buffer)))))
 
-  (defun emacs-solo-khard-search ()
+  (defun emacs-solo/khard-search ()
     "Search khard contacts and return `Name <email>`."
     (interactive)
     (let* ((output (shell-command-to-string "khard"))

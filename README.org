@@ -158,6 +158,14 @@ It is recommended you have this programs in your system:
 
   Only needed if you'd like to use =emacs-solo/ollama-run-model=.
 
+- =gemmini-cli=
+
+  Only needed if you'd like to use =emacs-solo/gemini-run-model=.
+
+- =khard=
+
+  Only needed if you'd like to use =emacs-solo/khard-...= funcitons.
+
 
 In order to proper copy/paste from terminals (TUI), you need:
 
