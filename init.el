@@ -217,6 +217,7 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   (tab-width 4)
   (treesit-font-lock-level 4)
   (treesit-auto-install-grammar t) ; EMACS-31
+  (treesit-enabled-modes t)        ; EMACS-31
   (truncate-lines t)
   (undo-limit (* 13 160000))
   (undo-strong-limit (* 13 240000))
