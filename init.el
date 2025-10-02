@@ -5122,7 +5122,9 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
             (string-trim (shell-command-to-string "powershell.exe -command Get-Clipboard")))))
 
    ;; Linux with wl-copy/wl-paste (Wayland)
-   ((and (eq system-type 'gnu/linux) (executable-find "wl-copy"))
+   ((and (eq system-type 'gnu/linux)
+         (getenv "WAYLAND_DISPLAY")
+         (executable-find "wl-copy"))
     (setq interprogram-cut-function
           (lambda (text &optional _)
             (let ((process-connection-type nil))
@@ -5134,7 +5136,9 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
             (shell-command-to-string "wl-paste -n"))))
 
    ;; Linux with xclip (X11)
-   ((and (eq system-type 'gnu/linux) (executable-find "xclip"))
+   ((and (eq system-type 'gnu/linux)
+         (getenv "DISPLAY")
+         (executable-find "xclip"))
     (setq interprogram-cut-function
           (lambda (text &optional _)
             (let ((process-connection-type nil))
