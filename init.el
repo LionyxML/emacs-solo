@@ -2274,9 +2274,9 @@ are defining or executing a macro."
         (message "No *Newsticker Item* buffer found."))))
 
 
-  (defun emacs-solo/newsticker-play-yt-video-from-buffer ()
+  (defun emacs-solo/newsticker-play-yt-video-from-buffer (&optional no-video)
     "Focus the window showing '*Newsticker Item*' and play the video."
-    (interactive)
+    (interactive "P")
     (let ((window (get-buffer-window "*Newsticker Item*" t)))
       (if window
           (progn
@@ -2285,7 +2285,7 @@ are defining or executing a macro."
               (goto-char (point-min))
               (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
                 (let ((video-id (match-string 1)))
-                  (start-process "mpv-video" nil "mpv" (format "https://www.youtube.com/watch?v=%s" video-id))
+                  (start-process "mpv-video" nil "mpv" (if no-video "--no-video" "") (format "https://www.youtube.com/watch?v=%s" video-id))
                   (message "Playing with mpv: %s" video-id)))))
 
         (message "No window showing *Newsticker Item* buffer."))))
