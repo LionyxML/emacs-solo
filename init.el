@@ -2139,6 +2139,30 @@ are defining or executing a macro."
 
 
 ;;; │ NEWSTICKER
+
+;; NOTE: I dislike the default icons, so I override them with this:
+;;
+;; 1. Globally disable images for all tree-widgets.
+;; This forces the widget to use the text-based :tag for icons.
+(setq tree-widget-image-enable nil)
+
+;; 2. Redefine the widgets to use your desired text tags.
+;; This code will run after the respective files are loaded,
+;; replacing the default definitions.
+(eval-after-load 'tree-widget
+  '(progn
+     (define-widget 'tree-widget-open-icon 'tree-widget-icon
+       "Icon for an expanded tree-widget node (customized)."
+       :tag "▾ ")
+     (define-widget 'tree-widget-close-icon 'tree-widget-icon
+       "Icon for a collapsed tree-widget node (customized)."
+       :tag "▸ ")))
+
+(eval-after-load 'newst-treeview
+  '(define-widget 'newsticker--tree-widget-leaf-icon 'tree-widget-icon
+     "Icon for a newsticker leaf node (customized)."
+     :tag (if (display-graphic-p) " " "> ")))
+
 (use-package newsticker
   :ensure nil
   :defer t
