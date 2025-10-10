@@ -65,12 +65,12 @@
 
 (defcustom emacs-solo-enabled-icons
   '(dired eshell ibuffer)
-  "List of Emacs Solo icon features that are enabled.
-Possible values include `dired', `eshell', `ibuffer', etc."
+  "List of Emacs Solo icon features that are enabled."
   :type '(set :tag "Enabled Emacs Solo icon features"
               (const :tag "Dired Icons" dired)
               (const :tag "Eshell Icons" eshell)
-              (const :tag "Ibuffer Icons" ibuffer))
+              (const :tag "Ibuffer Icons" ibuffer)
+              (const :tag "Nerd Font Icons" nerd))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-dired-gutter t
@@ -1400,7 +1400,11 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
       (eshell-reset)))
 
   (defun enabled-icons-p ()
-    (memq 'eshell emacs-solo-enabled-icons))
+    "Return 'emoji, 'nerd or nil depending on what is in `emacs-solo-enabled-icons`."
+    (cond
+     ((memq 'nerd emacs-solo-enabled-icons) 'nerd)
+     ((memq 'eshell emacs-solo-enabled-icons) 'emoji)
+     (t nil)))
 
   (unless (eq emacs-solo-use-custom-theme 'catppuccin)
     (defvar eshell-solo/color-bg-dark "#212234")
@@ -1418,8 +1422,8 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (defvar eshell-solo/color-fg-dir  "#a6e3a1")
     (defvar eshell-solo/color-fg-git  "#f9e2af"))
 
-
-  (unless (enabled-icons-p)
+  ;; No icons
+  (when (not (enabled-icons-p))
     (defvar emacs-solo/eshell-icons
       '((arrow-left        . "")
         (arrow-right       . "")
@@ -1438,9 +1442,11 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
         (git-merge         . "M")
         (git-ahead         . "A")
         (git-behind        . "B"))
-      "Alist of all icons used in the Eshell prompt."))
+      "Alist of all icons used in the Eshell prompt (no icons)."))
 
-  (when (enabled-icons-p)
+
+  ;; Emoji icons
+  (when (eq (enabled-icons-p) 'emoji)
     (defvar emacs-solo/eshell-icons
       '((arrow-left        . "")
         (arrow-right       . "")
@@ -1459,7 +1465,30 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
         (git-merge         . "🔀")
         (git-ahead         . "⬆️")
         (git-behind        . "⬇️"))
-      "Alist of all icons used in the Eshell prompt."))
+      "Alist of all icons used in the Eshell prompt (emoji)."))
+
+
+  ;; Nerd Font icons
+  (when (eq (enabled-icons-p) 'nerd)
+    (defvar emacs-solo/eshell-icons
+      '((arrow-left        . "")
+        (arrow-right       . "")
+        (success           . "")
+        (failure           . "")
+        (user-local        . "")
+        (user-remote       . "")
+        (host-local        . "")
+        (host-remote       . "")
+        (time              . "")
+        (folder            . "")
+        (branch            . "")
+        (modified          . "")
+        (untracked         . "")
+        (conflict          . "")
+        (git-merge         . "")
+        (git-ahead         . "")
+        (git-behind        . ""))
+      "Alist of all icons used in the Eshell prompt (nerd font)."))
 
   (setopt eshell-prompt-function
           (lambda ()
@@ -1513,7 +1542,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                  (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons)
                              'face `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
 
-                 (propertize (concat " " (assoc-default 'time emacs-solo/eshell-icons)  " "
+                 (propertize (concat " " (assoc-default 'folder emacs-solo/eshell-icons)  " "
                                      (if (>= (length (eshell/pwd)) 40)
                                          (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
                                        (abbreviate-file-name (eshell/pwd))) " ")
@@ -1999,7 +2028,7 @@ and restart Flymake to apply the changes."
      gnus-thread-sort-by-subject
      (not gnus-thread-sort-by-total-score)
      gnus-thread-sort-by-most-recent-date))
-  (gnus-summary-line-format "%U %R %z : %[%d%] %4{🫂 %-34,34n%} %3{📧  %}%(%1{%B%}%s%)\12")
+  (gnus-summary-line-format "%U %R %z : %[%d%] %4{ %-34,34n%} %3{ %}%(%1{%B%}%s%)\12")
   (gnus-user-date-format-alist '((t . "%d-%m-%Y %H:%M")))
   (gnus-summary-thread-gathering-function 'gnus-gather-threads-by-references)
   (gnus-sum--tree-indent " ")
@@ -4309,35 +4338,76 @@ the *gemini* buffer."
   :no-require t
   :defer t
   :init
-  (defvar emacs-solo/file-icons
-    '(("el" . "📜")       ("rb" . "💎")       ("js" . "⚙️")      ("ts" . "⚙️")
-      ("json" . "🗂️")     ("md" . "📝")       ("txt" . "📝")     ("html" . "🌐")
-      ("css" . "🎨")      ("scss" . "🎨")     ("png" . "🖼️")     ("jpg" . "🖼️")
-      ("jpeg" . "🖼️")     ("gif" . "🖼️")      ("svg" . "🖼️")     ("pdf" . "📄")
-      ("zip" . "📦")      ("tar" . "📦")      ("gz" . "📦")      ("bz2" . "📦")
-      ("7z" . "📦")       ("org" . "🦄")      ("sh" . "💻")      ("c" . "🅲")
-      ("h" . "📘")        ("cpp" . "🅲")      ("hpp" . "📘")     ("py" . "🐍")
-      ("java" . "☕")    ("go" . "🌍")       ("rs" . "💨")      ("php" . "🐘")
-      ("pl" . "🐍")       ("lua" . "🎮")      ("ps1" . "🔧")     ("exe" . "⚡")
-      ("dll" . "🔌")      ("bat" . "⚡")     ("yaml" . "⚙️")    ("toml" . "⚙️")
-      ("ini" . "⚙️")      ("csv" . "📊")      ("xls" . "📊")     ("xlsx" . "📊")
-      ("sql" . "🗄️")      ("log" . "📝")      ("apk" . "📱")     ("dmg" . "💻")
-      ("iso" . "💿")      ("torrent" . "🧲")  ("bak" . "🗃️")     ("tmp" . "⚠️")
-      ("desktop" . "🖥️")  ("md5" . "🔐")      ("sha256" . "🔐")  ("pem" . "🔐")
-      ("sqlite" . "🗄️")   ("db" . "🗄️")       ("gpg" . "🔐")
-      ("mp3" . "🎶")      ("wav" . "🎶")      ("flac" . "🎶" )
-      ("ogg" . "🎶")      ("m4a" . "🎶")      ("mp4" . "🎬")     ("avi" . "🎬")
-      ("mov" . "🎬")      ("mkv" . "🎬")      ("webm" . "🎬")    ("flv" . "🎬")
-      ("ico" . "🖼️")      ("ttf" . "🔠")      ("otf" . "🔠")     ("eot" . "🔠")
-      ("woff" . "🔠")     ("woff2" . "🔠")    ("epub" . "📚")    ("mobi" . "📚")
-      ("azw3" . "📚")     ("fb2" . "📚")      ("chm" . "📚")     ("tex" . "📚")
-      ("bib" . "📚")      ("apk" . "📱")      ("rar" . "📦")     ("xz" . "📦")
-      ("zst" . "📦")      ("tar.xz" . "📦")   ("tar.zst" . "📦") ("tar.gz" . "📦")
-      ("tgz" . "📦")      ("bz2" . "📦")      ("mpg" . "🎬")     ("webp" . "🖼️")
-      ("flv" . "🎬")      ("3gp" . "🎬")      ("ogv" . "🎬")     ("srt" . "🔠")
-      ("vtt" . "🔠")      ("cue" . "📀")      ("terminal" . "💻") ("info" . "ℹ️")
-      ("direddir" . "📁") ("diredfile" . "📄") ("wranch" . "🔧"))
-    "Icons for specific file extensions in Dired and Eshell."))
+  (let ((emoji-icons
+         '(("el" . "📜")       ("rb" . "💎")       ("js" . "⚙️")      ("ts" . "⚙️")
+           ("json" . "🗂️")     ("md" . "📝")       ("txt" . "📝")     ("html" . "🌐")
+           ("css" . "🎨")      ("scss" . "🎨")     ("png" . "🖼️")     ("jpg" . "🖼️")
+           ("jpeg" . "🖼️")     ("gif" . "🖼️")      ("svg" . "🖼️")     ("pdf" . "📄")
+           ("zip" . "📦")      ("tar" . "📦")      ("gz" . "📦")      ("bz2" . "📦")
+           ("7z" . "📦")       ("org" . "🦄")      ("sh" . "💻")      ("c" . "🅲")
+           ("h" . "📘")        ("cpp" . "🅲")      ("hpp" . "📘")     ("py" . "🐍")
+           ("java" . "☕")    ("go" . "🌍")       ("rs" . "💨")      ("php" . "🐘")
+           ("pl" . "🐍")       ("lua" . "🎮")      ("ps1" . "🔧")     ("exe" . "⚡")
+           ("dll" . "🔌")      ("bat" . "⚡")     ("yaml" . "⚙️")    ("toml" . "⚙️")
+           ("ini" . "⚙️")      ("csv" . "📊")      ("xls" . "📊")     ("xlsx" . "📊")
+           ("sql" . "🗄️")      ("log" . "📝")      ("apk" . "📱")     ("dmg" . "💻")
+           ("iso" . "💿")      ("torrent" . "🧲")  ("bak" . "🗃️")     ("tmp" . "⚠️")
+           ("desktop" . "🖥️")  ("md5" . "🔐")      ("sha256" . "🔐")  ("pem" . "🔐")
+           ("sqlite" . "🗄️")   ("db" . "🗄️")       ("gpg" . "🔐")
+           ("mp3" . "🎶")      ("wav" . "🎶")      ("flac" . "🎶" )
+           ("ogg" . "🎶")      ("m4a" . "🎶")      ("mp4" . "🎬")     ("avi" . "🎬")
+           ("mov" . "🎬")      ("mkv" . "🎬")      ("webm" . "🎬")    ("flv" . "🎬")
+           ("ico" . "🖼️")      ("ttf" . "🔠")      ("otf" . "🔠")     ("eot" . "🔠")
+           ("woff" . "🔠")     ("woff2" . "🔠")    ("epub" . "📚")    ("mobi" . "📚")
+           ("azw3" . "📚")     ("fb2" . "📚")      ("chm" . "📚")     ("tex" . "📚")
+           ("bib" . "📚")      ("apk" . "📱")      ("rar" . "📦")     ("xz" . "📦")
+           ("zst" . "📦")      ("tar.xz" . "📦")   ("tar.zst" . "📦") ("tar.gz" . "📦")
+           ("tgz" . "📦")      ("bz2" . "📦")      ("mpg" . "🎬")     ("webp" . "🖼️")
+           ("flv" . "🎬")      ("3gp" . "🎬")      ("ogv" . "🎬")     ("srt" . "🔠")
+           ("vtt" . "🔠")      ("cue" . "📀")      ("terminal" . "💻") ("info" . "ℹ️")
+           ("direddir" . "📁") ("diredfile" . "📄") ("wranch" . "🔧")))
+        (nerd-icons
+         '(("el" . "")       ("rb" . "")       ("js" . "")      ("ts" . "")
+           ("json" . "")     ("md" . "")       ("txt" . "")     ("html" . "")
+           ("css" . "")      ("scss" . "")     ("png" . "")     ("jpg" . "")
+           ("jpeg" . "")     ("gif" . "")      ("svg" . "")     ("pdf" . "")
+           ("zip" . "")      ("tar" . "")      ("gz" . "")      ("bz2" . "")
+           ("7z" . "")       ("org" . "")      ("sh" . "")      ("c" . "")
+           ("h" . "")        ("cpp" . "")      ("hpp" . "")     ("py" . "")
+           ("java" . "")    ("go" . "")       ("rs" . "")      ("php" . "")
+           ("pl" . "")       ("lua" . "")      ("ps1" . "")     ("exe" . "")
+           ("dll" . "")      ("bat" . "")     ("yaml" . "")    ("toml" . "")
+           ("ini" . "")      ("csv" . "")      ("xls" . "")     ("xlsx" . "")
+           ("sql" . "")      ("log" . "")      ("apk" . "")     ("dmg" . "")
+           ("iso" . "")      ("torrent" . "")  ("bak" . "")     ("tmp" . "")
+           ("desktop" . "")  ("md5" . "")      ("sha256" . "")  ("pem" . "")
+           ("sqlite" . "")   ("db" . "")       ("gpg" . "")
+           ("mp3" . "")      ("wav" . "")      ("flac" . "" )
+           ("ogg" . "")      ("m4a" . "")      ("mp4" . "")     ("avi" . "")
+           ("mov" . "")      ("mkv" . "")      ("webm" . "")    ("flv" . "")
+           ("ico" . "")      ("ttf" . "")      ("otf" . "")     ("eot" . "")
+           ("woff" . "")     ("woff2" . "")    ("epub" . "")    ("mobi" . "")
+           ("azw3" . "")     ("fb2" . "")      ("chm" . "")     ("tex" . "")
+           ("bib" . "")      ("rar" . "")     ("xz" . "")
+           ("zst" . "")      ("tar.xz" . "")   ("tar.zst" . "") ("tar.gz" . "")
+           ("tgz" . "")      ("bz2" . "")      ("mpg" . "")     ("webp" . "")
+           ("flv" . "")      ("3gp" . "")      ("ogv" . "")     ("srt" . "")
+           ("vtt" . "")      ("cue" . "")      ("terminal" . "") ("info" . "ℹ")
+           ("direddir" . "") ("diredfile" . "") ("wranch" . ""))))
+
+    (defvar emacs-solo/file-icons
+      (cond
+       ;; If nerd icons are enabled, use them.
+       ((memq 'nerd emacs-solo-enabled-icons)
+        nerd-icons)
+       ;; If on kitty terminal AND not using nerd icons, use blank icons
+       ;; to prevent emoji rendering issues.
+       ((string= (getenv "TERM") "xterm-kitty")
+        (mapcar (lambda (p) (cons (car p) "")) emoji-icons))
+       ;; Otherwise, use the default emoji icons.
+       (t
+        emoji-icons))
+      "Icons for specific file extensions in Dired and Eshell.")))
 
 
 ;;; │ EMACS-SOLO-DIRED-ICONS
