@@ -298,7 +298,7 @@ If not installed, keep system default family and only adjust size."
 
   (with-eval-after-load 'tramp
     (with-eval-after-load 'compile
-    (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
+      (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
 
   ;; Set line-number-mode with relative numbering
@@ -596,7 +596,7 @@ If not installed, keep system default family and only adjust size."
   :init
   ;;; --- OPTIONAL INTERNAL FN OVERRIDES TO DECORATE NAMES
   (defun tab-bar-tab-name-format-hints (name _tab i)
-      (if tab-bar-tab-hints (concat (format "»%d«" i) "") name))
+    (if tab-bar-tab-hints (concat (format "»%d«" i) "") name))
 
   (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
     (propertize
@@ -614,22 +614,22 @@ If not installed, keep system default family and only adjust size."
       (tab-group (format "[%s]" name))))
 
   (defun emacs-solo/tab-switch-to-group ()
-  "Prompt for a tab group and switch to its first tab.
+    "Prompt for a tab group and switch to its first tab.
 Uses position instead of index field."
-  (interactive)
-  (let* ((tabs (funcall tab-bar-tabs-function)))
-    (let* ((groups (delete-dups (mapcar (lambda (tab)
-                                          (funcall tab-bar-tab-group-function tab))
-                                        tabs)))
-           (group (completing-read "Switch to group: " groups nil t)))
-      (let ((i 1) (found nil))
-        (dolist (tab tabs)
-          (let ((tab-group (funcall tab-bar-tab-group-function tab)))
-            (when (and (not found)
-                       (string= tab-group group))
-              (setq found t)
-              (tab-bar-select-tab i)))
-          (setq i (1+ i)))))))
+    (interactive)
+    (let* ((tabs (funcall tab-bar-tabs-function)))
+      (let* ((groups (delete-dups (mapcar (lambda (tab)
+                                            (funcall tab-bar-tab-group-function tab))
+                                          tabs)))
+             (group (completing-read "Switch to group: " groups nil t)))
+        (let ((i 1) (found nil))
+          (dolist (tab tabs)
+            (let ((tab-group (funcall tab-bar-tab-group-function tab)))
+              (when (and (not found)
+                         (string= tab-group group))
+                (setq found t)
+                (tab-bar-select-tab i)))
+            (setq i (1+ i)))))))
 
   ;;; --- TURNS ON BY DEFAULT
   (tab-bar-mode 1)
@@ -1678,21 +1678,21 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                                  (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--")))))
 
 
-    (defun emacs-solo/vc-git-visualize-status ()
-      "Show the Git status of files in the `vc-log` buffer."
-      (interactive)
-      (let* ((fileset (vc-deduce-fileset t))
-             (backend (car fileset))
-             (files (nth 1 fileset)))
-        (if (eq backend 'Git)
-            (let ((output-buffer "*Git Status*"))
-              (with-current-buffer (get-buffer-create output-buffer)
-                (read-only-mode -1)
-                (erase-buffer)
-                ;; Capture the raw output including colors using 'git status --color=auto'
-                (call-process "git" nil output-buffer nil "status" "-v")
-                (pop-to-buffer output-buffer)))
-          (message "Not in a VC Git buffer."))))
+  (defun emacs-solo/vc-git-visualize-status ()
+    "Show the Git status of files in the `vc-log` buffer."
+    (interactive)
+    (let* ((fileset (vc-deduce-fileset t))
+           (backend (car fileset))
+           (files (nth 1 fileset)))
+      (if (eq backend 'Git)
+          (let ((output-buffer "*Git Status*"))
+            (with-current-buffer (get-buffer-create output-buffer)
+              (read-only-mode -1)
+              (erase-buffer)
+              ;; Capture the raw output including colors using 'git status --color=auto'
+              (call-process "git" nil output-buffer nil "status" "-v")
+              (pop-to-buffer output-buffer)))
+        (message "Not in a VC Git buffer."))))
 
 
   (defun emacs-solo/vc-git-reflog ()
@@ -2688,9 +2688,9 @@ are defining or executing a macro."
      `(tab-bar-tab ((,c :background "#1e1e2e" :underline t)))
      `(tab-bar-tab-group-current ((,c :background "#1e1e2e" :foreground "#bac2de" :underline t)))
      `(tab-bar-tab-group-inactive ((,c :background "#1e1e2e" :foreground "#9399b2"))))
-     `(tab-bar-tab-inactive ((,c :background "#1e1e2e" :foreground "#a6adc8")))
-     `(vc-dir-file ((,c :foreground "#89b4fa")))
-     `(vc-dir-header-value ((,c :foreground "#b4befe"))))
+    `(tab-bar-tab-inactive ((,c :background "#1e1e2e" :foreground "#a6adc8")))
+    `(vc-dir-file ((,c :foreground "#89b4fa")))
+    `(vc-dir-header-value ((,c :foreground "#b4befe"))))
   :init
   (load-theme 'modus-vivendi t))
 
@@ -2724,9 +2724,11 @@ are defining or executing a macro."
      (bg-tab-other    "#292D3E")
      (border-mode-line-active nil)
      (border-mode-line-inactive nil)
+     ;; (border-mode-line-active "#676E95")
+     ;; (border-mode-line-inactive bg-dim)
      (builtin "#82aaff")
      (comment "#676E95")
-     (constant "#f78c6c"))
+     (constant "#f78c6c")
      (docstring "#8d92af")
      (fg-active fg-main)
      (fg-completion white)
@@ -2749,10 +2751,7 @@ are defining or executing a macro."
      (keyword "#89DDFF")
      (string "#c3e88d")
      (type "#c792ea")
-     (variable "#c792ea")
-     ;; (border-mode-line-active "#676E95")
-     ;; (border-mode-line-inactive bg-dim)
-   )
+     (variable "#c792ea")))
   :config
   (modus-themes-with-colors
     (custom-set-faces
@@ -2808,8 +2807,8 @@ are defining or executing a macro."
   :defer t
   :hook
   ((json-ts-mode-hook . (lambda ()
-                        (setq indent-tabs-mode nil)
-                        (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)))))
+                          (setq indent-tabs-mode nil)
+                          (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)))))
 
 
 ;;; │ TYPESCRIPT-TS-MODE
@@ -4135,9 +4134,9 @@ If SECOND is non-nil, separate the results with a newline."
                          (buffer-string))))
            (kill-buffer (process-buffer proc))
            (setq output (replace-regexp-in-string "[\u2800-\u28FF]" "*"
-                        (replace-regexp-in-string "―" "-"
-                        (replace-regexp-in-string "^Follow.*\n" ""
-                        (replace-regexp-in-string "[\x0f]" "" output)))))
+                                                  (replace-regexp-in-string "―" "-"
+                                                                            (replace-regexp-in-string "^Follow.*\n" ""
+                                                                                                      (replace-regexp-in-string "[\x0f]" "" output)))))
            ;; TODO: replace ― with -
            (with-current-buffer buffer
              (read-only-mode -1)
@@ -5202,8 +5201,8 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
             (font-lock-ensure)))
 
         (when (memq origin-major-mode '(go-ts-mode))
-            (go-ts-mode)
-            (font-lock-ensure))
+          (go-ts-mode)
+          (font-lock-ensure))
 
         (visual-line-mode 1)
         (display-line-numbers-mode -1))
