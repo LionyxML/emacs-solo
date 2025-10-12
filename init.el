@@ -2175,8 +2175,10 @@ are defining or executing a macro."
                       newsticker-treeview-list-mode-map
                       newsticker-treeview-item-mode-map))
          (let ((kmap (symbol-value map)))
+           (define-key kmap (kbd "X") (lambda () (interactive) (delete-process "mpv-video")))
            (define-key kmap (kbd "T") #'emacs-solo/show-yt-thumbnail)
            (define-key kmap (kbd "S") #'emacs-solo/fetch-yt-subtitles-to-buffer)
+           (define-key kmap (kbd "A") (lambda () (interactive) (emacs-solo/newsticker-play-yt-video-from-buffer t)))
            (define-key kmap (kbd "V") #'emacs-solo/newsticker-play-yt-video-from-buffer)
            (define-key kmap (kbd "E") #'emacs-solo/newsticker-eww-current-article)))))
   :init
@@ -4190,7 +4192,6 @@ If SECOND is non-nil, separate the results with a newline."
                                                   (replace-regexp-in-string "―" "-"
                                                                             (replace-regexp-in-string "^Follow.*\n" ""
                                                                                                       (replace-regexp-in-string "[\x0f]" "" output)))))
-           ;; TODO: replace ― with -
            (with-current-buffer buffer
              (read-only-mode -1)
              (when second (insert "\n\n"))
