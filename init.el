@@ -159,6 +159,7 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   (line-spacing nil)
   (completion-ignore-case t)
   (completions-detailed t)
+  (doc-view-resolution 200)
   (delete-by-moving-to-trash t)
   (display-line-numbers-width 4)
   (display-line-numbers-widen t)
