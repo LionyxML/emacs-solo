@@ -680,7 +680,15 @@ Uses position instead of index field."
   (erc-server-reconnect-attempts 10)
   (erc-server-reconnect-timeout 3)
   (erc-fill-function 'erc-fill-wrap)
+  (erc-log-channels-directory (expand-file-name "tmp/erc/logs" user-emacs-directory))
+  (erc-log-insert-log-on-open t)
+  (erc-save-buffer-on-part t)
+  (erc-save-queries-on-quit t)
+  (erc-log-write-after-send t)
+  (erc-log-write-after-insert t)
   :config
+  (make-directory (expand-file-name "tmp/erc/logs" user-emacs-directory) t)
+
   (defun emacs-solo/erc-get-color-for-nick (nick)
     "Return a Catppuccin Mocha Like color string for NICK based on its hash."
     (let* ((colors '("#f38ba8" "#a6e3a1" "#f9e2af" "#89b4fa"
@@ -699,9 +707,10 @@ Uses position instead of index field."
           (put-text-property (match-beginning 2) (match-end 2)
                              'face `(:foreground ,color :weight bold))))))
   (add-hook 'erc-insert-modify-hook #'emacs-solo/erc-colorize-nick)
+
+  (add-hook 'erc-mode-hook 'erc-log-mode)
   :init
   (with-eval-after-load 'erc
-    (add-to-list 'erc-modules 'sasl)
 
     ;; EMACS-31 (no more dependency between scrolltobottom and erc-fill-wrap THX!!!)
     (when (< emacs-major-version 31)
@@ -711,6 +720,10 @@ Uses position instead of index field."
 
   (defun erc-liberachat ()
     (interactive)
+
+    (with-eval-after-load 'erc
+      (add-to-list 'erc-modules 'sasl))
+
     (let ((buf (erc-tls :server "irc.libera.chat"
                         :port 6697
                         :user "Lionyx"
