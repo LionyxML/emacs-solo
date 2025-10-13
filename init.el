@@ -128,6 +128,13 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-gemini-scratch-path nil
+  "If non-nil, Gemini commands run from this directory.
+This allows using a specific environment or scratch context."
+  :type '(choice (const :tag "Disabled" nil)
+                 (directory :tag "Gemini Scratch Directory"))
+  :group 'emacs-solo)
+
 ;;; ┌──────────────────── GENERAL EMACS CONFIG
 ;;; │ EMACS
 (use-package emacs
@@ -4283,14 +4290,18 @@ If INTERACTIVE (prefix arg), start `gemini -i` inside `ansi-term`
 and preload the query from a temp file inside the project root.
 
 Otherwise, run non-interactive with `gemini -p` and show output in
-the *gemini* buffer."
+the *gemini* buffer.
+
+If `emacs-solo--gemini-scratch-path` is non-nil, temporarily `cd`
+into that directory before executing the Gemini command."
     (interactive "P")
-    (let* ((region (when (use-region-p)
+    (let* ((default-directory (or emacs-solo-gemini-scratch-path default-directory))
+           (region (when (use-region-p)
                      (buffer-substring-no-properties (region-beginning) (region-end))))
            (prompt (read-string "Gemini Prompt (optional): " nil nil nil))
            (body (string-join (delq nil (list prompt region)) "\n")))
       (if interactive
-          ;; Interactive: temp file inside project root
+          ;; Interactive: temp file inside project root (or scratch dir)
           (let* ((proj-root (or (vc-root-dir) default-directory))
                  (tmpfile (expand-file-name
                            (format ".gemini-query-%s.txt" (format-time-string "%s"))
@@ -4300,7 +4311,9 @@ the *gemini* buffer."
             (ansi-term "/bin/bash")
             (sit-for 0.1)
             ;; must be relative to project root for Gemini to accept it
-            (term-send-raw-string (format "gemini -i @%s\n" relpath))
+            (term-send-raw-string (format "cd %s && gemini -i @%s\n"
+                                          (shell-quote-argument proj-root)
+                                          relpath))
             ;; delete temp file after 10 seconds
             (run-at-time "10 sec" nil
                          (lambda (f)
