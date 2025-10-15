@@ -128,6 +128,17 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-preferred-font-name "JetBrainsMono Nerd Font"
+  "The name of the font to be used.
+Examples: `Maple Mono NF' or `JetBrainsMono Nerd Font'."
+  :type 'string
+  :group 'emacs-solo)
+
+(defcustom emacs-solo-preferred-font-sizes '(130 105)
+  "List of default font sizes (first for macOS, second for GNU/Linux)."
+  :type '(repeat integer)
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-gemini-scratch-path nil
   "If non-nil, Gemini commands run from this directory.
 This allows using a specific environment or scratch context."
@@ -243,6 +254,10 @@ This allows using a specific environment or scratch context."
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".jj" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
+  ;; Save manual customizations to other file than init.el
+  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
+  (load custom-file 'noerror 'nomessage)
+
   ;; Sets outline-mode for the `init.el' file
   (defun emacs-solo/outline-init-file ()
     (when (and (buffer-file-name)
@@ -258,33 +273,30 @@ This allows using a specific environment or scratch context."
 
   ;; Setup preferred fonts when present on System
   (defun emacs-solo/setup-font ()
-    "Set default font, preferring JetBrainsMono Nerd Font if available.
-If not installed, keep system default family and only adjust size."
-    (let* ((jetbrains "JetBrainsMono Nerd Font")
-           (have-jetbrains (find-font (font-spec :family jetbrains)))
-           (size (if (eq system-type 'darwin) 130 105)))
+    (let* ((emacs-solo-have-default-font (find-font (font-spec :family emacs-solo-preferred-font-name)))
+           (size (nth (if (eq system-type 'darwin) 0 1)
+                      emacs-solo-preferred-font-sizes)))
       (set-face-attribute 'default nil
-                          :family (when (and have-jetbrains emacs-solo-enable-preferred-font) jetbrains)
+                          :family (when emacs-solo-have-default-font
+                                    emacs-solo-preferred-font-name)
                           :height size)
 
       ;; macOS specific fine-tuning
-      (when (and (eq system-type 'darwin) have-jetbrains emacs-solo-enable-preferred-font)
+      (when (and (eq system-type 'darwin) emacs-solo-have-default-font)
         ;; Glyphs for powerline/icons
-        (set-fontset-font t '(#xe0b0 . #xe0bF) (font-spec :family jetbrains))
+        (set-fontset-font t '(#xe0b0 . #xe0bF) (font-spec :family emacs-solo-preferred-font-name))
         ;; Emojis
         (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'append)
         (add-to-list 'face-font-rescale-alist '("Apple Color Emoji" . 0.8)))))
 
-  (emacs-solo/setup-font)
+  ;; Load Preferred Font Setup
+  (when emacs-solo-enable-preferred-font
+    (emacs-solo/setup-font))
 
   ;; MacOS specific customizations
   (when (eq system-type 'darwin)
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta))
-
-  ;; Save manual customizations to other file than init.el
-  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-  (load custom-file 'noerror 'nomessage)
 
   ;; We want auto-save, but no #file# cluterring, so everything goes under our config tmp/
   (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
