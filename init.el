@@ -2186,15 +2186,52 @@ are defining or executing a macro."
   '(progn
      (define-widget 'tree-widget-open-icon 'tree-widget-icon
        "Icon for an expanded tree-widget node (customized)."
-       :tag "▾ ")
+       :tag        "▼ ")
      (define-widget 'tree-widget-close-icon 'tree-widget-icon
        "Icon for a collapsed tree-widget node (customized)."
-       :tag "▸ ")))
+       :tag        "▶ ")
+     (define-widget 'tree-widget-empty-icon 'tree-widget-icon
+       "Icon for an expanded tree-widget node with no child."
+       :tag        "▼ ")
+     (define-widget 'tree-widget-leaf-icon 'tree-widget-icon
+       "Icon for a tree-widget leaf node."
+       :tag        "")
+     (define-widget 'tree-widget-guide 'item
+       "Vertical guide line."
+       :tag       " "
+       :format    "%t")
+     (define-widget 'tree-widget-nohandle-guide 'item
+       "Vertical guide line, when there is no handle."
+       :tag       " "
+       :format    "%t")
+     (define-widget 'tree-widget-end-guide 'item
+       "End of a vertical guide line."
+       :tag       " "
+       :format    "%t")
+     (define-widget 'tree-widget-no-guide 'item
+       "Invisible vertical guide line."
+       :tag       "  "
+       :format    "%t")
+     (define-widget 'tree-widget-handle 'item
+       "Horizontal guide line that joins a vertical guide line to a node."
+       :tag       ""
+       :format    "%t")
+     (define-widget 'tree-widget-no-handle 'item
+       "Invisible handle."
+       :tag       " "
+       :format    "%t")))
 
 (eval-after-load 'newst-treeview
   '(define-widget 'newsticker--tree-widget-leaf-icon 'tree-widget-icon
      "Icon for a newsticker leaf node (customized)."
-     :tag (if (display-graphic-p) " " "> ")))
+     :tag (if (display-graphic-p) "  " "> ")))
+
+;; FIXME: This fixes the bug described on https://debbugs.gnu.org/cgi/bugreport.cgi?bug=79617
+(eval-after-load 'newst-treeview
+  '(defun newsticker--unxml (node)
+     (if (or (not node) (stringp node))
+         node
+       (newsticker--unxml-node node))))
 
 (use-package newsticker
   :ensure nil
@@ -2215,6 +2252,13 @@ are defining or executing a macro."
            (define-key kmap (kbd "V") #'emacs-solo/newsticker-play-yt-video-from-buffer)
            (define-key kmap (kbd "E") #'emacs-solo/newsticker-eww-current-article)))))
   :init
+  (defun emacs-solo/newsticker-clear-cache ()
+    "Clears newsticker cache."
+    (interactive)
+    (require 'newsticker)
+    (when (file-directory-p newsticker-dir)
+      (delete-directory newsticker-dir t)))
+
   (defun emacs-solo/clean-subtitles (buffer-name)
     "Clean SRT subtitles while perfectly preserving ^M in text (unless at line end)."
     (with-current-buffer (get-buffer-create buffer-name)
