@@ -16,6 +16,7 @@ var/
 /eln-cache
 /bbdb
 /.cache/
+/cache/
 /emms
 /recentf
 /.mc-lists.el
