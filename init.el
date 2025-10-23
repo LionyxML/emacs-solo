@@ -172,6 +172,8 @@ This allows using a specific environment or scratch context."
   :custom
   (ad-redefinition-action 'accept)
   (auto-save-default t)
+  (bookmark-file (expand-file-name "cache/bookmarks" user-emacs-directory))
+  (shared-game-score-directory (expand-file-name "cache/games/" user-emacs-directory)) ; FIXME: is this even working?
   (column-number-mode t)
   (line-number-mode t)
   (line-spacing nil)
@@ -199,22 +201,25 @@ This allows using a specific environment or scratch context."
   (kill-region-dwim 'emacs-word)  ; EMACS-31
   (create-lockfiles nil)   ; No lock files
   (make-backup-files nil)  ; No backup files
+  (multisession-directory (expand-file-name "cache/multisession/" user-emacs-directory))
   (native-comp-async-on-battery-power nil)  ; No compilations when on battery EMACS-31
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
+  (project-list-file (expand-file-name "cache/projects" user-emacs-directory))
   (ring-bell-function 'ignore)
   (read-answer-short t)
   (recentf-max-saved-items 300) ; default is 20
   (recentf-max-menu-items 15)
   (recentf-auto-cleanup (if (daemonp) 300 'never))
   (recentf-exclude (list "^/\\(?:ssh\\|su\\|sudo\\)?:"))
+  (recentf-save-file (expand-file-name "cache/recentf" user-emacs-directory))
   (register-use-preview t)
   (remote-file-name-inhibit-delete-by-moving-to-trash t)
   (remote-file-name-inhibit-auto-save t)
   (remote-file-name-inhibit-locks t)
   (remote-file-name-inhibit-auto-save-visited t)
-  (tramp-use-scp-direct-remote-copying t)
   (tramp-copy-size-limit (* 2 1024 1024)) ;; 2MB
+  (tramp-use-scp-direct-remote-copying t)
   (tramp-verbose 2)
   (resize-mini-windows 'grow-only)
   (scroll-conservatively 8)
@@ -225,7 +230,8 @@ This allows using a specific environment or scratch context."
      register-alist                       ; macros
      mark-ring global-mark-ring           ; marks
      search-ring regexp-search-ring))     ; searches
-  (save-place-file (expand-file-name "saveplace" user-emacs-directory))
+  (savehist-file (expand-file-name "cache/history" user-emacs-directory))
+  (save-place-file (expand-file-name "cache/saveplace" user-emacs-directory))
   (save-place-limit 600)
   (set-mark-command-repeat-pop t) ; So we can use C-u C-SPC C-SPC C-SPC... instead of C-u C-SPC C-u C-SPC...
   (split-width-threshold 170)     ; So vertical splits are preferred
@@ -234,6 +240,9 @@ This allows using a specific environment or scratch context."
   (switch-to-buffer-obey-display-actions t)
   (tab-always-indent 'complete)
   (tab-width 4)
+  (transient-history-file (expand-file-name "cache/transient/history.el" user-emacs-directory))
+  (transient-levels-file (expand-file-name "cache/transient/levels.el" user-emacs-directory))
+  (transient-values-file (expand-file-name "cache/transient/values.el" user-emacs-directory))
   (treesit-font-lock-level 4)
   (treesit-auto-install-grammar t) ; EMACS-31
   (treesit-enabled-modes t)        ; EMACS-31
@@ -241,6 +250,7 @@ This allows using a specific environment or scratch context."
   (undo-limit (* 13 160000))
   (undo-strong-limit (* 13 240000))
   (undo-outer-limit (* 13 24000000))
+  (url-configuration-directory (expand-file-name "cache/url/" user-emacs-directory))
   (use-dialog-box nil)
   (use-file-dialog nil)
   (use-package-hook-name-suffix nil)
@@ -298,10 +308,10 @@ This allows using a specific environment or scratch context."
     (setq insert-directory-program "gls")
     (setq mac-command-modifier 'meta))
 
-  ;; We want auto-save, but no #file# cluterring, so everything goes under our config tmp/
-  (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
-  (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
-        auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+  ;; We want auto-save, but no #file# cluterring, so everything goes under our config cache/
+  (make-directory (expand-file-name "cache/auto-saves/" user-emacs-directory) t)
+  (setq auto-save-list-file-prefix (expand-file-name "cache/auto-saves/sessions/" user-emacs-directory)
+        auto-save-file-name-transforms `((".*" ,(expand-file-name "cache/auto-saves/" user-emacs-directory) t)))
 
   ;; For OSC 52 compatible terminals support
   (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
@@ -320,6 +330,9 @@ This allows using a specific environment or scratch context."
     (with-eval-after-load 'compile
       (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
+  (setopt tramp-persistency-file-name (expand-file-name "cache/tramp" user-emacs-directory))
+
+  (setopt viper-custom-file-name (expand-file-name "cache/viper" user-emacs-directory))
 
   ;; Set line-number-mode with relative numbering
   (setq display-line-numbers-type 'relative)
@@ -663,6 +676,7 @@ Uses position instead of index field."
   (rcirc-debug t)
   (rcirc-default-nick "Lionyx")
   (rcirc-default-user-name "Lionyx")
+  (rcirc-log-directory (expand-file-name "cache/rcirc/logs" user-emacs-directory))
   (rcirc-default-full-name "Lionyx")
   (rcirc-server-alist
    '(("irc.libera.chat"
@@ -673,6 +687,7 @@ Uses position instead of index field."
   (rcirc-fill-column 100)
   (rcirc-track-ignore-server-buffer-flag t)
   :config
+  (make-directory (expand-file-name "cache/rcirc/logs" user-emacs-directory) t)
   (setq rcirc-authinfo
         `(("irc.libera.chat"
            certfp
@@ -692,14 +707,14 @@ Uses position instead of index field."
   (erc-server-reconnect-attempts 10)
   (erc-server-reconnect-timeout 3)
   (erc-fill-function 'erc-fill-wrap)
-  (erc-log-channels-directory (expand-file-name "tmp/erc/logs" user-emacs-directory))
-  (erc-log-insert-log-on-open t)
+  (erc-log-channels-directory (expand-file-name "cache/erc/logs" user-emacs-directory))
+  (erc-log-insert-log-on-open 'erc-log-new-target-buffer-p) ;; EMACS-31 and or needs https://debbugs.gnu.org/cgi/bugreport.cgi?bug=79665 patch
   (erc-save-buffer-on-part t)
   (erc-save-queries-on-quit t)
   (erc-log-write-after-send t)
   (erc-log-write-after-insert t)
   :config
-  (make-directory (expand-file-name "tmp/erc/logs" user-emacs-directory) t)
+  (make-directory (expand-file-name "cache/erc/logs" user-emacs-directory) t)
 
   (defun emacs-solo/erc-get-color-for-nick (nick)
     "Return a Catppuccin Mocha Like color string for NICK based on its hash."
@@ -1095,6 +1110,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-listing-switches "-alh --group-directories-first")
   (dired-omit-files "^\\.")                                ; with dired-omit-mode (C-x M-o)
   (dired-hide-details-hide-absolute-location t)            ; EMACS-31
+  (image-dired-dir (expand-file-name "cache/image-dired" user-emacs-directory))
   :init
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))) ;; Turning this ON also sets the C-x M-o binding.
 
@@ -2226,18 +2242,13 @@ are defining or executing a macro."
      "Icon for a newsticker leaf node (customized)."
      :tag (if (display-graphic-p) "  " "> ")))
 
-;; FIXME: This fixes the bug described on https://debbugs.gnu.org/cgi/bugreport.cgi?bug=79617
-(eval-after-load 'newst-treeview
-  '(defun newsticker--unxml (node)
-     (if (or (not node) (stringp node))
-         node
-       (newsticker--unxml-node node))))
 
 (use-package newsticker
   :ensure nil
   :defer t
   :custom
   (newsticker-treeview-treewindow-width 40)
+  (newsticker-dir (expand-file-name "cache/newsticker/" user-emacs-directory))
   :hook
   (newsticker-treeview-mode-hook
    . (lambda ()
@@ -2248,6 +2259,7 @@ are defining or executing a macro."
            (define-key kmap (kbd "X") (lambda () (interactive) (delete-process "mpv-video")))
            (define-key kmap (kbd "T") #'emacs-solo/show-yt-thumbnail)
            (define-key kmap (kbd "S") #'emacs-solo/fetch-yt-subtitles-to-buffer)
+           (define-key kmap (kbd "G") #'emacs-solo/newsticker-summarize-yt-video)
            (define-key kmap (kbd "A") (lambda () (interactive) (emacs-solo/newsticker-play-yt-video-from-buffer t)))
            (define-key kmap (kbd "V") #'emacs-solo/newsticker-play-yt-video-from-buffer)
            (define-key kmap (kbd "E") #'emacs-solo/newsticker-eww-current-article)))))
@@ -4917,7 +4929,7 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   (defvar emacs-solo/mpv-process nil
     "Process object for the currently running mpv instance.")
 
-  (defvar emacs-solo/mpv-ipc-socket "/tmp/mpv-socket"
+  (defvar emacs-solo/mpv-ipc-socket "/cache/mpv-socket"
     "Path to mpv's IPC UNIX domain socket.")
 
   (defun emacs-solo/mpv-play-files ()
