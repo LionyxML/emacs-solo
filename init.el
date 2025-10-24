@@ -3976,7 +3976,6 @@ Marks lines as added, deleted, or changed."
 - '~' for changed lines (uses `warning` face)
 - '-' for deleted lines (uses `error` face)."
     (interactive)
-    (set-window-margins (selected-window) 2 0)
     (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
     (let ((lines-status (or (emacs-solo/git-gutter-process-git-diff) '())))
       (save-excursion
@@ -4008,7 +4007,6 @@ Marks lines as added, deleted, or changed."
   (defun emacs-solo/git-gutter-off ()
     "Remove all `emacs-solo--git-gutter-overlay' marks and other overlays."
     (interactive)
-    (set-window-margins (selected-window) 2 0)
     (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
     (remove-hook 'find-file-hook #'emacs-solo-git-gutter-on)
     (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
