@@ -5099,6 +5099,7 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
 ;;       RET - play with mpv
 ;;       x   - stop with mpv
 ;;
+;; TODO: make already downloaded list the default when reopening with C-c r
 (use-package emacs-solo-m3u-visualizer
   :ensure nil
   :no-require t
