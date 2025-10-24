@@ -3493,36 +3493,7 @@ This works with bash, zsh, or fish)."
             (setq exec-path (split-string path-from-shell path-separator))
             (message ">>> emacs-solo: PATH loaded from %s" shell-name))))))
 
-  (defun emacs-solo/fix-asdf-path ()
-    "Ensure asdf shims and active Node.js version's bin directory are first in PATH."
-    (interactive)
-    (let* ((asdf-shims (expand-file-name "~/.asdf/shims"))
-           (node-bin (string-trim (shell-command-to-string "asdf where nodejs 2>/dev/null")))
-           (new-paths (list asdf-shims)))
-
-      ;; If Node.js is installed, add its bin path
-      (when (file-directory-p node-bin)
-        (push (concat node-bin "/bin") new-paths))
-
-      ;; Remove old asdf-related paths from PATH and exec-path
-      (setq exec-path (seq-remove (lambda (p) (string-match-p "/\\.asdf/" p)) exec-path))
-      (setenv "PATH" (string-join (seq-remove (lambda (p) (string-match-p "/\\.asdf/" p))
-                                              (split-string (getenv "PATH") ":"))
-                                  ":"))
-
-      ;; Add the new paths to exec-path and PATH
-      (dolist (p (reverse new-paths))
-        (unless (member p exec-path) (push p exec-path))
-        (unless (member p (split-string (getenv "PATH") ":"))
-          (setenv "PATH" (concat p ":" (getenv "PATH")))))))
-
-  (add-hook 'find-file-hook #'emacs-solo/fix-asdf-path)
-  (add-hook 'eshell-mode-hook #'emacs-solo/fix-asdf-path)
-  (add-hook 'eshell-pre-command-hook #'emacs-solo/fix-asdf-path)
-  (add-hook 'eshell-directory-change-hook #'emacs-solo/fix-asdf-path)
-
-  (add-hook 'after-init-hook #'emacs-solo/set-exec-path-from-shell-PATH)
-  (add-hook 'after-init-hook #'emacs-solo/fix-asdf-path))
+  (add-hook 'after-init-hook #'emacs-solo/set-exec-path-from-shell-PATH))
 
 
 ;;; │ EMACS-SOLO-RAINBOW-DELIMITERS
