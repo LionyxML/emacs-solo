@@ -2380,6 +2380,72 @@ are defining or executing a macro."
 
         (message "No *Newsticker Item* buffer found."))))
 
+  ;; Override this variable on your customizations to other prompts
+  (setq  emacs-solo-newsticker-summarize-yt-video-prompt  "please, summarize this youtube video transcript in english")
+
+
+  ;; FIXME: I'd like this to be mostly not dependent on BASH, like the "S" for Subtitles function....
+  (defun emacs-solo/newsticker-summarize-yt-video ()
+    "Summarize a YT video."
+    (interactive)
+    (let ((newsticker-buf (get-buffer "*Newsticker Item*")))
+      (unless newsticker-buf
+        (user-error "No *Newsticker Item* buffer found"))
+
+      (with-current-buffer newsticker-buf
+        (save-excursion
+          (goto-char (point-min))
+          (unless (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
+            (user-error "No videoId found in *Newsticker Item* buffer"))
+
+          (let* ((video-id (match-string 1))
+                 (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
+                 (output-buffer (get-buffer-create (format "*YT Summary: %s*" video-id)))
+                 (prompt emacs-solo-newsticker-summarize-yt-video-prompt)
+                 (base-path (expand-file-name "cache/yt-subs" user-emacs-directory))
+                 (command
+                  (format
+                   (concat
+                    ;; Use trap for robust cleanup, replacing the two `rm` commands in the original.
+                    "trap 'rm -f %s*' EXIT; "
+                    ;; Use the exact yt-dlp flags from the newsbeuter command (--convert-subs lrc, etc).
+                    "yt-dlp --write-auto-subs --sub-lang '.*-orig' --convert-subs lrc --skip-download --no-clean-infojson -o %s %s >/dev/null 2>&1 && "
+                    ;; Cat the globbed path (to find the .lrc file) and use the LRC-specific sed command.
+                    "cat %s* | "
+                    "sed 's/\\[[^\\]]*\\]//g' | "
+                    "grep -v '^[[:space:]]*$' | "
+                    "uniq | "
+                    "(echo '%s'; cat -) | "
+                    "gemini -p")
+                   (shell-quote-argument base-path)      ;; For trap
+                   (shell-quote-argument base-path)      ;; For yt-dlp's -o
+                   (shell-quote-argument video-url)      ;; The video URL
+                   (shell-quote-argument base-path)      ;; For cat
+                   prompt)))                             ;; For the echo command
+
+            (message "Generating summary for %s..." video-id)
+
+            (with-current-buffer output-buffer
+              (let ((inhibit-read-only t))
+                (erase-buffer)
+                (insert (format "* Generating summary for %s...\nThis may take a moment.\n\n\n" video-url))
+                (display-buffer (current-buffer))
+                (select-window (get-buffer-window (current-buffer)))
+                (special-mode)
+                (visual-line-mode)
+                (let ((map (make-sparse-keymap)))
+                  (define-key map (kbd "q")
+                              (lambda ()
+                                (interactive)
+                                (let ((win (get-buffer-window)))
+                                  (when (window-live-p win)
+                                    (quit-window 'kill win)))))
+                  (define-key map (kbd "n") #'forward-line)
+                  (define-key map (kbd "p") #'previous-line)
+                  (use-local-map map))
+                (let ((shell-file-name "bash"))
+                  (start-process-shell-command "yt-summary" (current-buffer) command)))))))))
+
   (defun emacs-solo/show-yt-thumbnail ()
     "Show YouTube thumbnail from a videoId in the current buffer."
     (interactive)
