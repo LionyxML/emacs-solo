@@ -443,7 +443,14 @@ This allows using a specific environment or scratch context."
                   (load private-file)))))
 
   :init
-  (set-window-margins (selected-window) 2 0)
+  ;; Keep margins from automatic resizing
+  (defun emacs-solo/set-default-window-margins ()
+    "Set default left and right margins for all windows."
+    (interactive)
+    (dolist (window (window-list))
+      (set-window-margins window 2 0))) ;; (LEFT RIGHT) margins in characters
+
+  (add-hook 'window-configuration-change-hook #'emacs-solo/set-default-window-margins)
 
   (when (>= emacs-major-version 31)
     (tty-tip-mode nil))   ;; EMACS-31
