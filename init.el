@@ -445,10 +445,15 @@ This allows using a specific environment or scratch context."
   :init
   ;; Keep margins from automatic resizing
   (defun emacs-solo/set-default-window-margins ()
-    "Set default left and right margins for all windows."
+    "Set default left and right margins for all windows.
+Unless the buffer uses `emacs-solo/center-document-mode`
+or is an ERC buffer."
     (interactive)
     (dolist (window (window-list))
-      (set-window-margins window 2 0))) ;; (LEFT RIGHT) margins in characters
+      (with-current-buffer (window-buffer window)
+        (unless (or (bound-and-true-p emacs-solo/center-document-mode)
+                    (derived-mode-p 'erc-mode))
+          (set-window-margins window 2 0))))) ;; (LEFT RIGHT)
 
   (add-hook 'window-configuration-change-hook #'emacs-solo/set-default-window-margins)
 
