@@ -742,7 +742,7 @@ Uses position instead of index field."
                              'face `(:foreground ,color :weight bold))))))
   (add-hook 'erc-insert-modify-hook #'emacs-solo/erc-colorize-nick)
 
-  (add-hook 'erc-mode-hook 'erc-log-mode)
+  (add-to-list 'erc-modules 'log)
   :init
   (with-eval-after-load 'erc
 
