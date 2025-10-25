@@ -4577,7 +4577,7 @@ into that directory before executing the Gemini command."
            ("tgz" . "📦")      ("bz2" . "📦")      ("mpg" . "🎬")     ("webp" . "🖼️")
            ("flv" . "🎬")      ("3gp" . "🎬")      ("ogv" . "🎬")     ("srt" . "🔠")
            ("vtt" . "🔠")      ("cue" . "📀")      ("terminal" . "💻") ("info" . "ℹ️")
-           ("direddir" . "📁") ("diredfile" . "📄") ("wranch" . "🔧")))
+           ("direddir" . "📁") ("diredfile" . "📄") ("wranch" . "🔧") ("news" . "📰")))
         (nerd-icons
          '(("el" . "")       ("rb" . "")       ("js" . "")      ("ts" . "")
            ("json" . "")     ("md" . "")       ("txt" . "")     ("html" . "")
@@ -4605,7 +4605,7 @@ into that directory before executing the Gemini command."
            ("tgz" . "")      ("bz2" . "")      ("mpg" . "")     ("webp" . "")
            ("flv" . "")      ("3gp" . "")      ("ogv" . "")     ("srt" . "")
            ("vtt" . "")      ("cue" . "")      ("terminal" . "") ("info" . "ℹ")
-           ("direddir" . "") ("diredfile" . "") ("wranch" . ""))))
+           ("direddir" . "") ("diredfile" . "") ("wranch" . "") ("news" . ""))))
 
     (defvar emacs-solo/file-icons
       (cond
@@ -4707,6 +4707,7 @@ otherwise mode-based emoji."
          ((derived-mode-p 'erc-mode)    (assoc-default "hash" emacs-solo/file-icons))
          ((derived-mode-p 'rcirc-mode)  (assoc-default "hash" emacs-solo/file-icons))
          ((derived-mode-p 'gnus-mode)   (assoc-default "mail" emacs-solo/file-icons))
+         ((derived-mode-p 'newsticker-treeview-mode)   (assoc-default "news" emacs-solo/file-icons))
          (t                             (assoc-default "wranch" emacs-solo/file-icons))))))
 
   (define-ibuffer-column icon
