@@ -190,7 +190,7 @@ This allows using a specific environment or scratch context."
   (frame-resize-pixelwise t)
   (global-auto-revert-non-file-buffers t)
   (global-goto-address-mode t)                            ;     C-c RET on URLs open in default browser
-  (browse-url-secondary-browser-function 'eww-browse-url) ; C-u C-c RET on URLs open in ERC
+  (browse-url-secondary-browser-function 'eww-browse-url) ; C-u C-c RET on URLs open in EWW
   (help-window-select t)
   (history-length 300)
   (inhibit-startup-message t)
