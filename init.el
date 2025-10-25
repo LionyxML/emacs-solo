@@ -3470,7 +3470,8 @@ Replacing `Git-' with a branch symbol."
                 '("%e" "  "
                   ;; (:propertize " " display (raise +0.1)) ;; Top padding
                   ;; (:propertize " " display (raise -0.1)) ;; Bottom padding
-                  (:propertize "λ  " face font-lock-keyword-face)
+                  (:propertize
+                   (if (char-displayable-p ?λ) "λ  " "   ") face font-lock-keyword-face)
 
                   (:propertize
                    ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
