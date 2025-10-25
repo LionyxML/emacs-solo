@@ -4594,7 +4594,7 @@ into that directory before executing the Gemini command."
            ("iso" . "")      ("torrent" . "")  ("bak" . "")     ("tmp" . "")
            ("desktop" . "")  ("md5" . "")      ("sha256" . "")  ("pem" . "")
            ("sqlite" . "")   ("db" . "")       ("gpg" . "")     ("hash" . "")
-           ("mp3" . "")      ("wav" . "")      ("flac" . "" )   ("mail" "")
+           ("mp3" . "")      ("wav" . "")      ("flac" . "" )   ("mail" . "")
            ("ogg" . "")      ("m4a" . "")      ("mp4" . "")     ("avi" . "")
            ("mov" . "")      ("mkv" . "")      ("webm" . "")    ("flv" . "")
            ("ico" . "")      ("ttf" . "")      ("otf" . "")     ("eot" . "")
@@ -4706,6 +4706,7 @@ otherwise mode-based emoji."
          ((derived-mode-p 'help-mode)   (assoc-default "info" emacs-solo/file-icons))
          ((derived-mode-p 'erc-mode)    (assoc-default "hash" emacs-solo/file-icons))
          ((derived-mode-p 'rcirc-mode)  (assoc-default "hash" emacs-solo/file-icons))
+         ((derived-mode-p 'gnus-mode)   (assoc-default "mail" emacs-solo/file-icons))
          (t                             (assoc-default "wranch" emacs-solo/file-icons))))))
 
   (define-ibuffer-column icon
