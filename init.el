@@ -351,6 +351,7 @@ This allows using a specific environment or scratch context."
   (add-hook 'prog-mode-hook #'completion-preview-mode)
   (add-hook 'text-mode-hook #'completion-preview-mode)
   (add-hook 'rcirc-mode-hook #'completion-preview-mode)
+  (add-hook 'erc-mode-hook #'completion-preview-mode)
 
   ;; A Protesilaos life savier HACK
   ;; Add option "d" to whenever using C-x s or C-x C-c, allowing a quick preview
