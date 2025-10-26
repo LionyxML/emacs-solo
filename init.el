@@ -2120,16 +2120,47 @@ and restart Flymake to apply the changes."
 (use-package minibuffer
   :ensure nil
   :custom
-  (completion-styles '(partial-completion flex initials)) ;;  NOTE: for minibuffer we can use emacs-solo-enable-custom-orderless custom
+  (completion-auto-help t)
+  (completion-auto-select 'second-tab)
+  (completion-eager-update t) ;; EMACS-31
   (completion-ignore-case t)
-  (completion-show-help t)
-  ;; (completion-auto-select t) ;; NOTE: only turn this on if not using icomplete, can also be 'second-tab
-  (completions-max-height 100)
+  (completion-show-help nil)
+  (completion-styles '(partial-completion flex initials))
   (completions-format 'one-column)
+  (completions-max-height 10)
+  (completions-sort 'historical)
   (enable-recursive-minibuffers t)
-  (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
+  (read-file-name-completion-ignore-case t)
   :config
+  ;; Makes C-g behave (as seen on https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/)
+  (define-advice keyboard-quit
+      (:around (quit) quit-current-context)
+    "Quit the current context.
+
+When there is an active minibuffer and we are not inside it close
+it.  When we are inside the minibuffer use the regular
+`minibuffer-keyboard-quit' which quits any active region before
+exiting.  When there is no minibuffer `keyboard-quit' unless we
+are defining or executing a macro."
+    (if (active-minibuffer-window)
+        (if (minibufferp)
+            (minibuffer-keyboard-quit)
+          (abort-recursive-edit))
+      (unless (or defining-kbd-macro
+                  executing-kbd-macro)
+        (funcall-interactively quit))))
+
+  ;; Keep the cursor out of the read-only portions of theminibuffer
+  (setq minibuffer-prompt-properties
+        '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Keep minibuffer lines unwrapped, long lines like on M-S-y will be truncated
+  (add-hook 'minibuffer-setup-hook
+            (lambda () (setq truncate-lines t)))
+
+
   (defun emacs-solo/setup-simple-orderless ()
     (defun simple-orderless-completion (string table pred point)
       "Enhanced orderless completion with better partial matching.
@@ -2167,33 +2198,6 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (when emacs-solo-enable-custom-orderless
     (emacs-solo/setup-simple-orderless))
 
-
-  ;; Makes C-g behave (as seen on https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/)
-  (define-advice keyboard-quit
-      (:around (quit) quit-current-context)
-    "Quit the current context.
-
-When there is an active minibuffer and we are not inside it close
-it.  When we are inside the minibuffer use the regular
-`minibuffer-keyboard-quit' which quits any active region before
-exiting.  When there is no minibuffer `keyboard-quit' unless we
-are defining or executing a macro."
-    (if (active-minibuffer-window)
-        (if (minibufferp)
-            (minibuffer-keyboard-quit)
-          (abort-recursive-edit))
-      (unless (or defining-kbd-macro
-                  executing-kbd-macro)
-        (funcall-interactively quit))))
-
-  ;; Keep the cursor out of the read-only portions of the.minibuffer
-  (setq minibuffer-prompt-properties
-        '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  ;; Keep minibuffer lines unwrapped, long lines like on M-y will be truncated
-  (add-hook 'minibuffer-setup-hook
-            (lambda () (setq truncate-lines t)))
 
   (minibuffer-depth-indicate-mode 1)
   (minibuffer-electric-default-mode 1))
@@ -5772,23 +5776,6 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
     (advice-remove 'minibuffer-choose-completion #'simple-completions-box--close-frame-advice)
     (advice-remove 'keyboard-quit #'simple-completions-box--close-frame-advice)
     (advice-remove 'handle-switch-frame #'simple-completions-box--close-frame-advice))
-
-  ;; REMOVE INSTRUCTION LINES
-  (defun remove-completions-help-text ()
-    "Remove the first 3 help text lines from *Completions* buffer and go to beginning."
-    (when (string= (buffer-name) "*Completions*")
-      (save-excursion
-        (save-restriction
-          (widen)
-          (let ((inhibit-read-only t))
-            (goto-char (point-min))
-            ;; Delete first 3 lines unconditionally
-            (delete-region (point)
-                           (progn (forward-line 3) (point))))))))
-
-  (defun setup-completions-hook ()
-    (remove-completions-help-text)
-    (run-with-timer 0.001 nil #'remove-completions-help-text))
 
   (add-hook 'completion-list-mode-hook #'setup-completions-hook)
 
