@@ -541,6 +541,10 @@ or is an ERC buffer."
       ("cb" "```@\n\n```"
        (lambda () (search-backward "@") (delete-char 1)))
 
+      ;; ORG
+      ("cb" "#+BEGIN_SRC @\n\n#+END_SRC"
+       (lambda () (search-backward "@") (delete-char 1)))
+
       ;; Emojis for context markers
       ("todo"  "👷 TODO:")
       ("fixme" "🔧 FIXME:")
