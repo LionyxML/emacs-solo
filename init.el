@@ -4400,6 +4400,66 @@ If SECOND is non-nil, separate the results with a newline."
              (read-only-mode 1))))))))
 
 
+;;; │ EMACS-SOLO-RATE
+;;
+(use-package emacs-solo-rate
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (setq emacs-solo-rate-crypto "BTC")
+  (setq emacs-solo-rate-fiat "USD")
+
+  (defun emacs-solo/rate-buffer ()
+    "Open a new Emacs buffer and asynchronously fetch wttr.in weather data."
+    (interactive)
+    (let* (
+           (crypto (shell-quote-argument emacs-solo-rate-crypto))
+           (fiat (shell-quote-argument emacs-solo-rate-fiat))
+           (buffer (get-buffer-create "*Rate*"))
+           (url1 (format "curl -s '%s.rate.sx/%s'" fiat crypto))
+           (url2 (format "curl -s '%s.rate.sx/'" fiat)))
+      (with-current-buffer buffer
+        (read-only-mode -1)
+        (erase-buffer)
+        (read-only-mode 1))
+      (switch-to-buffer buffer)
+      ;; Fetch both asynchronously
+      (emacs-solo--fetch-rate url1 buffer)
+      (emacs-solo--fetch-rate url2 buffer t)))
+
+  (defun emacs-solo--fetch-rate (cmd buffer &optional second)
+    "Run CMD asynchronously and insert results into BUFFER.
+If SECOND is non-nil, separate the results with a newline."
+    (make-process
+     :name "rate-fetch"
+     :buffer (generate-new-buffer " *rate-temp*")
+     :command (list "sh" "-c" cmd)
+     :sentinel
+     (lambda (proc _event)
+       (when (eq (process-status proc) 'exit)
+         (let ((output (with-current-buffer (process-buffer proc)
+                         (buffer-string))))
+           (kill-buffer (process-buffer proc))
+           (setq output
+                 (seq-reduce
+                  (lambda (s rule) (replace-regexp-in-string (car rule) (cdr rule) s))
+                  '(("[\u2800-\u28FF]" . "*")
+                    ("―" . "-")
+                    ("^Use.*" . " ")
+                    (".*NEW.*" . " ")
+                    (".*Follow.*" . " ")
+                    ("[\x0f]" . ""))
+                  output))
+           (with-current-buffer buffer
+             (read-only-mode -1)
+             (when second (insert "\n\n"))
+             (insert output)
+             (ansi-color-apply-on-region (point-min) (point-max))
+             (goto-char (point-min))
+             (read-only-mode 1))))))))
+
+
 ;;; │ EMACS-SOLO-HOW-IN
 ;;
 (use-package emacs-solo-how-in
