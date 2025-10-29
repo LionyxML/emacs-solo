@@ -104,7 +104,7 @@ is currently: =30.1=
 
 However, some bleeding-edge features may be tested as well. For those,
 you’ll need to compile Emacs from the master branch. I do my best to
-mark these features with the =Emacs 31= tag.
+mark these features with the =EMACS-31= tag.
 
 ** Optional Dependencies
 
@@ -172,7 +172,6 @@ In order to proper copy/paste from terminals (TUI), you need:
 - =pbcopy/pbpaste= (macos)
 - =wl-copy/wl-paste= (Linux with Wayland)
 - =xclip= (Linux with Xorg)
-
 
 ** Installation
 
@@ -348,5 +347,38 @@ message. This is available from Emacs 31 onward.
 *** 14.) How do I amend commits?
 
 From =C-x v v=, you can press =C-c C-e= and you'll be on 'amend' mode.
+
+*** 15.) Zoom fonts
+
+Only the current buffer:
+
+=C-x C--=
+=C-x C-+= / =C-x C-==
+=C-x C-0=
+
+
+The whole interface:
+
+=C-x C-M--=
+=C-x C-M-+= / =C-x C-M-=
+=C-x C-M-0=
+
+*** 16.) Visit an URL
+
+With =global-goto-address-mode= turned on, you can =C-c RET= over a link
+to open it on your default browser.
+
+=C-u C-c RET= will open it on secundary browser, recommended:
+
+Emacs Solo defaults:
+
+#+BEGIN_SRC emacs-lisp
+(setq global-goto-address-mode t)
+(setq browse-url-secondary-browser-function 'eww-browse-url)
+#+END_SRC
+
+*** 17.) Increase/Decrease the resolution of PDFs
+
+The =doc-view-resolution= variable is the way to go.
 
 #+html:</details>
