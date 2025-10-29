@@ -2565,6 +2565,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :defer t
   :mode ("\\.org\\'" . org-mode)
   :config
+  (setopt org-export-backends '(ascii html icalendar latex odt md))
   (setq
    ;; Start collapsed for speed
    org-startup-folded t
