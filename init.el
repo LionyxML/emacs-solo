@@ -532,6 +532,11 @@ or is an ERC buffer."
        (lambda () (search-backward "}") (forward-line -1) (end-of-line)))
       ("ife" "(function() {\n  \n})();"
        (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
+      ("esdeps" "// eslint-disable-next-line react-hooks/exhaustive-deps"
+       (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
+      ("eshooks" "// eslint-disable-next-line react-hooks/rules-of-hooks"
+       (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
+
 
       ;; React/JSX
       ("rfc" "const ${1:ComponentName} = () => {\n  return (\n    <div>@</div>\n  );\n};"
