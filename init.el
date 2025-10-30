@@ -4395,10 +4395,15 @@ If SECOND is non-nil, separate the results with a newline."
          (let ((output (with-current-buffer (process-buffer proc)
                          (buffer-string))))
            (kill-buffer (process-buffer proc))
-           (setq output (replace-regexp-in-string "[\u2800-\u28FF]" "*"
-                                                  (replace-regexp-in-string "―" "-"
-                                                                            (replace-regexp-in-string "^Follow.*\n" ""
-                                                                                                      (replace-regexp-in-string "[\x0f]" "" output)))))
+           (setq output
+                 (seq-reduce
+                  (lambda (s rule) (replace-regexp-in-string (car rule) (cdr rule) s))
+                  '(("[\u2800-\u28FF]" . "*")
+                    ("―" . "-")
+                    (".*NEW.*" . " ")
+                    (".*Follow.*" . " ")
+                    ("[\x0f]" . ""))
+                  output))
            (with-current-buffer buffer
              (read-only-mode -1)
              (when second (insert "\n\n"))
