@@ -1255,6 +1255,14 @@ away from the bottom.  Counts wrapped lines as real lines."
       (with-current-buffer "*Dired-Side*"
         (revert-buffer t t))))
 
+  (defun emacs-solo/dired-run-async-on-marked-files (command)
+    "Run COMMAND asynchronously on marked files in Dired.
+Ex: mpv file1 file2 file3 file4..."
+    (interactive "sCommand: ")
+    (let ((files (dired-get-marked-files)))
+      (start-process-shell-command command nil (format "%s %s" command (mapconcat 'shell-quote-argument files " ")))))
+
+
   (eval-after-load 'dired
     '(progn
        ;; Users should navigate with p/n, enter new directories with =, go back with q,
@@ -1262,6 +1270,7 @@ away from the bottom.  Counts wrapped lines as real lines."
        ;; directory.
        (define-key dired-mode-map (kbd "=") 'emacs-solo/window-dired-open-directory)
        (define-key dired-mode-map (kbd "-") 'emacs-solo/window-dired-open-directory-back)
+       (define-key dired-mode-map (kbd "#") 'emacs-solo/dired-run-async-on-marked-files)
 
        ;; A better "BACK" keybiding
        (define-key dired-mode-map (kbd "b") 'dired-up-directory))))
