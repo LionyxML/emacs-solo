@@ -168,6 +168,7 @@ This allows using a specific environment or scratch context."
    ("RET" . newline-and-indent)
    ("C-z" . nil)
    ("C-x C-z" . nil)
+   ("C-M-z" . delete-pair)
    ("C-x C-k RET" . nil))
   :custom
   (ad-redefinition-action 'accept)
@@ -181,6 +182,7 @@ This allows using a specific environment or scratch context."
   (completions-detailed t)
   (doc-view-resolution 200)
   (delete-by-moving-to-trash t)
+  (delete-pair-blink-delay 0)
   (display-line-numbers-width 4)
   (display-line-numbers-widen t)
   (display-fill-column-indicator-warning nil) ; EMACS-31
