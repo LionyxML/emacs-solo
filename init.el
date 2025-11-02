@@ -2443,7 +2443,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                     "grep -v '^[[:space:]]*$' | "
                     "uniq | "
                     "(echo '%s'; cat -) | "
-                    "gemini -p")
+                    "gemini -p -")
                    (shell-quote-argument base-path)      ;; For trap
                    (shell-quote-argument base-path)      ;; For yt-dlp's -o
                    (shell-quote-argument video-url)      ;; The video URL
