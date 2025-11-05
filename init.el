@@ -1569,13 +1569,63 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
         (time              . "")
         (folder            . "")
         (branch            . "")
-        (modified          . "")
-        (untracked         . "")
-        (conflict          . "")
-        (git-merge         . "")
-        (git-ahead         . "")
-        (git-behind        . ""))
+        (modified          . " ")
+        (untracked         . " ")
+        (conflict          . " ")
+        (git-merge         . " ")
+        (git-ahead         . " ")
+        (git-behind        . " "))
       "Alist of all icons used in the Eshell prompt (nerd font)."))
+
+
+  ;; --- Git info caching ---
+  (defvar emacs-solo/git-cache nil)
+  (defvar emacs-solo/git-cache-dir nil)
+  (defvar emacs-solo/git-cache-time 0)
+
+  (defun emacs-solo/git-info ()
+    "Return cached Git info, with debug messages."
+    (let ((root (ignore-errors (vc-git-root default-directory)))
+          (now (float-time)))
+      (if (or (not root)
+              (not (numberp emacs-solo/git-cache-time))
+              (not emacs-solo/git-cache)
+              (not (equal root emacs-solo/git-cache-dir))
+              (> (- now (or emacs-solo/git-cache-time 0)) 5))
+          (progn
+            (setq emacs-solo/git-cache-time now
+                  emacs-solo/git-cache-dir root)
+            (setq emacs-solo/git-cache
+                  (when root
+                    (let* ((out (shell-command-to-string "git status --porcelain=v2 --branch 2>/dev/null"))
+                           (lines (split-string out "\n" t))
+                           (ahead 0)
+                           (behind 0)
+                           (modified 0)
+                           (untracked 0)
+                           (conflicts 0)
+                           (branch nil))
+
+                      (dolist (l lines)
+                        (cond
+                         ((string-match "^#? *branch\\.head \\(.+\\)" l)
+                          (setq branch (match-string 1 l)))
+                         ((string-match "^#? *branch\\.ab \\+\\([0-9]+\\) -\\([0-9]+\\)" l)
+                          (setq ahead (string-to-number (match-string 1 l)))
+                          (setq behind (string-to-number (match-string 2 l))))
+                         ((string-match "^1 " l) (cl-incf modified))
+                         ((string-match "^\\?\\?" l) (cl-incf untracked))
+                         ((string-match "^u " l) (cl-incf conflicts))))
+
+                      (list :branch (or branch "HEAD")
+                            :ahead ahead
+                            :behind behind
+                            :modified modified
+                            :untracked untracked
+                            :conflicts conflicts)))))
+        (progn
+          emacs-solo/git-cache))))
+
 
   (setopt eshell-prompt-function
           (lambda ()
@@ -1638,39 +1688,37 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                  (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
                              'face `(:foreground ,eshell-solo/color-bg-dark))
 
-                 (when (and (fboundp 'vc-git-root) (vc-git-root default-directory))
+                 (when-let* ((info (emacs-solo/git-info))
+                             (branch (plist-get info :branch)))
                    (concat
-                    (propertize (assoc-default 'arrow-left emacs-solo/eshell-icons) 'face `(:foreground ,eshell-solo/color-bg-dark))
+                    (propertize (assoc-default 'arrow-left emacs-solo/eshell-icons)
+                                'face `(:foreground ,eshell-solo/color-bg-dark))
                     (propertize
                      (concat
-                      (concat " " (assoc-default 'branch emacs-solo/eshell-icons)  " ")
-                      (car (vc-git-branches))
-
+                      (concat " " (assoc-default 'branch emacs-solo/eshell-icons) " " branch " ")
                       (when emacs-solo/eshell-full-prompt-resource-intensive
-                        (let* ((branch (car (vc-git-branches)))
-                               (behind (string-to-number
-                                        (shell-command-to-string
-                                         (format "git rev-list --count origin/%s..HEAD" branch))))
-                               (ahead (string-to-number
-                                       (shell-command-to-string
-                                        (format "git rev-list --count HEAD..origin/%s" branch)))))
+                        (let ((ahead (plist-get info :ahead))
+                              (behind (plist-get info :behind))
+                              (modified (plist-get info :modified))
+                              (untracked (plist-get info :untracked))
+                              (conflicts (plist-get info :conflicts)))
                           (concat
-                           (when (> ahead 0) (format (concat " " (assoc-default 'git-ahead emacs-solo/eshell-icons) "%d") ahead))
-                           (when (> behind 0) (format (concat " " (assoc-default 'git-behind emacs-solo/eshell-icons) "%d") behind))
+                           (when (> ahead 0)
+                             (format (concat " " (assoc-default 'git-ahead emacs-solo/eshell-icons) "%d") ahead))
+                           (when (> behind 0)
+                             (format (concat " " (assoc-default 'git-behind emacs-solo/eshell-icons) "%d") behind))
                            (when (and (> ahead 0) (> behind 0))
-                             (concat "  " (assoc-default 'git-merge emacs-solo/eshell-icons)))))
-
-                        (let ((modified (length (split-string (shell-command-to-string "git ls-files --modified") "\n" t)))
-                              (untracked (length (split-string (shell-command-to-string "git ls-files --others --exclude-standard") "\n" t)))
-                              (conflicts (length (split-string (shell-command-to-string "git diff --name-only --diff-filter=U") "\n" t))))
-                          (concat
-                           (if (> modified 0) (format (concat " " (assoc-default 'modified emacs-solo/eshell-icons) "%d") modified))
-                           (if (> untracked 0) (format (concat " " (assoc-default 'untracked emacs-solo/eshell-icons) "%d") untracked))
-                           (if (> conflicts 0) (format (concat " " (assoc-default 'conflict emacs-solo/eshell-icons) "%d") conflicts)))))
-                      " ")
+                             (concat " " (assoc-default 'git-merge emacs-solo/eshell-icons)))
+                           (when (> modified 0)
+                             (format (concat " " (assoc-default 'modified emacs-solo/eshell-icons) "%d") modified))
+                           (when (> untracked 0)
+                             (format (concat " " (assoc-default 'untracked emacs-solo/eshell-icons) "%d") untracked))
+                           (when (> conflicts 0)
+                             (format (concat " " (assoc-default 'conflict emacs-solo/eshell-icons) "%d") conflicts))
+                           " "))))
                      'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-git))
-
-                    (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n") 'face `(:foreground ,eshell-solo/color-bg-dark))))
+                    (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
+                                'face `(:foreground ,eshell-solo/color-bg-dark))))
 
                  (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))
 
