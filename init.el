@@ -279,6 +279,14 @@ This allows using a specific environment or scratch context."
   (when emacs-solo-enable-outline-init
     (add-hook 'emacs-lisp-mode-hook #'emacs-solo/outline-init-file))
 
+  ;; Make C-x 5 o repeatable
+  (defvar-keymap frame-repeat-map
+    :repeat t
+    "o" #'other-frame
+    "n" #'make-frame
+    "d" #'delete-frame)
+  (put 'other-frame 'repeat-map 'frame-repeat-map)
+
   ;; Makes everything accept utf-8 as default, so buffers with tsx and so
   ;; won't ask for encoding (because undecided-unix) every single keystroke
   (modify-coding-system-alist 'file "" 'utf-8)
