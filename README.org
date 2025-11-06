@@ -381,4 +381,17 @@ Emacs Solo defaults:
 
 The =doc-view-resolution= variable is the way to go.
 
+*** 18.) Open an URL under point
+
+Given =global-goto-address-mode= is set to =t=, we can =C-c RET= to url
+under point. This will use your system default browser.
+
+If you'd like to use =EWW= and never leave Emacs, simply set
+=browse-url-secondary-browser-function= to ='eww-browse-url=. This way you
+can =C-u C-c RET=.
+
+*** 19.) Open a file when path is under point
+
+Use =C-x f= and then =M-n= to get the path under point fed to =file-find=.
+
 #+html:</details>
