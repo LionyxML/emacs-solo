@@ -606,10 +606,21 @@ If ###@### is found, remove it and place point there at the end."
       ("nerdgit" "")
       ("nerdemacs" "")
 
-      ;; HTML entities
+      ;; HTML
       ("nb" "&nbsp;")
-      ("lt" "&lt;")
-      ("gt" "&gt;")
+      ("lt" "&lt;")      ;; <
+      ("gt" "&gt;")      ;; >
+      ("le" "&le;")      ;; ≤
+      ("ge" "&ge;")      ;; ≥
+      ("ap" "&apos;")    ;; '
+      ("la" "&laquo;")   ;; «
+      ("ra" "&raquo;")   ;; »
+      ("co" "&copy;")    ;; ©
+      ("tm" "&trade;")   ;; ™
+      ("em" "&mdash;")   ;; —
+      ("en" "&ndash;")   ;; –
+      ("dq" "&quot;")    ;; "
+      ("html" "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Document</title>\n</head>\n<body>\n\n</body>\n</html>")
 
       ;; Utils
       ("isodate" ""
