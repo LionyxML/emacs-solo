@@ -394,4 +394,9 @@ can =C-u C-c RET=.
 
 Use =C-x f= and then =M-n= to get the path under point fed to =file-find=.
 
+*** 20.) Kill buffer and close window
+
+Usually =C-x k= kills a buffer, but it keeps the window opened. If you
+wish to kill and close window, use =C-x 4 0= (=kill-buffer-and-window=).
+
 #+html:</details>
