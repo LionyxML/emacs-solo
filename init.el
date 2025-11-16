@@ -4513,11 +4513,18 @@ you can later apply as a patch after reviewing the changes."
   :init
   (setq emacs-solo-weather-city "Indaiatuba")
 
-  (defun emacs-solo/weather-buffer ()
-    "Open a new Emacs buffer and asynchronously fetch wttr.in weather data."
+  (defun emacs-solo/weather-buffer (&optional which)
+    "Open a new buffer and asynchronously fetch wttr.in weather data.
+
+Optional WHICH:
+  'url1 → fetch only wttr.in
+  'url2 → fetch only v2d.wttr.in
+  nil   → fetch both."
     (interactive)
     (let* ((city (shell-quote-argument emacs-solo-weather-city))
-           (buffer (get-buffer-create "*Weather*"))
+           (buffer (get-buffer-create
+                    (format "*Weather-%s*"
+                            (format-time-string "%Y-%m-%dT%H:%M:%S"))))
            (url1 (format "curl -s 'wttr.in/%s?format'" city))
            (url2 (format "curl -s 'v2d.wttr.in/%s?format'" city)))
       (with-current-buffer buffer
@@ -4526,9 +4533,15 @@ you can later apply as a patch after reviewing the changes."
         (insert "Fetching weather data...\n")
         (read-only-mode 1))
       (switch-to-buffer buffer)
-      ;; Fetch both asynchronously
-      (emacs-solo--fetch-weather url1 buffer)
-      (emacs-solo--fetch-weather url2 buffer t)))
+
+      (pcase which
+        ('url1
+         (emacs-solo--fetch-weather url1 buffer))
+        ('url2
+         (emacs-solo--fetch-weather url2 buffer t))
+        (_
+         (emacs-solo--fetch-weather url1 buffer)
+         (emacs-solo--fetch-weather url2 buffer t)))))
 
   (defun emacs-solo--fetch-weather (cmd buffer &optional second)
     "Run CMD asynchronously and insert results into BUFFER.
@@ -4571,23 +4584,35 @@ If SECOND is non-nil, separate the results with a newline."
   (setq emacs-solo-rate-crypto "BTC")
   (setq emacs-solo-rate-fiat "USD")
 
-  (defun emacs-solo/rate-buffer ()
-    "Open a new Emacs buffer and asynchronously fetch wttr.in weather data."
-    (interactive)
-    (let* (
-           (crypto (shell-quote-argument emacs-solo-rate-crypto))
-           (fiat (shell-quote-argument emacs-solo-rate-fiat))
-           (buffer (get-buffer-create "*Rate*"))
-           (url1 (format "curl -s '%s.rate.sx/%s'" fiat crypto))
-           (url2 (format "curl -s '%s.rate.sx/'" fiat)))
-      (with-current-buffer buffer
-        (read-only-mode -1)
-        (erase-buffer)
-        (read-only-mode 1))
-      (switch-to-buffer buffer)
-      ;; Fetch both asynchronously
-      (emacs-solo--fetch-rate url1 buffer)
-      (emacs-solo--fetch-rate url2 buffer t)))
+  (defun emacs-solo/rate-buffer (&optional which)
+  "Open a new buffer and asynchronously fetch rate.sx data.
+
+WHICH may be:
+  'url1 → fetch only the crypto pair
+  'url2 → fetch only the fiat summary
+  nil   → fetch both"
+  (interactive)
+  (let* ((crypto (shell-quote-argument emacs-solo-rate-crypto))
+         (fiat   (shell-quote-argument emacs-solo-rate-fiat))
+         (buffer (get-buffer-create
+                  (format "*Rate-%s*"
+                          (format-time-string "%Y-%m-%dT%H:%M:%S"))))
+         (url1   (format "curl -s '%s.rate.sx/%s'" fiat crypto))
+         (url2   (format "curl -s '%s.rate.sx/'"   fiat)))
+    (with-current-buffer buffer
+      (read-only-mode -1)
+      (erase-buffer)
+      (read-only-mode 1))
+    (switch-to-buffer buffer)
+
+    (pcase which
+      ('url1
+       (emacs-solo--fetch-rate url1 buffer))
+      ('url2
+       (emacs-solo--fetch-rate url2 buffer t))
+      (_
+       (emacs-solo--fetch-rate url1 buffer)
+       (emacs-solo--fetch-rate url2 buffer t)))))
 
   (defun emacs-solo--fetch-rate (cmd buffer &optional second)
     "Run CMD asynchronously and insert results into BUFFER.
@@ -4612,6 +4637,11 @@ If SECOND is non-nil, separate the results with a newline."
                     (".*Follow.*" . " ")
                     ("[\x0f]" . ""))
                   output))
+           (when second
+             (setq output
+                   (string-join
+                    (nthcdr 5 (split-string output "\n"))
+                    "\n")))
            (with-current-buffer buffer
              (read-only-mode -1)
              (when second (insert "\n\n"))
