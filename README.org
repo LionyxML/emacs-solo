@@ -65,7 +65,7 @@ hacky workaround is always added.
 #+html:<details>
 #+html:<summary><h3>More screenshots here...</h3></summary>
 
-*** iComplete + Flymake + Gutter
+*** iComplete (in buffer completion) + Flymake + Gutter
    [[file:doc/demo-02-icomplete-flymake-gutter.png]]
 
 *** Help Variable
@@ -84,6 +84,17 @@ hacky workaround is always added.
 
 *** Well behaved mode-line
    [[file:doc/demo-08-mode-line.png]]
+
+*** Single init file with sections
+   [[file:doc/demo-09-single-init-file-with-sections.png]]
+   [[file:doc/demo-10-single-init-file-with-sections-2.png]]
+
+*** Every enhancement is optional and customizable
+
+Use =M-x customize-group emacs-solo RET=.
+
+   [[file:doc/demo-11-custom-emacs-solo-group.png]]
+
 
 #+html:</details>
 
