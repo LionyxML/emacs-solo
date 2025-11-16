@@ -2416,12 +2416,29 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      :tag (if (display-graphic-p) "  " "> ")))
 
 
+;; FIXME: There's a bug on newsticker when using newsticker-treeview,
+;;        you hit 'f' and the focus is on the tree, while the
+;;        newsticker--treeview-render-text receives positions from
+;;        another buffer, this way it fails to try to render html.
+;;        As this is harmless, we are silently ignoring it.
+(with-eval-after-load 'newst-treeview
+  (defun emacs-solo/newsticker-silence-html-messages (orig-fun &rest args)
+    "Silence all messages and errors from ORIG-FUN."
+    (let ((inhibit-message t)      ;; no `message`
+          (message-log-max nil))   ;; do not write to *Messages*
+      (condition-case nil
+          (apply orig-fun args)    ;; run function normally
+        (error nil))))             ;; swallow any error silently
+  (advice-add 'newsticker--treeview-render-text :around
+              #'emacs-solo/newsticker-silence-html-messages))
+
 (use-package newsticker
   :ensure nil
   :defer t
   :custom
   (newsticker-treeview-treewindow-width 40)
   (newsticker-dir (expand-file-name "cache/newsticker/" user-emacs-directory))
+  (newsticker-retrieval-method (if (executable-find "wget") 'extern 'intern))
   :hook
   (newsticker-treeview-mode-hook
    . (lambda ()
