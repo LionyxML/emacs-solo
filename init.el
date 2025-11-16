@@ -712,16 +712,16 @@ If ###@### is found, remove it and place point there at the end."
       (window-width . 100)
       (side . right)
       (slot . 1))
-     ("\\*\\(Flymake diagnostics\\|xref\\|Completions\\)"
-      (display-buffer-in-side-window)
-      (window-height . 0.25)
-      (side . bottom)
-      (slot . 1))
-     ("\\*\\(grep\\|find\\)\\*"
+     ("\\*\\(Flymake diagnostics\\|Completions\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
       (side . bottom)
       (slot . 2))
+     ("\\*\\(grep\\|xref\\|find\\)\\*"
+      (display-buffer-in-side-window)
+      (window-height . 0.25)
+      (side . bottom)
+      (slot . 1))
      ("\\*\\(M3U Playlist\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
