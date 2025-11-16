@@ -62,7 +62,7 @@ hacky workaround is always added.
 *** Overall View
    [[file:doc/demo-01-overall.png]]
 
-#+html:<details>
+#+html:<details open>
 #+html:<summary><h3>More screenshots here...</h3></summary>
 
 *** iComplete (in buffer completion) + Flymake + Gutter
