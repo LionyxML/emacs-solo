@@ -456,6 +456,36 @@ This allows using a specific environment or scratch context."
   ;; So rebase from eshell opens with a bit of syntax highlight
   (add-to-list 'auto-mode-alist '("/git-rebase-todo\\'" . conf-mode))
 
+  ;; Makes any xref buffer "exportable" to a grep buffer with "E" so you can edit it with "e".
+  (defun emacs-solo/xref-to-grep-compilation ()
+    "Export the current Xref results to a grep-like buffer (Emacs 30+)."
+    (interactive)
+    (unless (derived-mode-p 'xref--xref-buffer-mode)
+      (user-error "Not in an Xref buffer"))
+
+    (let* ((items (and (boundp 'xref--fetcher)
+                       (funcall xref--fetcher)))
+           (buf-name "*xref→grep*")
+           (grep-buf (get-buffer-create buf-name)))
+      (unless items
+        (user-error "No xref items found"))
+
+      (with-current-buffer grep-buf
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert (format "-*- mode: grep; default-directory: %S -*-\n\n"
+                          default-directory))
+          (dolist (item items)
+            (let* ((loc (xref-item-location item))
+                   (file (xref-file-location-file loc))
+                   (line (xref-file-location-line loc))
+                   (summary (xref-item-summary item)))
+              (insert (format "%s:%d:%s\n" file line summary)))))
+        (grep-mode))
+      (pop-to-buffer grep-buf)))
+  (with-eval-after-load 'xref
+    (define-key xref--xref-buffer-mode-map (kbd "E")
+                #'emacs-solo/xref-to-grep-compilation))
 
   ;; Runs 'private.el' after Emacs inits
   (add-hook 'after-init-hook
