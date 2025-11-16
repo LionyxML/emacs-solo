@@ -1857,7 +1857,8 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   :defer nil
   :config
   (setopt
-   vc-auto-revert-mode t              ; EMACS-31
+   vc-auto-revert-mode t                    ; EMACS-31
+   vc-allow-rewriting-published-history t   ; EMACS-31
    vc-git-diff-switches '("--patch-with-stat" "--histogram")  ;; add stats to `git diff'
    vc-git-log-switches '("--stat")                            ;; add stats to `git log'
    vc-git-log-edit-summary-target-len 50
@@ -1866,7 +1867,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
    vc-git-revision-complete-only-branches nil
    vc-annotate-display-mode 'scale
    add-log-keep-changes-together t
-   vc-dir-hide-up-to-date-on-revert t ; EMACS-31
+   vc-dir-hide-up-to-date-on-revert t       ; EMACS-31
    vc-make-backup-files nil)                                  ;; Do not backup version controlled files
 
   (with-eval-after-load 'vc-annotate
