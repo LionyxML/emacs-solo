@@ -223,7 +223,7 @@ Of course, you can also fork it! (please do 😊)
 
 ** How do I...
 A FAQ like session of common questions of how to do X with only Emacs Solo.
-#+html:<details>
+#+html:<details open>
 #+html:<summary><h3>So, how do I...</h3></summary>
 *** 1.) Copy the current word under cursor?
 The usual answer is *M-b* to go back to the beginning of the
