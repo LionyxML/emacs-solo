@@ -544,31 +544,101 @@ or is an ERC buffer."
 
 
 ;;; │ ABBREV
+;;
+;;  A nice resource about it: https://www.rahuljuliato.com/posts/abbrev-mode
 (use-package abbrev
   :ensure nil
+  :custom
+  (save-abbrevs nil)
   :config
-  ;; Define global abbrevs
-  ;;   The idea here is to call abbrevs manually with C-x '
-  ;;   this way, the extra emacs-lisp is executed.
+  (defun emacs-solo/abbrev--replace-placeholders ()
+    "Replace placeholders ###1###, ###2###, ... with minibuffer input.
+If ###@### is found, remove it and place point there at the end."
+    (let ((cursor-pos nil)) ;; to store where to place point
+      (save-excursion
+        (goto-char (point-min))
+        (let ((loop 0)
+              (values (make-hash-table :test 'equal)))
+          (while (re-search-forward "###\\([0-9]+\\|@\\)###" nil t)
+            (setq loop (1+ loop))
+            (let* ((index (match-string 1))
+                   (start (match-beginning 0))
+                   (end (match-end 0)))
+              (cond
+               ((string= index "@")
+                (setq cursor-pos start)
+                (delete-region start end))
+               (t
+                (let* ((key (format "###%s###" index))
+                       (val (or (gethash key values)
+                                (let ((input (read-string (format "Value for %s: " key))))
+                                  (puthash key input values)
+                                  input))))
+                  (goto-char start)
+                  (delete-region start end)
+                  (insert val)
+                  (goto-char (+ start (length val))))))))))
+      (when cursor-pos
+        (goto-char cursor-pos))))
+
   (define-abbrev-table 'global-abbrev-table
-    '(
-      ;; Arrows
+    '(;; Arrows
       ("ra" "→")
       ("la" "←")
       ("ua" "↑")
       ("da" "↓")
 
-      ;; Console logging (with cursor jump)
-      ("clog" "console.log(\">>> LOG:\", {@})"
-       (lambda () (search-backward "@") (delete-char 1)))
-      ("cwarn" "console.warn(\">>> WARN:\", {@})"
-       (lambda () (search-backward "@") (delete-char 1)))
-      ("cerr" "console.error(\">>> ERR:\", {@})"
+      ;; Emojis for context markers
+      ("todo"  "👷 TODO:")
+      ("fixme" "🔥 FIXME:")
+      ("note"  "📎 NOTE:")
+      ("hack"  "👾 HACK:")
+      ("pinch"  "🤌")
+      ("smile"  "😄")
+      ("party" "🎉")
+      ("up"  "☝️")
+      ("applause" "👏")
+      ("manyapplauses" "👏👏👏👏👏👏👏👏")
+      ("heart" "❤️")
+
+      ;; NerdFonts
+      ("nerdfolder" " ")
+      ("nerdgit" "")
+      ("nerdemacs" "")
+
+      ;; HTML entities
+      ("nb" "&nbsp;")
+      ("lt" "&lt;")
+      ("gt" "&gt;")
+
+      ;; Utils
+      ("isodate" ""
+       (lambda () (insert (format "%s" (format-time-string "%Y-%m-%dT%H:%M:%S")))))
+
+      ("uuid" ""
+       (lambda () (insert (org-id-uuid))))
+
+      ;; Markdown
+      ("cb" "```@\n\n```"
        (lambda () (search-backward "@") (delete-char 1)))
 
+      ;; ORG
+      ("ocb" "#+BEGIN_SRC @\n\n#+END_SRC"
+       (lambda () (search-backward "@") (delete-char 1)))
+      ("oheader" "#+TITLE: ###1###\n#+AUTHOR: ###2###\n#+EMAIL: ###3###\n#+OPTIONS: toc:nil\n"
+       emacs-solo/abbrev--replace-placeholders)
+
       ;; JS/TS snippets
-      ("fn" "function() {\n  \n}"
-       (lambda () (search-backward "}") (forward-line -1) (end-of-line)))
+      ("imp" "import { ###1### } from '###2###';"
+       emacs-solo/abbrev--replace-placeholders)
+      ("fn" "function ###1### () {\n ###@### ;\n};"
+       emacs-solo/abbrev--replace-placeholders)
+      ("clog" "console.log(\">>> LOG:\", { ###@### })"
+       emacs-solo/abbrev--replace-placeholders)
+      ("cwarn" "console.warn(\">>> WARN:\", { ###@### })"
+       emacs-solo/abbrev--replace-placeholders)
+      ("cerr" "console.error(\">>> ERR:\", { ###@### })"
+       emacs-solo/abbrev--replace-placeholders)
       ("afn" "async function() {\n  \n}"
        (lambda () (search-backward "}") (forward-line -1) (end-of-line)))
       ("ife" "(function() {\n  \n})();"
@@ -578,30 +648,9 @@ or is an ERC buffer."
       ("eshooks" "// eslint-disable-next-line react-hooks/rules-of-hooks"
        (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
 
-
       ;; React/JSX
-      ("rfc" "const ${1:ComponentName} = () => {\n  return (\n    <div>@</div>\n  );\n};"
-       (lambda () (search-backward "@") (delete-char 1)))
-      ("imp" "import {} from '@';"
-       (lambda () (search-backward "@") (delete-char 1)))
-
-      ;; Markdown
-      ("cb" "```@\n\n```"
-       (lambda () (search-backward "@") (delete-char 1)))
-
-      ;; ORG
-      ("cb" "#+BEGIN_SRC @\n\n#+END_SRC"
-       (lambda () (search-backward "@") (delete-char 1)))
-
-      ;; Emojis for context markers
-      ("todo"  "👷 TODO:")
-      ("fixme" "🔧 FIXME:")
-      ("note"  "ℹ️ NOTE:")
-
-      ;; HTML entities
-      ("nb" "&nbsp;")
-      ("lt" "&lt;")
-      ("gt" "&gt;"))))
+      ("rfc" "const ###1### = () => {\n  return (\n    <div>###2###</div>\n  );\n};"
+       emacs-solo/abbrev--replace-placeholders))))
 
 
 ;;; │ AUTH-SOURCE
