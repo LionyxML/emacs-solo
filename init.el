@@ -261,6 +261,8 @@ This allows using a specific environment or scratch context."
   (window-combination-resize t)
   (window-resize-pixelwise nil)
   (xref-search-program 'ripgrep)
+  (zone-all-frames t)            ; EMACS-31
+  (zone-all-windows-in-frame t)  ; EMACS-31
   (zone-programs '[zone-pgm-rat-race])
   (grep-command "rg -nS --no-heading ")
   (grep-find-ignored-directories
