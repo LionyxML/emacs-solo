@@ -616,8 +616,8 @@ If ###@### is found, remove it and place point there at the end."
       ("le" "&le;")      ;; ≤
       ("ge" "&ge;")      ;; ≥
       ("ap" "&apos;")    ;; '
-      ("la" "&laquo;")   ;; «
-      ("ra" "&raquo;")   ;; »
+      ("laa" "&laquo;")  ;; «
+      ("raa" "&raquo;")  ;; »
       ("co" "&copy;")    ;; ©
       ("tm" "&trade;")   ;; ™
       ("em" "&mdash;")   ;; —
