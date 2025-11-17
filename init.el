@@ -115,7 +115,8 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   :type '(choice
           (const :tag "Disabled" nil)
           (const :tag "Catppuccin" catppuccin)
-          (const :tag "Crafters" crafters))
+          (const :tag "Crafters" crafters)
+          (const :tag "Matrix" matrix))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-completion-box nil
@@ -3237,6 +3238,160 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      `(vc-dir-header-value ((,c :foreground "#a1bfff")))))
   :init
   (load-theme 'modus-vivendi-tinted t))
+
+
+;;; │ Matrix Based Theme (hacked Modus)
+(use-package modus-themes
+  :if (eq emacs-solo-use-custom-theme 'matrix)
+  :ensure nil
+  :defer t
+  :custom
+  (modus-themes-italic-constructs t)
+  (modus-themes-bold-constructs t)
+  (modus-themes-mixed-fonts nil)
+  (modus-themes-prompts '(bold intense))
+
+  ;; MATRIX COLOR SCHEME OVERRIDES
+  (modus-themes-common-palette-overrides
+   `(
+     ;; accents → bright greens
+     (accent-0 "#00FF41")      ; malachite
+     (accent-1 "#008F11")      ; islamic green
+
+     ;; backgrounds
+     (bg-active bg-main)
+     (bg-added "#003B00")              ; dark green
+     (bg-added-refine "#005A00")       ; slightly brighter
+     (bg-changed "#004800")
+     (bg-changed-refine "#006600")
+     (bg-completion "#0D0208")         ; vampire black
+     (bg-completion-match-0 "#0D0208")
+     (bg-completion-match-1 "#0D0208")
+     (bg-completion-match-2 "#0D0208")
+     (bg-completion-match-3 "#0D0208")
+     (bg-hl-line "#002200")
+     (bg-hover-secondary "#003B00")
+     (bg-line-number-active unspecified)
+     (bg-line-number-inactive "#0D0208")
+     (bg-main "#0D0208")
+     (bg-mark-delete "#190A10")
+     (bg-mark-select "#003B00")
+     (bg-mode-line-active "#001900")
+     (bg-mode-line-inactive "#001900")
+     (bg-prominent-err "#190A10")
+     (bg-prompt unspecified)
+     (bg-prose-block-contents "#001600")
+     (bg-prose-block-delimiter bg-prose-block-contents)
+     (bg-region "#003B00")
+     (bg-removed "#190A10")
+     (bg-removed-refine "#2B1520")
+     (bg-tab-bar      "#0D0208")
+     (bg-tab-current  bg-main)
+     (bg-tab-other    "#0D0208")
+
+     ;; borders
+     (border-mode-line-active nil)
+     (border-mode-line-inactive nil)
+
+     ;; foreground semantic groups
+     (builtin "#00FF41")
+     (comment "#005A00")          ; dim green
+     (constant  "#00FF41")
+     (cursor  "#00FF41")
+     (date-weekday "#00FF41")
+     (date-weekend "#008F11")
+     (docstring "#00C738")
+     (err     "#00FF71")     ;; red is NOT in Matrix palette—using red for contrast
+     (fg-active fg-main)
+     (fg-completion "#00FF41")
+     (fg-completion-match-0 "#00FF41")
+     (fg-completion-match-1 "#00FF71")   ;; keeping semantic separation
+     (fg-completion-match-2 "#00C738")
+     (fg-completion-match-3 "#008F11")
+
+     ;; headings mapped from bright → dark green gradient
+     (fg-heading-0 "#00FF41")
+     (fg-heading-1 "#00C738")
+     (fg-heading-2 "#00A52A")
+     (fg-heading-3 "#008F11")
+     (fg-heading-4 "#005A00")
+
+     (fg-line-number-active "#00FF41")
+     (fg-line-number-inactive "#006600")
+     (fg-link  "#00FF41")
+     (fg-main "#00FF41")
+     (fg-mark-delete "#00FF71")
+     (fg-mark-select "#00FF41")
+     (fg-mode-line-active "#00C738")
+     (fg-mode-line-inactive "#005A00")
+     (fg-prominent-err "#00FF71")
+     (fg-prompt "#00FF41")
+     (fg-prose-block-delimiter "#006600")
+     (fg-prose-verbatim "#00C738")
+     (fg-region "#00FF41")
+     (fnname    "#00FF41")
+     (fringe "#0D0208")
+     (identifier "#00C738")
+     (info    "#00FF41")
+     (keyword   "#00C738")
+     (keyword "#00C738")
+     (name "#00FF41")
+     (number "#008F11")
+     (property "#00FF41")
+     (string "#00C738")
+     (type      "#00A52A")
+     (variable  "#008F11")
+     (warning "#00A52A")))
+  :config
+  (modus-themes-with-colors
+    (custom-set-faces
+     `(change-log-acknowledgment ((,c :foreground "#00C738")))
+     `(change-log-date ((,c :foreground "#008F11")))
+     `(change-log-name ((,c :foreground "#00A52A")))
+     `(diff-context ((,c :foreground "#00FF41")))
+     `(diff-file-header ((,c :foreground "#00C738")))
+     `(diff-header ((,c :foreground "#00FF41")))
+     `(diff-hunk-header ((,c :foreground "#008F11")))
+
+     `(flymake-warning ((,c :foreground "#00A52A"
+                      :underline (:color "#00A52A" :style wave))))
+     `(flymake-note ((,c :foreground "#00FF41"
+                      :underline (:color "#00FF41" :style wave))))
+     `(link ((,c :foreground "#00FF41"
+                      :underline (:color "#00FF41" :style line))))
+
+     ;; GNUS
+     `(gnus-button ((,c :foreground "#00FF41")))
+     `(gnus-group-mail-3 ((,c :foreground "#00FF41")))
+     `(gnus-group-mail-3-empty ((,c :foreground "#00FF41")))
+     `(gnus-header-content ((,c :foreground "#00C738")))
+     `(gnus-header-from ((,c :foreground "#008F11")))
+     `(gnus-header-name ((,c :foreground "#00C738")))
+     `(gnus-header-subject ((,c :foreground "#00FF41")))
+
+     `(log-view-message ((,c :foreground "#00C738")))
+     `(match ((,c :background "#003B00" :foreground "#00FF41")))
+
+     `(modus-themes-search-current ((,c :background "#00FF41" :foreground "#0D0208")))
+     `(modus-themes-search-lazy ((,c :background "#003B00" :foreground "#00FF41")))
+
+     ;; Newsticker
+     `(newsticker-extra-face ((,c :foreground "#005A00" :height 0.8 :slant italic)))
+     `(newsticker-feed-face ((,c :foreground "#00A52A" :height 1.2 :weight bold)))
+     `(newsticker-treeview-face ((,c :foreground "#00FF41")))
+     `(newsticker-treeview-selection-face ((,c :background "#003B00" :foreground "#00FF41")))
+
+     ;; Tabs
+     `(tab-bar ((,c :background "#0D0208" :foreground "#00C738")))
+     `(tab-bar-tab ((,c :background "#0D0208" :underline t)))
+     `(tab-bar-tab-group-current ((,c :background "#0D0208" :foreground "#00C738" :underline t)))
+     `(tab-bar-tab-group-inactive ((,c :background "#0D0208" :foreground "#005A00"))))
+
+    `(tab-bar-tab-inactive ((,c :background "#0D0208" :foreground "#008F11")))
+    `(vc-dir-file ((,c :foreground "#00FF41")))
+    `(vc-dir-header-value ((,c :foreground "#00C738"))))
+  :init
+  (load-theme 'modus-vivendi t))
 
 
 ;;; ├──────────────────── NON TREESITTER AREA
