@@ -456,6 +456,9 @@ This allows using a specific environment or scratch context."
   ;; So rebase from eshell opens with a bit of syntax highlight
   (add-to-list 'auto-mode-alist '("/git-rebase-todo\\'" . conf-mode))
 
+  ;; Mute NPM loglevel so it wont interfer with other issued commands like grep
+  (setenv "NPM_CONFIG_LOGLEVEL" "silent")
+
   ;; Makes any xref buffer "exportable" to a grep buffer with "E" so you can edit it with "e".
   (defun emacs-solo/xref-to-grep-compilation ()
     "Export the current Xref results to a grep-like buffer (Emacs 30+)."
