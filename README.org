@@ -149,8 +149,12 @@ It is recommended you have this programs in your system:
   site from Emacs Solo, by using either =emacs-solo/0x0-upload-text= or
   =emacs-solo/0x0-upload-file=.
 
-  Also used for =emacs-solo-weather=.
+  Also used for =emacs-solo-weather= and =emacs-solo-rate=.
 
+- =wget=
+
+  If present on the system, emacs-solo =newsticker= config uses it
+  instead of the internal fetcher.
 
 - =mpv=
 

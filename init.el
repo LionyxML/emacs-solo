@@ -2453,6 +2453,11 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (newsticker-treeview-treewindow-width 40)
   (newsticker-dir (expand-file-name "cache/newsticker/" user-emacs-directory))
   (newsticker-retrieval-method (if (executable-find "wget") 'extern 'intern))
+  (newsticker-wget-arguments
+   '("--quiet"
+     "--no-hsts"
+     "--output-document=-"
+     "--append-output=/dev/null"))
   :hook
   (newsticker-treeview-mode-hook
    . (lambda ()
