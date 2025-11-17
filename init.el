@@ -5720,7 +5720,9 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
                 (process-send-eof proc)))))
     (setq interprogram-paste-function
           (lambda ()
-            (shell-command-to-string "pbpaste"))))
+            (with-temp-buffer
+              (call-process "/usr/bin/pbpaste" nil t nil)
+              (buffer-string)))))
 
    ;; WSL (Windows Subsystem for Linux): Use clip.exe for copy and powershell.exe for paste
    ((and (eq system-type 'gnu/linux)
