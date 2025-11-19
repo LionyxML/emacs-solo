@@ -5998,6 +5998,10 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
           (go-ts-mode)
           (font-lock-ensure))
 
+        (when (memq origin-major-mode '(rust-ts-mode))
+          (rust-ts-mode)
+          (font-lock-ensure))
+
         (visual-line-mode 1)
         (display-line-numbers-mode -1))
 
