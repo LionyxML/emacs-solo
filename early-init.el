@@ -86,8 +86,7 @@ If reset values are nil, nothing is reset."
       '(:eval
         (let ((project (project-current)))
           (if project
-              (concat "Emacs - [p] "
-                      (file-name-nondirectory (directory-file-name (project-root project))))
+              (concat "Emacs - [p] " (project-name project))
               (concat "Emacs - " (buffer-name))))))
 
 (when (eq system-type 'darwin)
