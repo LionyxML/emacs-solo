@@ -67,10 +67,10 @@
   '(dired eshell ibuffer)
   "List of Emacs Solo icon features that are enabled."
   :type '(set :tag "Enabled Emacs Solo icon features"
-              (const :tag "Dired Icons" dired)
-              (const :tag "Eshell Icons" eshell)
-              (const :tag "Ibuffer Icons" ibuffer)
-              (const :tag "Nerd Font Icons" nerd))
+			  (const :tag "Dired Icons" dired)
+			  (const :tag "Eshell Icons" eshell)
+			  (const :tag "Ibuffer Icons" ibuffer)
+			  (const :tag "Nerd Font Icons" nerd))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-dired-gutter t
@@ -113,10 +113,10 @@
 IMPORTANT NOTE: If you disable this or choose another theme, also check
 `emacs-solo-avoid-flash-options` to ensure compatibility."
   :type '(choice
-          (const :tag "Disabled" nil)
-          (const :tag "Catppuccin" catppuccin)
-          (const :tag "Crafters" crafters)
-          (const :tag "Matrix" matrix))
+		  (const :tag "Disabled" nil)
+		  (const :tag "Catppuccin" catppuccin)
+		  (const :tag "Crafters" crafters)
+		  (const :tag "Matrix" matrix))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-completion-box nil
@@ -144,7 +144,7 @@ Examples: `Maple Mono NF' or `JetBrainsMono Nerd Font'."
   "If non-nil, Gemini commands run from this directory.
 This allows using a specific environment or scratch context."
   :type '(choice (const :tag "Disabled" nil)
-                 (directory :tag "Gemini Scratch Directory"))
+				 (directory :tag "Gemini Scratch Directory"))
   :group 'emacs-solo)
 
 ;;; ┌──────────────────── GENERAL EMACS CONFIG
@@ -230,9 +230,9 @@ This allows using a specific environment or scratch context."
   (savehist-save-minibuffer-history t)    ; t is default
   (savehist-additional-variables
    '(kill-ring                            ; clipboard
-     register-alist                       ; macros
-     mark-ring global-mark-ring           ; marks
-     search-ring regexp-search-ring))     ; searches
+	 register-alist                       ; macros
+	 mark-ring global-mark-ring           ; marks
+	 search-ring regexp-search-ring))     ; searches
   (savehist-file (expand-file-name "cache/history" user-emacs-directory))
   (save-place-file (expand-file-name "cache/saveplace" user-emacs-directory))
   (save-place-limit 600)
@@ -275,19 +275,19 @@ This allows using a specific environment or scratch context."
 
   ;; Sets outline-mode for the `init.el' file
   (defun emacs-solo/outline-init-file ()
-    (when (and (buffer-file-name)
-               (string-match-p "init\\.el\\'" (buffer-file-name)))
-      (outline-minor-mode 1)
-      (outline-hide-sublevels 1)))
+	(when (and (buffer-file-name)
+			   (string-match-p "init\\.el\\'" (buffer-file-name)))
+	  (outline-minor-mode 1)
+	  (outline-hide-sublevels 1)))
   (when emacs-solo-enable-outline-init
-    (add-hook 'emacs-lisp-mode-hook #'emacs-solo/outline-init-file))
+	(add-hook 'emacs-lisp-mode-hook #'emacs-solo/outline-init-file))
 
   ;; Make C-x 5 o repeatable
   (defvar-keymap frame-repeat-map
-    :repeat t
-    "o" #'other-frame
-    "n" #'make-frame
-    "d" #'delete-frame)
+	:repeat t
+	"o" #'other-frame
+	"n" #'make-frame
+	"d" #'delete-frame)
   (put 'other-frame 'repeat-map 'frame-repeat-map)
 
   ;; Makes everything accept utf-8 as default, so buffers with tsx and so
@@ -296,45 +296,45 @@ This allows using a specific environment or scratch context."
 
   ;; Setup preferred fonts when present on System
   (defun emacs-solo/setup-font ()
-    (let* ((emacs-solo-have-default-font (find-font (font-spec :family emacs-solo-preferred-font-name)))
-           (size (nth (if (eq system-type 'darwin) 0 1)
-                      emacs-solo-preferred-font-sizes)))
-      (set-face-attribute 'default nil
-                          :family (when emacs-solo-have-default-font
-                                    emacs-solo-preferred-font-name)
-                          :height size)
+	(let* ((emacs-solo-have-default-font (find-font (font-spec :family emacs-solo-preferred-font-name)))
+		   (size (nth (if (eq system-type 'darwin) 0 1)
+					  emacs-solo-preferred-font-sizes)))
+	  (set-face-attribute 'default nil
+						  :family (when emacs-solo-have-default-font
+									emacs-solo-preferred-font-name)
+						  :height size)
 
-      ;; macOS specific fine-tuning
-      (when (and (eq system-type 'darwin) emacs-solo-have-default-font)
-        ;; Glyphs for powerline/icons
-        (set-fontset-font t '(#xe0b0 . #xe0bF) (font-spec :family emacs-solo-preferred-font-name))
-        ;; Emojis
-        (set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'append)
-        (add-to-list 'face-font-rescale-alist '("Apple Color Emoji" . 0.8)))))
+	  ;; macOS specific fine-tuning
+	  (when (and (eq system-type 'darwin) emacs-solo-have-default-font)
+		;; Glyphs for powerline/icons
+		(set-fontset-font t '(#xe0b0 . #xe0bF) (font-spec :family emacs-solo-preferred-font-name))
+		;; Emojis
+		(set-fontset-font t 'emoji (font-spec :family "Apple Color Emoji") nil 'append)
+		(add-to-list 'face-font-rescale-alist '("Apple Color Emoji" . 0.8)))))
 
   ;; Load Preferred Font Setup
   (when emacs-solo-enable-preferred-font
-    (emacs-solo/setup-font))
+	(emacs-solo/setup-font))
 
   ;; MacOS specific customizations
   (when (eq system-type 'darwin)
-    (setq insert-directory-program "gls")
-    (setq mac-command-modifier 'meta))
+	(setq insert-directory-program "gls")
+	(setq mac-command-modifier 'meta))
 
   ;; We want auto-save, but no #file# cluterring, so everything goes under our config cache/
   (make-directory (expand-file-name "cache/auto-saves/" user-emacs-directory) t)
   (setq auto-save-list-file-prefix (expand-file-name "cache/auto-saves/sessions/" user-emacs-directory)
-        auto-save-file-name-transforms `((".*" ,(expand-file-name "cache/auto-saves/" user-emacs-directory) t)))
+		auto-save-file-name-transforms `((".*" ,(expand-file-name "cache/auto-saves/" user-emacs-directory) t)))
 
   ;; For OSC 52 compatible terminals support
   (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 
   ;; TERMs should use the entire window space
   (defun emacs-solo/disable-global-scrolling-in-ansi-term ()
-    "Disable global scrolling behavior in ansi-term buffers."
-    (setq-local scroll-conservatively 101)
-    (setq-local scroll-margin 0)
-    (setq-local scroll-step 0))
+	"Disable global scrolling behavior in ansi-term buffers."
+	(setq-local scroll-conservatively 101)
+	(setq-local scroll-margin 0)
+	(setq-local scroll-step 0))
   (add-hook 'term-mode-hook #'emacs-solo/disable-global-scrolling-in-ansi-term)
 
   ;; TRAMP specific HACKs
@@ -348,8 +348,8 @@ This allows using a specific environment or scratch context."
    'remote-direct-async-process)
 
   (with-eval-after-load 'tramp
-    (with-eval-after-load 'compile
-      (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
+	(with-eval-after-load 'compile
+	  (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
   (setopt tramp-persistency-file-name (expand-file-name "cache/tramp" user-emacs-directory))
 
@@ -370,9 +370,9 @@ This allows using a specific environment or scratch context."
   ;; Add option "d" to whenever using C-x s or C-x C-c, allowing a quick preview
   ;; of the diff (if you choose `d') of what you're asked to save.
   (add-to-list 'save-some-buffers-action-alist
-               (list "d"
-                     (lambda (buffer) (diff-buffer-with-file (buffer-file-name buffer)))
-                     "show diff between the buffer and its file"))
+			   (list "d"
+					 (lambda (buffer) (diff-buffer-with-file (buffer-file-name buffer)))
+					 "show diff between the buffer and its file"))
 
   ;; On Terminal: changes the vertical separator to a full vertical line
   ;;              and truncation symbol to a right arrow
@@ -381,71 +381,71 @@ This allows using a specific environment or scratch context."
 
   ;; Ibuffer filters
   (setq ibuffer-saved-filter-groups
-        '(("default"
-           ("org"     (or
-                       (mode . org-mode)
-                       (name . "^\\*Org Src")
-                       (name . "^\\*Org Agenda\\*$")))
-           ("tramp"   (name . "^\\*tramp.*"))
-           ("emacs"   (or
-                       (name . "^\\*scratch\\*$")
-                       (name . "^\\*Messages\\*$")
-                       (name . "^\\*Warnings\\*$")
-                       (name . "^\\*Shell Command Output\\*$")
-                       (name . "^\\*Async-native-compile-log\\*$")))
-           ("ediff"   (name . "^\\*[Ee]diff.*"))
-           ("vc"      (name . "^\\*vc-.*"))
-           ("dired"   (mode . dired-mode))
-           ("terminal" (or
-                        (mode . term-mode)
-                        (mode . shell-mode)
-                        (mode . eshell-mode)))
-           ("help"    (or
-                       (name . "^\\*Help\\*$")
-                       (name . "^\\*info\\*$")))
-           ("news"    (name . "^\\*Newsticker.*"))
-           ("gnus"    (or
-                       (mode . message-mode)
-                       (mode . gnus-group-mode)
-                       (mode . gnus-summary-mode)
-                       (mode . gnus-article-mode)
-                       (name . "^\\*Group\\*")
-                       (name . "^\\*Summary\\*")
-                       (name . "^\\*Article\\*")
-                       (name . "^\\*BBDB\\*")))
-           ("chat"    (or
-                       (mode . rcirc-mode)
-                       (mode . erc-mode)
-                       (name . "^\\*rcirc.*")
-                       (name . "^\\*ERC.*"))))))
+		'(("default"
+		   ("org"     (or
+					   (mode . org-mode)
+					   (name . "^\\*Org Src")
+					   (name . "^\\*Org Agenda\\*$")))
+		   ("tramp"   (name . "^\\*tramp.*"))
+		   ("emacs"   (or
+					   (name . "^\\*scratch\\*$")
+					   (name . "^\\*Messages\\*$")
+					   (name . "^\\*Warnings\\*$")
+					   (name . "^\\*Shell Command Output\\*$")
+					   (name . "^\\*Async-native-compile-log\\*$")))
+		   ("ediff"   (name . "^\\*[Ee]diff.*"))
+		   ("vc"      (name . "^\\*vc-.*"))
+		   ("dired"   (mode . dired-mode))
+		   ("terminal" (or
+						(mode . term-mode)
+						(mode . shell-mode)
+						(mode . eshell-mode)))
+		   ("help"    (or
+					   (name . "^\\*Help\\*$")
+					   (name . "^\\*info\\*$")))
+		   ("news"    (name . "^\\*Newsticker.*"))
+		   ("gnus"    (or
+					   (mode . message-mode)
+					   (mode . gnus-group-mode)
+					   (mode . gnus-summary-mode)
+					   (mode . gnus-article-mode)
+					   (name . "^\\*Group\\*")
+					   (name . "^\\*Summary\\*")
+					   (name . "^\\*Article\\*")
+					   (name . "^\\*BBDB\\*")))
+		   ("chat"    (or
+					   (mode . rcirc-mode)
+					   (mode . erc-mode)
+					   (name . "^\\*rcirc.*")
+					   (name . "^\\*ERC.*"))))))
 
   (add-hook 'ibuffer-mode-hook
-            (lambda ()
-              (ibuffer-switch-to-saved-filter-groups "default")))
+			(lambda ()
+			  (ibuffer-switch-to-saved-filter-groups "default")))
   (setq ibuffer-show-empty-filter-groups nil) ; don't show empty groups
 
 
   (defun emacs-solo/filtered-project-buffer-completer (project files-only)
-    "A custom `project-buffers-viewer` that filters '*...*' buffers and uses `completing-read`."
-    (let* ((project-buffers (project-buffers project))
-           (filtered-buffers
-            (cl-remove-if
-             (lambda (buffer)
-               (let* ((name (buffer-name buffer))
-                      (trimmed-name (string-trim name)))
-                 (or
-                  (and (> (length trimmed-name) 1)
-                       (string-prefix-p "*" trimmed-name)
-                       (string-suffix-p "*" trimmed-name))
-                  (and files-only (not (buffer-file-name buffer))))))
-             project-buffers)))
+	"A custom `project-buffers-viewer` that filters '*...*' buffers and uses `completing-read`."
+	(let* ((project-buffers (project-buffers project))
+		   (filtered-buffers
+			(cl-remove-if
+			 (lambda (buffer)
+			   (let* ((name (buffer-name buffer))
+					  (trimmed-name (string-trim name)))
+				 (or
+				  (and (> (length trimmed-name) 1)
+					   (string-prefix-p "*" trimmed-name)
+					   (string-suffix-p "*" trimmed-name))
+				  (and files-only (not (buffer-file-name buffer))))))
+			 project-buffers)))
 
-      (if filtered-buffers
-          (let* ((buffer-names (mapcar #'buffer-name filtered-buffers))
-                 (selection (completing-read "Switch to project buffer: " buffer-names nil t)))
-            (when selection
-              (switch-to-buffer selection)))
-        (message "No suitable project buffers to switch to."))))
+	  (if filtered-buffers
+		  (let* ((buffer-names (mapcar #'buffer-name filtered-buffers))
+				 (selection (completing-read "Switch to project buffer: " buffer-names nil t)))
+			(when selection
+			  (switch-to-buffer selection)))
+		(message "No suitable project buffers to switch to."))))
   ;; Tell project.el filter out *special buffers* on `C-x p C-b'
   (setq project-buffers-viewer 'emacs-solo/filtered-project-buffer-completer)
 
@@ -462,59 +462,59 @@ This allows using a specific environment or scratch context."
 
   ;; Makes any xref buffer "exportable" to a grep buffer with "E" so you can edit it with "e".
   (defun emacs-solo/xref-to-grep-compilation ()
-    "Export the current Xref results to a grep-like buffer (Emacs 30+)."
-    (interactive)
-    (unless (derived-mode-p 'xref--xref-buffer-mode)
-      (user-error "Not in an Xref buffer"))
+	"Export the current Xref results to a grep-like buffer (Emacs 30+)."
+	(interactive)
+	(unless (derived-mode-p 'xref--xref-buffer-mode)
+	  (user-error "Not in an Xref buffer"))
 
-    (let* ((items (and (boundp 'xref--fetcher)
-                       (funcall xref--fetcher)))
-           (buf-name "*xref→grep*")
-           (grep-buf (get-buffer-create buf-name)))
-      (unless items
-        (user-error "No xref items found"))
+	(let* ((items (and (boundp 'xref--fetcher)
+					   (funcall xref--fetcher)))
+		   (buf-name "*xref→grep*")
+		   (grep-buf (get-buffer-create buf-name)))
+	  (unless items
+		(user-error "No xref items found"))
 
-      (with-current-buffer grep-buf
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (insert (format "-*- mode: grep; default-directory: %S -*-\n\n"
-                          default-directory))
-          (dolist (item items)
-            (let* ((loc (xref-item-location item))
-                   (file (xref-file-location-file loc))
-                   (line (xref-file-location-line loc))
-                   (summary (xref-item-summary item)))
-              (insert (format "%s:%d:%s\n" file line summary)))))
-        (grep-mode))
-      (pop-to-buffer grep-buf)))
+	  (with-current-buffer grep-buf
+		(let ((inhibit-read-only t))
+		  (erase-buffer)
+		  (insert (format "-*- mode: grep; default-directory: %S -*-\n\n"
+						  default-directory))
+		  (dolist (item items)
+			(let* ((loc (xref-item-location item))
+				   (file (xref-file-location-file loc))
+				   (line (xref-file-location-line loc))
+				   (summary (xref-item-summary item)))
+			  (insert (format "%s:%d:%s\n" file line summary)))))
+		(grep-mode))
+	  (pop-to-buffer grep-buf)))
   (with-eval-after-load 'xref
-    (define-key xref--xref-buffer-mode-map (kbd "E")
-                #'emacs-solo/xref-to-grep-compilation))
+	(define-key xref--xref-buffer-mode-map (kbd "E")
+				#'emacs-solo/xref-to-grep-compilation))
 
   ;; Runs 'private.el' after Emacs inits
   (add-hook 'after-init-hook
-            (lambda ()
-              (let ((private-file (expand-file-name "private.el" user-emacs-directory)))
-                (when (file-exists-p private-file)
-                  (load private-file)))))
+			(lambda ()
+			  (let ((private-file (expand-file-name "private.el" user-emacs-directory)))
+				(when (file-exists-p private-file)
+				  (load private-file)))))
 
   :init
   ;; Keep margins from automatic resizing
   (defun emacs-solo/set-default-window-margins ()
-    "Set default left and right margins for all windows.
+	"Set default left and right margins for all windows.
 Unless the buffer uses `emacs-solo/center-document-mode`
 or is an ERC buffer."
-    (interactive)
-    (dolist (window (window-list))
-      (with-current-buffer (window-buffer window)
-        (unless (or (bound-and-true-p emacs-solo/center-document-mode)
-                    (derived-mode-p 'erc-mode))
-          (set-window-margins window 2 0))))) ;; (LEFT RIGHT)
+	(interactive)
+	(dolist (window (window-list))
+	  (with-current-buffer (window-buffer window)
+		(unless (or (bound-and-true-p emacs-solo/center-document-mode)
+					(derived-mode-p 'erc-mode))
+		  (set-window-margins window 2 0))))) ;; (LEFT RIGHT)
 
   (add-hook 'window-configuration-change-hook #'emacs-solo/set-default-window-margins)
 
   (when (>= emacs-major-version 31)
-    (tty-tip-mode nil))   ;; EMACS-31
+	(tty-tip-mode nil))   ;; EMACS-31
   (tooltip-mode nil)
 
   (select-frame-set-input-focus (selected-frame))
@@ -529,7 +529,7 @@ or is an ERC buffer."
   (file-name-shadow-mode 1) ; allows us to type a new path without having to delete the current one
 
   (with-current-buffer (get-buffer-create "*scratch*")
-    (insert (format ";;
+	(insert (format ";;
 ;; ███████╗███╗   ███╗ █████╗  ██████╗███████╗    ███████╗ ██████╗ ██╗      ██████╗
 ;; ██╔════╝████╗ ████║██╔══██╗██╔════╝██╔════╝    ██╔════╝██╔═══██╗██║     ██╔═══██╗
 ;; █████╗  ██╔████╔██║███████║██║     ███████╗    ███████╗██║   ██║██║     ██║   ██║
@@ -541,8 +541,8 @@ or is an ERC buffer."
 ;;   Packages     : %s
 ;;
 "
-                    (emacs-init-time)
-                    (number-to-string (length package-activated-list)))))
+					(emacs-init-time)
+					(number-to-string (length package-activated-list)))))
 
   (message (emacs-init-time)))
 
@@ -556,116 +556,116 @@ or is an ERC buffer."
   (save-abbrevs nil)
   :config
   (defun emacs-solo/abbrev--replace-placeholders ()
-    "Replace placeholders ###1###, ###2###, ... with minibuffer input.
+	"Replace placeholders ###1###, ###2###, ... with minibuffer input.
 If ###@### is found, remove it and place point there at the end."
-    (let ((cursor-pos nil)) ;; to store where to place point
-      (save-excursion
-        (goto-char (point-min))
-        (let ((loop 0)
-              (values (make-hash-table :test 'equal)))
-          (while (re-search-forward "###\\([0-9]+\\|@\\)###" nil t)
-            (setq loop (1+ loop))
-            (let* ((index (match-string 1))
-                   (start (match-beginning 0))
-                   (end (match-end 0)))
-              (cond
-               ((string= index "@")
-                (setq cursor-pos start)
-                (delete-region start end))
-               (t
-                (let* ((key (format "###%s###" index))
-                       (val (or (gethash key values)
-                                (let ((input (read-string (format "Value for %s: " key))))
-                                  (puthash key input values)
-                                  input))))
-                  (goto-char start)
-                  (delete-region start end)
-                  (insert val)
-                  (goto-char (+ start (length val))))))))))
-      (when cursor-pos
-        (goto-char cursor-pos))))
+	(let ((cursor-pos nil)) ;; to store where to place point
+	  (save-excursion
+		(goto-char (point-min))
+		(let ((loop 0)
+			  (values (make-hash-table :test 'equal)))
+		  (while (re-search-forward "###\\([0-9]+\\|@\\)###" nil t)
+			(setq loop (1+ loop))
+			(let* ((index (match-string 1))
+				   (start (match-beginning 0))
+				   (end (match-end 0)))
+			  (cond
+			   ((string= index "@")
+				(setq cursor-pos start)
+				(delete-region start end))
+			   (t
+				(let* ((key (format "###%s###" index))
+					   (val (or (gethash key values)
+								(let ((input (read-string (format "Value for %s: " key))))
+								  (puthash key input values)
+								  input))))
+				  (goto-char start)
+				  (delete-region start end)
+				  (insert val)
+				  (goto-char (+ start (length val))))))))))
+	  (when cursor-pos
+		(goto-char cursor-pos))))
 
   (define-abbrev-table 'global-abbrev-table
-    '(;; Arrows
-      ("ra" "→")
-      ("la" "←")
-      ("ua" "↑")
-      ("da" "↓")
+	'(;; Arrows
+	  ("ra" "→")
+	  ("la" "←")
+	  ("ua" "↑")
+	  ("da" "↓")
 
-      ;; Emojis for context markers
-      ("todo"  "👷 TODO:")
-      ("fixme" "🔥 FIXME:")
-      ("note"  "📎 NOTE:")
-      ("hack"  "👾 HACK:")
-      ("pinch"  "🤌")
-      ("smile"  "😄")
-      ("party" "🎉")
-      ("up"  "☝️")
-      ("applause" "👏")
-      ("manyapplauses" "👏👏👏👏👏👏👏👏")
-      ("heart" "❤️")
+	  ;; Emojis for context markers
+	  ("todo"  "👷 TODO:")
+	  ("fixme" "🔥 FIXME:")
+	  ("note"  "📎 NOTE:")
+	  ("hack"  "👾 HACK:")
+	  ("pinch"  "🤌")
+	  ("smile"  "😄")
+	  ("party" "🎉")
+	  ("up"  "☝️")
+	  ("applause" "👏")
+	  ("manyapplauses" "👏👏👏👏👏👏👏👏")
+	  ("heart" "❤️")
 
-      ;; NerdFonts
-      ("nerdfolder" " ")
-      ("nerdgit" "")
-      ("nerdemacs" "")
+	  ;; NerdFonts
+	  ("nerdfolder" " ")
+	  ("nerdgit" "")
+	  ("nerdemacs" "")
 
-      ;; HTML
-      ("nb" "&nbsp;")
-      ("lt" "&lt;")      ;; <
-      ("gt" "&gt;")      ;; >
-      ("le" "&le;")      ;; ≤
-      ("ge" "&ge;")      ;; ≥
-      ("ap" "&apos;")    ;; '
-      ("laa" "&laquo;")  ;; «
-      ("raa" "&raquo;")  ;; »
-      ("co" "&copy;")    ;; ©
-      ("tm" "&trade;")   ;; ™
-      ("em" "&mdash;")   ;; —
-      ("en" "&ndash;")   ;; –
-      ("dq" "&quot;")    ;; "
-      ("html" "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Document</title>\n</head>\n<body>\n\n</body>\n</html>")
+	  ;; HTML
+	  ("nb" "&nbsp;")
+	  ("lt" "&lt;")      ;; <
+	  ("gt" "&gt;")      ;; >
+	  ("le" "&le;")      ;; ≤
+	  ("ge" "&ge;")      ;; ≥
+	  ("ap" "&apos;")    ;; '
+	  ("laa" "&laquo;")  ;; «
+	  ("raa" "&raquo;")  ;; »
+	  ("co" "&copy;")    ;; ©
+	  ("tm" "&trade;")   ;; ™
+	  ("em" "&mdash;")   ;; —
+	  ("en" "&ndash;")   ;; –
+	  ("dq" "&quot;")    ;; "
+	  ("html" "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Document</title>\n</head>\n<body>\n\n</body>\n</html>")
 
-      ;; Utils
-      ("isodate" ""
-       (lambda () (insert (format "%s" (format-time-string "%Y-%m-%dT%H:%M:%S")))))
+	  ;; Utils
+	  ("isodate" ""
+	   (lambda () (insert (format "%s" (format-time-string "%Y-%m-%dT%H:%M:%S")))))
 
-      ("uuid" ""
-       (lambda () (insert (org-id-uuid))))
+	  ("uuid" ""
+	   (lambda () (insert (org-id-uuid))))
 
-      ;; Markdown
-      ("cb" "```@\n\n```"
-       (lambda () (search-backward "@") (delete-char 1)))
+	  ;; Markdown
+	  ("cb" "```@\n\n```"
+	   (lambda () (search-backward "@") (delete-char 1)))
 
-      ;; ORG
-      ("ocb" "#+BEGIN_SRC @\n\n#+END_SRC"
-       (lambda () (search-backward "@") (delete-char 1)))
-      ("oheader" "#+TITLE: ###1###\n#+AUTHOR: ###2###\n#+EMAIL: ###3###\n#+OPTIONS: toc:nil\n"
-       emacs-solo/abbrev--replace-placeholders)
+	  ;; ORG
+	  ("ocb" "#+BEGIN_SRC @\n\n#+END_SRC"
+	   (lambda () (search-backward "@") (delete-char 1)))
+	  ("oheader" "#+TITLE: ###1###\n#+AUTHOR: ###2###\n#+EMAIL: ###3###\n#+OPTIONS: toc:nil\n"
+	   emacs-solo/abbrev--replace-placeholders)
 
-      ;; JS/TS snippets
-      ("imp" "import { ###1### } from '###2###';"
-       emacs-solo/abbrev--replace-placeholders)
-      ("fn" "function ###1### () {\n ###@### ;\n};"
-       emacs-solo/abbrev--replace-placeholders)
-      ("clog" "console.log(\">>> LOG:\", { ###@### })"
-       emacs-solo/abbrev--replace-placeholders)
-      ("cwarn" "console.warn(\">>> WARN:\", { ###@### })"
-       emacs-solo/abbrev--replace-placeholders)
-      ("cerr" "console.error(\">>> ERR:\", { ###@### })"
-       emacs-solo/abbrev--replace-placeholders)
-      ("afn" "async function() {\n  \n}"
-       (lambda () (search-backward "}") (forward-line -1) (end-of-line)))
-      ("ife" "(function() {\n  \n})();"
-       (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
-      ("esdeps" "// eslint-disable-next-line react-hooks/exhaustive-deps"
-       (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
-      ("eshooks" "// eslint-disable-next-line react-hooks/rules-of-hooks"
-       (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
+	  ;; JS/TS snippets
+	  ("imp" "import { ###1### } from '###2###';"
+	   emacs-solo/abbrev--replace-placeholders)
+	  ("fn" "function ###1### () {\n ###@### ;\n};"
+	   emacs-solo/abbrev--replace-placeholders)
+	  ("clog" "console.log(\">>> LOG:\", { ###@### })"
+	   emacs-solo/abbrev--replace-placeholders)
+	  ("cwarn" "console.warn(\">>> WARN:\", { ###@### })"
+	   emacs-solo/abbrev--replace-placeholders)
+	  ("cerr" "console.error(\">>> ERR:\", { ###@### })"
+	   emacs-solo/abbrev--replace-placeholders)
+	  ("afn" "async function() {\n  \n}"
+	   (lambda () (search-backward "}") (forward-line -1) (end-of-line)))
+	  ("ife" "(function() {\n  \n})();"
+	   (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
+	  ("esdeps" "// eslint-disable-next-line react-hooks/exhaustive-deps"
+	   (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
+	  ("eshooks" "// eslint-disable-next-line react-hooks/rules-of-hooks"
+	   (lambda () (search-backward ")();") (forward-line -1) (end-of-line)))
 
-      ;; React/JSX
-      ("rfc" "const ###1### = () => {\n  return (\n    <div>###2###</div>\n  );\n};"
-       emacs-solo/abbrev--replace-placeholders))))
+	  ;; React/JSX
+	  ("rfc" "const ###1### = () => {\n  return (\n    <div>###2###</div>\n  );\n};"
+	   emacs-solo/abbrev--replace-placeholders))))
 
 
 ;;; │ AUTH-SOURCE
@@ -674,13 +674,13 @@ If ###@### is found, remove it and place point there at the end."
   :defer t
   :config
   (setq auth-sources
-        (list (expand-file-name ".authinfo.gpg" user-emacs-directory)))
+		(list (expand-file-name ".authinfo.gpg" user-emacs-directory)))
   (setq user-full-name "Rahul Martim Juliato"
-        user-mail-address "rahul.juliato@gmail.com")
+		user-mail-address "rahul.juliato@gmail.com")
 
   ;; Use `pass` as an auth-source
   (when (file-exists-p "~/.password-store")
-    (auth-source-pass-enable)))
+	(auth-source-pass-enable)))
 
 
 ;;; │ CONF
@@ -701,7 +701,7 @@ If ###@### is found, remove it and place point there at the end."
   :config
   ;; Not ideal, but I do not want this poluting the mode-line
   (defun emacs-solo/ignore-compilation-status (&rest _)
-    (setq compilation-in-progress nil))
+	(setq compilation-in-progress nil))
   (advice-add 'compilation-start :after #'emacs-solo/ignore-compilation-status)
 
   (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
@@ -713,36 +713,36 @@ If ###@### is found, remove it and place point there at the end."
   :custom
   (display-buffer-alist
    '(("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\|Messages\\|Bookmark List\\|Occur\\|eldoc\\)\\*"
-      (display-buffer-in-side-window)
-      (window-height . 0.25)
-      (side . bottom)
-      (slot . 0))
-     ("\\*\\([Hh]elp\\)\\*"
-      (display-buffer-in-side-window)
-      (window-width . 75)
-      (side . right)
-      (slot . 0))
-     ("\\*\\(Ibuffer\\)\\*"
-      (display-buffer-in-side-window)
-      (window-width . 100)
-      (side . right)
-      (slot . 1))
-     ("\\*\\(Flymake diagnostics\\|Completions\\)"
-      (display-buffer-in-side-window)
-      (window-height . 0.25)
-      (side . bottom)
-      (slot . 2))
-     ("\\*\\(grep\\|xref\\|find\\)\\*"
-      (display-buffer-in-side-window)
-      (window-height . 0.25)
-      (side . bottom)
-      (slot . 1))
-     ("\\*\\(M3U Playlist\\)"
-      (display-buffer-in-side-window)
-      (window-height . 0.25)
-      (side . bottom)
-      (slot . 3))
-     )))
+	  (display-buffer-in-side-window)
+	  (window-height . 0.25)
+	  (side . bottom)
+	  (slot . 0))
+	 ("\\*\\([Hh]elp\\)\\*"
+	  (display-buffer-in-side-window)
+	  (window-width . 75)
+	  (side . right)
+	  (slot . 0))
+	 ("\\*\\(Ibuffer\\)\\*"
+	  (display-buffer-in-side-window)
+	  (window-width . 100)
+	  (side . right)
+	  (slot . 1))
+	 ("\\*\\(Flymake diagnostics\\|Completions\\)"
+	  (display-buffer-in-side-window)
+	  (window-height . 0.25)
+	  (side . bottom)
+	  (slot . 2))
+	 ("\\*\\(grep\\|xref\\|find\\)\\*"
+	  (display-buffer-in-side-window)
+	  (window-height . 0.25)
+	  (side . bottom)
+	  (slot . 1))
+	 ("\\*\\(M3U Playlist\\)"
+	  (display-buffer-in-side-window)
+	  (window-height . 0.25)
+	  (side . bottom)
+	  (slot . 3))
+	 )))
 
 
 ;;; │ TAB-BAR
@@ -762,44 +762,44 @@ If ###@### is found, remove it and place point there at the end."
   (tab-bar-auto-width nil)
   (tab-bar-separator "  ")
   (tab-bar-format '(tab-bar-format-tabs-groups
-                    tab-bar-separator))
+					tab-bar-separator))
   :init
   ;;; --- OPTIONAL INTERNAL FN OVERRIDES TO DECORATE NAMES
   (defun tab-bar-tab-name-format-hints (name _tab i)
-    (if tab-bar-tab-hints (concat (format "»%d«" i) "") name))
+	(if tab-bar-tab-hints (concat (format "»%d«" i) "") name))
 
   (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
-    (propertize
-     (concat (funcall tab-bar-tab-group-function tab))
-     'face (if current-p 'tab-bar-tab-group-current 'tab-bar-tab-group-inactive)))
+	(propertize
+	 (concat (funcall tab-bar-tab-group-function tab))
+	 'face (if current-p 'tab-bar-tab-group-current 'tab-bar-tab-group-inactive)))
 
 
   ;;; --- UTILITIES FUNCTIONS
   (defun emacs-solo/tab-group-from-project ()
-    "Call `tab-group` with the current project name as the group."
-    (interactive)
-    (when-let* ((proj (project-current))
-                (name (file-name-nondirectory
-                       (directory-file-name (project-root proj)))))
-      (tab-group (format "[%s]" name))))
+	"Call `tab-group` with the current project name as the group."
+	(interactive)
+	(when-let* ((proj (project-current))
+				(name (file-name-nondirectory
+					   (directory-file-name (project-root proj)))))
+	  (tab-group (format "[%s]" name))))
 
   (defun emacs-solo/tab-switch-to-group ()
-    "Prompt for a tab group and switch to its first tab.
+	"Prompt for a tab group and switch to its first tab.
 Uses position instead of index field."
-    (interactive)
-    (let* ((tabs (funcall tab-bar-tabs-function)))
-      (let* ((groups (delete-dups (mapcar (lambda (tab)
-                                            (funcall tab-bar-tab-group-function tab))
-                                          tabs)))
-             (group (completing-read "Switch to group: " groups nil t)))
-        (let ((i 1) (found nil))
-          (dolist (tab tabs)
-            (let ((tab-group (funcall tab-bar-tab-group-function tab)))
-              (when (and (not found)
-                         (string= tab-group group))
-                (setq found t)
-                (tab-bar-select-tab i)))
-            (setq i (1+ i)))))))
+	(interactive)
+	(let* ((tabs (funcall tab-bar-tabs-function)))
+	  (let* ((groups (delete-dups (mapcar (lambda (tab)
+											(funcall tab-bar-tab-group-function tab))
+										  tabs)))
+			 (group (completing-read "Switch to group: " groups nil t)))
+		(let ((i 1) (found nil))
+		  (dolist (tab tabs)
+			(let ((tab-group (funcall tab-bar-tab-group-function tab)))
+			  (when (and (not found)
+						 (string= tab-group group))
+				(setq found t)
+				(tab-bar-select-tab i)))
+			(setq i (1+ i)))))))
 
   ;;; --- TURNS ON BY DEFAULT
   (tab-bar-mode 1)
@@ -817,19 +817,19 @@ Uses position instead of index field."
   (rcirc-default-full-name "Lionyx")
   (rcirc-server-alist
    '(("irc.libera.chat"
-      :port 6697
-      :encryption tls
-      :channels ("#emacs" "#systemcrafters"))))
+	  :port 6697
+	  :encryption tls
+	  :channels ("#emacs" "#systemcrafters"))))
   (rcirc-reconnect-delay 5)
   (rcirc-fill-column 100)
   (rcirc-track-ignore-server-buffer-flag t)
   :config
   (make-directory (expand-file-name "cache/rcirc/logs" user-emacs-directory) t)
   (setq rcirc-authinfo
-        `(("irc.libera.chat"
-           certfp
-           ,(expand-file-name "cert.pem" user-emacs-directory)
-           ,(expand-file-name "cert.pem" user-emacs-directory)))))
+		`(("irc.libera.chat"
+		   certfp
+		   ,(expand-file-name "cert.pem" user-emacs-directory)
+		   ,(expand-file-name "cert.pem" user-emacs-directory)))))
 
 
 ;;; │ ERC
@@ -854,64 +854,64 @@ Uses position instead of index field."
   (make-directory (expand-file-name "cache/erc/logs" user-emacs-directory) t)
 
   (defun emacs-solo/erc-get-color-for-nick (nick)
-    "Return a Catppuccin Mocha Like color string for NICK based on its hash."
-    (let* ((colors '("#f38ba8" "#a6e3a1" "#f9e2af" "#89b4fa"
-                     "#cba6f7" "#fab387" "#b4befe" "#eba0ac"
-                     "#f5c2e7"))
-           (hash (mod (abs (sxhash nick)) (length colors))))
-      (nth hash colors)))
+	"Return a Catppuccin Mocha Like color string for NICK based on its hash."
+	(let* ((colors '("#f38ba8" "#a6e3a1" "#f9e2af" "#89b4fa"
+					 "#cba6f7" "#fab387" "#b4befe" "#eba0ac"
+					 "#f5c2e7"))
+		   (hash (mod (abs (sxhash nick)) (length colors))))
+	  (nth hash colors)))
 
   (defun emacs-solo/erc-colorize-nick ()
-    "Colorize nicknames in ERC buffer."
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "\\(<\\)\\([^ >]+\\)\\(>\\)" nil t)
-        (let* ((nick (match-string 2))
-               (color (emacs-solo/erc-get-color-for-nick nick)))
-          (put-text-property (match-beginning 2) (match-end 2)
-                             'face `(:foreground ,color :weight bold))))))
+	"Colorize nicknames in ERC buffer."
+	(save-excursion
+	  (goto-char (point-min))
+	  (while (re-search-forward "\\(<\\)\\([^ >]+\\)\\(>\\)" nil t)
+		(let* ((nick (match-string 2))
+			   (color (emacs-solo/erc-get-color-for-nick nick)))
+		  (put-text-property (match-beginning 2) (match-end 2)
+							 'face `(:foreground ,color :weight bold))))))
   (add-hook 'erc-insert-modify-hook #'emacs-solo/erc-colorize-nick)
 
   (add-to-list 'erc-modules 'log)
   :init
   (with-eval-after-load 'erc
 
-    ;; EMACS-31 (no more dependency between scrolltobottom and erc-fill-wrap THX!!!)
-    (when (< emacs-major-version 31)
-      (add-to-list 'erc-modules 'scrolltobottom)))
+	;; EMACS-31 (no more dependency between scrolltobottom and erc-fill-wrap THX!!!)
+	(when (< emacs-major-version 31)
+	  (add-to-list 'erc-modules 'scrolltobottom)))
 
   (setopt erc-sasl-mechanism 'external)
 
   (defun erc-liberachat ()
-    (interactive)
+	(interactive)
 
-    (with-eval-after-load 'erc
-      (add-to-list 'erc-modules 'sasl))
+	(with-eval-after-load 'erc
+	  (add-to-list 'erc-modules 'sasl))
 
-    (let ((buf (erc-tls :server "irc.libera.chat"
-                        :port 6697
-                        :user "Lionyx"
-                        :password ""
-                        :client-certificate
-                        (list
-                         (expand-file-name "cert.pem" user-emacs-directory)
-                         (expand-file-name "cert.pem" user-emacs-directory)))))
-      (when (bufferp buf)
-        (pop-to-buffer buf)))))
+	(let ((buf (erc-tls :server "irc.libera.chat"
+						:port 6697
+						:user "Lionyx"
+						:password ""
+						:client-certificate
+						(list
+						 (expand-file-name "cert.pem" user-emacs-directory)
+						 (expand-file-name "cert.pem" user-emacs-directory)))))
+	  (when (bufferp buf)
+		(pop-to-buffer buf)))))
 
 
 ;;; │ ICOMPLETE
 (use-package icomplete
   :bind (:map icomplete-minibuffer-map
-              ("C-n" . icomplete-forward-completions)
-              ("C-p" . icomplete-backward-completions)
-              ("C-v" . icomplete-vertical-toggle)
-              ("RET" . icomplete-force-complete-and-exit)
-              ("C-j" . exit-minibuffer)) ;; So we can exit commands like `multi-file-replace-regexp-as-diff'
+			  ("C-n" . icomplete-forward-completions)
+			  ("C-p" . icomplete-backward-completions)
+			  ("C-v" . icomplete-vertical-toggle)
+			  ("RET" . icomplete-force-complete-and-exit)
+			  ("C-j" . exit-minibuffer)) ;; So we can exit commands like `multi-file-replace-regexp-as-diff'
   :hook
   (after-init-hook . (lambda ()
-                       (fido-mode -1)
-                       (icomplete-vertical-mode 1)))
+					   (fido-mode -1)
+					   (icomplete-vertical-mode 1)))
   :config
   (setq icomplete-delay-completions-threshold 0)
   (setq icomplete-compute-delay 0)
@@ -926,17 +926,17 @@ Uses position instead of index field."
 
   ;; EMACS-31
   (when (and (>= emacs-major-version 31)
-             (boundp 'icomplete-vertical-in-buffer-adjust-list))
+			 (boundp 'icomplete-vertical-in-buffer-adjust-list))
 
-    (setq icomplete-vertical-in-buffer-adjust-list t)
-    (setq icomplete-vertical-render-prefix-indicator t)
-    ;; (setq icomplete-vertical-selected-prefix-indicator   " @ ")
-    ;; (setq icomplete-vertical-unselected-prefix-indicator "   ")
-    )
+	(setq icomplete-vertical-in-buffer-adjust-list t)
+	(setq icomplete-vertical-render-prefix-indicator t)
+	;; (setq icomplete-vertical-selected-prefix-indicator   " @ ")
+	;; (setq icomplete-vertical-unselected-prefix-indicator "   ")
+	)
 
   (if icomplete-in-buffer
-      (advice-add 'completion-at-point
-                  :after #'minibuffer-hide-completions))
+	  (advice-add 'completion-at-point
+				  :after #'minibuffer-hide-completions))
 
   ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-03/msg02638.html
   ;;
@@ -947,287 +947,287 @@ Uses position instead of index field."
 
   ;; EMACS-31
   (when (or (< emacs-major-version 31)
-            (not (boundp 'icomplete-vertical-in-buffer-adjust-list)))
+			(not (boundp 'icomplete-vertical-in-buffer-adjust-list)))
 
-    (defface icomplete-vertical-selected-prefix-indicator-face
-      '((t :inherit font-lock-keyword-face :weight bold :foreground "cyan"))
-      "Face used for the prefix set by `icomplete-vertical-selected-prefix-indicator'."
-      :group 'icomplete
-      :version "31.1")
+	(defface icomplete-vertical-selected-prefix-indicator-face
+	  '((t :inherit font-lock-keyword-face :weight bold :foreground "cyan"))
+	  "Face used for the prefix set by `icomplete-vertical-selected-prefix-indicator'."
+	  :group 'icomplete
+	  :version "31.1")
 
-    (defface icomplete-vertical-unselected-prefix-indicator-face
-      '((t :inherit font-lock-keyword-face :weight normal :foreground "gray"))
-      "Face used for the prefix set by `icomplete-vertical-unselected-prefix-indicator'."
-      :group 'icomplete
-      :version "31.1")
+	(defface icomplete-vertical-unselected-prefix-indicator-face
+	  '((t :inherit font-lock-keyword-face :weight normal :foreground "gray"))
+	  "Face used for the prefix set by `icomplete-vertical-unselected-prefix-indicator'."
+	  :group 'icomplete
+	  :version "31.1")
 
-    (defcustom icomplete-vertical-in-buffer-adjust-list t
-      "Control whether in-buffer completion should align the cursor position.
+	(defcustom icomplete-vertical-in-buffer-adjust-list t
+	  "Control whether in-buffer completion should align the cursor position.
 If this is t and `icomplete-in-buffer' is t, and `icomplete-vertical-mode'
 is activated, the in-buffer vertical completions are shown aligned to the
 cursor position when the completion started, not on the first column, as
 the default behaviour."
-      :type 'boolean
-      :group 'icomplete
-      :version "31.1")
+	  :type 'boolean
+	  :group 'icomplete
+	  :version "31.1")
 
-    (defcustom icomplete-vertical-render-prefix-indicator t
-      "Control whether a indicator is added as a prefix to each candidate.
+	(defcustom icomplete-vertical-render-prefix-indicator t
+	  "Control whether a indicator is added as a prefix to each candidate.
 If this is t and `icomplete-vertical-mode' is activated, a indicator,
 controlled by `icomplete-vertical-selected-prefix-indicator' is shown
 as a prefix to the current under selection candidate, while the
 remaining of the candidates will receive the indicator controlled
 by `icomplete-vertical-unselected-prefix-indicator'."
-      :type 'boolean
-      :group 'icomplete
-      :version "31.1")
+	  :type 'boolean
+	  :group 'icomplete
+	  :version "31.1")
 
-    (defcustom icomplete-vertical-selected-prefix-indicator "» "
-      "Prefix string used to mark the selected completion candidate.
+	(defcustom icomplete-vertical-selected-prefix-indicator "» "
+	  "Prefix string used to mark the selected completion candidate.
 If `icomplete-vertical-render-prefix-indicator' is t, the string
 defined here is used as a prefix of the currently selected entry in the
 list.  It can be further customized by the face
 `icomplete-vertical-selected-prefix-indicator-face'."
-      :type 'string
-      :group 'icomplete
-      :version "31.1")
+	  :type 'string
+	  :group 'icomplete
+	  :version "31.1")
 
-    (defcustom icomplete-vertical-unselected-prefix-indicator "  "
-      "Prefix string used on the unselected completion candidates.
+	(defcustom icomplete-vertical-unselected-prefix-indicator "  "
+	  "Prefix string used on the unselected completion candidates.
 If `icomplete-vertical-render-prefix-indicator' is t, the string
 defined here is used as a prefix for all unselected entries in the list.
 list.  It can be further customized by the face
 `icomplete-vertical-unselected-prefix-indicator-face'."
-      :type 'string
-      :group 'icomplete
-      :version "31.1")
+	  :type 'string
+	  :group 'icomplete
+	  :version "31.1")
 
-    ;; FIXME: make this into PATCH - OK
-    (defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
-      "Adjust the LINES to align with the column in BUFFER based on DATA."
-      (if icomplete-vertical-in-buffer-adjust-list
-          (let* ((column (current-column))
-                 (prefix-indicator-width
-                  (if icomplete-vertical-render-prefix-indicator
-                      (max (length icomplete-vertical-selected-prefix-indicator)
-                           (length icomplete-vertical-unselected-prefix-indicator))
-                    0))
-                 (wrapped-line (with-current-buffer buffer
-                                 (save-excursion
-                                   (goto-char (car data))
-                                   (beginning-of-line)
-                                   (count-screen-lines (point) (car data)))))
-                 (window-width (+ (window-hscroll) (window-body-width)))
-                 (longest-line-width (apply #'max (mapcar #'length lines)))
-                 (spaces-to-add
-                  (if (> wrapped-line 1)
-                      (- column (* (- wrapped-line 1) (- window-width 5)))
-                    column))
-                 (spaces-to-add-avoiding-scrolling
-                  (if (>= (+ spaces-to-add longest-line-width prefix-indicator-width) window-width)
-                      (- spaces-to-add longest-line-width)
-                    spaces-to-add)))
+	;; FIXME: make this into PATCH - OK
+	(defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
+	  "Adjust the LINES to align with the column in BUFFER based on DATA."
+	  (if icomplete-vertical-in-buffer-adjust-list
+		  (let* ((column (current-column))
+				 (prefix-indicator-width
+				  (if icomplete-vertical-render-prefix-indicator
+					  (max (length icomplete-vertical-selected-prefix-indicator)
+						   (length icomplete-vertical-unselected-prefix-indicator))
+					0))
+				 (wrapped-line (with-current-buffer buffer
+								 (save-excursion
+								   (goto-char (car data))
+								   (beginning-of-line)
+								   (count-screen-lines (point) (car data)))))
+				 (window-width (+ (window-hscroll) (window-body-width)))
+				 (longest-line-width (apply #'max (mapcar #'length lines)))
+				 (spaces-to-add
+				  (if (> wrapped-line 1)
+					  (- column (* (- wrapped-line 1) (- window-width 5)))
+					column))
+				 (spaces-to-add-avoiding-scrolling
+				  (if (>= (+ spaces-to-add longest-line-width prefix-indicator-width) window-width)
+					  (- spaces-to-add longest-line-width)
+					spaces-to-add)))
 
-            (mapcar (lambda (line)
-                      (concat (make-string spaces-to-add-avoiding-scrolling ?\s) line))
-                    lines))
-        lines))
+			(mapcar (lambda (line)
+					  (concat (make-string spaces-to-add-avoiding-scrolling ?\s) line))
+					lines))
+		lines))
 
-    ;; FIXME: what to demo/test:
-    ;;
-    ;; This patch provides two more new features, which improves icomplete-vertical-mode, 1 and 2,
-    ;; explained below:
-    ;;
-    ;;
-    ;; 1.) Improve feature provided by `icomplete-in-buffer'.
-    ;;     If user, besides setting `icomplete-in-buffer' to t, also set the
-    ;;     new `icomplete-vertical-in-buffer-adjust-list' to t, the following are fixed/ improved:
-    ;;
-    ;; Without the new `icomplete-vertical-in-buffer-adjust-list':
-    ;; - [ ] wrapped lines   - completion candidates on different columns always shows candidates at column 0
-    ;; - [ ] wrapped lines   - completion candidates on different lines always shows candidates at column 0
-    ;; - [ ] wrapped lines   - completion candidates close to the end of buffer won't be printed
-    ;; - [ ] truncated lines - completion candidates on different columns always shows candidates at column 0
-    ;; - [ ] truncated lines - completion candidates on horizontally scrolled windows won't appear on buffer
-    ;;                         as they're on column 0
-    ;; - [ ] truncated lines - completion candidates close to the end of buffer wont be shown
-    ;;
-    ;;
-    ;; With the new `icomplete-vertical-in-buffer-adjust-list':
-    ;; - [ ] wrapped lines   - fix    : completion candidates on different columns will always be printed
-    ;;                                  under the cursor
-    ;; - [ ] wrapped lines   - feature: completion candidates on different columns close to the end
-    ;;                                  of the buffer will adjust so they stay visible
-    ;; - [ ] wrapped lines   - fix:   : completion candidates on different lines always be printed under
-    ;;                                  the cursor
-    ;; - [ ] wrapped lines   - fix    : if icomplete-prospects-height won't fit from current line to the
-    ;;                                  end of vertical space, our window will be scrolled so we have at
-    ;;                                  least this amount of lines. This ensures our candidates list is
-    ;;                                  always visible
-    ;; - [ ] truncated lines - fix    : completion candidates on different columns will always be printed
-    ;;                                  under the cursor
-    ;; - [ ] truncated lines - feature: completion candidates on different columns close to the end
-    ;;                                  of the buffer will adjust so they stay visible even when we scroll
-    ;;                                  horizontally
-    ;; - [ ] truncated lines - feature: completion candidates on horizontally scrolled windows will be
-    ;;                                  printed under the cursor
-    ;; - [ ] wrapped lines   - feature: if icomplete-prospects-height won't fit from current line to the
-    ;;                                  end of vertical space, our window will be scrolled so we have at
-    ;;                                  least this amount of lines. This ensures our candidates list is
-    ;;                                  always visible
-    ;; - [ ] from wrapped    - feature: if we are on wrapped lines and manually horiontal scroll, the lines
-    ;;       to truncated               will become automatically truncated, in this case, all the features
-    ;;                                  above still works from either mode (wrapped or truncated).
-    ;;
-    ;;
-    ;; 2.) Implements new feature which provides customizable prefix indicators
-    ;;
-    ;; Setting `icomplete-vertical-render-prefix-indicator' to t will provide a prefix indicator
-    ;; to indicate the current selected candidate, by default "» ".
-    ;;
-    ;; This prefix is customizable through the variable `icomplete-vertical-selected-prefix-indicator'
-    ;; and de face `icomplete-vertical-selected-prefix-indicator-face'.
-    ;;
-    ;; Users can also customize an indicator to the not selected candidates trhough the use of
-    ;; the variable `icomplete-vertical-unselected-prefix-indicator', by default: "  ", and the face
-    ;; `icomplete-vertical-unselected-prefix-indicator-face'.
-    ;;
+	;; FIXME: what to demo/test:
+	;;
+	;; This patch provides two more new features, which improves icomplete-vertical-mode, 1 and 2,
+	;; explained below:
+	;;
+	;;
+	;; 1.) Improve feature provided by `icomplete-in-buffer'.
+	;;     If user, besides setting `icomplete-in-buffer' to t, also set the
+	;;     new `icomplete-vertical-in-buffer-adjust-list' to t, the following are fixed/ improved:
+	;;
+	;; Without the new `icomplete-vertical-in-buffer-adjust-list':
+	;; - [ ] wrapped lines   - completion candidates on different columns always shows candidates at column 0
+	;; - [ ] wrapped lines   - completion candidates on different lines always shows candidates at column 0
+	;; - [ ] wrapped lines   - completion candidates close to the end of buffer won't be printed
+	;; - [ ] truncated lines - completion candidates on different columns always shows candidates at column 0
+	;; - [ ] truncated lines - completion candidates on horizontally scrolled windows won't appear on buffer
+	;;                         as they're on column 0
+	;; - [ ] truncated lines - completion candidates close to the end of buffer wont be shown
+	;;
+	;;
+	;; With the new `icomplete-vertical-in-buffer-adjust-list':
+	;; - [ ] wrapped lines   - fix    : completion candidates on different columns will always be printed
+	;;                                  under the cursor
+	;; - [ ] wrapped lines   - feature: completion candidates on different columns close to the end
+	;;                                  of the buffer will adjust so they stay visible
+	;; - [ ] wrapped lines   - fix:   : completion candidates on different lines always be printed under
+	;;                                  the cursor
+	;; - [ ] wrapped lines   - fix    : if icomplete-prospects-height won't fit from current line to the
+	;;                                  end of vertical space, our window will be scrolled so we have at
+	;;                                  least this amount of lines. This ensures our candidates list is
+	;;                                  always visible
+	;; - [ ] truncated lines - fix    : completion candidates on different columns will always be printed
+	;;                                  under the cursor
+	;; - [ ] truncated lines - feature: completion candidates on different columns close to the end
+	;;                                  of the buffer will adjust so they stay visible even when we scroll
+	;;                                  horizontally
+	;; - [ ] truncated lines - feature: completion candidates on horizontally scrolled windows will be
+	;;                                  printed under the cursor
+	;; - [ ] wrapped lines   - feature: if icomplete-prospects-height won't fit from current line to the
+	;;                                  end of vertical space, our window will be scrolled so we have at
+	;;                                  least this amount of lines. This ensures our candidates list is
+	;;                                  always visible
+	;; - [ ] from wrapped    - feature: if we are on wrapped lines and manually horiontal scroll, the lines
+	;;       to truncated               will become automatically truncated, in this case, all the features
+	;;                                  above still works from either mode (wrapped or truncated).
+	;;
+	;;
+	;; 2.) Implements new feature which provides customizable prefix indicators
+	;;
+	;; Setting `icomplete-vertical-render-prefix-indicator' to t will provide a prefix indicator
+	;; to indicate the current selected candidate, by default "» ".
+	;;
+	;; This prefix is customizable through the variable `icomplete-vertical-selected-prefix-indicator'
+	;; and de face `icomplete-vertical-selected-prefix-indicator-face'.
+	;;
+	;; Users can also customize an indicator to the not selected candidates trhough the use of
+	;; the variable `icomplete-vertical-unselected-prefix-indicator', by default: "  ", and the face
+	;; `icomplete-vertical-unselected-prefix-indicator-face'.
+	;;
 
 
-    ;; FIXME: remove this after patch
-    (defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
-      "Ensure the completion list is visible in regular buffers only.
+	;; FIXME: remove this after patch
+	(defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
+	  "Ensure the completion list is visible in regular buffers only.
 Scrolls the screen to be at least `icomplete-prospects-height' real lines
 away from the bottom.  Counts wrapped lines as real lines."
-      (unless (minibufferp)
-        (let* ((window-height (window-body-height))
-               (current-line (count-screen-lines (window-start) (point)))
-               (lines-to-bottom (- window-height current-line)))
-          (when (< lines-to-bottom icomplete-prospects-height)
-            (scroll-up (- icomplete-prospects-height lines-to-bottom))))))
+	  (unless (minibufferp)
+		(let* ((window-height (window-body-height))
+			   (current-line (count-screen-lines (window-start) (point)))
+			   (lines-to-bottom (- window-height current-line)))
+		  (when (< lines-to-bottom icomplete-prospects-height)
+			(scroll-up (- icomplete-prospects-height lines-to-bottom))))))
 
 
-    (defun icomplete-vertical--add-indicator-to-selected (comp)
-      "Add indicators to the selected/unselected COMP completions."
-      (if (and icomplete-vertical-render-prefix-indicator
-               (get-text-property 0 'icomplete-selected comp))
-          (concat (propertize icomplete-vertical-selected-prefix-indicator
-                              'face 'icomplete-vertical-selected-prefix-indicator-face)
-                  comp)
-        (concat (propertize icomplete-vertical-unselected-prefix-indicator
-                            'face 'icomplete-vertical-unselected-prefix-indicator-face)
-                comp)))
+	(defun icomplete-vertical--add-indicator-to-selected (comp)
+	  "Add indicators to the selected/unselected COMP completions."
+	  (if (and icomplete-vertical-render-prefix-indicator
+			   (get-text-property 0 'icomplete-selected comp))
+		  (concat (propertize icomplete-vertical-selected-prefix-indicator
+							  'face 'icomplete-vertical-selected-prefix-indicator-face)
+				  comp)
+		(concat (propertize icomplete-vertical-unselected-prefix-indicator
+							'face 'icomplete-vertical-unselected-prefix-indicator-face)
+				comp)))
 
 
-    (cl-defun icomplete--render-vertical
-        (comps md &aux scroll-above scroll-below
-               (total-space ; number of mini-window lines available
-                (1- (min
-                     icomplete-prospects-height
-                     (truncate (max-mini-window-lines) 1)))))
-      ;; Welcome to loopapalooza!
-      ;;
-      ;; First, be mindful of `icomplete-scroll' and manual scrolls.  If
-      ;; `icomplete--scrolled-completions' and `icomplete--scrolled-past'
-      ;; are:
-      ;;
-      ;; - both nil, there is no manual scroll;
-      ;; - both non-nil, there is a healthy manual scroll that doesn't need
-      ;;   to be readjusted (user just moved around the minibuffer, for
-      ;;   example);
-      ;; - non-nil and nil, respectively, a refiltering took place and we
-      ;;   may need to readjust them to the new filtered `comps'.
-      (when (and icomplete-scroll                                    ;; FIXME: remove this after patch
-                 (not icomplete--scrolled-completions)
-                 (not icomplete--scrolled-past))
-        (icomplete-vertical--ensure-visible-lines-inside-buffer))
-      (when (and icomplete-scroll
-                 icomplete--scrolled-completions
-                 (null icomplete--scrolled-past))
-        (icomplete-vertical--ensure-visible-lines-inside-buffer)     ;; FIXME: remove this after patch
-        (cl-loop with preds
-                 for (comp . rest) on comps
-                 when (equal comp (car icomplete--scrolled-completions))
-                 do
-                 (setq icomplete--scrolled-past preds
-                       comps (cons comp rest))
-                 (completion--cache-all-sorted-completions
-                  (icomplete--field-beg)
-                  (icomplete--field-end)
-                  comps)
-                 and return nil
-                 do (push comp preds)
-                 finally (setq icomplete--scrolled-completions nil)))
-      ;; Then, in this pretty ugly loop, collect completions to display
-      ;; above and below the selected one, considering scrolling
-      ;; positions.
-      (cl-loop with preds = icomplete--scrolled-past
-               with succs = (cdr comps)
-               with space-above = (- total-space
-                                     1
-                                     (cl-loop for (_ . r) on comps
-                                              repeat (truncate total-space 2)
-                                              while (listp r)
-                                              count 1))
-               repeat total-space
-               for neighbor = nil
-               if (and preds (> space-above 0)) do
-               (push (setq neighbor (pop preds)) scroll-above)
-               (cl-decf space-above)
-               else if (consp succs) collect
-               (setq neighbor (pop succs)) into scroll-below-aux
-               while neighbor
-               finally (setq scroll-below scroll-below-aux))
-      ;; Halfway there...
-      (let* ((selected (propertize (car comps) 'icomplete-selected t))
-             (chosen (append scroll-above (list selected) scroll-below))
-             (tuples (icomplete--augment md chosen))
-             max-prefix-len max-comp-len lines nsections)
-        (add-face-text-property 0 (length selected)
-                                'icomplete-selected-match 'append selected)
-        ;; Figure out parameters for horizontal spacing
-        (cl-loop
-         for (comp prefix) in tuples
-         maximizing (length prefix) into max-prefix-len-aux
-         maximizing (length comp) into max-comp-len-aux
-         finally (setq max-prefix-len max-prefix-len-aux
-                       max-comp-len max-comp-len-aux))
-        ;; Serialize completions and section titles into a list
-        ;; of lines to render
-        (cl-loop
-         for (comp prefix suffix section) in tuples
-         when section
-         collect (propertize section 'face 'icomplete-section) into lines-aux
-         and count 1 into nsections-aux
-         for comp = (icomplete-vertical--add-indicator-to-selected comp)
-         when (get-text-property 0 'icomplete-selected comp)
-         do (add-face-text-property 0 (length comp)
-                                    'icomplete-selected-match 'append comp)
-         collect (concat prefix
-                         (make-string (max 0 (- max-prefix-len (length prefix))) ? )
-                         (completion-lazy-hilit comp)
-                         (make-string (max 0 (- max-comp-len (length comp))) ? )
-                         suffix)
-         into lines-aux
-         finally (setq lines lines-aux
-                       nsections nsections-aux))
-        ;; Kick out some lines from the beginning due to extra sections.
-        ;; This hopes to keep the selected entry more or less in the
-        ;; middle of the dropdown-like widget when `icomplete-scroll' is
-        ;; t.  Funky, but at least I didn't use `cl-loop'
-        (setq lines
-              (nthcdr
-               (cond ((<= (length lines) total-space) 0)
-                     ((> (length scroll-above) (length scroll-below)) nsections)
-                     (t (min (ceiling nsections 2) (length scroll-above))))
-               lines))
-        (when icomplete--in-region-buffer
-          (setq lines (icomplete-vertical--adjust-lines-for-column
-                       lines icomplete--in-region-buffer completion-in-region--data)))
-        ;; At long last, render final string return value.  This may still
-        ;; kick out lines at the end.
-        (concat " \n"
-                (cl-loop for l in lines repeat total-space concat l concat "\n")))))
+	(cl-defun icomplete--render-vertical
+		(comps md &aux scroll-above scroll-below
+			   (total-space ; number of mini-window lines available
+				(1- (min
+					 icomplete-prospects-height
+					 (truncate (max-mini-window-lines) 1)))))
+	  ;; Welcome to loopapalooza!
+	  ;;
+	  ;; First, be mindful of `icomplete-scroll' and manual scrolls.  If
+	  ;; `icomplete--scrolled-completions' and `icomplete--scrolled-past'
+	  ;; are:
+	  ;;
+	  ;; - both nil, there is no manual scroll;
+	  ;; - both non-nil, there is a healthy manual scroll that doesn't need
+	  ;;   to be readjusted (user just moved around the minibuffer, for
+	  ;;   example);
+	  ;; - non-nil and nil, respectively, a refiltering took place and we
+	  ;;   may need to readjust them to the new filtered `comps'.
+	  (when (and icomplete-scroll                                    ;; FIXME: remove this after patch
+				 (not icomplete--scrolled-completions)
+				 (not icomplete--scrolled-past))
+		(icomplete-vertical--ensure-visible-lines-inside-buffer))
+	  (when (and icomplete-scroll
+				 icomplete--scrolled-completions
+				 (null icomplete--scrolled-past))
+		(icomplete-vertical--ensure-visible-lines-inside-buffer)     ;; FIXME: remove this after patch
+		(cl-loop with preds
+				 for (comp . rest) on comps
+				 when (equal comp (car icomplete--scrolled-completions))
+				 do
+				 (setq icomplete--scrolled-past preds
+					   comps (cons comp rest))
+				 (completion--cache-all-sorted-completions
+				  (icomplete--field-beg)
+				  (icomplete--field-end)
+				  comps)
+				 and return nil
+				 do (push comp preds)
+				 finally (setq icomplete--scrolled-completions nil)))
+	  ;; Then, in this pretty ugly loop, collect completions to display
+	  ;; above and below the selected one, considering scrolling
+	  ;; positions.
+	  (cl-loop with preds = icomplete--scrolled-past
+			   with succs = (cdr comps)
+			   with space-above = (- total-space
+									 1
+									 (cl-loop for (_ . r) on comps
+											  repeat (truncate total-space 2)
+											  while (listp r)
+											  count 1))
+			   repeat total-space
+			   for neighbor = nil
+			   if (and preds (> space-above 0)) do
+			   (push (setq neighbor (pop preds)) scroll-above)
+			   (cl-decf space-above)
+			   else if (consp succs) collect
+			   (setq neighbor (pop succs)) into scroll-below-aux
+			   while neighbor
+			   finally (setq scroll-below scroll-below-aux))
+	  ;; Halfway there...
+	  (let* ((selected (propertize (car comps) 'icomplete-selected t))
+			 (chosen (append scroll-above (list selected) scroll-below))
+			 (tuples (icomplete--augment md chosen))
+			 max-prefix-len max-comp-len lines nsections)
+		(add-face-text-property 0 (length selected)
+								'icomplete-selected-match 'append selected)
+		;; Figure out parameters for horizontal spacing
+		(cl-loop
+		 for (comp prefix) in tuples
+		 maximizing (length prefix) into max-prefix-len-aux
+		 maximizing (length comp) into max-comp-len-aux
+		 finally (setq max-prefix-len max-prefix-len-aux
+					   max-comp-len max-comp-len-aux))
+		;; Serialize completions and section titles into a list
+		;; of lines to render
+		(cl-loop
+		 for (comp prefix suffix section) in tuples
+		 when section
+		 collect (propertize section 'face 'icomplete-section) into lines-aux
+		 and count 1 into nsections-aux
+		 for comp = (icomplete-vertical--add-indicator-to-selected comp)
+		 when (get-text-property 0 'icomplete-selected comp)
+		 do (add-face-text-property 0 (length comp)
+									'icomplete-selected-match 'append comp)
+		 collect (concat prefix
+						 (make-string (max 0 (- max-prefix-len (length prefix))) ? )
+						 (completion-lazy-hilit comp)
+						 (make-string (max 0 (- max-comp-len (length comp))) ? )
+						 suffix)
+		 into lines-aux
+		 finally (setq lines lines-aux
+					   nsections nsections-aux))
+		;; Kick out some lines from the beginning due to extra sections.
+		;; This hopes to keep the selected entry more or less in the
+		;; middle of the dropdown-like widget when `icomplete-scroll' is
+		;; t.  Funky, but at least I didn't use `cl-loop'
+		(setq lines
+			  (nthcdr
+			   (cond ((<= (length lines) total-space) 0)
+					 ((> (length scroll-above) (length scroll-below)) nsections)
+					 (t (min (ceiling nsections 2) (length scroll-above))))
+			   lines))
+		(when icomplete--in-region-buffer
+		  (setq lines (icomplete-vertical--adjust-lines-for-column
+					   lines icomplete--in-region-buffer completion-in-region--data)))
+		;; At long last, render final string return value.  This may still
+		;; kick out lines at the end.
+		(concat " \n"
+				(cl-loop for l in lines repeat total-space concat l concat "\n")))))
 
   ;; end use-package
   )
@@ -1241,8 +1241,8 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-dwim-target t)
   (dired-guess-shell-alist-user
    '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open")
-     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open")
-     (".*" "xdg-open" "open")))
+	 ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open")
+	 (".*" "xdg-open" "open")))
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches "-alh --group-directories-first")
   (dired-omit-files "^\\.")                                ; with dired-omit-mode (C-x M-o)
@@ -1252,133 +1252,133 @@ away from the bottom.  Counts wrapped lines as real lines."
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))) ;; Turning this ON also sets the C-x M-o binding.
 
   (defun emacs-solo/dired-rsync-copy (dest)
-    "Copy marked files in Dired to DEST using rsync async, with real-time processing of output."
-    (interactive
-     (list (expand-file-name (read-file-name "rsync to: "
-                                             (dired-dwim-target-directory)))))
-    (let* ((files (dired-get-marked-files nil current-prefix-arg))
-           (dest-original dest)
-           (dest-rsync
-            (if (file-remote-p dest)
-                (let* ((vec (tramp-dissect-file-name dest))
-                       (user (tramp-file-name-user vec))
-                       (host (tramp-file-name-host vec))
-                       (path (tramp-file-name-localname vec)))
-                  (concat (if user (concat user "@") "")
-                          host
-                          ":"
-                          path))
-              dest))
-           (files-rsync
-            (mapcar
-             (lambda (f)
-               (if (file-remote-p f)
-                   (let ((vec (tramp-dissect-file-name f)))
-                     (let ((user (tramp-file-name-user vec))
-                           (host (tramp-file-name-host vec))
-                           (path (tramp-file-name-localname vec)))
-                       (concat (if user (concat user "@") "")
-                               host
-                               ":"
-                               path)))
-                 f))
-             files))
-           (command (append '("rsync" "-hPur") files-rsync (list dest-rsync)))
-           (buffer (get-buffer-create "*rsync*")))
+	"Copy marked files in Dired to DEST using rsync async, with real-time processing of output."
+	(interactive
+	 (list (expand-file-name (read-file-name "rsync to: "
+											 (dired-dwim-target-directory)))))
+	(let* ((files (dired-get-marked-files nil current-prefix-arg))
+		   (dest-original dest)
+		   (dest-rsync
+			(if (file-remote-p dest)
+				(let* ((vec (tramp-dissect-file-name dest))
+					   (user (tramp-file-name-user vec))
+					   (host (tramp-file-name-host vec))
+					   (path (tramp-file-name-localname vec)))
+				  (concat (if user (concat user "@") "")
+						  host
+						  ":"
+						  path))
+			  dest))
+		   (files-rsync
+			(mapcar
+			 (lambda (f)
+			   (if (file-remote-p f)
+				   (let ((vec (tramp-dissect-file-name f)))
+					 (let ((user (tramp-file-name-user vec))
+						   (host (tramp-file-name-host vec))
+						   (path (tramp-file-name-localname vec)))
+					   (concat (if user (concat user "@") "")
+							   host
+							   ":"
+							   path)))
+				 f))
+			 files))
+		   (command (append '("rsync" "-hPur") files-rsync (list dest-rsync)))
+		   (buffer (get-buffer-create "*rsync*")))
 
-      (message "[rsync] original dest: %s" dest-original)
-      (message "[rsync] converted dest: %s" dest-rsync)
-      (message "[rsync] source files: %s" files-rsync)
-      (message "[rsync] command: %s" (string-join command " "))
+	  (message "[rsync] original dest: %s" dest-original)
+	  (message "[rsync] converted dest: %s" dest-rsync)
+	  (message "[rsync] source files: %s" files-rsync)
+	  (message "[rsync] command: %s" (string-join command " "))
 
-      (with-current-buffer buffer
-        (erase-buffer)
-        (insert "Running rsync...\n"))
+	  (with-current-buffer buffer
+		(erase-buffer)
+		(insert "Running rsync...\n"))
 
-      (defun rsync-process-filter (proc string)
-        (with-current-buffer (process-buffer proc)
-          (goto-char (point-max))
-          (insert string)
-          (goto-char (point-max))
-          (while (re-search-backward "\r" nil t)
-            (replace-match "\n" nil nil))))
+	  (defun rsync-process-filter (proc string)
+		(with-current-buffer (process-buffer proc)
+		  (goto-char (point-max))
+		  (insert string)
+		  (goto-char (point-max))
+		  (while (re-search-backward "\r" nil t)
+			(replace-match "\n" nil nil))))
 
-      (make-process
-       :name "dired-rsync"
-       :buffer buffer
-       :command command
-       :filter #'rsync-process-filter
-       :sentinel
-       (lambda (_proc event)
-         (when (string-match-p "finished" event)
-           (with-current-buffer buffer
-             (goto-char (point-max))
-             (insert "\n* rsync done *\n"))
-           (dired-revert)))
-       :stderr buffer)
+	  (make-process
+	   :name "dired-rsync"
+	   :buffer buffer
+	   :command command
+	   :filter #'rsync-process-filter
+	   :sentinel
+	   (lambda (_proc event)
+		 (when (string-match-p "finished" event)
+		   (with-current-buffer buffer
+			 (goto-char (point-max))
+			 (insert "\n* rsync done *\n"))
+		   (dired-revert)))
+	   :stderr buffer)
 
-      (display-buffer buffer)
-      (message "rsync started...")))
+	  (display-buffer buffer)
+	  (message "rsync started...")))
 
 
   (defun emacs-solo/window-dired-vc-root-left (&optional directory-path)
-    "Creates *Dired-Side* like an IDE side explorer"
-    (interactive)
-    (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+	"Creates *Dired-Side* like an IDE side explorer"
+	(interactive)
+	(add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
-    (let ((dir (if directory-path
-                   (dired-noselect directory-path)
-                 (if (eq (vc-root-dir) nil)
-                     (dired-noselect default-directory)
-                   (dired-noselect (vc-root-dir))))))
+	(let ((dir (if directory-path
+				   (dired-noselect directory-path)
+				 (if (eq (vc-root-dir) nil)
+					 (dired-noselect default-directory)
+				   (dired-noselect (vc-root-dir))))))
 
-      (display-buffer-in-side-window
-       dir `((side . left)
-             (slot . 0)
-             (window-width . 30)
-             (window-parameters . ((no-other-window . t)
-                                   (no-delete-other-windows . t)
-                                   (mode-line-format . (" "
-                                                        "%b"))))))
-      (with-current-buffer dir
-        (let ((window (get-buffer-window dir)))
-          (when window
-            (select-window window)
-            (rename-buffer "*Dired-Side*")
-            )))))
+	  (display-buffer-in-side-window
+	   dir `((side . left)
+			 (slot . 0)
+			 (window-width . 30)
+			 (window-parameters . ((no-other-window . t)
+								   (no-delete-other-windows . t)
+								   (mode-line-format . (" "
+														"%b"))))))
+	  (with-current-buffer dir
+		(let ((window (get-buffer-window dir)))
+		  (when window
+			(select-window window)
+			(rename-buffer "*Dired-Side*")
+			)))))
 
   (defun emacs-solo/window-dired-open-directory ()
-    "Open the current directory in *Dired-Side* side window."
-    (interactive)
-    (emacs-solo/window-dired-vc-root-left (dired-get-file-for-visit)))
+	"Open the current directory in *Dired-Side* side window."
+	(interactive)
+	(emacs-solo/window-dired-vc-root-left (dired-get-file-for-visit)))
 
   (defun emacs-solo/window-dired-open-directory-back ()
-    "Open the parent directory in *Dired-Side* side window and refresh it."
-    (interactive)
-    (emacs-solo/window-dired-vc-root-left "../")
-    (when (get-buffer "*Dired-Side*")
-      (with-current-buffer "*Dired-Side*"
-        (revert-buffer t t))))
+	"Open the parent directory in *Dired-Side* side window and refresh it."
+	(interactive)
+	(emacs-solo/window-dired-vc-root-left "../")
+	(when (get-buffer "*Dired-Side*")
+	  (with-current-buffer "*Dired-Side*"
+		(revert-buffer t t))))
 
   (defun emacs-solo/dired-run-async-on-marked-files (command)
-    "Run COMMAND asynchronously on marked files in Dired.
+	"Run COMMAND asynchronously on marked files in Dired.
 Ex: mpv file1 file2 file3 file4..."
-    (interactive "sCommand: ")
-    (let ((files (dired-get-marked-files)))
-      (start-process-shell-command command nil (format "%s %s" command (mapconcat 'shell-quote-argument files " ")))))
+	(interactive "sCommand: ")
+	(let ((files (dired-get-marked-files)))
+	  (start-process-shell-command command nil (format "%s %s" command (mapconcat 'shell-quote-argument files " ")))))
 
 
   (eval-after-load 'dired
-    '(progn
-       ;; Users should navigate with p/n, enter new directories with =, go back with q,
-       ;; quit with several q's, only use - to access stuff up on the tree from inicial
-       ;; directory.
-       (define-key dired-mode-map (kbd "=") 'emacs-solo/window-dired-open-directory)
-       (define-key dired-mode-map (kbd "-") 'emacs-solo/window-dired-open-directory-back)
-       (define-key dired-mode-map (kbd "#") 'emacs-solo/dired-run-async-on-marked-files)
+	'(progn
+	   ;; Users should navigate with p/n, enter new directories with =, go back with q,
+	   ;; quit with several q's, only use - to access stuff up on the tree from inicial
+	   ;; directory.
+	   (define-key dired-mode-map (kbd "=") 'emacs-solo/window-dired-open-directory)
+	   (define-key dired-mode-map (kbd "-") 'emacs-solo/window-dired-open-directory-back)
+	   (define-key dired-mode-map (kbd "#") 'emacs-solo/dired-run-async-on-marked-files)
 
-       ;; A better "BACK" keybiding
-       (define-key dired-mode-map (kbd "b") 'dired-up-directory))))
+	   ;; A better "BACK" keybiding
+	   (define-key dired-mode-map (kbd "b") 'dired-up-directory))))
 
 
 ;;; │ WDIRED
@@ -1404,134 +1404,134 @@ Ex: mpv file1 file2 file3 file4..."
   ;; MAKE ALL INSTANCES OF ESHELL SHARE/MERGE ITS COMMAND HISTORY
   ;;
   (defun emacs-solo/eshell--collect-all-history ()
-    "Return a list of all eshell history entries from all buffers and disk."
-    (let ((history-from-buffers
-           (cl-loop for buf in (buffer-list)
-                    when (with-current-buffer buf (derived-mode-p 'eshell-mode))
-                    append (with-current-buffer buf
-                             (when (boundp 'eshell-history-ring)
-                               (ring-elements eshell-history-ring)))))
-          (history-from-file
-           (when (file-exists-p eshell-history-file-name)
-             (with-temp-buffer
-               (insert-file-contents eshell-history-file-name)
-               (split-string (buffer-string) "\n" t)))))
-      (seq-uniq (append history-from-buffers history-from-file))))
+	"Return a list of all eshell history entries from all buffers and disk."
+	(let ((history-from-buffers
+		   (cl-loop for buf in (buffer-list)
+					when (with-current-buffer buf (derived-mode-p 'eshell-mode))
+					append (with-current-buffer buf
+							 (when (boundp 'eshell-history-ring)
+							   (ring-elements eshell-history-ring)))))
+		  (history-from-file
+		   (when (file-exists-p eshell-history-file-name)
+			 (with-temp-buffer
+			   (insert-file-contents eshell-history-file-name)
+			   (split-string (buffer-string) "\n" t)))))
+	  (seq-uniq (append history-from-buffers history-from-file))))
 
   (defun emacs-solo/eshell--save-merged-history ()
-    "Save all eshell buffer histories merged into `eshell-history-file-name`."
-    (let ((all-history (emacs-solo/eshell--collect-all-history)))
-      (with-temp-file eshell-history-file-name
-        (insert (mapconcat #'identity all-history "\n")))))
+	"Save all eshell buffer histories merged into `eshell-history-file-name`."
+	(let ((all-history (emacs-solo/eshell--collect-all-history)))
+	  (with-temp-file eshell-history-file-name
+		(insert (mapconcat #'identity all-history "\n")))))
 
   (add-hook 'kill-emacs-hook #'emacs-solo/eshell--save-merged-history)
 
   (add-hook 'eshell-mode-hook
-            (lambda ()
-              (eshell-read-history)))
+			(lambda ()
+			  (eshell-read-history)))
 
 
   ;; CUSTOM WELCOME BANNER
   ;;
   (setopt eshell-banner-message
-          (concat
-           (propertize "   Welcome to the Emacs Solo Shell  \n\n" 'face '(:weight bold :foreground "#f9e2af"))
-           (propertize " C-c t" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between prompts (full / minimum)\n"
-           (propertize " C-c T" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between full prompts (lighter / heavier)\n"
-           (propertize " C-c l" 'face '(:foreground "#89b4fa" :weight bold)) " - searches history\n"
-           (propertize " C-l  " 'face '(:foreground "#89b4fa" :weight bold)) " - clears scrolling\n\n"))
+		  (concat
+		   (propertize "   Welcome to the Emacs Solo Shell  \n\n" 'face '(:weight bold :foreground "#f9e2af"))
+		   (propertize " C-c t" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between prompts (full / minimum)\n"
+		   (propertize " C-c T" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between full prompts (lighter / heavier)\n"
+		   (propertize " C-c l" 'face '(:foreground "#89b4fa" :weight bold)) " - searches history\n"
+		   (propertize " C-l  " 'face '(:foreground "#89b4fa" :weight bold)) " - clears scrolling\n\n"))
 
 
   ;; DISABLE SCROLLING CONSERVATIVELY ON ESHELL
   ;;
   (defun emacs-solo/reset-scrolling-vars-for-term ()
-    "Locally reset scrolling behavior in term-like buffers."
-    (setq-local scroll-conservatively 0)
-    (setq-local scroll-margin 0))
+	"Locally reset scrolling behavior in term-like buffers."
+	(setq-local scroll-conservatively 0)
+	(setq-local scroll-margin 0))
   (add-hook 'eshell-mode-hook #'emacs-solo/reset-scrolling-vars-for-term)
 
 
   ;; MAKES C-c l GIVE AN ICOMPLETE LIKE SEARCH TO HISTORY COMMANDS
   ;;
   (defun emacs-solo/eshell-pick-history ()
-    "Show a unified and unique Eshell history from all open sessions and the history file.
+	"Show a unified and unique Eshell history from all open sessions and the history file.
 Pre-fills the minibuffer with current Eshell input (from prompt to point)."
-    (interactive)
-    (unless (derived-mode-p 'eshell-mode)
-      (user-error "This command must be called from an Eshell buffer"))
-    (let* (;; Safely get current input from prompt to point
-           (bol (save-excursion (eshell-bol) (point)))
-           (eol (point))
-           (current-input (buffer-substring-no-properties bol eol))
+	(interactive)
+	(unless (derived-mode-p 'eshell-mode)
+	  (user-error "This command must be called from an Eshell buffer"))
+	(let* (;; Safely get current input from prompt to point
+		   (bol (save-excursion (eshell-bol) (point)))
+		   (eol (point))
+		   (current-input (buffer-substring-no-properties bol eol))
 
-           ;; Path to Eshell history file
-           (history-file (expand-file-name eshell-history-file-name
-                                           eshell-directory-name))
+		   ;; Path to Eshell history file
+		   (history-file (expand-file-name eshell-history-file-name
+										   eshell-directory-name))
 
-           ;; Read from history file
-           (history-from-file
-            (when (file-exists-p history-file)
-              (with-temp-buffer
-                (insert-file-contents-literally history-file)
-                (split-string (buffer-string) "\n" t))))
+		   ;; Read from history file
+		   (history-from-file
+			(when (file-exists-p history-file)
+			  (with-temp-buffer
+				(insert-file-contents-literally history-file)
+				(split-string (buffer-string) "\n" t))))
 
-           ;; Read from in-memory Eshell buffers
-           (history-from-rings
-            (cl-loop for buf in (buffer-list)
-                     when (with-current-buffer buf (derived-mode-p 'eshell-mode))
-                     append (with-current-buffer buf
-                              (when (bound-and-true-p eshell-history-ring)
-                                (ring-elements eshell-history-ring)))))
+		   ;; Read from in-memory Eshell buffers
+		   (history-from-rings
+			(cl-loop for buf in (buffer-list)
+					 when (with-current-buffer buf (derived-mode-p 'eshell-mode))
+					 append (with-current-buffer buf
+							  (when (bound-and-true-p eshell-history-ring)
+								(ring-elements eshell-history-ring)))))
 
-           ;; Deduplicate and sort
-           (all-history (reverse
-                         (seq-uniq
-                          (seq-filter (lambda (s) (and s (not (string-empty-p s))))
-                                      (append history-from-rings history-from-file)))))
+		   ;; Deduplicate and sort
+		   (all-history (reverse
+						 (seq-uniq
+						  (seq-filter (lambda (s) (and s (not (string-empty-p s))))
+									  (append history-from-rings history-from-file)))))
 
-           ;; Prompt user with current input as initial suggestion
-           (selection (completing-read "Eshell History: " all-history
-                                       nil t current-input)))
+		   ;; Prompt user with current input as initial suggestion
+		   (selection (completing-read "Eshell History: " all-history
+									   nil t current-input)))
 
-      (when selection
-        ;; Replace current input with selected history entry
-        (delete-region bol eol)
-        (insert selection))))
+	  (when selection
+		;; Replace current input with selected history entry
+		(delete-region bol eol)
+		(insert selection))))
 
 
   ;; GIVES SYNTAX HIGHLIGHTING TO CAT
   ;;
   (defun eshell/cat-with-syntax-highlighting (filename)
-    "Like cat(1) but with syntax highlighting.
+	"Like cat(1) but with syntax highlighting.
   Stole from aweshell"
-    (let ((existing-buffer (get-file-buffer filename))
-          (buffer (find-file-noselect filename)))
-      (eshell-print
-       (with-current-buffer buffer
-         (if (fboundp 'font-lock-ensure)
-             (font-lock-ensure)
-           (with-no-warnings
-             (font-lock-fontify-buffer)))
-         (let ((contents (buffer-string)))
-           (remove-text-properties 0 (length contents) '(read-only nil) contents)
-           contents)))
-      (unless existing-buffer
-        (kill-buffer buffer))
-      nil))
+	(let ((existing-buffer (get-file-buffer filename))
+		  (buffer (find-file-noselect filename)))
+	  (eshell-print
+	   (with-current-buffer buffer
+		 (if (fboundp 'font-lock-ensure)
+			 (font-lock-ensure)
+		   (with-no-warnings
+			 (font-lock-fontify-buffer)))
+		 (let ((contents (buffer-string)))
+		   (remove-text-properties 0 (length contents) '(read-only nil) contents)
+		   contents)))
+	  (unless existing-buffer
+		(kill-buffer buffer))
+	  nil))
   (advice-add 'eshell/cat :override #'eshell/cat-with-syntax-highlighting)
 
 
   ;; LOCAL ESHELL BINDINGS
   ;;
   (add-hook 'eshell-mode-hook
-            (lambda ()
-              (local-set-key (kbd "C-c l") #'emacs-solo/eshell-pick-history)
-              (local-set-key (kbd "C-c t") #'emacs-solo/toggle-eshell-prompt)
-              (local-set-key (kbd "C-c T") #'emacs-solo/toggle-eshell-prompt-resource-intensive)
-              (local-set-key (kbd "C-l")
-                             (lambda ()
-                               (interactive)
-                               (eshell/clear 1)))))
+			(lambda ()
+			  (local-set-key (kbd "C-c l") #'emacs-solo/eshell-pick-history)
+			  (local-set-key (kbd "C-c t") #'emacs-solo/toggle-eshell-prompt)
+			  (local-set-key (kbd "C-c T") #'emacs-solo/toggle-eshell-prompt-resource-intensive)
+			  (local-set-key (kbd "C-l")
+							 (lambda ()
+							   (interactive)
+							   (eshell/clear 1)))))
 
 
   ;; CUSTOM ESHELL PROMPT
@@ -1540,7 +1540,7 @@ Pre-fills the minibuffer with current Eshell input (from prompt to point)."
   (require 'vc-git)
 
   (defvar emacs-solo/eshell-full-prompt t
-    "When non-nil, show the full Eshell prompt. When nil, show minimal prompt.
+	"When non-nil, show the full Eshell prompt. When nil, show minimal prompt.
 
 The minimal version shows only the `emacs-solo/eshell-lambda-symbol', like:
  𝛌
@@ -1558,121 +1558,121 @@ more, like:
   main ✏️2 ✨1 ")
 
   (defvar emacs-solo/eshell-full-prompt-resource-intensive nil
-    "When non-nil, and emacs-solo/eshell-full-prompt t. Also show slower operations.
+	"When non-nil, and emacs-solo/eshell-full-prompt t. Also show slower operations.
 Check `emacs-solo/eshell-full-prompt' for more info.")
 
   (defvar emacs-solo/eshell-lambda-symbol "  λ "
-    "Symbol used for the minimal Eshell prompt.")
+	"Symbol used for the minimal Eshell prompt.")
 
   (defun emacs-solo/toggle-eshell-prompt ()
-    "Toggle between full and minimal Eshell prompt."
-    (interactive)
-    (setq emacs-solo/eshell-full-prompt (not emacs-solo/eshell-full-prompt))
-    (message "Eshell prompt: %s"
-             (if emacs-solo/eshell-full-prompt "full" "minimal"))
-    (when (derived-mode-p 'eshell-mode)
-      (eshell-reset)))
+	"Toggle between full and minimal Eshell prompt."
+	(interactive)
+	(setq emacs-solo/eshell-full-prompt (not emacs-solo/eshell-full-prompt))
+	(message "Eshell prompt: %s"
+			 (if emacs-solo/eshell-full-prompt "full" "minimal"))
+	(when (derived-mode-p 'eshell-mode)
+	  (eshell-reset)))
 
   (defun emacs-solo/toggle-eshell-prompt-resource-intensive ()
-    "Toggle between full and minimal Eshell prompt."
-    (interactive)
-    (setq emacs-solo/eshell-full-prompt-resource-intensive
-          (not emacs-solo/eshell-full-prompt-resource-intensive))
-    (message "Eshell prompt: %s"
-             (if emacs-solo/eshell-full-prompt-resource-intensive "lighter" "heavier"))
-    (when (derived-mode-p 'eshell-mode)
-      (eshell-reset)))
+	"Toggle between full and minimal Eshell prompt."
+	(interactive)
+	(setq emacs-solo/eshell-full-prompt-resource-intensive
+		  (not emacs-solo/eshell-full-prompt-resource-intensive))
+	(message "Eshell prompt: %s"
+			 (if emacs-solo/eshell-full-prompt-resource-intensive "lighter" "heavier"))
+	(when (derived-mode-p 'eshell-mode)
+	  (eshell-reset)))
 
   (defun enabled-icons-p ()
-    "Return 'emoji, 'nerd or nil depending on what is in `emacs-solo-enabled-icons`."
-    (cond
-     ((memq 'nerd emacs-solo-enabled-icons) 'nerd)
-     ((memq 'eshell emacs-solo-enabled-icons) 'emoji)
-     (t nil)))
+	"Return 'emoji, 'nerd or nil depending on what is in `emacs-solo-enabled-icons`."
+	(cond
+	 ((memq 'nerd emacs-solo-enabled-icons) 'nerd)
+	 ((memq 'eshell emacs-solo-enabled-icons) 'emoji)
+	 (t nil)))
 
   (unless (eq emacs-solo-use-custom-theme 'catppuccin)
-    (defvar eshell-solo/color-bg-dark "#212234")
-    (defvar eshell-solo/color-bg-mid "#45475A")
-    (defvar eshell-solo/color-fg-user "#89b4fa")
-    (defvar eshell-solo/color-fg-host "#b4befe")
-    (defvar eshell-solo/color-fg-dir "#A6E3A1")
-    (defvar eshell-solo/color-fg-git "#F9E2AF"))
+	(defvar eshell-solo/color-bg-dark "#212234")
+	(defvar eshell-solo/color-bg-mid "#45475A")
+	(defvar eshell-solo/color-fg-user "#89b4fa")
+	(defvar eshell-solo/color-fg-host "#b4befe")
+	(defvar eshell-solo/color-fg-dir "#A6E3A1")
+	(defvar eshell-solo/color-fg-git "#F9E2AF"))
 
   (when (eq emacs-solo-use-custom-theme 'catppuccin)
-    (defvar eshell-solo/color-bg-dark "#363a4f")
-    (defvar eshell-solo/color-bg-mid  "#494d64")
-    (defvar eshell-solo/color-fg-user "#89b4fa")
-    (defvar eshell-solo/color-fg-host "#b4befe")
-    (defvar eshell-solo/color-fg-dir  "#a6e3a1")
-    (defvar eshell-solo/color-fg-git  "#f9e2af"))
+	(defvar eshell-solo/color-bg-dark "#363a4f")
+	(defvar eshell-solo/color-bg-mid  "#494d64")
+	(defvar eshell-solo/color-fg-user "#89b4fa")
+	(defvar eshell-solo/color-fg-host "#b4befe")
+	(defvar eshell-solo/color-fg-dir  "#a6e3a1")
+	(defvar eshell-solo/color-fg-git  "#f9e2af"))
 
   ;; No icons
   (when (not (enabled-icons-p))
-    (defvar emacs-solo/eshell-icons
-      '((arrow-left        . "")
-        (arrow-right       . "")
-        (success           . "1")
-        (failure           . "0")
-        (user-local        . "")
-        (user-remote       . "")
-        (host-local        . "")
-        (host-remote       . "")
-        (time              . "")
-        (folder            . "")
-        (branch            . " Git:")
-        (modified          . "M")
-        (untracked         . "U")
-        (conflict          . "X")
-        (git-merge         . "M")
-        (git-ahead         . "A")
-        (git-behind        . "B"))
-      "Alist of all icons used in the Eshell prompt (no icons)."))
+	(defvar emacs-solo/eshell-icons
+	  '((arrow-left        . "")
+		(arrow-right       . "")
+		(success           . "1")
+		(failure           . "0")
+		(user-local        . "")
+		(user-remote       . "")
+		(host-local        . "")
+		(host-remote       . "")
+		(time              . "")
+		(folder            . "")
+		(branch            . " Git:")
+		(modified          . "M")
+		(untracked         . "U")
+		(conflict          . "X")
+		(git-merge         . "M")
+		(git-ahead         . "A")
+		(git-behind        . "B"))
+	  "Alist of all icons used in the Eshell prompt (no icons)."))
 
 
   ;; Emoji icons
   (when (eq (enabled-icons-p) 'emoji)
-    (defvar emacs-solo/eshell-icons
-      '((arrow-left        . "")
-        (arrow-right       . "")
-        (success           . "🟢")
-        (failure           . "🔴")
-        (user-local        . "🧙")
-        (user-remote       . "👽")
-        (host-local        . "💻")
-        (host-remote       . "🌐")
-        (time              . "🕒")
-        (folder            . "📁")
-        (branch            . "")
-        (modified          . "✏️")
-        (untracked         . "✨")
-        (conflict          . "⚔️")
-        (git-merge         . "🔀")
-        (git-ahead         . "⬆️")
-        (git-behind        . "⬇️"))
-      "Alist of all icons used in the Eshell prompt (emoji)."))
+	(defvar emacs-solo/eshell-icons
+	  '((arrow-left        . "")
+		(arrow-right       . "")
+		(success           . "🟢")
+		(failure           . "🔴")
+		(user-local        . "🧙")
+		(user-remote       . "👽")
+		(host-local        . "💻")
+		(host-remote       . "🌐")
+		(time              . "🕒")
+		(folder            . "📁")
+		(branch            . "")
+		(modified          . "✏️")
+		(untracked         . "✨")
+		(conflict          . "⚔️")
+		(git-merge         . "🔀")
+		(git-ahead         . "⬆️")
+		(git-behind        . "⬇️"))
+	  "Alist of all icons used in the Eshell prompt (emoji)."))
 
 
   ;; Nerd Font icons
   (when (eq (enabled-icons-p) 'nerd)
-    (defvar emacs-solo/eshell-icons
-      '((arrow-left        . "")
-        (arrow-right       . "")
-        (success           . "")
-        (failure           . "")
-        (user-local        . "")
-        (user-remote       . "")
-        (host-local        . "")
-        (host-remote       . "")
-        (time              . "")
-        (folder            . "")
-        (branch            . "")
-        (modified          . " ")
-        (untracked         . " ")
-        (conflict          . " ")
-        (git-merge         . " ")
-        (git-ahead         . " ")
-        (git-behind        . " "))
-      "Alist of all icons used in the Eshell prompt (nerd font)."))
+	(defvar emacs-solo/eshell-icons
+	  '((arrow-left        . "")
+		(arrow-right       . "")
+		(success           . "")
+		(failure           . "")
+		(user-local        . "")
+		(user-remote       . "")
+		(host-local        . "")
+		(host-remote       . "")
+		(time              . "")
+		(folder            . "")
+		(branch            . "")
+		(modified          . " ")
+		(untracked         . " ")
+		(conflict          . " ")
+		(git-merge         . " ")
+		(git-ahead         . " ")
+		(git-behind        . " "))
+	  "Alist of all icons used in the Eshell prompt (nerd font)."))
 
 
   ;; --- Git info caching ---
@@ -1681,146 +1681,146 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   (defvar emacs-solo/git-cache-time 0)
 
   (defun emacs-solo/git-info ()
-    "Return cached Git info, with debug messages."
-    (let ((root (ignore-errors (vc-git-root default-directory)))
-          (now (float-time)))
-      (if (or (not root)
-              (not (numberp emacs-solo/git-cache-time))
-              (not emacs-solo/git-cache)
-              (not (equal root emacs-solo/git-cache-dir))
-              (> (- now (or emacs-solo/git-cache-time 0)) 5))
-          (progn
-            (setq emacs-solo/git-cache-time now
-                  emacs-solo/git-cache-dir root)
-            (setq emacs-solo/git-cache
-                  (when root
-                    (let* ((out (shell-command-to-string "git status --porcelain=v2 --branch 2>/dev/null"))
-                           (lines (split-string out "\n" t))
-                           (ahead 0)
-                           (behind 0)
-                           (modified 0)
-                           (untracked 0)
-                           (conflicts 0)
-                           (branch nil))
+	"Return cached Git info, with debug messages."
+	(let ((root (ignore-errors (vc-git-root default-directory)))
+		  (now (float-time)))
+	  (if (or (not root)
+			  (not (numberp emacs-solo/git-cache-time))
+			  (not emacs-solo/git-cache)
+			  (not (equal root emacs-solo/git-cache-dir))
+			  (> (- now (or emacs-solo/git-cache-time 0)) 5))
+		  (progn
+			(setq emacs-solo/git-cache-time now
+				  emacs-solo/git-cache-dir root)
+			(setq emacs-solo/git-cache
+				  (when root
+					(let* ((out (shell-command-to-string "git status --porcelain=v2 --branch 2>/dev/null"))
+						   (lines (split-string out "\n" t))
+						   (ahead 0)
+						   (behind 0)
+						   (modified 0)
+						   (untracked 0)
+						   (conflicts 0)
+						   (branch nil))
 
-                      (dolist (l lines)
-                        (cond
-                         ((string-match "^#? *branch\\.head \\(.+\\)" l)
-                          (setq branch (match-string 1 l)))
-                         ((string-match "^#? *branch\\.ab \\+\\([0-9]+\\) -\\([0-9]+\\)" l)
-                          (setq ahead (string-to-number (match-string 1 l)))
-                          (setq behind (string-to-number (match-string 2 l))))
-                         ((string-match "^1 " l) (cl-incf modified))
-                         ((string-match "^\\?\\?" l) (cl-incf untracked))
-                         ((string-match "^u " l) (cl-incf conflicts))))
+					  (dolist (l lines)
+						(cond
+						 ((string-match "^#? *branch\\.head \\(.+\\)" l)
+						  (setq branch (match-string 1 l)))
+						 ((string-match "^#? *branch\\.ab \\+\\([0-9]+\\) -\\([0-9]+\\)" l)
+						  (setq ahead (string-to-number (match-string 1 l)))
+						  (setq behind (string-to-number (match-string 2 l))))
+						 ((string-match "^1 " l) (cl-incf modified))
+						 ((string-match "^\\?\\?" l) (cl-incf untracked))
+						 ((string-match "^u " l) (cl-incf conflicts))))
 
-                      (list :branch (or branch "HEAD")
-                            :ahead ahead
-                            :behind behind
-                            :modified modified
-                            :untracked untracked
-                            :conflicts conflicts)))))
-        (progn
-          emacs-solo/git-cache))))
+					  (list :branch (or branch "HEAD")
+							:ahead ahead
+							:behind behind
+							:modified modified
+							:untracked untracked
+							:conflicts conflicts)))))
+		(progn
+		  emacs-solo/git-cache))))
 
 
   (setopt eshell-prompt-function
-          (lambda ()
-            (if emacs-solo/eshell-full-prompt
-                ;; Full-blown prompt
-                (concat
-                 (propertize
-                  (assoc-default 'arrow-left emacs-solo/eshell-icons) 'face `(:foreground ,eshell-solo/color-bg-dark))
+		  (lambda ()
+			(if emacs-solo/eshell-full-prompt
+				;; Full-blown prompt
+				(concat
+				 (propertize
+				  (assoc-default 'arrow-left emacs-solo/eshell-icons) 'face `(:foreground ,eshell-solo/color-bg-dark))
 
-                 (propertize
-                  (if (> eshell-last-command-status 0)
-                      (concat " " (assoc-default 'failure emacs-solo/eshell-icons)  " ")
-                    (concat " " (assoc-default 'success emacs-solo/eshell-icons)  " "))
-                  'face `(:background ,eshell-solo/color-bg-dark))
+				 (propertize
+				  (if (> eshell-last-command-status 0)
+					  (concat " " (assoc-default 'failure emacs-solo/eshell-icons)  " ")
+					(concat " " (assoc-default 'success emacs-solo/eshell-icons)  " "))
+				  'face `(:background ,eshell-solo/color-bg-dark))
 
-                 (propertize (concat (number-to-string eshell-last-command-status) " ")
-                             'face `(:background ,eshell-solo/color-bg-dark))
+				 (propertize (concat (number-to-string eshell-last-command-status) " ")
+							 'face `(:background ,eshell-solo/color-bg-dark))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons)
-                             'face `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
+				 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons)
+							 'face `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (let ((remote-user (file-remote-p default-directory 'user))
-                                   (is-remote (file-remote-p default-directory)))
-                               (concat
-                                (if is-remote
-                                    (concat (assoc-default 'user-remote emacs-solo/eshell-icons)  " ")
-                                  (concat (assoc-default 'user-local emacs-solo/eshell-icons)  " "))
-                                (or remote-user (user-login-name))
-                                " "))
-                             'face `(:foreground ,eshell-solo/color-fg-user
-                                                 :background ,eshell-solo/color-bg-mid))
+				 (propertize (let ((remote-user (file-remote-p default-directory 'user))
+								   (is-remote (file-remote-p default-directory)))
+							   (concat
+								(if is-remote
+									(concat (assoc-default 'user-remote emacs-solo/eshell-icons)  " ")
+								  (concat (assoc-default 'user-local emacs-solo/eshell-icons)  " "))
+								(or remote-user (user-login-name))
+								" "))
+							 'face `(:foreground ,eshell-solo/color-fg-user
+												 :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons) 'face
-                             `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
+				 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons) 'face
+							 `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
 
-                 (let ((remote-host (file-remote-p default-directory 'host))
-                       (is-remote (file-remote-p default-directory)))
-                   (propertize (concat (if is-remote
-                                           (concat " " (assoc-default 'host-remote emacs-solo/eshell-icons)  " ")
-                                         (concat " " (assoc-default 'host-local emacs-solo/eshell-icons)  " "))
-                                       (or remote-host (system-name)) " ")
-                               'face `(:background ,eshell-solo/color-bg-dark  :foreground ,eshell-solo/color-fg-host)))
+				 (let ((remote-host (file-remote-p default-directory 'host))
+					   (is-remote (file-remote-p default-directory)))
+				   (propertize (concat (if is-remote
+										   (concat " " (assoc-default 'host-remote emacs-solo/eshell-icons)  " ")
+										 (concat " " (assoc-default 'host-local emacs-solo/eshell-icons)  " "))
+									   (or remote-host (system-name)) " ")
+							   'face `(:background ,eshell-solo/color-bg-dark  :foreground ,eshell-solo/color-fg-host)))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons) 'face
-                             `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
+				 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons) 'face
+							 `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (concat " " (assoc-default 'time emacs-solo/eshell-icons)  " "
-                                     (format-time-string "%H:%M:%S" (current-time)) " ")
-                             'face `(:foreground ,eshell-solo/color-fg-user :background ,eshell-solo/color-bg-mid))
+				 (propertize (concat " " (assoc-default 'time emacs-solo/eshell-icons)  " "
+									 (format-time-string "%H:%M:%S" (current-time)) " ")
+							 'face `(:foreground ,eshell-solo/color-fg-user :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons)
-                             'face `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
+				 (propertize (assoc-default 'arrow-right emacs-solo/eshell-icons)
+							 'face `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
 
-                 (propertize (concat " " (assoc-default 'folder emacs-solo/eshell-icons)  " "
-                                     (if (>= (length (eshell/pwd)) 40)
-                                         (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
-                                       (abbreviate-file-name (eshell/pwd))) " ")
-                             'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-dir))
+				 (propertize (concat " " (assoc-default 'folder emacs-solo/eshell-icons)  " "
+									 (if (>= (length (eshell/pwd)) 40)
+										 (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
+									   (abbreviate-file-name (eshell/pwd))) " ")
+							 'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-dir))
 
-                 (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
-                             'face `(:foreground ,eshell-solo/color-bg-dark))
+				 (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
+							 'face `(:foreground ,eshell-solo/color-bg-dark))
 
-                 (when-let* ((info (emacs-solo/git-info))
-                             (branch (plist-get info :branch)))
-                   (concat
-                    (propertize (assoc-default 'arrow-left emacs-solo/eshell-icons)
-                                'face `(:foreground ,eshell-solo/color-bg-dark))
-                    (propertize
-                     (concat
-                      (concat " " (assoc-default 'branch emacs-solo/eshell-icons) " " branch " ")
-                      (when emacs-solo/eshell-full-prompt-resource-intensive
-                        (let ((ahead (plist-get info :ahead))
-                              (behind (plist-get info :behind))
-                              (modified (plist-get info :modified))
-                              (untracked (plist-get info :untracked))
-                              (conflicts (plist-get info :conflicts)))
-                          (concat
-                           (when (> ahead 0)
-                             (format (concat " " (assoc-default 'git-ahead emacs-solo/eshell-icons) "%d") ahead))
-                           (when (> behind 0)
-                             (format (concat " " (assoc-default 'git-behind emacs-solo/eshell-icons) "%d") behind))
-                           (when (and (> ahead 0) (> behind 0))
-                             (concat " " (assoc-default 'git-merge emacs-solo/eshell-icons)))
-                           (when (> modified 0)
-                             (format (concat " " (assoc-default 'modified emacs-solo/eshell-icons) "%d") modified))
-                           (when (> untracked 0)
-                             (format (concat " " (assoc-default 'untracked emacs-solo/eshell-icons) "%d") untracked))
-                           (when (> conflicts 0)
-                             (format (concat " " (assoc-default 'conflict emacs-solo/eshell-icons) "%d") conflicts))
-                           " "))))
-                     'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-git))
-                    (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
-                                'face `(:foreground ,eshell-solo/color-bg-dark))))
+				 (when-let* ((info (emacs-solo/git-info))
+							 (branch (plist-get info :branch)))
+				   (concat
+					(propertize (assoc-default 'arrow-left emacs-solo/eshell-icons)
+								'face `(:foreground ,eshell-solo/color-bg-dark))
+					(propertize
+					 (concat
+					  (concat " " (assoc-default 'branch emacs-solo/eshell-icons) " " branch " ")
+					  (when emacs-solo/eshell-full-prompt-resource-intensive
+						(let ((ahead (plist-get info :ahead))
+							  (behind (plist-get info :behind))
+							  (modified (plist-get info :modified))
+							  (untracked (plist-get info :untracked))
+							  (conflicts (plist-get info :conflicts)))
+						  (concat
+						   (when (> ahead 0)
+							 (format (concat " " (assoc-default 'git-ahead emacs-solo/eshell-icons) "%d") ahead))
+						   (when (> behind 0)
+							 (format (concat " " (assoc-default 'git-behind emacs-solo/eshell-icons) "%d") behind))
+						   (when (and (> ahead 0) (> behind 0))
+							 (concat " " (assoc-default 'git-merge emacs-solo/eshell-icons)))
+						   (when (> modified 0)
+							 (format (concat " " (assoc-default 'modified emacs-solo/eshell-icons) "%d") modified))
+						   (when (> untracked 0)
+							 (format (concat " " (assoc-default 'untracked emacs-solo/eshell-icons) "%d") untracked))
+						   (when (> conflicts 0)
+							 (format (concat " " (assoc-default 'conflict emacs-solo/eshell-icons) "%d") conflicts))
+						   " "))))
+					 'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-git))
+					(propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
+								'face `(:foreground ,eshell-solo/color-bg-dark))))
 
-                 (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))
+				 (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))
 
-              ;; Minimal prompt
-              (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))))
+			  ;; Minimal prompt
+			  (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))))
 
 
   (setq eshell-prompt-regexp emacs-solo/eshell-lambda-symbol)
@@ -1834,14 +1834,14 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   ;; LIST OF VISUAL COMMANDS TO RUN IN A SEPARATED ANSI-TERM
   ;;
   (with-eval-after-load 'em-term
-    (add-to-list 'eshell-visual-subcommands '("jj" "resolve"))
-    (add-to-list 'eshell-visual-subcommands '("jj" "squash")))
+	(add-to-list 'eshell-visual-subcommands '("jj" "resolve"))
+	(add-to-list 'eshell-visual-subcommands '("jj" "squash")))
 
   (setq eshell-visual-commands
-        '("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
-          "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"
-          "lazygit" "lazydocker" "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux"
-          "docker" "podman" "jqp")))
+		'("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
+		  "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"
+		  "lazygit" "lazydocker" "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux"
+		  "docker" "podman" "jqp")))
 
 
 ;;; │ ISEARCH
@@ -1854,12 +1854,12 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   (setq search-whitespace-regexp ".*?")
 
   (defun isearch-copy-selected-word ()
-    "Copy the current `isearch` selection to the kill ring."
-    (interactive)
-    (when isearch-other-end
-      (let ((selection (buffer-substring-no-properties isearch-other-end (point))))
-        (kill-new selection)
-        (isearch-exit))))
+	"Copy the current `isearch` selection to the kill ring."
+	(interactive)
+	(when isearch-other-end
+	  (let ((selection (buffer-substring-no-properties isearch-other-end (point))))
+		(kill-new selection)
+		(isearch-exit))))
 
   ;; Bind `M-w` in isearch to copy the selected word, so M-s M-. M-w
   ;; does a great job of 'copying the current word under cursor'.
@@ -1886,220 +1886,220 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
    vc-make-backup-files nil)                                  ;; Do not backup version controlled files
 
   (with-eval-after-load 'vc-annotate
-    (setopt vc-annotate-color-map
-            '((20 . "#c3e88d")
-              (40 . "#89DDFF")
-              (60 . "#82aaff")
-              (80 . "#676E95")
-              (100 . "#c792ea")
-              (120 . "#f78c6c")
-              (140 . "#79a8ff")
-              (160 . "#f5e0dc")
-              (180 . "#a6e3a1")
-              (200 . "#94e2d5")
-              (220 . "#89dceb")
-              (240 . "#74c7ec")
-              (260 . "#82aaff")
-              (280 . "#b4befe")
-              (300 . "#b5b0ff")
-              (320 . "#8c9eff")
-              (340 . "#6a81ff")
-              (360 . "#5c6bd7"))))
+	(setopt vc-annotate-color-map
+			'((20 . "#c3e88d")
+			  (40 . "#89DDFF")
+			  (60 . "#82aaff")
+			  (80 . "#676E95")
+			  (100 . "#c792ea")
+			  (120 . "#f78c6c")
+			  (140 . "#79a8ff")
+			  (160 . "#f5e0dc")
+			  (180 . "#a6e3a1")
+			  (200 . "#94e2d5")
+			  (220 . "#89dceb")
+			  (240 . "#74c7ec")
+			  (260 . "#82aaff")
+			  (280 . "#b4befe")
+			  (300 . "#b5b0ff")
+			  (320 . "#8c9eff")
+			  (340 . "#6a81ff")
+			  (360 . "#5c6bd7"))))
 
   ;; This one is for editing commit messages
   (require 'log-edit)
   (setopt log-edit-confirm 'changed
-          log-edit-keep-buffer nil
-          log-edit-require-final-newline t
-          log-edit-setup-add-author nil)
+		  log-edit-keep-buffer nil
+		  log-edit-require-final-newline t
+		  log-edit-setup-add-author nil)
 
   ;; Removes the bottom window with modified files list
   (remove-hook 'log-edit-hook #'log-edit-show-files)
 
   (with-eval-after-load 'vc-dir
-    ;; In vc-git and vc-dir for git buffers, make (C-x v) a run git add, u run git
-    ;; reset, and r run git reset and checkout from head.
-    (defun emacs-solo/vc-git-command (verb fn)
-      "Execute a Git command with VERB as action description and FN as operation on files."
-      (let* ((fileset (vc-deduce-fileset t)) ;; Deduce fileset
-             (backend (car fileset))
-             (files (nth 1 fileset)))
-        (if (eq backend 'Git)
-            (progn
-              (funcall fn files)
-              (message "%s %d file(s)." verb (length files)))
-          (message "Not in a VC Git buffer."))))
+	;; In vc-git and vc-dir for git buffers, make (C-x v) a run git add, u run git
+	;; reset, and r run git reset and checkout from head.
+	(defun emacs-solo/vc-git-command (verb fn)
+	  "Execute a Git command with VERB as action description and FN as operation on files."
+	  (let* ((fileset (vc-deduce-fileset t)) ;; Deduce fileset
+			 (backend (car fileset))
+			 (files (nth 1 fileset)))
+		(if (eq backend 'Git)
+			(progn
+			  (funcall fn files)
+			  (message "%s %d file(s)." verb (length files)))
+		  (message "Not in a VC Git buffer."))))
 
-    (defun emacs-solo/vc-git-add (&optional revision vc-fileset comment)
-      (interactive "P")
-      (emacs-solo/vc-git-command "Staged" 'vc-git-register))
+	(defun emacs-solo/vc-git-add (&optional revision vc-fileset comment)
+	  (interactive "P")
+	  (emacs-solo/vc-git-command "Staged" 'vc-git-register))
 
-    (defun emacs-solo/vc-git-reset (&optional revision vc-fileset comment)
-      (interactive "P")
-      (emacs-solo/vc-git-command "Unstaged"
-                                 (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--")))))
+	(defun emacs-solo/vc-git-reset (&optional revision vc-fileset comment)
+	  (interactive "P")
+	  (emacs-solo/vc-git-command "Unstaged"
+								 (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--")))))
 
 
   (defun emacs-solo/vc-git-visualize-status ()
-    "Show the Git status of files in the `vc-log` buffer."
-    (interactive)
-    (let* ((fileset (vc-deduce-fileset t))
-           (backend (car fileset))
-           (files (nth 1 fileset)))
-      (if (eq backend 'Git)
-          (let ((output-buffer "*Git Status*"))
-            (with-current-buffer (get-buffer-create output-buffer)
-              (read-only-mode -1)
-              (erase-buffer)
-              ;; Capture the raw output including colors using 'git status --color=auto'
-              (call-process "git" nil output-buffer nil "status" "-v")
-              (pop-to-buffer output-buffer)))
-        (message "Not in a VC Git buffer."))))
+	"Show the Git status of files in the `vc-log` buffer."
+	(interactive)
+	(let* ((fileset (vc-deduce-fileset t))
+		   (backend (car fileset))
+		   (files (nth 1 fileset)))
+	  (if (eq backend 'Git)
+		  (let ((output-buffer "*Git Status*"))
+			(with-current-buffer (get-buffer-create output-buffer)
+			  (read-only-mode -1)
+			  (erase-buffer)
+			  ;; Capture the raw output including colors using 'git status --color=auto'
+			  (call-process "git" nil output-buffer nil "status" "-v")
+			  (pop-to-buffer output-buffer)))
+		(message "Not in a VC Git buffer."))))
 
 
   (defun emacs-solo/vc-git-reflog ()
-    "Show git reflog in a new buffer with ANSI colors and custom keybindings."
-    (interactive)
-    (let* ((root (vc-root-dir)) ;; Capture VC root before creating buffer
-           (buffer (get-buffer-create "*vc-git-reflog*")))
-      (with-current-buffer buffer
-        (setq-local vc-git-reflog-root root) ;; Store VC root as a buffer-local variable
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (vc-git-command buffer nil nil
-                          "reflog"
-                          "--color=always"
-                          "--pretty=format:%C(yellow)%h%Creset %C(auto)%d%Creset %Cgreen%gd%Creset %s %Cblue(%cr)%Creset")
-          (goto-char (point-min))
-          (ansi-color-apply-on-region (point-min) (point-max)))
+	"Show git reflog in a new buffer with ANSI colors and custom keybindings."
+	(interactive)
+	(let* ((root (vc-root-dir)) ;; Capture VC root before creating buffer
+		   (buffer (get-buffer-create "*vc-git-reflog*")))
+	  (with-current-buffer buffer
+		(setq-local vc-git-reflog-root root) ;; Store VC root as a buffer-local variable
+		(let ((inhibit-read-only t))
+		  (erase-buffer)
+		  (vc-git-command buffer nil nil
+						  "reflog"
+						  "--color=always"
+						  "--pretty=format:%C(yellow)%h%Creset %C(auto)%d%Creset %Cgreen%gd%Creset %s %Cblue(%cr)%Creset")
+		  (goto-char (point-min))
+		  (ansi-color-apply-on-region (point-min) (point-max)))
 
-        (let ((map (make-sparse-keymap)))
-          (define-key map (kbd "/") #'isearch-forward)
-          (define-key map (kbd "p") #'previous-line)
-          (define-key map (kbd "n") #'next-line)
-          (define-key map (kbd "q") #'kill-buffer-and-window)
+		(let ((map (make-sparse-keymap)))
+		  (define-key map (kbd "/") #'isearch-forward)
+		  (define-key map (kbd "p") #'previous-line)
+		  (define-key map (kbd "n") #'next-line)
+		  (define-key map (kbd "q") #'kill-buffer-and-window)
 
-          (use-local-map map))
+		  (use-local-map map))
 
-        (setq buffer-read-only t)
-        (setq mode-name "Git-Reflog")
-        (setq major-mode 'special-mode))
-      (pop-to-buffer buffer)))
+		(setq buffer-read-only t)
+		(setq mode-name "Git-Reflog")
+		(setq major-mode 'special-mode))
+	  (pop-to-buffer buffer)))
 
 
   (defun emacs-solo/vc-pull-merge-current-branch ()
-    "Pull the latest change from origin for the current branch and display output in a buffer."
-    (interactive)
-    (let* ((branch (vc-git--symbolic-ref "HEAD"))
-           (buffer (get-buffer-create "*Git Pull Output*"))
-           (command (format "git pull origin %s" branch)))
-      (if branch
-          (progn
-            (with-current-buffer buffer
-              (erase-buffer)
-              (insert (format "$ %s\n\n" command))
-              (call-process-shell-command command nil buffer t))
-            (display-buffer buffer))
-        (message "Could not determine current branch."))))
+	"Pull the latest change from origin for the current branch and display output in a buffer."
+	(interactive)
+	(let* ((branch (vc-git--symbolic-ref "HEAD"))
+		   (buffer (get-buffer-create "*Git Pull Output*"))
+		   (command (format "git pull origin %s" branch)))
+	  (if branch
+		  (progn
+			(with-current-buffer buffer
+			  (erase-buffer)
+			  (insert (format "$ %s\n\n" command))
+			  (call-process-shell-command command nil buffer t))
+			(display-buffer buffer))
+		(message "Could not determine current branch."))))
 
 
   (defun emacs-solo/vc-browse-remote (&optional current-line)
-    "Open the repository's remote URL in the browser.
+	"Open the repository's remote URL in the browser.
 If CURRENT-LINE is non-nil, point to the current branch, file, and line.
 Otherwise, open the repository's main page."
-    (interactive "P")
-    (let* ((remote-url (string-trim (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
-           (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
-           (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
-           (line (line-number-at-pos)))
-      (message "Opening remote on browser: %s" remote-url)
-      (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
-          (let ((host (match-string 1 remote-url))
-                (path (match-string 2 remote-url)))
-            ;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
-            (when (string-prefix-p "git@" host)
-              (setq host (replace-regexp-in-string "^git@" "" host)))
-            ;; Construct the appropriate URL based on CURRENT-LINE
-            (browse-url
-             (if current-line
-                 (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
-               (format "https://%s/%s" host path))))
-        (message "Could not determine repository URL"))))
+	(interactive "P")
+	(let* ((remote-url (string-trim (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
+		   (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
+		   (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
+		   (line (line-number-at-pos)))
+	  (message "Opening remote on browser: %s" remote-url)
+	  (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
+		  (let ((host (match-string 1 remote-url))
+				(path (match-string 2 remote-url)))
+			;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
+			(when (string-prefix-p "git@" host)
+			  (setq host (replace-regexp-in-string "^git@" "" host)))
+			;; Construct the appropriate URL based on CURRENT-LINE
+			(browse-url
+			 (if current-line
+				 (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
+			   (format "https://%s/%s" host path))))
+		(message "Could not determine repository URL"))))
 
 
   (defun emacs-solo/vc-diff-on-current-hunk ()
-    "Show the diff for the current file and jump to the hunk containing the current line."
-    (interactive)
-    (let ((current-line (line-number-at-pos)))
-      (message "Current line in file: %d" current-line)
-      (vc-diff) ; Generate the diff buffer
-      (with-current-buffer "*vc-diff*"
-        (goto-char (point-min))
-        (let ((found-hunk nil))
-          (while (and (not found-hunk)
-                      (re-search-forward "^@@ -\\([0-9]+\\), *[0-9]+ \\+\\([0-9]+\\), *\\([0-9]+\\) @@" nil t))
-            (let* ((start-line (string-to-number (match-string 2)))
-                   (line-count (string-to-number (match-string 3)))
-                   (end-line (+ start-line line-count)))
-              (message "Found hunk: %d to %d" start-line end-line)
-              (when (and (>= current-line start-line)
-                         (<= current-line end-line))
-                (message "Current line %d is within hunk range %d to %d" current-line start-line end-line)
-                (setq found-hunk t)
-                (goto-char (match-beginning 0))))) ; Jump to the beginning of the hunk
-          (unless found-hunk
-            (message "Current line %d is not within any hunk range." current-line)
-            (goto-char (point-min)))))))
+	"Show the diff for the current file and jump to the hunk containing the current line."
+	(interactive)
+	(let ((current-line (line-number-at-pos)))
+	  (message "Current line in file: %d" current-line)
+	  (vc-diff) ; Generate the diff buffer
+	  (with-current-buffer "*vc-diff*"
+		(goto-char (point-min))
+		(let ((found-hunk nil))
+		  (while (and (not found-hunk)
+					  (re-search-forward "^@@ -\\([0-9]+\\), *[0-9]+ \\+\\([0-9]+\\), *\\([0-9]+\\) @@" nil t))
+			(let* ((start-line (string-to-number (match-string 2)))
+				   (line-count (string-to-number (match-string 3)))
+				   (end-line (+ start-line line-count)))
+			  (message "Found hunk: %d to %d" start-line end-line)
+			  (when (and (>= current-line start-line)
+						 (<= current-line end-line))
+				(message "Current line %d is within hunk range %d to %d" current-line start-line end-line)
+				(setq found-hunk t)
+				(goto-char (match-beginning 0))))) ; Jump to the beginning of the hunk
+		  (unless found-hunk
+			(message "Current line %d is not within any hunk range." current-line)
+			(goto-char (point-min)))))))
 
 
   (defun emacs-solo/switch-git-status-buffer ()
-    "Switch to a buffer visiting a modified or renamed file in the current Git repo.
+	"Switch to a buffer visiting a modified or renamed file in the current Git repo.
 The completion candidates include the Git status of each file."
-    (interactive)
-    (require 'vc-git)
-    (let ((repo-root (vc-git-root default-directory)))
-      (if (not repo-root)
-          (message "Not inside a Git repository.")
-        (let* ((expanded-root (expand-file-name repo-root))
-               (cmd-output (vc-git--run-command-string nil "status" "--porcelain=v1"))
-               (target-files
-                (let (files)
-                  (dolist (line (split-string cmd-output "\n" t) (nreverse files))
-                    (when (>= (length line) 3)
-                      (let ((status (substring line 0 2))
-                            (path-info (substring line 3)))
-                        (cond
-                         ;; Renamed files
-                         ((string-prefix-p "R" status)
-                          (let* ((paths (split-string path-info " -> " t))
-                                 (new-path (cadr paths)))
-                            (when new-path
-                              (push (cons (format "R %s" new-path) new-path) files))))
-                         ;; Modified or untracked
-                         ((or (string-match "M" status)
-                              (string-match "\\?\\?" status))
-                          (push (cons (format "%s %s" status path-info) path-info) files)))))))))
-          (if (null target-files)
-              (message "No modified or renamed files found.")
-            (let* ((candidates target-files)
-                   (selection (completing-read "Switch to buffer (Git modified): "
-                                               (mapcar #'car candidates) nil t)))
-              (when selection
-                (let ((file-path (cdr (assoc selection candidates))))
-                  (when file-path
-                    (find-file (expand-file-name file-path expanded-root)))))))))))
+	(interactive)
+	(require 'vc-git)
+	(let ((repo-root (vc-git-root default-directory)))
+	  (if (not repo-root)
+		  (message "Not inside a Git repository.")
+		(let* ((expanded-root (expand-file-name repo-root))
+			   (cmd-output (vc-git--run-command-string nil "status" "--porcelain=v1"))
+			   (target-files
+				(let (files)
+				  (dolist (line (split-string cmd-output "\n" t) (nreverse files))
+					(when (>= (length line) 3)
+					  (let ((status (substring line 0 2))
+							(path-info (substring line 3)))
+						(cond
+						 ;; Renamed files
+						 ((string-prefix-p "R" status)
+						  (let* ((paths (split-string path-info " -> " t))
+								 (new-path (cadr paths)))
+							(when new-path
+							  (push (cons (format "R %s" new-path) new-path) files))))
+						 ;; Modified or untracked
+						 ((or (string-match "M" status)
+							  (string-match "\\?\\?" status))
+						  (push (cons (format "%s %s" status path-info) path-info) files)))))))))
+		  (if (null target-files)
+			  (message "No modified or renamed files found.")
+			(let* ((candidates target-files)
+				   (selection (completing-read "Switch to buffer (Git modified): "
+											   (mapcar #'car candidates) nil t)))
+			  (when selection
+				(let ((file-path (cdr (assoc selection candidates))))
+				  (when file-path
+					(find-file (expand-file-name file-path expanded-root)))))))))))
 
 
   ;; For *vc-dir* buffer:
   (with-eval-after-load 'vc-dir
-    (define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
-    (define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
-    (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-    ;; Bind g to hide up to date files after refreshing in vc-dir
+	(define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
+	(define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
+	(define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
+	;; Bind g to hide up to date files after refreshing in vc-dir
 
-    ;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
-    (define-key vc-dir-mode-map (kbd "g")
-                (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date))))
+	;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
+	(define-key vc-dir-mode-map (kbd "g")
+				(lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date))))
 
 
   ;; For C-x v ... bindings:
@@ -2119,17 +2119,17 @@ The completion candidates include the Git status of each file."
 (use-package smerge-mode
   :ensure nil
   :bind (:map smerge-mode-map
-              ("C-c C-s C-u" . smerge-keep-upper)
-              ("C-c C-s C-l" . smerge-keep-lower)
-              ("C-c C-s C-n" . smerge-next)
-              ("C-c C-s C-p" . smerge-prev)))
+			  ("C-c C-s C-u" . smerge-keep-upper)
+			  ("C-c C-s C-l" . smerge-keep-lower)
+			  ("C-c C-s C-n" . smerge-next)
+			  ("C-c C-s C-p" . smerge-prev)))
 
 ;;; │ DIFF
 (use-package diff-mode
   :ensure nil
   :defer t
   :bind (:map diff-mode-map
-              ("M-o" . other-window))
+			  ("M-o" . other-window))
   :config
   (setq diff-default-read-only t)
   (setq diff-advance-after-apply-hunk t)
@@ -2171,25 +2171,25 @@ The completion candidates include the Git status of each file."
   (fset #'jsonrpc--log-event #'ignore)
 
   (setq-default eglot-workspace-configuration (quote
-                                               (:gopls (:hints (:parameterNames t)))))
+											   (:gopls (:hints (:parameterNames t)))))
 
   (defun emacs-solo/eglot-setup ()
-    "Setup eglot mode with specific exclusions."
-    (unless (eq major-mode 'emacs-lisp-mode)
-      (eglot-ensure)))
+	"Setup eglot mode with specific exclusions."
+	(unless (eq major-mode 'emacs-lisp-mode)
+	  (eglot-ensure)))
 
   (add-hook 'prog-mode-hook #'emacs-solo/eglot-setup)
 
   (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
+	(add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
 
   :bind (:map
-         eglot-mode-map
-         ("C-c l a" . eglot-code-actions)
-         ("C-c l o" . eglot-code-action-organize-imports)
-         ("C-c l r" . eglot-rename)
-         ("C-c l i" . eglot-inlay-hints-mode)
-         ("C-c l f" . eglot-format)))
+		 eglot-mode-map
+		 ("C-c l a" . eglot-code-actions)
+		 ("C-c l o" . eglot-code-action-organize-imports)
+		 ("C-c l r" . eglot-rename)
+		 ("C-c l i" . eglot-inlay-hints-mode)
+		 ("C-c l f" . eglot-format)))
 
 ;;; │ FLYMAKE
 (use-package flymake
@@ -2197,33 +2197,33 @@ The completion candidates include the Git status of each file."
   :defer t
   :hook (prog-mode-hook . flymake-mode)
   :bind (:map flymake-mode-map
-              ("M-8" . flymake-goto-next-error)
-              ("M-7" . flymake-goto-prev-error)
-              ("C-c ! n" . flymake-goto-next-error)
-              ("C-c ! p" . flymake-goto-prev-error)
-              ("C-c ! l" . flymake-show-buffer-diagnostics)
-              ("C-c ! t" . toggle-flymake-diagnostics-at-eol))
+			  ("M-8" . flymake-goto-next-error)
+			  ("M-7" . flymake-goto-prev-error)
+			  ("C-c ! n" . flymake-goto-next-error)
+			  ("C-c ! p" . flymake-goto-prev-error)
+			  ("C-c ! l" . flymake-show-buffer-diagnostics)
+			  ("C-c ! t" . toggle-flymake-diagnostics-at-eol))
   :custom
   (flymake-show-diagnostics-at-end-of-line nil)
   ;; (flymake-show-diagnostics-at-end-of-line 'short)
   (flymake-indicator-type 'margins)
   (flymake-margin-indicators-string
    `((error "!" compilation-error)      ;; Alternatives: », E, W, i, !, ?, ⚠️)
-     (warning "?" compilation-warning)
-     (note "i" compilation-info)))
+	 (warning "?" compilation-warning)
+	 (note "i" compilation-info)))
   :config
   ;; Define the toggle function
   (defun toggle-flymake-diagnostics-at-eol ()
-    "Toggle the display of Flymake diagnostics at the end of the line
+	"Toggle the display of Flymake diagnostics at the end of the line
 and restart Flymake to apply the changes."
-    (interactive)
-    (setq flymake-show-diagnostics-at-end-of-line
-          (not flymake-show-diagnostics-at-end-of-line))
-    (flymake-mode -1) ;; Disable Flymake
-    (flymake-mode 1)  ;; Re-enable Flymake
-    (message "Flymake diagnostics at end of line: %s"
-             (if flymake-show-diagnostics-at-end-of-line
-                 "Enabled" "Disabled"))))
+	(interactive)
+	(setq flymake-show-diagnostics-at-end-of-line
+		  (not flymake-show-diagnostics-at-end-of-line))
+	(flymake-mode -1) ;; Disable Flymake
+	(flymake-mode 1)  ;; Re-enable Flymake
+	(message "Flymake diagnostics at end of line: %s"
+			 (if flymake-show-diagnostics-at-end-of-line
+				 "Enabled" "Disabled"))))
 
 
 ;;; │ WHITESPACE
@@ -2258,9 +2258,9 @@ and restart Flymake to apply the changes."
   (gnus-summary-insert-entire-threads t)
   (gnus-thread-sort-functions
    '(gnus-thread-sort-by-most-recent-number
-     gnus-thread-sort-by-subject
-     (not gnus-thread-sort-by-total-score)
-     gnus-thread-sort-by-most-recent-date))
+	 gnus-thread-sort-by-subject
+	 (not gnus-thread-sort-by-total-score)
+	 gnus-thread-sort-by-most-recent-date))
   (gnus-summary-line-format "%U %R %z : %[%d%] %4{ %-34,34n%} %3{ %}%(%1{%B%}%s%)\12")
   (gnus-user-date-format-alist '((t . "%d-%m-%Y %H:%M")))
   (gnus-summary-thread-gathering-function 'gnus-gather-threads-by-references)
@@ -2307,68 +2307,68 @@ and restart Flymake to apply the changes."
   :config
   ;; Makes C-g behave (as seen on https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/)
   (define-advice keyboard-quit
-      (:around (quit) quit-current-context)
-    "Quit the current context.
+	  (:around (quit) quit-current-context)
+	"Quit the current context.
 
 When there is an active minibuffer and we are not inside it close
 it.  When we are inside the minibuffer use the regular
 `minibuffer-keyboard-quit' which quits any active region before
 exiting.  When there is no minibuffer `keyboard-quit' unless we
 are defining or executing a macro."
-    (if (active-minibuffer-window)
-        (if (minibufferp)
-            (minibuffer-keyboard-quit)
-          (abort-recursive-edit))
-      (unless (or defining-kbd-macro
-                  executing-kbd-macro)
-        (funcall-interactively quit))))
+	(if (active-minibuffer-window)
+		(if (minibufferp)
+			(minibuffer-keyboard-quit)
+		  (abort-recursive-edit))
+	  (unless (or defining-kbd-macro
+				  executing-kbd-macro)
+		(funcall-interactively quit))))
 
   ;; Keep the cursor out of the read-only portions of theminibuffer
   (setq minibuffer-prompt-properties
-        '(read-only t intangible t cursor-intangible t face minibuffer-prompt))
+		'(read-only t intangible t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
   ;; Keep minibuffer lines unwrapped, long lines like on M-S-y will be truncated
   (add-hook 'minibuffer-setup-hook
-            (lambda () (setq truncate-lines t)))
+			(lambda () (setq truncate-lines t)))
 
 
   (defun emacs-solo/setup-simple-orderless ()
-    (defun simple-orderless-completion (string table pred point)
-      "Enhanced orderless completion with better partial matching.
+	(defun simple-orderless-completion (string table pred point)
+	  "Enhanced orderless completion with better partial matching.
 As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--building-your-own-orderless-style-completion-in-emacs-lisp/"
-      (let* ((words (split-string string "[-, ]+"))
-             (patterns (mapcar (lambda (word)
-                                 (concat "\\b.*" (regexp-quote word) ".*"))
-                               words))
-             (full-regexp (mapconcat 'identity patterns "")))
-        (if (string-empty-p string)
-            (all-completions "" table pred)
-          (cl-remove-if-not
-           (lambda (candidate)
-             (let ((case-fold-search completion-ignore-case))
-               (and (cl-every (lambda (word)
-                                (string-match-p
-                                 (concat "\\b.*" (regexp-quote word))
-                                 candidate))
-                              words)
-                    t)))
-           (all-completions "" table pred)))))
+	  (let* ((words (split-string string "[-, ]+"))
+			 (patterns (mapcar (lambda (word)
+								 (concat "\\b.*" (regexp-quote word) ".*"))
+							   words))
+			 (full-regexp (mapconcat 'identity patterns "")))
+		(if (string-empty-p string)
+			(all-completions "" table pred)
+		  (cl-remove-if-not
+		   (lambda (candidate)
+			 (let ((case-fold-search completion-ignore-case))
+			   (and (cl-every (lambda (word)
+								(string-match-p
+								 (concat "\\b.*" (regexp-quote word))
+								 candidate))
+							  words)
+					t)))
+		   (all-completions "" table pred)))))
 
-    (add-to-list 'completion-styles-alist
-                 '(simple-orderless simple-orderless-completion
-                                    simple-orderless-completion))
+	(add-to-list 'completion-styles-alist
+				 '(simple-orderless simple-orderless-completion
+									simple-orderless-completion))
 
-    (defun setup-minibuffer-completion-styles ()
-      "Use orderless completion in minibuffer, regular completion elsewhere."
-      ;; For minibuffer: use orderless first, then fallback to flex and basic
-      (setq-local completion-styles '(basic simple-orderless flex substring)))
+	(defun setup-minibuffer-completion-styles ()
+	  "Use orderless completion in minibuffer, regular completion elsewhere."
+	  ;; For minibuffer: use orderless first, then fallback to flex and basic
+	  (setq-local completion-styles '(basic simple-orderless flex substring)))
 
-    (add-hook 'minibuffer-setup-hook #'setup-minibuffer-completion-styles)
-    (message ">>> emacs-solo: simple orderless loaded!"))
+	(add-hook 'minibuffer-setup-hook #'setup-minibuffer-completion-styles)
+	(message ">>> emacs-solo: simple orderless loaded!"))
 
   (when emacs-solo-enable-custom-orderless
-    (emacs-solo/setup-simple-orderless))
+	(emacs-solo/setup-simple-orderless))
 
 
   (minibuffer-depth-indicate-mode 1)
@@ -2388,47 +2388,47 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
 ;; replacing the default definitions.
 (eval-after-load 'tree-widget
   '(progn
-     (define-widget 'tree-widget-open-icon 'tree-widget-icon
-       "Icon for an expanded tree-widget node (customized)."
-       :tag        "▼ ")
-     (define-widget 'tree-widget-close-icon 'tree-widget-icon
-       "Icon for a collapsed tree-widget node (customized)."
-       :tag        "▶ ")
-     (define-widget 'tree-widget-empty-icon 'tree-widget-icon
-       "Icon for an expanded tree-widget node with no child."
-       :tag        "▼ ")
-     (define-widget 'tree-widget-leaf-icon 'tree-widget-icon
-       "Icon for a tree-widget leaf node."
-       :tag        "")
-     (define-widget 'tree-widget-guide 'item
-       "Vertical guide line."
-       :tag       " "
-       :format    "%t")
-     (define-widget 'tree-widget-nohandle-guide 'item
-       "Vertical guide line, when there is no handle."
-       :tag       " "
-       :format    "%t")
-     (define-widget 'tree-widget-end-guide 'item
-       "End of a vertical guide line."
-       :tag       " "
-       :format    "%t")
-     (define-widget 'tree-widget-no-guide 'item
-       "Invisible vertical guide line."
-       :tag       "  "
-       :format    "%t")
-     (define-widget 'tree-widget-handle 'item
-       "Horizontal guide line that joins a vertical guide line to a node."
-       :tag       ""
-       :format    "%t")
-     (define-widget 'tree-widget-no-handle 'item
-       "Invisible handle."
-       :tag       " "
-       :format    "%t")))
+	 (define-widget 'tree-widget-open-icon 'tree-widget-icon
+	   "Icon for an expanded tree-widget node (customized)."
+	   :tag        "▼ ")
+	 (define-widget 'tree-widget-close-icon 'tree-widget-icon
+	   "Icon for a collapsed tree-widget node (customized)."
+	   :tag        "▶ ")
+	 (define-widget 'tree-widget-empty-icon 'tree-widget-icon
+	   "Icon for an expanded tree-widget node with no child."
+	   :tag        "▼ ")
+	 (define-widget 'tree-widget-leaf-icon 'tree-widget-icon
+	   "Icon for a tree-widget leaf node."
+	   :tag        "")
+	 (define-widget 'tree-widget-guide 'item
+	   "Vertical guide line."
+	   :tag       " "
+	   :format    "%t")
+	 (define-widget 'tree-widget-nohandle-guide 'item
+	   "Vertical guide line, when there is no handle."
+	   :tag       " "
+	   :format    "%t")
+	 (define-widget 'tree-widget-end-guide 'item
+	   "End of a vertical guide line."
+	   :tag       " "
+	   :format    "%t")
+	 (define-widget 'tree-widget-no-guide 'item
+	   "Invisible vertical guide line."
+	   :tag       "  "
+	   :format    "%t")
+	 (define-widget 'tree-widget-handle 'item
+	   "Horizontal guide line that joins a vertical guide line to a node."
+	   :tag       ""
+	   :format    "%t")
+	 (define-widget 'tree-widget-no-handle 'item
+	   "Invisible handle."
+	   :tag       " "
+	   :format    "%t")))
 
 (eval-after-load 'newst-treeview
   '(define-widget 'newsticker--tree-widget-leaf-icon 'tree-widget-icon
-     "Icon for a newsticker leaf node (customized)."
-     :tag (if (display-graphic-p) "  " "> ")))
+	 "Icon for a newsticker leaf node (customized)."
+	 :tag (if (display-graphic-p) "  " "> ")))
 
 
 ;; FIXME: There's a bug on newsticker when using newsticker-treeview,
@@ -2438,14 +2438,14 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
 ;;        As this is harmless, we are silently ignoring it.
 (with-eval-after-load 'newst-treeview
   (defun emacs-solo/newsticker-silence-html-messages (orig-fun &rest args)
-    "Silence all messages and errors from ORIG-FUN."
-    (let ((inhibit-message t)      ;; no `message`
-          (message-log-max nil))   ;; do not write to *Messages*
-      (condition-case nil
-          (apply orig-fun args)    ;; run function normally
-        (error nil))))             ;; swallow any error silently
+	"Silence all messages and errors from ORIG-FUN."
+	(let ((inhibit-message t)      ;; no `message`
+		  (message-log-max nil))   ;; do not write to *Messages*
+	  (condition-case nil
+		  (apply orig-fun args)    ;; run function normally
+		(error nil))))             ;; swallow any error silently
   (advice-add 'newsticker--treeview-render-text :around
-              #'emacs-solo/newsticker-silence-html-messages))
+			  #'emacs-solo/newsticker-silence-html-messages))
 
 (use-package newsticker
   :ensure nil
@@ -2456,132 +2456,132 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (newsticker-retrieval-method (if (executable-find "wget") 'extern 'intern))
   (newsticker-wget-arguments
    '("--quiet"
-     "--no-hsts"
-     "--output-document=-"
-     "--append-output=/dev/null"))
+	 "--no-hsts"
+	 "--output-document=-"
+	 "--append-output=/dev/null"))
   :hook
   (newsticker-treeview-mode-hook
    . (lambda ()
-       (dolist (map '(newsticker-treeview-mode-map
-                      newsticker-treeview-list-mode-map
-                      newsticker-treeview-item-mode-map))
-         (let ((kmap (symbol-value map)))
-           (define-key kmap (kbd "X") (lambda () (interactive) (delete-process "mpv-video")))
-           (define-key kmap (kbd "T") #'emacs-solo/show-yt-thumbnail)
-           (define-key kmap (kbd "S") #'emacs-solo/fetch-yt-subtitles-to-buffer)
-           (define-key kmap (kbd "G") #'emacs-solo/newsticker-summarize-yt-video)
-           (define-key kmap (kbd "A") (lambda () (interactive) (emacs-solo/newsticker-play-yt-video-from-buffer t)))
-           (define-key kmap (kbd "V") #'emacs-solo/newsticker-play-yt-video-from-buffer)
-           (define-key kmap (kbd "E") #'emacs-solo/newsticker-eww-current-article)))))
+	   (dolist (map '(newsticker-treeview-mode-map
+					  newsticker-treeview-list-mode-map
+					  newsticker-treeview-item-mode-map))
+		 (let ((kmap (symbol-value map)))
+		   (define-key kmap (kbd "X") (lambda () (interactive) (delete-process "mpv-video")))
+		   (define-key kmap (kbd "T") #'emacs-solo/show-yt-thumbnail)
+		   (define-key kmap (kbd "S") #'emacs-solo/fetch-yt-subtitles-to-buffer)
+		   (define-key kmap (kbd "G") #'emacs-solo/newsticker-summarize-yt-video)
+		   (define-key kmap (kbd "A") (lambda () (interactive) (emacs-solo/newsticker-play-yt-video-from-buffer t)))
+		   (define-key kmap (kbd "V") #'emacs-solo/newsticker-play-yt-video-from-buffer)
+		   (define-key kmap (kbd "E") #'emacs-solo/newsticker-eww-current-article)))))
   :init
   (defun emacs-solo/newsticker-clear-cache ()
-    "Clears newsticker cache."
-    (interactive)
-    (require 'newsticker)
-    (when (file-directory-p newsticker-dir)
-      (delete-directory newsticker-dir t)))
+	"Clears newsticker cache."
+	(interactive)
+	(require 'newsticker)
+	(when (file-directory-p newsticker-dir)
+	  (delete-directory newsticker-dir t)))
 
   (defun emacs-solo/clean-subtitles (buffer-name)
-    "Clean SRT subtitles while perfectly preserving ^M in text (unless at line end)."
-    (with-current-buffer (get-buffer-create buffer-name)
-      ;; First: Remove SRT metadata (sequence numbers + timestamps)
-      (goto-char (point-min))
-      (while (re-search-forward "^[0-9]+\n[0-9:,]+ --> [0-9:,]+\n" nil t)
-        (replace-match ""))
+	"Clean SRT subtitles while perfectly preserving ^M in text (unless at line end)."
+	(with-current-buffer (get-buffer-create buffer-name)
+	  ;; First: Remove SRT metadata (sequence numbers + timestamps)
+	  (goto-char (point-min))
+	  (while (re-search-forward "^[0-9]+\n[0-9:,]+ --> [0-9:,]+\n" nil t)
+		(replace-match ""))
 
-      ;; Second: Remove empty/whitespace-only lines (including ^M)
-      (goto-char (point-min))
-      (while (re-search-forward "^[ \t\r]*\n" nil t)
-        (replace-match ""))
+	  ;; Second: Remove empty/whitespace-only lines (including ^M)
+	  (goto-char (point-min))
+	  (while (re-search-forward "^[ \t\r]*\n" nil t)
+		(replace-match ""))
 
-      ;; Third: Remove lines ending with ^M (carriage return)
-      (goto-char (point-min))
-      (while (re-search-forward ".*\r$" nil t)
-        (replace-match ""))
+	  ;; Third: Remove lines ending with ^M (carriage return)
+	  (goto-char (point-min))
+	  (while (re-search-forward ".*\r$" nil t)
+		(replace-match ""))
 
-      ;; Fourth: Remove duplicate consecutive lines
-      (let ((prev-line nil))
-        (goto-char (point-min))
-        (while (not (eobp))
-          (let* ((bol (line-beginning-position))
-                 (eol (line-end-position))
-                 (current-line (buffer-substring bol eol)))
-            (if (equal current-line prev-line)
-                (delete-region bol (line-beginning-position 2))
-              (setq prev-line current-line)
-              (forward-line 1)))))
+	  ;; Fourth: Remove duplicate consecutive lines
+	  (let ((prev-line nil))
+		(goto-char (point-min))
+		(while (not (eobp))
+		  (let* ((bol (line-beginning-position))
+				 (eol (line-end-position))
+				 (current-line (buffer-substring bol eol)))
+			(if (equal current-line prev-line)
+				(delete-region bol (line-beginning-position 2))
+			  (setq prev-line current-line)
+			  (forward-line 1)))))
 
-      ;; Final cleanup: Remove leading/trailing blank lines
-      (goto-char (point-min))
-      (when (looking-at "\n+")
-        (delete-region (point) (match-end 0)))))
+	  ;; Final cleanup: Remove leading/trailing blank lines
+	  (goto-char (point-min))
+	  (when (looking-at "\n+")
+		(delete-region (point) (match-end 0)))))
 
   (defun emacs-solo/fetch-yt-subtitles-to-buffer ()
-    "Fetch YouTube subtitles with original auto-subs and display in buffer."
-    (interactive)
-    (let ((window (get-buffer-window "*Newsticker Item*" t)))
-      (if window
-          (progn
-            (select-window window)
-            (message "Loading subtitles...")
-            (save-excursion
-              (goto-char (point-min))
-              (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
-                (let* ((video-id (match-string 1))
-                       (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
-                       (temp-dir (make-temp-file "emacs-yt-subs-" t "/"))
-                       (buffer-name (format "*YT Subtitles: %s*" video-id)))
+	"Fetch YouTube subtitles with original auto-subs and display in buffer."
+	(interactive)
+	(let ((window (get-buffer-window "*Newsticker Item*" t)))
+	  (if window
+		  (progn
+			(select-window window)
+			(message "Loading subtitles...")
+			(save-excursion
+			  (goto-char (point-min))
+			  (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
+				(let* ((video-id (match-string 1))
+					   (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
+					   (temp-dir (make-temp-file "emacs-yt-subs-" t "/"))
+					   (buffer-name (format "*YT Subtitles: %s*" video-id)))
 
-                  ;; Create temp directory and buffer
-                  (make-directory temp-dir t)
-                  (with-current-buffer (get-buffer-create buffer-name)
-                    (erase-buffer)
-                    (special-mode)
-                    (setq buffer-read-only t)
-                    (setq-local truncate-lines t)
-                    (let ((map (make-sparse-keymap)))
-                      (set-keymap-parent map special-mode-map)
-                      (define-key map (kbd "q") (lambda ()
-                                                  (interactive)
-                                                  (let ((win (get-buffer-window)))
-                                                    (when (window-live-p win)
-                                                      (quit-window 'kill win)))))
-                      (define-key map (kbd "n") #'forward-line)
-                      (define-key map (kbd "p") #'previous-line)
-                      (use-local-map map)))
+				  ;; Create temp directory and buffer
+				  (make-directory temp-dir t)
+				  (with-current-buffer (get-buffer-create buffer-name)
+					(erase-buffer)
+					(special-mode)
+					(setq buffer-read-only t)
+					(setq-local truncate-lines t)
+					(let ((map (make-sparse-keymap)))
+					  (set-keymap-parent map special-mode-map)
+					  (define-key map (kbd "q") (lambda ()
+												  (interactive)
+												  (let ((win (get-buffer-window)))
+													(when (window-live-p win)
+													  (quit-window 'kill win)))))
+					  (define-key map (kbd "n") #'forward-line)
+					  (define-key map (kbd "p") #'previous-line)
+					  (use-local-map map)))
 
-                  ;; Run yt-dlp process
-                  (make-process
-                   :name "yt-dlp-fetch-subs"
-                   :buffer nil
-                   :command `("yt-dlp"
-                              "--write-auto-subs"
-                              "--sub-lang" ".*-orig"
-                              "--convert-subs" "srt"
-                              "--skip-download"
-                              "--no-clean-infojson"
-                              "-o" ,(concat temp-dir "temp.%(ext)s")
-                              ,video-url)
-                   :sentinel
-                   (lambda (process _event)
-                     (when (eq (process-status process) 'exit)
-                       (if (zerop (process-exit-status process))
-                           (let ((subs-file (car (directory-files temp-dir t ".*-orig.*"))))
-                             (if (and subs-file (file-exists-p subs-file))
-                                 (with-current-buffer (get-buffer-create buffer-name)
-                                   (let ((inhibit-read-only t))
-                                     (erase-buffer)
-                                     (insert-file-contents subs-file)
-                                     (emacs-solo/clean-subtitles buffer-name))
-                                   (switch-to-buffer-other-window (current-buffer))
-                                   (message "Loaded subtitles: %s" (file-name-nondirectory subs-file))
-                                   (delete-directory temp-dir t))
-                               (message "No -orig subtitles found in %s" temp-dir)
-                               (delete-directory temp-dir t)))
-                         (message "Failed to fetch subtitles")
-                         (delete-directory temp-dir t)))))))))
+				  ;; Run yt-dlp process
+				  (make-process
+				   :name "yt-dlp-fetch-subs"
+				   :buffer nil
+				   :command `("yt-dlp"
+							  "--write-auto-subs"
+							  "--sub-lang" ".*-orig"
+							  "--convert-subs" "srt"
+							  "--skip-download"
+							  "--no-clean-infojson"
+							  "-o" ,(concat temp-dir "temp.%(ext)s")
+							  ,video-url)
+				   :sentinel
+				   (lambda (process _event)
+					 (when (eq (process-status process) 'exit)
+					   (if (zerop (process-exit-status process))
+						   (let ((subs-file (car (directory-files temp-dir t ".*-orig.*"))))
+							 (if (and subs-file (file-exists-p subs-file))
+								 (with-current-buffer (get-buffer-create buffer-name)
+								   (let ((inhibit-read-only t))
+									 (erase-buffer)
+									 (insert-file-contents subs-file)
+									 (emacs-solo/clean-subtitles buffer-name))
+								   (switch-to-buffer-other-window (current-buffer))
+								   (message "Loaded subtitles: %s" (file-name-nondirectory subs-file))
+								   (delete-directory temp-dir t))
+							   (message "No -orig subtitles found in %s" temp-dir)
+							   (delete-directory temp-dir t)))
+						 (message "Failed to fetch subtitles")
+						 (delete-directory temp-dir t)))))))))
 
-        (message "No *Newsticker Item* buffer found."))))
+		(message "No *Newsticker Item* buffer found."))))
 
   ;; Override this variable on your customizations to other prompts
   (setq  emacs-solo-newsticker-summarize-yt-video-prompt  "please, summarize this youtube video transcript in english")
@@ -2589,135 +2589,135 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
 
   ;; FIXME: I'd like this to be mostly not dependent on BASH, like the "S" for Subtitles function....
   (defun emacs-solo/newsticker-summarize-yt-video ()
-    "Summarize a YT video."
-    (interactive)
-    (let ((newsticker-buf (get-buffer "*Newsticker Item*")))
-      (unless newsticker-buf
-        (user-error "No *Newsticker Item* buffer found"))
+	"Summarize a YT video."
+	(interactive)
+	(let ((newsticker-buf (get-buffer "*Newsticker Item*")))
+	  (unless newsticker-buf
+		(user-error "No *Newsticker Item* buffer found"))
 
-      (with-current-buffer newsticker-buf
-        (save-excursion
-          (goto-char (point-min))
-          (unless (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
-            (user-error "No videoId found in *Newsticker Item* buffer"))
+	  (with-current-buffer newsticker-buf
+		(save-excursion
+		  (goto-char (point-min))
+		  (unless (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
+			(user-error "No videoId found in *Newsticker Item* buffer"))
 
-          (let* ((video-id (match-string 1))
-                 (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
-                 (output-buffer (get-buffer-create (format "*YT Summary: %s*" video-id)))
-                 (prompt emacs-solo-newsticker-summarize-yt-video-prompt)
-                 (base-path (expand-file-name "cache/yt-subs" user-emacs-directory))
-                 (command
-                  (format
-                   (concat
-                    ;; Use trap for robust cleanup, replacing the two `rm` commands in the original.
-                    "trap 'rm -f %s*' EXIT; "
-                    ;; Use the exact yt-dlp flags from the newsbeuter command (--convert-subs lrc, etc).
-                    "yt-dlp --write-auto-subs --sub-lang '.*-orig' --convert-subs lrc --skip-download --no-clean-infojson -o %s %s >/dev/null 2>&1 && "
-                    ;; Cat the globbed path (to find the .lrc file) and use the LRC-specific sed command.
-                    "cat %s* | "
-                    "sed 's/\\[[^\\]]*\\]//g' | "
-                    "grep -v '^[[:space:]]*$' | "
-                    "uniq | "
-                    "(echo '%s'; cat -) | "
-                    "gemini -p -")
-                   (shell-quote-argument base-path)      ;; For trap
-                   (shell-quote-argument base-path)      ;; For yt-dlp's -o
-                   (shell-quote-argument video-url)      ;; The video URL
-                   (shell-quote-argument base-path)      ;; For cat
-                   prompt)))                             ;; For the echo command
+		  (let* ((video-id (match-string 1))
+				 (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
+				 (output-buffer (get-buffer-create (format "*YT Summary: %s*" video-id)))
+				 (prompt emacs-solo-newsticker-summarize-yt-video-prompt)
+				 (base-path (expand-file-name "cache/yt-subs" user-emacs-directory))
+				 (command
+				  (format
+				   (concat
+					;; Use trap for robust cleanup, replacing the two `rm` commands in the original.
+					"trap 'rm -f %s*' EXIT; "
+					;; Use the exact yt-dlp flags from the newsbeuter command (--convert-subs lrc, etc).
+					"yt-dlp --write-auto-subs --sub-lang '.*-orig' --convert-subs lrc --skip-download --no-clean-infojson -o %s %s >/dev/null 2>&1 && "
+					;; Cat the globbed path (to find the .lrc file) and use the LRC-specific sed command.
+					"cat %s* | "
+					"sed 's/\\[[^\\]]*\\]//g' | "
+					"grep -v '^[[:space:]]*$' | "
+					"uniq | "
+					"(echo '%s'; cat -) | "
+					"gemini -p -")
+				   (shell-quote-argument base-path)      ;; For trap
+				   (shell-quote-argument base-path)      ;; For yt-dlp's -o
+				   (shell-quote-argument video-url)      ;; The video URL
+				   (shell-quote-argument base-path)      ;; For cat
+				   prompt)))                             ;; For the echo command
 
-            (message "Generating summary for %s..." video-id)
+			(message "Generating summary for %s..." video-id)
 
-            (with-current-buffer output-buffer
-              (let ((inhibit-read-only t))
-                (erase-buffer)
-                (insert (format "* Generating summary for %s...\nThis may take a moment.\n\n\n" video-url))
-                (display-buffer (current-buffer))
-                (select-window (get-buffer-window (current-buffer)))
-                (special-mode)
-                (visual-line-mode)
-                (let ((map (make-sparse-keymap)))
-                  (define-key map (kbd "q")
-                              (lambda ()
-                                (interactive)
-                                (let ((win (get-buffer-window)))
-                                  (when (window-live-p win)
-                                    (quit-window 'kill win)))))
-                  (define-key map (kbd "n") #'forward-line)
-                  (define-key map (kbd "p") #'previous-line)
-                  (use-local-map map))
-                (let ((shell-file-name "bash"))
-                  (start-process-shell-command "yt-summary" (current-buffer) command)))))))))
+			(with-current-buffer output-buffer
+			  (let ((inhibit-read-only t))
+				(erase-buffer)
+				(insert (format "* Generating summary for %s...\nThis may take a moment.\n\n\n" video-url))
+				(display-buffer (current-buffer))
+				(select-window (get-buffer-window (current-buffer)))
+				(special-mode)
+				(visual-line-mode)
+				(let ((map (make-sparse-keymap)))
+				  (define-key map (kbd "q")
+							  (lambda ()
+								(interactive)
+								(let ((win (get-buffer-window)))
+								  (when (window-live-p win)
+									(quit-window 'kill win)))))
+				  (define-key map (kbd "n") #'forward-line)
+				  (define-key map (kbd "p") #'previous-line)
+				  (use-local-map map))
+				(let ((shell-file-name "bash"))
+				  (start-process-shell-command "yt-summary" (current-buffer) command)))))))))
 
   (defun emacs-solo/show-yt-thumbnail ()
-    "Show YouTube thumbnail from a videoId in the current buffer."
-    (interactive)
-    (let ((window (get-buffer-window "*Newsticker Item*" t)))
-      (if window
-          (progn
-            (select-window window)
-            (save-excursion
-              (goto-char (point-min))
-              (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
-                (let* ((video-id (match-string 1))
-                       (thumb-url (format "https://img.youtube.com/vi/%s/sddefault.jpg" video-id))
-                       (thumb-buffer-name (format "*YT Thumbnail: %s*" video-id)))
+	"Show YouTube thumbnail from a videoId in the current buffer."
+	(interactive)
+	(let ((window (get-buffer-window "*Newsticker Item*" t)))
+	  (if window
+		  (progn
+			(select-window window)
+			(save-excursion
+			  (goto-char (point-min))
+			  (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
+				(let* ((video-id (match-string 1))
+					   (thumb-url (format "https://img.youtube.com/vi/%s/sddefault.jpg" video-id))
+					   (thumb-buffer-name (format "*YT Thumbnail: %s*" video-id)))
 
-                  ;; Try to fetch the video thumbnail
-                  (url-retrieve
-                   thumb-url
-                   (lambda (_status)
-                     (goto-char (point-min))
-                     (re-search-forward "\n\n") ;; Skip headers
-                     (let* ((image-data (buffer-substring (point) (point-max)))
-                            (img (create-image image-data nil t :scale 1.0)))
+				  ;; Try to fetch the video thumbnail
+				  (url-retrieve
+				   thumb-url
+				   (lambda (_status)
+					 (goto-char (point-min))
+					 (re-search-forward "\n\n") ;; Skip headers
+					 (let* ((image-data (buffer-substring (point) (point-max)))
+							(img (create-image image-data nil t :scale 1.0)))
 
-                       ;; Create temp buffer
-                       (with-current-buffer (get-buffer-create thumb-buffer-name)
-                         (read-only-mode -1)
-                         (erase-buffer)
-                         (insert-image img)
-                         (insert (format "\n\nVideo ID: %s\n" video-id))
-                         (special-mode)
-                         (let ((map (make-sparse-keymap)))
-                           (define-key map (kbd "q")
-                                       (lambda ()
-                                         (interactive)
-                                         (let ((win (get-buffer-window)))
-                                           (when (window-live-p win)
-                                             (quit-window 'kill win)))))
-                           (use-local-map map))
-                         (display-buffer (current-buffer))
-                         (select-window (get-buffer-window (current-buffer))))))
-                   nil t)))))
+					   ;; Create temp buffer
+					   (with-current-buffer (get-buffer-create thumb-buffer-name)
+						 (read-only-mode -1)
+						 (erase-buffer)
+						 (insert-image img)
+						 (insert (format "\n\nVideo ID: %s\n" video-id))
+						 (special-mode)
+						 (let ((map (make-sparse-keymap)))
+						   (define-key map (kbd "q")
+									   (lambda ()
+										 (interactive)
+										 (let ((win (get-buffer-window)))
+										   (when (window-live-p win)
+											 (quit-window 'kill win)))))
+						   (use-local-map map))
+						 (display-buffer (current-buffer))
+						 (select-window (get-buffer-window (current-buffer))))))
+				   nil t)))))
 
-        (message "No *Newsticker Item* buffer found."))))
+		(message "No *Newsticker Item* buffer found."))))
 
 
   (defun emacs-solo/newsticker-play-yt-video-from-buffer (&optional no-video)
-    "Focus the window showing '*Newsticker Item*' and play the video."
-    (interactive "P")
-    (let ((window (get-buffer-window "*Newsticker Item*" t)))
-      (if window
-          (progn
-            (select-window window)
-            (save-excursion
-              (goto-char (point-min))
-              (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
-                (let ((video-id (match-string 1)))
-                  (start-process "mpv-video" nil "mpv" (if no-video "--no-video" "") (format "https://www.youtube.com/watch?v=%s" video-id))
-                  (message "Playing with mpv: %s" video-id)))))
+	"Focus the window showing '*Newsticker Item*' and play the video."
+	(interactive "P")
+	(let ((window (get-buffer-window "*Newsticker Item*" t)))
+	  (if window
+		  (progn
+			(select-window window)
+			(save-excursion
+			  (goto-char (point-min))
+			  (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
+				(let ((video-id (match-string 1)))
+				  (start-process "mpv-video" nil "mpv" (if no-video "--no-video" "") (format "https://www.youtube.com/watch?v=%s" video-id))
+				  (message "Playing with mpv: %s" video-id)))))
 
-        (message "No window showing *Newsticker Item* buffer."))))
+		(message "No window showing *Newsticker Item* buffer."))))
 
   (defun emacs-solo/newsticker-eww-current-article ()
-    "Open the news item at point in EWW in the same window."
-    (interactive)
-    (with-current-buffer (newsticker--treeview-list-buffer)
-      (let ((url (get-text-property (point) :nt-link)))
-        (when url
-          (eww url)
-          (switch-to-buffer (get-buffer "*eww*")))))))
+	"Open the news item at point in EWW in the same window."
+	(interactive)
+	(with-current-buffer (newsticker--treeview-list-buffer)
+	  (let ((url (get-text-property (point) :nt-link)))
+		(when url
+		  (eww url)
+		  (switch-to-buffer (get-buffer "*eww*")))))))
 
 
 ;;; │ ELECTRIC-PAIR
@@ -2748,8 +2748,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (proced-filter 'user) ;; We can change interactively with `s'
   :config
   (add-hook 'proced-mode-hook
-            (lambda ()
-              (proced-toggle-auto-update 1))))
+			(lambda ()
+			  (proced-toggle-auto-update 1))))
 
 ;;; │ ORG
 (use-package org
@@ -2779,8 +2779,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
    org-agenda-block-separator ?─
    org-agenda-time-grid
    '((daily today require-timed)
-     (800 1000 1200 1400 1600 1800 2000)
-     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+	 (800 1000 1200 1400 1600 1800 2000)
+	 " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
    org-agenda-current-time-string
    "◀── now ─────────────────────────────────────────────────")
 
@@ -2795,11 +2795,11 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :ensure nil
   :bind
   (("M-I" . (lambda () ;; Toggles / focuses speedbar on side window
-              (interactive)
-              (speedbar-window)       ;; EMACS-31
-              (let ((win (get-buffer-window speedbar-buffer)))
-                (when win
-                  (select-window win))))))
+			  (interactive)
+			  (speedbar-window)       ;; EMACS-31
+			  (let ((win (get-buffer-window speedbar-buffer)))
+				(when win
+				  (select-window win))))))
   :custom
   (speedbar-window-default-width 25)  ;; EMACS-31
   (speedbar-window-max-width 25)      ;; EMACS-31
@@ -2810,29 +2810,29 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (speedbar-update-flag nil)
   :config
   (setq speedbar-expand-image-button-alist
-        '(("<+>" . ezimage-directory) ;; previously ezimage-directory-plus
-          ("<->" . ezimage-directory-minus)
-          ("< >" . ezimage-directory)
-          ("[+]" . ezimage-page-plus)
-          ("[-]" . ezimage-page-minus)
-          ("[?]" . ezimage-page)
-          ("[ ]" . ezimage-page)
-          ("{+}" . ezimage-directory-plus) ;; previously ezimage-box-plus
-          ("{-}" . ezimage-directory-minus) ;; previously ezimage-box-minus
-          ("<M>" . ezimage-mail)
-          ("<d>" . ezimage-document-tag)
-          ("<i>" . ezimage-info-tag)
-          (" =>" . ezimage-tag)
-          (" +>" . ezimage-tag-gt)
-          (" ->" . ezimage-tag-v)
-          (">"   . ezimage-tag)
-          ("@"   . ezimage-tag-type)
-          ("  @" . ezimage-tag-type)
-          ("*"   . ezimage-checkout)
-          ("#"   . ezimage-object)
-          ("!"   . ezimage-object-out-of-date)
-          ("//"  . ezimage-label)
-          ("%"   . ezimage-lock))))
+		'(("<+>" . ezimage-directory) ;; previously ezimage-directory-plus
+		  ("<->" . ezimage-directory-minus)
+		  ("< >" . ezimage-directory)
+		  ("[+]" . ezimage-page-plus)
+		  ("[-]" . ezimage-page-minus)
+		  ("[?]" . ezimage-page)
+		  ("[ ]" . ezimage-page)
+		  ("{+}" . ezimage-directory-plus) ;; previously ezimage-box-plus
+		  ("{-}" . ezimage-directory-minus) ;; previously ezimage-box-minus
+		  ("<M>" . ezimage-mail)
+		  ("<d>" . ezimage-document-tag)
+		  ("<i>" . ezimage-info-tag)
+		  (" =>" . ezimage-tag)
+		  (" +>" . ezimage-tag-gt)
+		  (" ->" . ezimage-tag-v)
+		  (">"   . ezimage-tag)
+		  ("@"   . ezimage-tag-type)
+		  ("  @" . ezimage-tag-type)
+		  ("*"   . ezimage-checkout)
+		  ("#"   . ezimage-object)
+		  ("!"   . ezimage-object-out-of-date)
+		  ("//"  . ezimage-label)
+		  ("%"   . ezimage-lock))))
 
 ;;; │ TIME
 (use-package time
@@ -2846,31 +2846,31 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (display-time-mail-string "")
   (zoneinfo-style-world-list                ; use `M-x worldclock RET' to see it
    '(("America/Los_Angeles" "Los Angeles")
-     ("America/Vancouver" "Vancouver")
-     ("Canada/Pacific" "Canada/Pacific")
-     ("America/Chicago" "Chicago")
-     ("America/Toronto" "Toronto")
-     ("America/New_York" "New York")
-     ("Canada/Atlantic" "Canada/Atlantic")
-     ("Brazil/East" "Brasília")
-     ("America/Sao_Paulo" "São Paulo")
-     ("UTC" "UTC")
-     ("Europe/Lisbon" "Lisbon")
-     ("Europe/Brussels" "Brussels")
-     ("Europe/Athens" "Athens")
-     ("Asia/Riyadh" "Riyadh")
-     ("Asia/Tehran" "Tehran")
-     ("Asia/Tbilisi" "Tbilisi")
-     ("Asia/Yekaterinburg" "Yekaterinburg")
-     ("Asia/Kolkata" "Kolkata")
-     ("Asia/Singapore" "Singapore")
-     ("Asia/Shanghai" "Shanghai")
-     ("Asia/Seoul" "Seoul")
-     ("Asia/Tokyo" "Tokyo")
-     ("Asia/Vladivostok" "Vladivostok")
-     ("Australia/Brisbane" "Brisbane")
-     ("Australia/Sydney" "Sydney")
-     ("Pacific/Auckland" "Auckland"))))
+	 ("America/Vancouver" "Vancouver")
+	 ("Canada/Pacific" "Canada/Pacific")
+	 ("America/Chicago" "Chicago")
+	 ("America/Toronto" "Toronto")
+	 ("America/New_York" "New York")
+	 ("Canada/Atlantic" "Canada/Atlantic")
+	 ("Brazil/East" "Brasília")
+	 ("America/Sao_Paulo" "São Paulo")
+	 ("UTC" "UTC")
+	 ("Europe/Lisbon" "Lisbon")
+	 ("Europe/Brussels" "Brussels")
+	 ("Europe/Athens" "Athens")
+	 ("Asia/Riyadh" "Riyadh")
+	 ("Asia/Tehran" "Tehran")
+	 ("Asia/Tbilisi" "Tbilisi")
+	 ("Asia/Yekaterinburg" "Yekaterinburg")
+	 ("Asia/Kolkata" "Kolkata")
+	 ("Asia/Singapore" "Singapore")
+	 ("Asia/Shanghai" "Shanghai")
+	 ("Asia/Seoul" "Seoul")
+	 ("Asia/Tokyo" "Tokyo")
+	 ("Asia/Vladivostok" "Vladivostok")
+	 ("Australia/Brisbane" "Brisbane")
+	 ("Australia/Sydney" "Sydney")
+	 ("Pacific/Auckland" "Auckland"))))
 
 
 ;;; │ UNIQUIFY
@@ -2906,72 +2906,72 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   ;; Here are some descriptions for the default bindings in `global-map'
   ;; and `org-mode-map'.
   (which-key-add-key-based-replacements
-    "<f1> 4" "help-other-win"
-    "<f1>" "help"
-    "<f2>" "2column"
-    "C-c" "mode-and-user"
-    "C-c !" "flymake"
-    "C-c g" "git-gutter"
-    "C-h 4" "help-other-win"
-    "C-h" "help"
-    "C-x 4" "other-window"
-    "C-x 5" "other-frame"
-    "C-x 6" "2-column"
-    "C-x 8" "insert-special"
-    "C-x 8 ^" "superscript (⁰, ¹, ², …)"
-    "C-x 8 _" "subscript (₀, ₁, ₂, …)"
-    "C-x 8 a" "arrows & æ (←, →, ↔, æ)"
-    "C-x 8 e" "emojis (🫎, 🇧🇷, 🇮🇹, …)"
-    "C-x 8 *" "common symbols ( , ¡, €, …)"
-    "C-x 8 =" "macron (Ā, Ē, Ḡ, …)"
-    "C-x 8 N" "macron (№)"
-    "C-x 8 O" "macron (œ)"
-    "C-x 8 ~" "tilde (~, ã, …)"
-    "C-x 8 /" "stroke (÷, ≠, ø, …)"
-    "C-x 8 ." "dot (·, ż)"
-    "C-x 8 ," "cedilla (¸, ç, ą, …)"
-    "C-x 8 '" "acute (á, é, í, …)"
-    "C-x 8 `" "grave (à, è, ì, …)"
-    "C-x 8 \"" "quotation/dieresis (\", ë, ß, …)"
-    "C-x 8 1" "†, 1/…"
-    "C-x 8 2" "‡"
-    "C-x 8 3" "3/…"
-    "C-x C-k C-q" "kmacro-counters"
-    "C-x C-k C-r a" "kmacro-add"
-    "C-x C-k C-r" "kmacro-register"
-    "C-x C-k" "keyboard-macros"
-    "C-x RET" "encoding/input"
-    "C-x a i" "abbrevs-inverse-add"
-    "C-x a" "abbrevs"
-    "C-x n" "narrowing"
-    "C-x p" "projects"
-    "C-x r" "reg/rect/bkmks"
-    "C-x t ^" "tab-bar-detach"
-    "C-x t" "tab-bar"
-    "C-x v M" "vc-mergebase"
-    "C-x v b" "vc-branch"
-    "C-x v" "version-control"
-    "C-x w ^" "window-detach"
-    "C-x w" "window-extras"
-    "C-x x" "buffer-extras"
-    "C-x" "extra-commands"
-    "M-g" "goto-map"
-    "M-s h" "search-highlight"
-    "M-s" "search-map")
+	"<f1> 4" "help-other-win"
+	"<f1>" "help"
+	"<f2>" "2column"
+	"C-c" "mode-and-user"
+	"C-c !" "flymake"
+	"C-c g" "git-gutter"
+	"C-h 4" "help-other-win"
+	"C-h" "help"
+	"C-x 4" "other-window"
+	"C-x 5" "other-frame"
+	"C-x 6" "2-column"
+	"C-x 8" "insert-special"
+	"C-x 8 ^" "superscript (⁰, ¹, ², …)"
+	"C-x 8 _" "subscript (₀, ₁, ₂, …)"
+	"C-x 8 a" "arrows & æ (←, →, ↔, æ)"
+	"C-x 8 e" "emojis (🫎, 🇧🇷, 🇮🇹, …)"
+	"C-x 8 *" "common symbols ( , ¡, €, …)"
+	"C-x 8 =" "macron (Ā, Ē, Ḡ, …)"
+	"C-x 8 N" "macron (№)"
+	"C-x 8 O" "macron (œ)"
+	"C-x 8 ~" "tilde (~, ã, …)"
+	"C-x 8 /" "stroke (÷, ≠, ø, …)"
+	"C-x 8 ." "dot (·, ż)"
+	"C-x 8 ," "cedilla (¸, ç, ą, …)"
+	"C-x 8 '" "acute (á, é, í, …)"
+	"C-x 8 `" "grave (à, è, ì, …)"
+	"C-x 8 \"" "quotation/dieresis (\", ë, ß, …)"
+	"C-x 8 1" "†, 1/…"
+	"C-x 8 2" "‡"
+	"C-x 8 3" "3/…"
+	"C-x C-k C-q" "kmacro-counters"
+	"C-x C-k C-r a" "kmacro-add"
+	"C-x C-k C-r" "kmacro-register"
+	"C-x C-k" "keyboard-macros"
+	"C-x RET" "encoding/input"
+	"C-x a i" "abbrevs-inverse-add"
+	"C-x a" "abbrevs"
+	"C-x n" "narrowing"
+	"C-x p" "projects"
+	"C-x r" "reg/rect/bkmks"
+	"C-x t ^" "tab-bar-detach"
+	"C-x t" "tab-bar"
+	"C-x v M" "vc-mergebase"
+	"C-x v b" "vc-branch"
+	"C-x v" "version-control"
+	"C-x w ^" "window-detach"
+	"C-x w" "window-extras"
+	"C-x x" "buffer-extras"
+	"C-x" "extra-commands"
+	"M-g" "goto-map"
+	"M-s h" "search-highlight"
+	"M-s" "search-map")
 
   ;; Upon loading, the built-in `page-ext' package turns "C-x C-p" into
   ;; a prefix-key. If you know of other built-in packages that have
   ;; this behavior, please let me know, so I can add them.
   (with-eval-after-load 'page-ext
-    (which-key-add-key-based-replacements
-      "C-x C-p" "page-extras"))
+	(which-key-add-key-based-replacements
+	  "C-x C-p" "page-extras"))
 
   ;; Org-mode provides some additional prefix-keys in `org-mode-map'.
   (with-eval-after-load 'org
-    (which-key-add-keymap-based-replacements org-mode-map
-      "C-c \"" "org-plot"
-      "C-c C-v" "org-babel"
-      "C-c C-x" "org-extra-commands")))
+	(which-key-add-keymap-based-replacements org-mode-map
+	  "C-c \"" "org-plot"
+	  "C-c C-v" "org-babel"
+	  "C-c C-x" "org-extra-commands")))
 
 
 ;;; │ WEBJUMP
@@ -2982,9 +2982,9 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :custom
   (webjump-sites
    '(("DuckDuckGo" . [simple-query "www.duckduckgo.com" "www.duckduckgo.com/?q=" ""])
-     ("Google" . [simple-query "www.google.com" "www.google.com/search?q=" ""])
-     ("YouTube" . [simple-query "www.youtube.com/feed/subscriptions" "www.youtube.com/results?search_query=" ""])
-     ("ChatGPT" . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
+	 ("Google" . [simple-query "www.google.com" "www.google.com/search?q=" ""])
+	 ("YouTube" . [simple-query "www.youtube.com/feed/subscriptions" "www.youtube.com/results?search_query=" ""])
+	 ("ChatGPT" . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
 
 
 ;;; ┌──────────────────── THEMES
@@ -3003,115 +3003,115 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (modus-themes-prompts '(bold intense))
   (modus-themes-common-palette-overrides
    `((accent-0 "#89b4fa")
-     (accent-1 "#89dceb")
-     (bg-active bg-main)
-     (bg-added "#364144")
-     (bg-added-refine "#4A5457")
-     (bg-changed "#3e4b6c")
-     (bg-changed-refine "#515D7B")
-     (bg-completion "#45475a")
-     (bg-completion-match-0 "#1e1e2e")
-     (bg-completion-match-1 "#1e1e2e")
-     (bg-completion-match-2 "#1e1e2e")
-     (bg-completion-match-3 "#1e1e2e")
-     (bg-hl-line "#2a2b3d")
-     (bg-hover-secondary "#585b70")
-     (bg-line-number-active unspecified)
-     (bg-line-number-inactive "#1e1e2e")
-     (bg-main "#1e1e2e")
-     (bg-mark-delete "#443245")
-     (bg-mark-select "#3e4b6c")
-     (bg-mode-line-active "#181825")
-     (bg-mode-line-inactive "#181825")
-     (bg-prominent-err "#443245")
-     (bg-prompt unspecified)
-     (bg-prose-block-contents "#313244")
-     (bg-prose-block-delimiter bg-prose-block-contents)
-     (bg-region "#585b70")
-     (bg-removed "#443245")
-     (bg-removed-refine "#574658")
-     (bg-tab-bar      "#1e1e2e")
-     (bg-tab-current  bg-main)
-     (bg-tab-other    "#1e1e2e")
-     (border-mode-line-active nil)
-     (border-mode-line-inactive nil)
-     (builtin "#89b4fa")
-     (comment "#9399b2")
-     (constant  "#f38ba8")
-     (cursor  "#f5e0dc")
-     (date-weekday "#89b4fa")
-     (date-weekend "#fab387")
-     (docstring "#a6adc8")
-     (err     "#f38ba8")
-     (fg-active fg-main)
-     (fg-completion "#cdd6f4")
-     (fg-completion-match-0 "#89b4fa")
-     (fg-completion-match-1 "#f38ba8")
-     (fg-completion-match-2 "#a6e3a1")
-     (fg-completion-match-3 "#fab387")
-     (fg-heading-0 "#f38ba8")
-     (fg-heading-1 "#fab387")
-     (fg-heading-2 "#f9e2af")
-     (fg-heading-3 "#a6e3a1")
-     (fg-heading-4 "#74c7ec")
-     (fg-line-number-active "#b4befe")
-     (fg-line-number-inactive "#7f849c")
-     (fg-link  "#89b4fa")
-     (fg-main "#cdd6f4")
-     (fg-mark-delete "#f38ba8")
-     (fg-mark-select "#89b4fa")
-     (fg-mode-line-active "#bac2de")
-     (fg-mode-line-inactive "#585b70")
-     (fg-prominent-err "#f38ba8")
-     (fg-prompt "#cba6f7")
-     (fg-prose-block-delimiter "#9399b2")
-     (fg-prose-verbatim "#a6e3a1")
-     (fg-region "#cdd6f4")
-     (fnname    "#89b4fa")
-     (fringe "#1e1e2e")
-     (identifier "#cba6f7")
-     (info    "#94e2d5")
-     (keyword   "#cba6f7")
-     (keyword "#cba6f7")
-     (name "#89b4fa")
-     (number "#fab387")
-     (property "#89b4fa")
-     (string "#a6e3a1")
-     (type      "#f9e2af")
-     (variable  "#fab387")
-     (warning "#f9e2af")))
+	 (accent-1 "#89dceb")
+	 (bg-active bg-main)
+	 (bg-added "#364144")
+	 (bg-added-refine "#4A5457")
+	 (bg-changed "#3e4b6c")
+	 (bg-changed-refine "#515D7B")
+	 (bg-completion "#45475a")
+	 (bg-completion-match-0 "#1e1e2e")
+	 (bg-completion-match-1 "#1e1e2e")
+	 (bg-completion-match-2 "#1e1e2e")
+	 (bg-completion-match-3 "#1e1e2e")
+	 (bg-hl-line "#2a2b3d")
+	 (bg-hover-secondary "#585b70")
+	 (bg-line-number-active unspecified)
+	 (bg-line-number-inactive "#1e1e2e")
+	 (bg-main "#1e1e2e")
+	 (bg-mark-delete "#443245")
+	 (bg-mark-select "#3e4b6c")
+	 (bg-mode-line-active "#181825")
+	 (bg-mode-line-inactive "#181825")
+	 (bg-prominent-err "#443245")
+	 (bg-prompt unspecified)
+	 (bg-prose-block-contents "#313244")
+	 (bg-prose-block-delimiter bg-prose-block-contents)
+	 (bg-region "#585b70")
+	 (bg-removed "#443245")
+	 (bg-removed-refine "#574658")
+	 (bg-tab-bar      "#1e1e2e")
+	 (bg-tab-current  bg-main)
+	 (bg-tab-other    "#1e1e2e")
+	 (border-mode-line-active nil)
+	 (border-mode-line-inactive nil)
+	 (builtin "#89b4fa")
+	 (comment "#9399b2")
+	 (constant  "#f38ba8")
+	 (cursor  "#f5e0dc")
+	 (date-weekday "#89b4fa")
+	 (date-weekend "#fab387")
+	 (docstring "#a6adc8")
+	 (err     "#f38ba8")
+	 (fg-active fg-main)
+	 (fg-completion "#cdd6f4")
+	 (fg-completion-match-0 "#89b4fa")
+	 (fg-completion-match-1 "#f38ba8")
+	 (fg-completion-match-2 "#a6e3a1")
+	 (fg-completion-match-3 "#fab387")
+	 (fg-heading-0 "#f38ba8")
+	 (fg-heading-1 "#fab387")
+	 (fg-heading-2 "#f9e2af")
+	 (fg-heading-3 "#a6e3a1")
+	 (fg-heading-4 "#74c7ec")
+	 (fg-line-number-active "#b4befe")
+	 (fg-line-number-inactive "#7f849c")
+	 (fg-link  "#89b4fa")
+	 (fg-main "#cdd6f4")
+	 (fg-mark-delete "#f38ba8")
+	 (fg-mark-select "#89b4fa")
+	 (fg-mode-line-active "#bac2de")
+	 (fg-mode-line-inactive "#585b70")
+	 (fg-prominent-err "#f38ba8")
+	 (fg-prompt "#cba6f7")
+	 (fg-prose-block-delimiter "#9399b2")
+	 (fg-prose-verbatim "#a6e3a1")
+	 (fg-region "#cdd6f4")
+	 (fnname    "#89b4fa")
+	 (fringe "#1e1e2e")
+	 (identifier "#cba6f7")
+	 (info    "#94e2d5")
+	 (keyword   "#cba6f7")
+	 (keyword "#cba6f7")
+	 (name "#89b4fa")
+	 (number "#fab387")
+	 (property "#89b4fa")
+	 (string "#a6e3a1")
+	 (type      "#f9e2af")
+	 (variable  "#fab387")
+	 (warning "#f9e2af")))
   :config
   (modus-themes-with-colors
-    (custom-set-faces
-     `(change-log-acknowledgment ((,c :foreground "#b4befe")))
-     `(change-log-date ((,c :foreground "#a6e3a1")))
-     `(change-log-name ((,c :foreground "#fab387")))
-     `(diff-context ((,c :foreground "#89b4fa")))
-     `(diff-file-header ((,c :foreground "#f5c2e7")))
-     `(diff-header ((,c :foreground "#89b4fa")))
-     `(diff-hunk-header ((,c :foreground "#fab387")))
-     `(gnus-button ((,c :foreground "#8aadf4")))
-     `(gnus-group-mail-3 ((,c :foreground "#8aadf4")))
-     `(gnus-group-mail-3-empty ((,c :foreground "#8aadf4")))
-     `(gnus-header-content ((,c :foreground "#7dc4e4")))
-     `(gnus-header-from ((,c :foreground "#cba6f7")))
-     `(gnus-header-name ((,c :foreground "#a6e3a1")))
-     `(gnus-header-subject ((,c :foreground "#8aadf4")))
-     `(log-view-message ((,c :foreground "#b4befe")))
-     `(match ((,c :background "#3e5768" :foreground "#cdd6f5")))
-     `(modus-themes-search-current ((,c :background "#f38ba8" :foreground "#11111b" ))) ;; :foreground "#cdd6f4" -- Catppuccin default, not that visible...
-     `(modus-themes-search-lazy ((,c :background "#3e5768" :foreground "#cdd6f5")))     ;; :foreground "#cdd6f4" :background "#94e2d5" -- Catppuccin default, not that visible...
-     `(newsticker-extra-face ((,c :foreground "#9399b2" :height 0.8 :slant italic)))
-     `(newsticker-feed-face ((,c :foreground "#f38ba8" :height 1.2 :weight bold)))
-     `(newsticker-treeview-face ((,c :foreground "#cdd6f4")))
-     `(newsticker-treeview-selection-face ((,c :background "#3e5768" :foreground "#cdd6f5")))
-     `(tab-bar ((,c :background "#1e1e2e" :foreground "#bac2de")))
-     `(tab-bar-tab ((,c :background "#1e1e2e" :underline t)))
-     `(tab-bar-tab-group-current ((,c :background "#1e1e2e" :foreground "#bac2de" :underline t)))
-     `(tab-bar-tab-group-inactive ((,c :background "#1e1e2e" :foreground "#9399b2"))))
-    `(tab-bar-tab-inactive ((,c :background "#1e1e2e" :foreground "#a6adc8")))
-    `(vc-dir-file ((,c :foreground "#89b4fa")))
-    `(vc-dir-header-value ((,c :foreground "#b4befe"))))
+	(custom-set-faces
+	 `(change-log-acknowledgment ((,c :foreground "#b4befe")))
+	 `(change-log-date ((,c :foreground "#a6e3a1")))
+	 `(change-log-name ((,c :foreground "#fab387")))
+	 `(diff-context ((,c :foreground "#89b4fa")))
+	 `(diff-file-header ((,c :foreground "#f5c2e7")))
+	 `(diff-header ((,c :foreground "#89b4fa")))
+	 `(diff-hunk-header ((,c :foreground "#fab387")))
+	 `(gnus-button ((,c :foreground "#8aadf4")))
+	 `(gnus-group-mail-3 ((,c :foreground "#8aadf4")))
+	 `(gnus-group-mail-3-empty ((,c :foreground "#8aadf4")))
+	 `(gnus-header-content ((,c :foreground "#7dc4e4")))
+	 `(gnus-header-from ((,c :foreground "#cba6f7")))
+	 `(gnus-header-name ((,c :foreground "#a6e3a1")))
+	 `(gnus-header-subject ((,c :foreground "#8aadf4")))
+	 `(log-view-message ((,c :foreground "#b4befe")))
+	 `(match ((,c :background "#3e5768" :foreground "#cdd6f5")))
+	 `(modus-themes-search-current ((,c :background "#f38ba8" :foreground "#11111b" ))) ;; :foreground "#cdd6f4" -- Catppuccin default, not that visible...
+	 `(modus-themes-search-lazy ((,c :background "#3e5768" :foreground "#cdd6f5")))     ;; :foreground "#cdd6f4" :background "#94e2d5" -- Catppuccin default, not that visible...
+	 `(newsticker-extra-face ((,c :foreground "#9399b2" :height 0.8 :slant italic)))
+	 `(newsticker-feed-face ((,c :foreground "#f38ba8" :height 1.2 :weight bold)))
+	 `(newsticker-treeview-face ((,c :foreground "#cdd6f4")))
+	 `(newsticker-treeview-selection-face ((,c :background "#3e5768" :foreground "#cdd6f5")))
+	 `(tab-bar ((,c :background "#1e1e2e" :foreground "#bac2de")))
+	 `(tab-bar-tab ((,c :background "#1e1e2e" :underline t)))
+	 `(tab-bar-tab-group-current ((,c :background "#1e1e2e" :foreground "#bac2de" :underline t)))
+	 `(tab-bar-tab-group-inactive ((,c :background "#1e1e2e" :foreground "#9399b2"))))
+	`(tab-bar-tab-inactive ((,c :background "#1e1e2e" :foreground "#a6adc8")))
+	`(vc-dir-file ((,c :foreground "#89b4fa")))
+	`(vc-dir-header-value ((,c :foreground "#b4befe"))))
   :init
   (load-theme 'modus-vivendi t))
 
@@ -3128,114 +3128,114 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (modus-themes-prompts '(bold intense))
   (modus-themes-common-palette-overrides
    `((accent-0 "#a1bfff")
-     (accent-1 "#79a8ff")
-     (bg-active bg-main)
-     (bg-added "#2A3B2E")
-     (bg-added-refine "#384c3f")
-     (bg-changed "#3C435E")
-     (bg-changed-refine "#4F5875")
-     (bg-completion "#2f447f")
-     (bg-completion-match-0 bg-main)
-     (bg-completion-match-1 bg-main)
-     (bg-completion-match-2 bg-main)
-     (bg-completion-match-3 bg-main)
-     (bg-hl-line "#30344a")
-     (bg-hover-secondary "#676E95")
-     (bg-line-number-active unspecified)
-     (bg-line-number-inactive "#292D3E")
-     (bg-main "#292D3E")
-     (bg-mark-delete "#4d2d2d")
-     (bg-mark-select "#3C435E")
-     (bg-mode-line-active "#232635")
-     (bg-mode-line-inactive "#282c3d")
-     (bg-prominent-err "#4d2d2d")
-     (bg-prompt unspecified)
-     (bg-prose-block-contents "#232635")
-     (bg-prose-block-delimiter bg-prose-block-contents)
-     (bg-region "#3C435E")
-     (bg-removed "#4d2d2d")
-     (bg-removed-refine "#603939")
-     (bg-tab-bar      "#292D3E")
-     (bg-tab-current  bg-main)
-     (bg-tab-other    "#292D3E")
-     (border-mode-line-active nil)
-     (border-mode-line-inactive nil)
-     (builtin "#82aaff")
-     (comment "#676E95")
-     (constant  "#f78c6c")
-     (cursor  "#EEFFFF")
-     (date-weekday "#82aaff")
-     (date-weekend "#f78c6c")
-     (docstring "#8d92af")
-     (err     "#ff5370")
-     (fg-active fg-main)
-     (fg-completion "white")
-     (fg-completion-match-0 "#82aaff")
-     (fg-completion-match-1 "#ff5370")
-     (fg-completion-match-2 "#c3e88d")
-     (fg-completion-match-3 "#f78c6c")
-     (fg-heading-0 "#82aaff")
-     (fg-heading-1 "#82aaff")
-     (fg-heading-2 "#c792ea")
-     (fg-heading-3 "#bb80b3")
-     (fg-heading-4 "#a1bfff")
-     (fg-line-number-active fg-main)
-     (fg-line-number-inactive "gray50")
-     (fg-link  "#82aaff")
-     (fg-main "#EEFFFF")
-     (fg-mark-delete "#ff5370")
-     (fg-mark-select "#82aaff")
-     (fg-mode-line-active "#A6Accd")
-     (fg-mode-line-inactive "#676E95")
-     (fg-prominent-err "#ff5370")
-     (fg-prompt "#c792ea")
-     (fg-prose-block-delimiter "#676E95")
-     (fg-prose-verbatim "#c3e88d")
-     (fg-region "white")
-     (fnname    "#82aaff")
-     (fringe "#292D3E")
-     (identifier "#c792ea")
-     (info    "#89DDFF")
-     (keyword   "#89DDFF")
-     (name "#82aaff")
-     (number "#f78c6c")
-     (property "#82aaff")
-     (string "#c3e88d")
-     (type      "#c792ea")
-     (variable  "#c792ea")
-     (warning "#ffcb6b")))
+	 (accent-1 "#79a8ff")
+	 (bg-active bg-main)
+	 (bg-added "#2A3B2E")
+	 (bg-added-refine "#384c3f")
+	 (bg-changed "#3C435E")
+	 (bg-changed-refine "#4F5875")
+	 (bg-completion "#2f447f")
+	 (bg-completion-match-0 bg-main)
+	 (bg-completion-match-1 bg-main)
+	 (bg-completion-match-2 bg-main)
+	 (bg-completion-match-3 bg-main)
+	 (bg-hl-line "#30344a")
+	 (bg-hover-secondary "#676E95")
+	 (bg-line-number-active unspecified)
+	 (bg-line-number-inactive "#292D3E")
+	 (bg-main "#292D3E")
+	 (bg-mark-delete "#4d2d2d")
+	 (bg-mark-select "#3C435E")
+	 (bg-mode-line-active "#232635")
+	 (bg-mode-line-inactive "#282c3d")
+	 (bg-prominent-err "#4d2d2d")
+	 (bg-prompt unspecified)
+	 (bg-prose-block-contents "#232635")
+	 (bg-prose-block-delimiter bg-prose-block-contents)
+	 (bg-region "#3C435E")
+	 (bg-removed "#4d2d2d")
+	 (bg-removed-refine "#603939")
+	 (bg-tab-bar      "#292D3E")
+	 (bg-tab-current  bg-main)
+	 (bg-tab-other    "#292D3E")
+	 (border-mode-line-active nil)
+	 (border-mode-line-inactive nil)
+	 (builtin "#82aaff")
+	 (comment "#676E95")
+	 (constant  "#f78c6c")
+	 (cursor  "#EEFFFF")
+	 (date-weekday "#82aaff")
+	 (date-weekend "#f78c6c")
+	 (docstring "#8d92af")
+	 (err     "#ff5370")
+	 (fg-active fg-main)
+	 (fg-completion "white")
+	 (fg-completion-match-0 "#82aaff")
+	 (fg-completion-match-1 "#ff5370")
+	 (fg-completion-match-2 "#c3e88d")
+	 (fg-completion-match-3 "#f78c6c")
+	 (fg-heading-0 "#82aaff")
+	 (fg-heading-1 "#82aaff")
+	 (fg-heading-2 "#c792ea")
+	 (fg-heading-3 "#bb80b3")
+	 (fg-heading-4 "#a1bfff")
+	 (fg-line-number-active fg-main)
+	 (fg-line-number-inactive "gray50")
+	 (fg-link  "#82aaff")
+	 (fg-main "#EEFFFF")
+	 (fg-mark-delete "#ff5370")
+	 (fg-mark-select "#82aaff")
+	 (fg-mode-line-active "#A6Accd")
+	 (fg-mode-line-inactive "#676E95")
+	 (fg-prominent-err "#ff5370")
+	 (fg-prompt "#c792ea")
+	 (fg-prose-block-delimiter "#676E95")
+	 (fg-prose-verbatim "#c3e88d")
+	 (fg-region "white")
+	 (fnname    "#82aaff")
+	 (fringe "#292D3E")
+	 (identifier "#c792ea")
+	 (info    "#89DDFF")
+	 (keyword   "#89DDFF")
+	 (name "#82aaff")
+	 (number "#f78c6c")
+	 (property "#82aaff")
+	 (string "#c3e88d")
+	 (type      "#c792ea")
+	 (variable  "#c792ea")
+	 (warning "#ffcb6b")))
   :config
   (modus-themes-with-colors
-    (custom-set-faces
-     `(change-log-acknowledgment ((,c :foreground "#a1bfff")))
-     `(change-log-date ((,c :foreground "#c3e88d")))
-     `(change-log-name ((,c :foreground "#f78c6c")))
-     `(diff-context ((,c :foreground "#82aaff")))
-     `(diff-file-header ((,c :foreground "#bb80b3")))
-     `(diff-header ((,c :foreground "#82aaff")))
-     `(diff-hunk-header ((,c :foreground "#f78c6c")))
-     `(gnus-button ((,c :foreground "#82aaff")))
-     `(gnus-group-mail-3 ((,c :foreground "#82aaff")))
-     `(gnus-group-mail-3-empty ((,c :foreground "#82aaff")))
-     `(gnus-header-content ((,c :foreground "#89DDFF")))
-     `(gnus-header-from ((,c :foreground "#c792ea")))
-     `(gnus-header-name ((,c :foreground "#c3e88d")))
-     `(gnus-header-subject ((,c :foreground "#82aaff")))
-     `(log-view-message ((,c :foreground "#a1bfff")))
-     `(match ((,c :background "#3C435E" :foreground "#EEFFFF")))
-     `(modus-themes-search-current ((,c :background "#ff5370" :foreground "#292D3E" )))
-     `(modus-themes-search-lazy ((,c :background "#3C435E" :foreground "#EEFFFF")))
-     `(newsticker-extra-face ((,c :foreground "#8d92af" :height 0.8 :slant italic)))
-     `(newsticker-feed-face ((,c :foreground "#ff5370" :height 1.2 :weight bold)))
-     `(newsticker-treeview-face ((,c :foreground "#EEFFFF")))
-     `(newsticker-treeview-selection-face ((,c :background "#3C435E" :foreground "#EEFFFF")))
-     `(tab-bar ((,c :background "#292D3E" :foreground "#A6Accd")))
-     `(tab-bar-tab ((,c :background "#292D3E" :underline t)))
-     `(tab-bar-tab-group-current ((,c :background "#292D3E" :foreground "#A6Accd" :underline t)))
-     `(tab-bar-tab-group-inactive ((,c :background "#292D3E" :foreground "#777")))
-     `(tab-bar-tab-inactive ((,c :background "#292D3E" :foreground "#676E95")))
-     `(vc-dir-file ((,c :foreground "#82aaff")))
-     `(vc-dir-header-value ((,c :foreground "#a1bfff")))))
+	(custom-set-faces
+	 `(change-log-acknowledgment ((,c :foreground "#a1bfff")))
+	 `(change-log-date ((,c :foreground "#c3e88d")))
+	 `(change-log-name ((,c :foreground "#f78c6c")))
+	 `(diff-context ((,c :foreground "#82aaff")))
+	 `(diff-file-header ((,c :foreground "#bb80b3")))
+	 `(diff-header ((,c :foreground "#82aaff")))
+	 `(diff-hunk-header ((,c :foreground "#f78c6c")))
+	 `(gnus-button ((,c :foreground "#82aaff")))
+	 `(gnus-group-mail-3 ((,c :foreground "#82aaff")))
+	 `(gnus-group-mail-3-empty ((,c :foreground "#82aaff")))
+	 `(gnus-header-content ((,c :foreground "#89DDFF")))
+	 `(gnus-header-from ((,c :foreground "#c792ea")))
+	 `(gnus-header-name ((,c :foreground "#c3e88d")))
+	 `(gnus-header-subject ((,c :foreground "#82aaff")))
+	 `(log-view-message ((,c :foreground "#a1bfff")))
+	 `(match ((,c :background "#3C435E" :foreground "#EEFFFF")))
+	 `(modus-themes-search-current ((,c :background "#ff5370" :foreground "#292D3E" )))
+	 `(modus-themes-search-lazy ((,c :background "#3C435E" :foreground "#EEFFFF")))
+	 `(newsticker-extra-face ((,c :foreground "#8d92af" :height 0.8 :slant italic)))
+	 `(newsticker-feed-face ((,c :foreground "#ff5370" :height 1.2 :weight bold)))
+	 `(newsticker-treeview-face ((,c :foreground "#EEFFFF")))
+	 `(newsticker-treeview-selection-face ((,c :background "#3C435E" :foreground "#EEFFFF")))
+	 `(tab-bar ((,c :background "#292D3E" :foreground "#A6Accd")))
+	 `(tab-bar-tab ((,c :background "#292D3E" :underline t)))
+	 `(tab-bar-tab-group-current ((,c :background "#292D3E" :foreground "#A6Accd" :underline t)))
+	 `(tab-bar-tab-group-inactive ((,c :background "#292D3E" :foreground "#777")))
+	 `(tab-bar-tab-inactive ((,c :background "#292D3E" :foreground "#676E95")))
+	 `(vc-dir-file ((,c :foreground "#82aaff")))
+	 `(vc-dir-header-value ((,c :foreground "#a1bfff")))))
   :init
   (load-theme 'modus-vivendi-tinted t))
 
@@ -3254,142 +3254,142 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   ;; MATRIX COLOR SCHEME OVERRIDES
   (modus-themes-common-palette-overrides
    `(
-     ;; accents → bright greens
-     (accent-0 "#00FF41")      ; malachite
-     (accent-1 "#008F11")      ; islamic green
+	 ;; accents → bright greens
+	 (accent-0 "#00FF41")      ; malachite
+	 (accent-1 "#008F11")      ; islamic green
 
-     ;; backgrounds
-     (bg-active bg-main)
-     (bg-added "#003B00")              ; dark green
-     (bg-added-refine "#005A00")       ; slightly brighter
-     (bg-changed "#004800")
-     (bg-changed-refine "#006600")
-     (bg-completion "#0D0208")         ; vampire black
-     (bg-completion-match-0 "#0D0208")
-     (bg-completion-match-1 "#0D0208")
-     (bg-completion-match-2 "#0D0208")
-     (bg-completion-match-3 "#0D0208")
-     (bg-hl-line "#002200")
-     (bg-hover-secondary "#003B00")
-     (bg-line-number-active unspecified)
-     (bg-line-number-inactive "#0D0208")
-     (bg-main "#0D0208")
-     (bg-mark-delete "#190A10")
-     (bg-mark-select "#003B00")
-     (bg-mode-line-active "#001900")
-     (bg-mode-line-inactive "#001900")
-     (bg-prominent-err "#190A10")
-     (bg-prompt unspecified)
-     (bg-prose-block-contents "#001600")
-     (bg-prose-block-delimiter bg-prose-block-contents)
-     (bg-region "#003B00")
-     (bg-removed "#190A10")
-     (bg-removed-refine "#2B1520")
-     (bg-tab-bar      "#0D0208")
-     (bg-tab-current  bg-main)
-     (bg-tab-other    "#0D0208")
+	 ;; backgrounds
+	 (bg-active bg-main)
+	 (bg-added "#003B00")              ; dark green
+	 (bg-added-refine "#005A00")       ; slightly brighter
+	 (bg-changed "#004800")
+	 (bg-changed-refine "#006600")
+	 (bg-completion "#0D0208")         ; vampire black
+	 (bg-completion-match-0 "#0D0208")
+	 (bg-completion-match-1 "#0D0208")
+	 (bg-completion-match-2 "#0D0208")
+	 (bg-completion-match-3 "#0D0208")
+	 (bg-hl-line "#002200")
+	 (bg-hover-secondary "#003B00")
+	 (bg-line-number-active unspecified)
+	 (bg-line-number-inactive "#0D0208")
+	 (bg-main "#0D0208")
+	 (bg-mark-delete "#190A10")
+	 (bg-mark-select "#003B00")
+	 (bg-mode-line-active "#001900")
+	 (bg-mode-line-inactive "#001900")
+	 (bg-prominent-err "#190A10")
+	 (bg-prompt unspecified)
+	 (bg-prose-block-contents "#001600")
+	 (bg-prose-block-delimiter bg-prose-block-contents)
+	 (bg-region "#003B00")
+	 (bg-removed "#190A10")
+	 (bg-removed-refine "#2B1520")
+	 (bg-tab-bar      "#0D0208")
+	 (bg-tab-current  bg-main)
+	 (bg-tab-other    "#0D0208")
 
-     ;; borders
-     (border-mode-line-active nil)
-     (border-mode-line-inactive nil)
+	 ;; borders
+	 (border-mode-line-active nil)
+	 (border-mode-line-inactive nil)
 
-     ;; foreground semantic groups
-     (builtin "#00FF41")
-     (comment "#005A00")          ; dim green
-     (constant  "#00FF41")
-     (cursor  "#00FF41")
-     (date-weekday "#00FF41")
-     (date-weekend "#008F11")
-     (docstring "#00C738")
-     (err     "#00FF71")     ;; red is NOT in Matrix palette—using red for contrast
-     (fg-active fg-main)
-     (fg-completion "#00FF41")
-     (fg-completion-match-0 "#00FF41")
-     (fg-completion-match-1 "#00FF71")   ;; keeping semantic separation
-     (fg-completion-match-2 "#00C738")
-     (fg-completion-match-3 "#008F11")
+	 ;; foreground semantic groups
+	 (builtin "#00FF41")
+	 (comment "#005A00")          ; dim green
+	 (constant  "#00FF41")
+	 (cursor  "#00FF41")
+	 (date-weekday "#00FF41")
+	 (date-weekend "#008F11")
+	 (docstring "#00C738")
+	 (err     "#00FF71")     ;; red is NOT in Matrix palette—using red for contrast
+	 (fg-active fg-main)
+	 (fg-completion "#00FF41")
+	 (fg-completion-match-0 "#00FF41")
+	 (fg-completion-match-1 "#00FF71")   ;; keeping semantic separation
+	 (fg-completion-match-2 "#00C738")
+	 (fg-completion-match-3 "#008F11")
 
-     ;; headings mapped from bright → dark green gradient
-     (fg-heading-0 "#00FF41")
-     (fg-heading-1 "#00C738")
-     (fg-heading-2 "#00A52A")
-     (fg-heading-3 "#008F11")
-     (fg-heading-4 "#005A00")
+	 ;; headings mapped from bright → dark green gradient
+	 (fg-heading-0 "#00FF41")
+	 (fg-heading-1 "#00C738")
+	 (fg-heading-2 "#00A52A")
+	 (fg-heading-3 "#008F11")
+	 (fg-heading-4 "#005A00")
 
-     (fg-line-number-active "#00FF41")
-     (fg-line-number-inactive "#006600")
-     (fg-link  "#00FF41")
-     (fg-main "#00FF41")
-     (fg-mark-delete "#00FF71")
-     (fg-mark-select "#00FF41")
-     (fg-mode-line-active "#00C738")
-     (fg-mode-line-inactive "#005A00")
-     (fg-prominent-err "#00FF71")
-     (fg-prompt "#00FF41")
-     (fg-prose-block-delimiter "#006600")
-     (fg-prose-verbatim "#00C738")
-     (fg-region "#00FF41")
-     (fnname    "#00FF41")
-     (fringe "#0D0208")
-     (identifier "#00C738")
-     (info    "#00FF41")
-     (keyword   "#00C738")
-     (keyword "#00C738")
-     (name "#00FF41")
-     (number "#008F11")
-     (property "#00FF41")
-     (string "#00C738")
-     (type      "#00A52A")
-     (variable  "#008F11")
-     (warning "#00A52A")))
+	 (fg-line-number-active "#00FF41")
+	 (fg-line-number-inactive "#006600")
+	 (fg-link  "#00FF41")
+	 (fg-main "#00FF41")
+	 (fg-mark-delete "#00FF71")
+	 (fg-mark-select "#00FF41")
+	 (fg-mode-line-active "#00C738")
+	 (fg-mode-line-inactive "#005A00")
+	 (fg-prominent-err "#00FF71")
+	 (fg-prompt "#00FF41")
+	 (fg-prose-block-delimiter "#006600")
+	 (fg-prose-verbatim "#00C738")
+	 (fg-region "#00FF41")
+	 (fnname    "#00FF41")
+	 (fringe "#0D0208")
+	 (identifier "#00C738")
+	 (info    "#00FF41")
+	 (keyword   "#00C738")
+	 (keyword "#00C738")
+	 (name "#00FF41")
+	 (number "#008F11")
+	 (property "#00FF41")
+	 (string "#00C738")
+	 (type      "#00A52A")
+	 (variable  "#008F11")
+	 (warning "#00A52A")))
   :config
   (modus-themes-with-colors
-    (custom-set-faces
-     `(change-log-acknowledgment ((,c :foreground "#00C738")))
-     `(change-log-date ((,c :foreground "#008F11")))
-     `(change-log-name ((,c :foreground "#00A52A")))
-     `(diff-context ((,c :foreground "#00FF41")))
-     `(diff-file-header ((,c :foreground "#00C738")))
-     `(diff-header ((,c :foreground "#00FF41")))
-     `(diff-hunk-header ((,c :foreground "#008F11")))
+	(custom-set-faces
+	 `(change-log-acknowledgment ((,c :foreground "#00C738")))
+	 `(change-log-date ((,c :foreground "#008F11")))
+	 `(change-log-name ((,c :foreground "#00A52A")))
+	 `(diff-context ((,c :foreground "#00FF41")))
+	 `(diff-file-header ((,c :foreground "#00C738")))
+	 `(diff-header ((,c :foreground "#00FF41")))
+	 `(diff-hunk-header ((,c :foreground "#008F11")))
 
-     `(flymake-warning ((,c :foreground "#00A52A"
-                      :underline (:color "#00A52A" :style wave))))
-     `(flymake-note ((,c :foreground "#00FF41"
-                      :underline (:color "#00FF41" :style wave))))
-     `(link ((,c :foreground "#00FF41"
-                      :underline (:color "#00FF41" :style line))))
+	 `(flymake-warning ((,c :foreground "#00A52A"
+					  :underline (:color "#00A52A" :style wave))))
+	 `(flymake-note ((,c :foreground "#00FF41"
+					  :underline (:color "#00FF41" :style wave))))
+	 `(link ((,c :foreground "#00FF41"
+					  :underline (:color "#00FF41" :style line))))
 
-     ;; GNUS
-     `(gnus-button ((,c :foreground "#00FF41")))
-     `(gnus-group-mail-3 ((,c :foreground "#00FF41")))
-     `(gnus-group-mail-3-empty ((,c :foreground "#00FF41")))
-     `(gnus-header-content ((,c :foreground "#00C738")))
-     `(gnus-header-from ((,c :foreground "#008F11")))
-     `(gnus-header-name ((,c :foreground "#00C738")))
-     `(gnus-header-subject ((,c :foreground "#00FF41")))
+	 ;; GNUS
+	 `(gnus-button ((,c :foreground "#00FF41")))
+	 `(gnus-group-mail-3 ((,c :foreground "#00FF41")))
+	 `(gnus-group-mail-3-empty ((,c :foreground "#00FF41")))
+	 `(gnus-header-content ((,c :foreground "#00C738")))
+	 `(gnus-header-from ((,c :foreground "#008F11")))
+	 `(gnus-header-name ((,c :foreground "#00C738")))
+	 `(gnus-header-subject ((,c :foreground "#00FF41")))
 
-     `(log-view-message ((,c :foreground "#00C738")))
-     `(match ((,c :background "#003B00" :foreground "#00FF41")))
+	 `(log-view-message ((,c :foreground "#00C738")))
+	 `(match ((,c :background "#003B00" :foreground "#00FF41")))
 
-     `(modus-themes-search-current ((,c :background "#00FF41" :foreground "#0D0208")))
-     `(modus-themes-search-lazy ((,c :background "#003B00" :foreground "#00FF41")))
+	 `(modus-themes-search-current ((,c :background "#00FF41" :foreground "#0D0208")))
+	 `(modus-themes-search-lazy ((,c :background "#003B00" :foreground "#00FF41")))
 
-     ;; Newsticker
-     `(newsticker-extra-face ((,c :foreground "#005A00" :height 0.8 :slant italic)))
-     `(newsticker-feed-face ((,c :foreground "#00A52A" :height 1.2 :weight bold)))
-     `(newsticker-treeview-face ((,c :foreground "#00FF41")))
-     `(newsticker-treeview-selection-face ((,c :background "#003B00" :foreground "#00FF41")))
+	 ;; Newsticker
+	 `(newsticker-extra-face ((,c :foreground "#005A00" :height 0.8 :slant italic)))
+	 `(newsticker-feed-face ((,c :foreground "#00A52A" :height 1.2 :weight bold)))
+	 `(newsticker-treeview-face ((,c :foreground "#00FF41")))
+	 `(newsticker-treeview-selection-face ((,c :background "#003B00" :foreground "#00FF41")))
 
-     ;; Tabs
-     `(tab-bar ((,c :background "#0D0208" :foreground "#00C738")))
-     `(tab-bar-tab ((,c :background "#0D0208" :underline t)))
-     `(tab-bar-tab-group-current ((,c :background "#0D0208" :foreground "#00C738" :underline t)))
-     `(tab-bar-tab-group-inactive ((,c :background "#0D0208" :foreground "#005A00"))))
+	 ;; Tabs
+	 `(tab-bar ((,c :background "#0D0208" :foreground "#00C738")))
+	 `(tab-bar-tab ((,c :background "#0D0208" :underline t)))
+	 `(tab-bar-tab-group-current ((,c :background "#0D0208" :foreground "#00C738" :underline t)))
+	 `(tab-bar-tab-group-inactive ((,c :background "#0D0208" :foreground "#005A00"))))
 
-    `(tab-bar-tab-inactive ((,c :background "#0D0208" :foreground "#008F11")))
-    `(vc-dir-file ((,c :foreground "#00FF41")))
-    `(vc-dir-header-value ((,c :foreground "#00C738"))))
+	`(tab-bar-tab-inactive ((,c :background "#0D0208" :foreground "#008F11")))
+	`(vc-dir-file ((,c :foreground "#00FF41")))
+	`(vc-dir-header-value ((,c :foreground "#00C738"))))
   :init
   (load-theme 'modus-vivendi t))
 
@@ -3400,7 +3400,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :mode "\\.sass\\'"
   :hook
   ((scss-mode-hook . (lambda ()
-                       (setq indent-tabs-mode nil))))
+					   (setq indent-tabs-mode nil))))
   :defer t)
 
 
@@ -3424,8 +3424,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :defer t
   :hook
   ((js-ts-mode-hook . (lambda ()
-                        (setq indent-tabs-mode nil)
-                        (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t))))
+						(setq indent-tabs-mode nil)
+						(add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t))))
   :custom
   (js-indent-level 2)
   :config
@@ -3438,8 +3438,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :defer t
   :hook
   ((json-ts-mode-hook . (lambda ()
-                          (setq indent-tabs-mode nil)
-                          (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)))))
+						  (setq indent-tabs-mode nil)
+						  (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)))))
 
 
 ;;; │ TYPESCRIPT-TS-MODE
@@ -3448,53 +3448,53 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
 As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_adding_jsdoc_highlighting_to"
   ;; I copied this code from js.el (js-ts-mode), with minimal modifications.
   (when (treesit-ready-p 'typescript)
-    (when (treesit-ready-p 'jsdoc t)
-      (setq-local treesit-range-settings
-                  (treesit-range-rules
-                   :embed 'jsdoc
-                   :host 'typescript
-                   :local t
-                   `(((comment) @capture (:match ,(rx bos "/**") @capture)))))
-      (setq c-ts-common--comment-regexp (rx (or "comment" "line_comment" "block_comment" "description")))
+	(when (treesit-ready-p 'jsdoc t)
+	  (setq-local treesit-range-settings
+				  (treesit-range-rules
+				   :embed 'jsdoc
+				   :host 'typescript
+				   :local t
+				   `(((comment) @capture (:match ,(rx bos "/**") @capture)))))
+	  (setq c-ts-common--comment-regexp (rx (or "comment" "line_comment" "block_comment" "description")))
 
-      (defvar my/treesit-font-lock-settings-jsdoc
-        (treesit-font-lock-rules
-         :language 'jsdoc
-         :override t
-         :feature 'document
-         '((document) @font-lock-doc-face)
+	  (defvar my/treesit-font-lock-settings-jsdoc
+		(treesit-font-lock-rules
+		 :language 'jsdoc
+		 :override t
+		 :feature 'document
+		 '((document) @font-lock-doc-face)
 
-         :language 'jsdoc
-         :override t
-         :feature 'keyword
-         '((tag_name) @font-lock-constant-face)
+		 :language 'jsdoc
+		 :override t
+		 :feature 'keyword
+		 '((tag_name) @font-lock-constant-face)
 
-         :language 'jsdoc
-         :override t
-         :feature 'bracket
-         '((["{" "}"]) @font-lock-bracket-face)
+		 :language 'jsdoc
+		 :override t
+		 :feature 'bracket
+		 '((["{" "}"]) @font-lock-bracket-face)
 
-         :language 'jsdoc
-         :override t
-         :feature 'property
-         '((type) @font-lock-type-face)
+		 :language 'jsdoc
+		 :override t
+		 :feature 'property
+		 '((type) @font-lock-type-face)
 
-         :language 'jsdoc
-         :override t
-         :feature 'definition
-         '((identifier) @font-lock-variable-face)))
-      (setq-local treesit-font-lock-settings
-                  (append treesit-font-lock-settings my/treesit-font-lock-settings-jsdoc)))))
+		 :language 'jsdoc
+		 :override t
+		 :feature 'definition
+		 '((identifier) @font-lock-variable-face)))
+	  (setq-local treesit-font-lock-settings
+				  (append treesit-font-lock-settings my/treesit-font-lock-settings-jsdoc)))))
 
 (use-package typescript-ts-mode
   :mode "\\.ts\\'"
   :defer t
   :hook
   ((typescript-ts-mode-hook .
-                            (lambda ()
-                              (setq indent-tabs-mode nil)
-                              (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
-                              (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
+							(lambda ()
+							  (setq indent-tabs-mode nil)
+							  (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
+							  (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
   :custom
   (typescript-indent-level 2)
   :config
@@ -3507,10 +3507,10 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :defer t
   :hook
   ((tsx-ts-mode-hook .
-                     (lambda ()
-                       (setq indent-tabs-mode nil)
-                       (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
-                       (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
+					 (lambda ()
+					   (setq indent-tabs-mode nil)
+					   (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
+					   (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
   :custom
   (typescript-indent-level 2)
   :config
@@ -3527,6 +3527,39 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (rust-indent-level 2)
   :config
   (add-to-list 'treesit-language-source-alist '(rust "https://github.com/tree-sitter/tree-sitter-rust" "master" "src")))
+
+
+;;; │ ZIG-TS-MODE (из GitHub)
+(let ((zig-dir (expand-file-name "lisp/zig-ts-mode" user-emacs-directory))
+	  (zig-file (expand-file-name "lisp/zig-ts-mode/zig-ts-mode.el" user-emacs-directory)))
+
+  ;; Create directory
+  (unless (file-directory-p zig-dir)
+	(make-directory zig-dir t))
+
+  ;; Download if not exists
+  (unless (file-exists-p zig-file)
+	(message "Downloading zig-ts-mode...")
+	(url-copy-file
+	 "https://raw.githubusercontent.com/Ziqi-Yang/zig-ts-mode/main/zig-ts-mode.el"
+	 zig-file t)
+	(message "zig-ts-mode downloaded!"))
+
+  ;; Add to load-path
+  (add-to-list 'load-path zig-dir))
+
+;; Load and configure
+(use-package zig-ts-mode
+  :ensure nil  ; we downloaded it manually
+  :defer t
+  :mode "\\.zig\\'"
+  :mode "\\.zon\\'"
+  :hook (zig-ts-mode . eglot-ensure)
+  :config
+  (with-eval-after-load 'eglot
+	(add-to-list 'eglot-server-programs
+				 '(zig-ts-mode . ("zls")))))
+
 
 
 ;;; │ TOML-TS-MODE
@@ -3585,7 +3618,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (setq indent-tabs-mode t)                         ; Go likes tabs
   (setq tab-width 4)                                ; Tabs *display* as 4 spaces
   (when (derived-mode-p 'go-ts-mode)
-    (setq-local go-ts-mode-indent-offset tab-width)))
+	(setq-local go-ts-mode-indent-offset tab-width)))
 
 
 ;;; ┌──────────────────── EMACS-SOLO CUSTOMS
@@ -3598,9 +3631,9 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :init
 
   (defun emacs-solo/prefer-spaces ()
-    "Disable indent-tabs-mode to prefer spaces over tabs."
-    (interactive)
-    (setq indent-tabs-mode nil))
+	"Disable indent-tabs-mode to prefer spaces over tabs."
+	(interactive)
+	(setq indent-tabs-mode nil))
 
   ;; Only override where necessary
   (add-hook 'emacs-lisp-mode-hook #'emacs-solo/prefer-spaces))
@@ -3616,127 +3649,127 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :defer t
   :init
   (defun emacs-solo/rename-buffer-and-move-to-new-window ()
-    "Promotes a side window buffer to a new regular window."
-    (interactive)
-    (let ((temp-name (make-temp-name "temp-buffer-")))
-      (rename-buffer temp-name t)
-      (delete-window)
-      (split-window-right)
-      (switch-to-buffer temp-name)))
+	"Promotes a side window buffer to a new regular window."
+	(interactive)
+	(let ((temp-name (make-temp-name "temp-buffer-")))
+	  (rename-buffer temp-name t)
+	  (delete-window)
+	  (split-window-right)
+	  (switch-to-buffer temp-name)))
 
   (global-set-key (kbd "C-x x x") 'emacs-solo/rename-buffer-and-move-to-new-window)
 
 
   (defun emacs-solo-movements/scroll-down-centralize ()
-    (interactive)
-    (scroll-up-command)
-    (recenter))
+	(interactive)
+	(scroll-up-command)
+	(recenter))
 
   (defun emacs-solo-movements/scroll-up-centralize ()
-    (interactive)
-    (scroll-down-command)
-    (unless (= (window-start) (point-min))
-      (recenter))
-    (when (= (window-start) (point-min))
-      (let ((midpoint (/ (window-height) 2)))
-        (goto-char (window-start))
-        (forward-line midpoint)
-        (recenter midpoint))))
+	(interactive)
+	(scroll-down-command)
+	(unless (= (window-start) (point-min))
+	  (recenter))
+	(when (= (window-start) (point-min))
+	  (let ((midpoint (/ (window-height) 2)))
+		(goto-char (window-start))
+		(forward-line midpoint)
+		(recenter midpoint))))
 
   (global-set-key (kbd "C-v") #'emacs-solo-movements/scroll-down-centralize)
   (global-set-key (kbd "M-v") #'emacs-solo-movements/scroll-up-centralize)
 
 
   (defun emacs-solo-movements/format-current-file (&optional manual)
-    "Format the current file using biome or prettier if available.
+	"Format the current file using biome or prettier if available.
 If MANUAL is non-nil, the function was called interactively."
-    (interactive (list t)) ;; sets manual to t if called via M-x
-    (let* ((file (buffer-file-name))
-           (project-root (locate-dominating-file file "node_modules"))
-           (biome-config (and project-root (file-exists-p (expand-file-name "biome.json" project-root))))
-           (local-biome (and project-root (expand-file-name "node_modules/.bin/biome" project-root)))
-           (global-biome (executable-find "biome"))
-           (local-prettier (and project-root (expand-file-name "node_modules/.bin/prettier" project-root)))
-           (global-prettier (executable-find "prettier"))
-           (formatter nil)
-           (source nil)
-           (command nil)
-           (start-time (float-time))) ;; Capture the start time
-      (cond
-       ;; Use Biome if biome.json exists
-       ((and biome-config local-biome (file-executable-p local-biome))
-        (setq formatter local-biome)
-        (setq source "biome (local)")
-        (setq command (format "%s format --write %s" formatter (shell-quote-argument file))))
-       ((and biome-config global-biome)
-        (setq formatter global-biome)
-        (setq source "biome (global)")
-        (setq command (format "%s format --write %s" formatter (shell-quote-argument file))))
+	(interactive (list t)) ;; sets manual to t if called via M-x
+	(let* ((file (buffer-file-name))
+		   (project-root (locate-dominating-file file "node_modules"))
+		   (biome-config (and project-root (file-exists-p (expand-file-name "biome.json" project-root))))
+		   (local-biome (and project-root (expand-file-name "node_modules/.bin/biome" project-root)))
+		   (global-biome (executable-find "biome"))
+		   (local-prettier (and project-root (expand-file-name "node_modules/.bin/prettier" project-root)))
+		   (global-prettier (executable-find "prettier"))
+		   (formatter nil)
+		   (source nil)
+		   (command nil)
+		   (start-time (float-time))) ;; Capture the start time
+	  (cond
+	   ;; Use Biome if biome.json exists
+	   ((and biome-config local-biome (file-executable-p local-biome))
+		(setq formatter local-biome)
+		(setq source "biome (local)")
+		(setq command (format "%s format --write %s" formatter (shell-quote-argument file))))
+	   ((and biome-config global-biome)
+		(setq formatter global-biome)
+		(setq source "biome (global)")
+		(setq command (format "%s format --write %s" formatter (shell-quote-argument file))))
 
-       ;; Fall back to Prettier if no biome.json
-       ((and local-prettier (file-executable-p local-prettier))
-        (setq formatter local-prettier)
-        (setq source "prettier (local)")
-        (setq command (format "%s --write %s" formatter (shell-quote-argument file))))
-       ((and global-prettier)
-        (setq formatter global-prettier)
-        (setq source "prettier (global)")
-        (setq command (format "%s --write %s" formatter (shell-quote-argument file)))))
-      (if command
-          (progn
-            (when manual
-              (save-buffer))
-            (shell-command command)
-            (revert-buffer t t t)
-            (let ((elapsed-time (* 1000 (- (float-time) start-time)))) ;; Calculate elapsed time in ms
-              (message "Formatted with %s - %.2f ms" source elapsed-time)))
-        (message "No formatter found (biome or prettier)"))))
+	   ;; Fall back to Prettier if no biome.json
+	   ((and local-prettier (file-executable-p local-prettier))
+		(setq formatter local-prettier)
+		(setq source "prettier (local)")
+		(setq command (format "%s --write %s" formatter (shell-quote-argument file))))
+	   ((and global-prettier)
+		(setq formatter global-prettier)
+		(setq source "prettier (global)")
+		(setq command (format "%s --write %s" formatter (shell-quote-argument file)))))
+	  (if command
+		  (progn
+			(when manual
+			  (save-buffer))
+			(shell-command command)
+			(revert-buffer t t t)
+			(let ((elapsed-time (* 1000 (- (float-time) start-time)))) ;; Calculate elapsed time in ms
+			  (message "Formatted with %s - %.2f ms" source elapsed-time)))
+		(message "No formatter found (biome or prettier)"))))
 
 
   (defun emacs-solo-movements/format-current-file-manual ()
-    "Manually invoke format for current file."
-    (interactive)
-    (emacs-solo-movements/format-current-file t))
+	"Manually invoke format for current file."
+	(interactive)
+	(emacs-solo-movements/format-current-file t))
 
   (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file-manual)
   (global-set-key (kbd "C-c C-p") #'emacs-solo-movements/format-current-file-manual)
 
 
   (defun emacs-solo/add-format-on-save ()
-    "Add `emacs-solo-movements/format-current-file` to the current buffer's `after-save-hook`."
-    (interactive)
-    (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
-    (message "Format-on-save enabled for this buffer."))
+	"Add `emacs-solo-movements/format-current-file` to the current buffer's `after-save-hook`."
+	(interactive)
+	(add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
+	(message "Format-on-save enabled for this buffer."))
 
 
   (defun emacs-solo/remove-format-on-save ()
-    "Remove `emacs-solo-movements/format-current-file` from the current buffer's `after-save-hook`."
-    (interactive)
-    (remove-hook 'after-save-hook #'emacs-solo-movements/format-current-file t)
-    (message "Format-on-save disabled for this buffer."))
+	"Remove `emacs-solo-movements/format-current-file` from the current buffer's `after-save-hook`."
+	(interactive)
+	(remove-hook 'after-save-hook #'emacs-solo-movements/format-current-file t)
+	(message "Format-on-save disabled for this buffer."))
 
 
   (defun emacs-solo/transpose-split ()
-    "Transpose a horizontal split into a vertical split, or vice versa."
-    (interactive)
-    (if (> (length (window-list)) 2)
-        (user-error "More than two windows present")
-      (let* ((this-win (selected-window))
-             (other-win (next-window))
-             (this-buf (window-buffer this-win))
-             (other-buf (window-buffer other-win))
-             (this-edges (window-edges this-win))
-             (other-edges (window-edges other-win))
-             (this-left (car this-edges))
-             (other-left (car other-edges))
-             (split-horizontally (not (= this-left other-left))))
-        (delete-other-windows)
-        (if split-horizontally
-            (split-window-vertically)
-          (split-window-horizontally))
-        (set-window-buffer (selected-window) this-buf)
-        (set-window-buffer (next-window) other-buf)
-        (select-window this-win))))
+	"Transpose a horizontal split into a vertical split, or vice versa."
+	(interactive)
+	(if (> (length (window-list)) 2)
+		(user-error "More than two windows present")
+	  (let* ((this-win (selected-window))
+			 (other-win (next-window))
+			 (this-buf (window-buffer this-win))
+			 (other-buf (window-buffer other-win))
+			 (this-edges (window-edges this-win))
+			 (other-edges (window-edges other-win))
+			 (this-left (car this-edges))
+			 (other-left (car other-edges))
+			 (split-horizontally (not (= this-left other-left))))
+		(delete-other-windows)
+		(if split-horizontally
+			(split-window-vertically)
+		  (split-window-horizontally))
+		(set-window-buffer (selected-window) this-buf)
+		(set-window-buffer (next-window) other-buf)
+		(select-window this-win))))
 
   (global-set-key (kbd "C-x 4 t") #'emacs-solo/transpose-split))
 
@@ -3751,50 +3784,50 @@ If MANUAL is non-nil, the function was called interactively."
   :defer t
   :init
   (defun emacs-solo/clear-terminal-background-color (&optional frame)
-    "Unsets the background color in terminal mode, including line-number face."
-    (interactive)
-    (or frame (setq frame (selected-frame)))
-    (unless (display-graphic-p frame)
-      ;; Set the terminal to a transparent version of the background color
-      (send-string-to-terminal
-       (format "\033]11;[90]%s\033\\"
-               (face-attribute 'default :background)))
-      (set-face-background 'default "unspecified-bg" frame)
-      (set-face-background 'line-number "unspecified-bg" frame)
-      (set-face-background 'line-number-current-line "unspecified-bg" frame)))
+	"Unsets the background color in terminal mode, including line-number face."
+	(interactive)
+	(or frame (setq frame (selected-frame)))
+	(unless (display-graphic-p frame)
+	  ;; Set the terminal to a transparent version of the background color
+	  (send-string-to-terminal
+	   (format "\033]11;[90]%s\033\\"
+			   (face-attribute 'default :background)))
+	  (set-face-background 'default "unspecified-bg" frame)
+	  (set-face-background 'line-number "unspecified-bg" frame)
+	  (set-face-background 'line-number-current-line "unspecified-bg" frame)))
 
   (defun emacs-solo/transparency-set (&optional frame)
-    "Set frame transparency. If FRAME is nil, applies to all existing frames."
-    (interactive)
-    (unless (display-graphic-p frame)
-      (emacs-solo/clear-terminal-background-color)
-      (add-hook 'window-setup-hook 'emacs-solo/clear-terminal-background-color)
-      (add-hook 'ef-themes-post-load-hook 'emacs-solo/clear-terminal-background-color))
+	"Set frame transparency. If FRAME is nil, applies to all existing frames."
+	(interactive)
+	(unless (display-graphic-p frame)
+	  (emacs-solo/clear-terminal-background-color)
+	  (add-hook 'window-setup-hook 'emacs-solo/clear-terminal-background-color)
+	  (add-hook 'ef-themes-post-load-hook 'emacs-solo/clear-terminal-background-color))
 
-    (if frame
-        (progn
-          (when (eq system-type 'darwin)
-            (set-frame-parameter frame 'alpha '(90 90)))
-          (set-frame-parameter frame 'alpha-background 85))
+	(if frame
+		(progn
+		  (when (eq system-type 'darwin)
+			(set-frame-parameter frame 'alpha '(90 90)))
+		  (set-frame-parameter frame 'alpha-background 85))
 
-      ;; Apply to all frames if no frame is passed
-      (dolist (frm (frame-list))
-        (when (eq system-type 'darwin)
-          (set-frame-parameter frm 'alpha '(90 90)))
-        (set-frame-parameter frm 'alpha-background 85))))
+	  ;; Apply to all frames if no frame is passed
+	  (dolist (frm (frame-list))
+		(when (eq system-type 'darwin)
+		  (set-frame-parameter frm 'alpha '(90 90)))
+		(set-frame-parameter frm 'alpha-background 85))))
 
   (defun emacs-solo/transparency-unset ()
-    "Unset frame transparency (Graphical Mode)."
-    (interactive)
-    (when (eq system-type 'darwin)
-      (set-frame-parameter (selected-frame) 'alpha '(100 100)))
-    (dolist (frame (frame-list))
-      (set-frame-parameter frame 'alpha-background 100)))
+	"Unset frame transparency (Graphical Mode)."
+	(interactive)
+	(when (eq system-type 'darwin)
+	  (set-frame-parameter (selected-frame) 'alpha '(100 100)))
+	(dolist (frame (frame-list))
+	  (set-frame-parameter frame 'alpha-background 100)))
 
   (when emacs-solo-enable-transparency
 
-    (add-hook 'after-init-hook #'emacs-solo/transparency-set)
-    (add-hook 'after-make-frame-functions #'emacs-solo/transparency-set)))
+	(add-hook 'after-init-hook #'emacs-solo/transparency-set)
+	(add-hook 'after-make-frame-functions #'emacs-solo/transparency-set)))
 
 
 ;;; │ EMACS-SOLO-MODE-LINE
@@ -3808,68 +3841,68 @@ If MANUAL is non-nil, the function was called interactively."
   :init
   ;; Shorten big branches names
   (defun emacs-solo/shorten-vc-mode (vc)
-    "Shorten VC string to at most 20 characters.
+	"Shorten VC string to at most 20 characters.
 Replacing `Git-' with a branch symbol."
-    (let* ((vc (replace-regexp-in-string "^ Git[:-]"
-                                         (if (char-displayable-p ?) "  " "Git: ")
-                                         vc))) ;; Options:   ᚠ ⎇
-      (if (> (length vc) 20)
-          (concat (substring vc 0 20)
-                  (if (char-displayable-p ?…) "…" "..."))
-        vc)))
+	(let* ((vc (replace-regexp-in-string "^ Git[:-]"
+										 (if (char-displayable-p ?) "  " "Git: ")
+										 vc))) ;; Options:   ᚠ ⎇
+	  (if (> (length vc) 20)
+		  (concat (substring vc 0 20)
+				  (if (char-displayable-p ?…) "…" "..."))
+		vc)))
 
   ;; Formats mode-line
   (setq-default mode-line-format
-                '("%e" "  "
-                  ;; (:propertize " " display (raise +0.1)) ;; Top padding
-                  ;; (:propertize " " display (raise -0.1)) ;; Bottom padding
-                  (:propertize
-                   (if (char-displayable-p ?λ) "λ  " "   ") face font-lock-keyword-face)
+				'("%e" "  "
+				  ;; (:propertize " " display (raise +0.1)) ;; Top padding
+				  ;; (:propertize " " display (raise -0.1)) ;; Bottom padding
+				  (:propertize
+				   (if (char-displayable-p ?λ) "λ  " "   ") face font-lock-keyword-face)
 
-                  (:propertize
-                   ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
+				  (:propertize
+				   ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
 
-                  mode-line-frame-identification
-                  mode-line-buffer-identification
-                  "   "
-                  mode-line-position
-                  mode-line-format-right-align
-                  "  "
-                  (project-mode-line project-mode-line-format)
-                  "  "
-                  (vc-mode (:eval (emacs-solo/shorten-vc-mode vc-mode)))
-                  "  "
-                  mode-line-modes
-                  mode-line-misc-info
-                  "  ")
-                project-mode-line t
-                mode-line-buffer-identification '(" %b")
-                mode-line-position-column-line-format '(" %l:%c"))
+				  mode-line-frame-identification
+				  mode-line-buffer-identification
+				  "   "
+				  mode-line-position
+				  mode-line-format-right-align
+				  "  "
+				  (project-mode-line project-mode-line-format)
+				  "  "
+				  (vc-mode (:eval (emacs-solo/shorten-vc-mode vc-mode)))
+				  "  "
+				  mode-line-modes
+				  mode-line-misc-info
+				  "  ")
+				project-mode-line t
+				mode-line-buffer-identification '(" %b")
+				mode-line-position-column-line-format '(" %l:%c"))
 
   (setq mode-line-modes-delimiters '("" . ""))  ;; EMACS-31
 
   ;; EMACS-31
   (setq mode-line-collapse-minor-modes
-        '(abbrev-mode
-          auto-revert-mode
-          eldoc-mode
-          flyspell-mode
-          smooth-scroll-mode
-          outline-minor-mode
-          completion-preview-mode
-          which-key-mode))
+		'(abbrev-mode
+		  auto-revert-mode
+		  eldoc-mode
+		  flyspell-mode
+		  smooth-scroll-mode
+		  outline-minor-mode
+		  completion-preview-mode
+		  which-key-mode))
 
   (defvar emacs-solo-hidden-minor-modes mode-line-collapse-minor-modes)
 
   (defun emacs-solo/purge-minor-modes ()
-    (interactive)
-    (dolist (x emacs-solo-hidden-minor-modes nil)
-      (let ((trg (cdr (assoc x minor-mode-alist))))
-        (when trg
-          (setcar trg "")))))
+	(interactive)
+	(dolist (x emacs-solo-hidden-minor-modes nil)
+	  (let ((trg (cdr (assoc x minor-mode-alist))))
+		(when trg
+		  (setcar trg "")))))
 
   (if (< emacs-major-version 31)
-      (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes)))
+	  (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes)))
 
 
 ;;; │ EMACS-SOLO-EXEC-PATH-FROM-SHELL
@@ -3883,30 +3916,30 @@ Replacing `Git-' with a branch symbol."
   :defer t
   :init
   (defun emacs-solo/set-exec-path-from-shell-PATH ()
-    "Set up Emacs' `exec-path' and PATH environment the same as the user's shell.
+	"Set up Emacs' `exec-path' and PATH environment the same as the user's shell.
 This works with bash, zsh, or fish)."
-    (interactive)
-    (let* ((shell (getenv "SHELL"))
-           (shell-name (file-name-nondirectory shell))
-           (command
-            (cond
-             ((string= shell-name "fish")
-              "fish -c 'string join : $PATH'")
-             ((string= shell-name "zsh")
-              "zsh -i -c 'printenv PATH'")
-             ((string= shell-name "bash")
-              "bash --login -c 'echo $PATH'")
-             (t nil))))
-      (if (not command)
-          (message "emacs-solo: Unsupported shell: %s" shell-name)
-        (let ((path-from-shell
-               (replace-regexp-in-string
-                "[ \t\n]*$" ""
-                (shell-command-to-string command))))
-          (when (and path-from-shell (not (string= path-from-shell "")))
-            (setenv "PATH" path-from-shell)
-            (setq exec-path (split-string path-from-shell path-separator))
-            (message ">>> emacs-solo: PATH loaded from %s" shell-name))))))
+	(interactive)
+	(let* ((shell (getenv "SHELL"))
+		   (shell-name (file-name-nondirectory shell))
+		   (command
+			(cond
+			 ((string= shell-name "fish")
+			  "fish -c 'string join : $PATH'")
+			 ((string= shell-name "zsh")
+			  "zsh -i -c 'printenv PATH'")
+			 ((string= shell-name "bash")
+			  "bash --login -c 'echo $PATH'")
+			 (t nil))))
+	  (if (not command)
+		  (message "emacs-solo: Unsupported shell: %s" shell-name)
+		(let ((path-from-shell
+			   (replace-regexp-in-string
+				"[ \t\n]*$" ""
+				(shell-command-to-string command))))
+		  (when (and path-from-shell (not (string= path-from-shell "")))
+			(setenv "PATH" path-from-shell)
+			(setq exec-path (split-string path-from-shell path-separator))
+			(message ">>> emacs-solo: PATH loaded from %s" shell-name))))))
 
   (add-hook 'after-init-hook #'emacs-solo/set-exec-path-from-shell-PATH))
 
@@ -3924,31 +3957,31 @@ This works with bash, zsh, or fish)."
   :defer t
   :init
   (defun emacs-solo/rainbow-delimiters ()
-    "Apply simple rainbow coloring to parentheses, brackets, and braces in the current buffer.
+	"Apply simple rainbow coloring to parentheses, brackets, and braces in the current buffer.
 Opening and closing delimiters will have matching colors."
-    (interactive)
-    (let ((colors '(font-lock-function-name-face
-                    font-lock-builtin-face
-                    font-lock-type-face
-                    font-lock-keyword-face
-                    font-lock-variable-name-face
-                    font-lock-constant-face
-                    font-lock-string-face)))
-      (font-lock-add-keywords
-       nil
-       `((,(rx (or "(" ")" "[" "]" "{" "}"))
-          (0 (let* ((char (char-after (match-beginning 0)))
-                    (depth (save-excursion
-                             ;; Move to the correct position based on opening/closing delimiter
-                             (if (member char '(?\) ?\] ?\}))
-                                 (progn
-                                   (backward-char) ;; Move to the opening delimiter
-                                   (car (syntax-ppss)))
-                               (car (syntax-ppss)))))
-                    (face (nth (mod depth ,(length colors)) ',colors)))
-               (list 'face face)))))))
-    (font-lock-flush)
-    (font-lock-ensure))
+	(interactive)
+	(let ((colors '(font-lock-function-name-face
+					font-lock-builtin-face
+					font-lock-type-face
+					font-lock-keyword-face
+					font-lock-variable-name-face
+					font-lock-constant-face
+					font-lock-string-face)))
+	  (font-lock-add-keywords
+	   nil
+	   `((,(rx (or "(" ")" "[" "]" "{" "}"))
+		  (0 (let* ((char (char-after (match-beginning 0)))
+					(depth (save-excursion
+							 ;; Move to the correct position based on opening/closing delimiter
+							 (if (member char '(?\) ?\] ?\}))
+								 (progn
+								   (backward-char) ;; Move to the opening delimiter
+								   (car (syntax-ppss)))
+							   (car (syntax-ppss)))))
+					(face (nth (mod depth ,(length colors)) ',colors)))
+			   (list 'face face)))))))
+	(font-lock-flush)
+	(font-lock-ensure))
 
   (add-hook 'prog-mode-hook #'emacs-solo/rainbow-delimiters))
 
@@ -3963,30 +3996,30 @@ Opening and closing delimiters will have matching colors."
   :no-require t
   :init
   (defvar emacs-solo-default-projects-folder "~/Projects"
-    "Default folder to search for projects.")
+	"Default folder to search for projects.")
 
   (defvar emacs-solo-default-projects-input ""
-    "Default input to use when finding a project.")
+	"Default input to use when finding a project.")
 
   (defun emacs-solo/find-projects-and-switch (&optional directory)
-    "Find and switch to a project directory from ~/Projects."
-    (interactive)
-    (let* ((d (or directory emacs-solo-default-projects-folder))
-           ;; (find-command (concat "fd --type d --max-depth 4 . " d))           ; with fd
-           (find-command (concat "find " d " -mindepth 1 -maxdepth 4 -type d"))  ; with find
-           (project-list (split-string (shell-command-to-string find-command) "\n" t))
-           (initial-input emacs-solo-default-projects-input))
-      (let ((selected-project
-             (completing-read
-              "Search project folder: "
-              project-list
-              nil nil
-              initial-input)))
-        (when (and selected-project (file-directory-p selected-project))
-          (project-switch-project selected-project)))))
+	"Find and switch to a project directory from ~/Projects."
+	(interactive)
+	(let* ((d (or directory emacs-solo-default-projects-folder))
+		   ;; (find-command (concat "fd --type d --max-depth 4 . " d))           ; with fd
+		   (find-command (concat "find " d " -mindepth 1 -maxdepth 4 -type d"))  ; with find
+		   (project-list (split-string (shell-command-to-string find-command) "\n" t))
+		   (initial-input emacs-solo-default-projects-input))
+	  (let ((selected-project
+			 (completing-read
+			  "Search project folder: "
+			  project-list
+			  nil nil
+			  initial-input)))
+		(when (and selected-project (file-directory-p selected-project))
+		  (project-switch-project selected-project)))))
 
   :bind (:map project-prefix-map
-              ("P" . emacs-solo/find-projects-and-switch)))
+			  ("P" . emacs-solo/find-projects-and-switch)))
 
 
 ;;; │ EMACS-SOLO-VIPER-EXTENSIONS
@@ -4000,157 +4033,157 @@ Opening and closing delimiters will have matching colors."
   :after viper
   :init
   (defun viper-operate-inside-delimiters (open close op)
-    "Perform OP inside delimiters OPEN and CLOSE (e.g., (), {}, '', or \"\")."
-    (save-excursion
-      (search-backward (char-to-string open) nil t)
-      (forward-char) ;; Move past the opening delimiter
-      (let ((start (point)))
-        (search-forward (char-to-string close) nil t)
-        (backward-char) ;; Move back before the closing delimiter
-        (pulse-momentary-highlight-region start (point))
-        (funcall op start (point)))))
+	"Perform OP inside delimiters OPEN and CLOSE (e.g., (), {}, '', or \"\")."
+	(save-excursion
+	  (search-backward (char-to-string open) nil t)
+	  (forward-char) ;; Move past the opening delimiter
+	  (let ((start (point)))
+		(search-forward (char-to-string close) nil t)
+		(backward-char) ;; Move back before the closing delimiter
+		(pulse-momentary-highlight-region start (point))
+		(funcall op start (point)))))
 
   ;; FIXME: works for most common cases, misses (  bla bla (bla) |cursor-here| )
   (defun viper-delete-inside-delimiters (open close)
-    "Delete text inside delimiters OPEN and CLOSE, saving it to the kill ring."
-    (interactive "cEnter opening delimiter: \ncEnter closing delimiter: ")
-    (viper-operate-inside-delimiters open close 'kill-region))
+	"Delete text inside delimiters OPEN and CLOSE, saving it to the kill ring."
+	(interactive "cEnter opening delimiter: \ncEnter closing delimiter: ")
+	(viper-operate-inside-delimiters open close 'kill-region))
 
   (defun viper-yank-inside-delimiters (open close)
-    "Copy text inside delimiters OPEN and CLOSE to the kill ring."
-    (interactive "cEnter opening delimiter: \ncEnter closing delimiter: ")
-    (viper-operate-inside-delimiters open close 'kill-ring-save))
+	"Copy text inside delimiters OPEN and CLOSE to the kill ring."
+	(interactive "cEnter opening delimiter: \ncEnter closing delimiter: ")
+	(viper-operate-inside-delimiters open close 'kill-ring-save))
 
   (defun viper-delete-line-or-region ()
-    "Delete the current line or the selected region in Viper mode.
+	"Delete the current line or the selected region in Viper mode.
 The deleted text is saved to the kill ring."
-    (interactive)
-    (if (use-region-p)
-        ;; If a region is active, delete it
-        (progn
-          (pulse-momentary-highlight-region (region-beginning) (region-end))
-          (run-at-time 0.1 nil 'kill-region (region-beginning) (region-end)))
-      ;; Otherwise, delete the current line including its newline character
-      (pulse-momentary-highlight-region (line-beginning-position) (line-beginning-position 2))
-      (run-at-time 0.1 nil 'kill-region (line-beginning-position) (line-beginning-position 2))))
+	(interactive)
+	(if (use-region-p)
+		;; If a region is active, delete it
+		(progn
+		  (pulse-momentary-highlight-region (region-beginning) (region-end))
+		  (run-at-time 0.1 nil 'kill-region (region-beginning) (region-end)))
+	  ;; Otherwise, delete the current line including its newline character
+	  (pulse-momentary-highlight-region (line-beginning-position) (line-beginning-position 2))
+	  (run-at-time 0.1 nil 'kill-region (line-beginning-position) (line-beginning-position 2))))
 
   (defun viper-yank-line-or-region ()
-    "Yank the current line or the selected region and highlight the region."
-    (interactive)
-    (if (use-region-p)
-        ;; If a region is selected, yank it
-        (progn
-          (kill-ring-save (region-beginning) (region-end))  ;; Yank the region
-          (pulse-momentary-highlight-region (region-beginning) (region-end)))
-      ;; Otherwise, yank the current line
-      (let ((start (line-beginning-position))
-            (end (line-end-position)))
-        (kill-ring-save start end)  ;; Yank the current line
-        (pulse-momentary-highlight-region start end))))
+	"Yank the current line or the selected region and highlight the region."
+	(interactive)
+	(if (use-region-p)
+		;; If a region is selected, yank it
+		(progn
+		  (kill-ring-save (region-beginning) (region-end))  ;; Yank the region
+		  (pulse-momentary-highlight-region (region-beginning) (region-end)))
+	  ;; Otherwise, yank the current line
+	  (let ((start (line-beginning-position))
+			(end (line-end-position)))
+		(kill-ring-save start end)  ;; Yank the current line
+		(pulse-momentary-highlight-region start end))))
 
   (defun viper-visual-select ()
-    "Start visual selection from the current position."
-    (interactive)
-    (set-mark (point)))
+	"Start visual selection from the current position."
+	(interactive)
+	(set-mark (point)))
 
   (defun viper-visual-select-line ()
-    "Start visual selection from the beginning of the current line."
-    (interactive)
-    (set-mark (line-beginning-position)))
+	"Start visual selection from the beginning of the current line."
+	(interactive)
+	(set-mark (line-beginning-position)))
 
   (defun viper-delete-inner-word ()
-    "Delete the current word under the cursor, handling edge cases."
-    (interactive)
-    (let ((bounds (bounds-of-thing-at-point 'word)))
-      (if bounds
-          (kill-region (car bounds) (cdr bounds))
-        (message "No word under cursor"))))
+	"Delete the current word under the cursor, handling edge cases."
+	(interactive)
+	(let ((bounds (bounds-of-thing-at-point 'word)))
+	  (if bounds
+		  (kill-region (car bounds) (cdr bounds))
+		(message "No word under cursor"))))
 
   (defun viper-change-inner-word ()
-    "Change the current word under the cursor, handling edge cases."
-    (interactive)
-    (viper-delete-inner-word)
-    (viper-insert nil))
+	"Change the current word under the cursor, handling edge cases."
+	(interactive)
+	(viper-delete-inner-word)
+	(viper-insert nil))
 
   (defun viper-yank-inner-word ()
-    "Yank (copy) the current word under the cursor, handling edge cases."
-    (interactive)
-    (let ((bounds (bounds-of-thing-at-point 'word)))
-      (pulse-momentary-highlight-region (car bounds) (cdr bounds))
-      (if bounds
-          (kill-ring-save (car bounds) (cdr bounds))
-        (message "No word under cursor"))))
+	"Yank (copy) the current word under the cursor, handling edge cases."
+	(interactive)
+	(let ((bounds (bounds-of-thing-at-point 'word)))
+	  (pulse-momentary-highlight-region (car bounds) (cdr bounds))
+	  (if bounds
+		  (kill-ring-save (car bounds) (cdr bounds))
+		(message "No word under cursor"))))
 
   (defun viper-delete-inner-compound-word ()
-    "Delete the entire compound word under the cursor, including `-` and `_`."
-    (interactive)
-    (let ((bounds (viper-compound-word-bounds)))
-      (if bounds
-          (kill-region (car bounds) (cdr bounds))
-        (message "No compound word under cursor"))))
+	"Delete the entire compound word under the cursor, including `-` and `_`."
+	(interactive)
+	(let ((bounds (viper-compound-word-bounds)))
+	  (if bounds
+		  (kill-region (car bounds) (cdr bounds))
+		(message "No compound word under cursor"))))
 
   (defun viper-change-inner-compound-word ()
-    "Change the entire compound word under the cursor, including `-` and `_`."
-    (interactive)
-    (viper-delete-inner-compound-word)
-    (viper-insert nil))
+	"Change the entire compound word under the cursor, including `-` and `_`."
+	(interactive)
+	(viper-delete-inner-compound-word)
+	(viper-insert nil))
 
   (defun viper-yank-inner-compound-word ()
-    "Yank the entire compound word under the cursor into the kill ring."
-    (interactive)
-    (let ((bounds (viper-compound-word-bounds)))
-      (pulse-momentary-highlight-region (car bounds) (cdr bounds))
-      (if bounds
-          (kill-ring-save (car bounds) (cdr bounds))
-        (message "No compound word under cursor"))))
+	"Yank the entire compound word under the cursor into the kill ring."
+	(interactive)
+	(let ((bounds (viper-compound-word-bounds)))
+	  (pulse-momentary-highlight-region (car bounds) (cdr bounds))
+	  (if bounds
+		  (kill-ring-save (car bounds) (cdr bounds))
+		(message "No compound word under cursor"))))
 
   (defun viper-compound-word-bounds ()
-    "Get the bounds of a compound word under the cursor.
+	"Get the bounds of a compound word under the cursor.
 A compound word includes letters, numbers, `-`, and `_`."
-    (save-excursion
-      (let* ((start (progn
-                      (skip-chars-backward "a-zA-Z0-9_-")
-                      (point)))
-             (end (progn
-                    (skip-chars-forward "a-zA-Z0-9_-")
-                    (point))))
-        (when (< start end) (cons start end)))))
+	(save-excursion
+	  (let* ((start (progn
+					  (skip-chars-backward "a-zA-Z0-9_-")
+					  (point)))
+			 (end (progn
+					(skip-chars-forward "a-zA-Z0-9_-")
+					(point))))
+		(when (< start end) (cons start end)))))
 
   (defun viper-go-to-nth-or-first-line (arg)
-    "Go to the first line of the document, or the ARG-nth."
-    (interactive "P")
-    (if arg
-        (viper-goto-line arg)
-      (viper-goto-line 1))
-    (pulse-momentary-highlight-region
-     (line-beginning-position) (line-beginning-position 2)))
+	"Go to the first line of the document, or the ARG-nth."
+	(interactive "P")
+	(if arg
+		(viper-goto-line arg)
+	  (viper-goto-line 1))
+	(pulse-momentary-highlight-region
+	 (line-beginning-position) (line-beginning-position 2)))
 
   (defun viper-go-to-last-line ()
-    "Go to the last line of the document."
-    (interactive)
-    (goto-char (point-max)))
+	"Go to the last line of the document."
+	(interactive)
+	(goto-char (point-max)))
 
   (defun viper-window-split-horizontally ()
-    "Split the window horizontally (mimics Vim's `C-w s`)."
-    (interactive)
-    (split-window-below)
-    (other-window 1))
+	"Split the window horizontally (mimics Vim's `C-w s`)."
+	(interactive)
+	(split-window-below)
+	(other-window 1))
 
   (defun viper-window-split-vertically ()
-    "Split the window vertically (mimics Vim's `C-w v`)."
-    (interactive)
-    (split-window-right)
-    (other-window 1))
+	"Split the window vertically (mimics Vim's `C-w v`)."
+	(interactive)
+	(split-window-right)
+	(other-window 1))
 
   (defun viper-window-close ()
-    "Close the current window (mimics Vim's `C-w c`)."
-    (interactive)
-    (delete-window))
+	"Close the current window (mimics Vim's `C-w c`)."
+	(interactive)
+	(delete-window))
 
   (defun viper-window-maximize ()
-    "Maximize the current window (mimics Vim's `C-w o`)."
-    (interactive)
-    (delete-other-windows))
+	"Maximize the current window (mimics Vim's `C-w o`)."
+	(interactive)
+	(delete-other-windows))
 
   ;; Delete inside delimiters
   (define-key viper-vi-global-user-map (kbd "di(") (lambda () (interactive) (viper-delete-inside-delimiters ?\( ?\))))
@@ -4250,55 +4283,55 @@ A compound word includes letters, numbers, `-`, and `_`."
   :defer t
   :init
   (defcustom +highlight-keywords-faces
-    '(("TODO" . error)
-      ("FIXME" . error)
-      ("HACK" . warning)
-      ("NOTE" . warning)
-      ("HERE" . compilation-info)
-      ("EMACS-31" . compilation-info))
-    "Alist of keywords to highlight and their face."
-    :group '+highlight-keywords
-    :type '(alist :key-type (string :tag "Keyword")
-                  :value-type (symbol :tag "Face"))
-    :set (lambda (sym val)
-           (dolist (face (mapcar #'cdr val))
-             (unless (facep face)
-               (error "Invalid face: %s" face)))
-           (set-default sym val)))
+	'(("TODO" . error)
+	  ("FIXME" . error)
+	  ("HACK" . warning)
+	  ("NOTE" . warning)
+	  ("HERE" . compilation-info)
+	  ("EMACS-31" . compilation-info))
+	"Alist of keywords to highlight and their face."
+	:group '+highlight-keywords
+	:type '(alist :key-type (string :tag "Keyword")
+				  :value-type (symbol :tag "Face"))
+	:set (lambda (sym val)
+		   (dolist (face (mapcar #'cdr val))
+			 (unless (facep face)
+			   (error "Invalid face: %s" face)))
+		   (set-default sym val)))
 
   (defvar +highlight-keywords--keywords
-    (when +highlight-keywords-faces
-      (let ((keywords (mapcar #'car +highlight-keywords-faces)))
-        `((,(regexp-opt keywords 'words)
-           (0 (when (nth 8 (syntax-ppss))
-                (cdr (assoc (match-string 0) +highlight-keywords-faces)))
-              prepend)))))
-    "Keywords and corresponding faces for `emacs-solo/highlight-keywords-mode'.")
+	(when +highlight-keywords-faces
+	  (let ((keywords (mapcar #'car +highlight-keywords-faces)))
+		`((,(regexp-opt keywords 'words)
+		   (0 (when (nth 8 (syntax-ppss))
+				(cdr (assoc (match-string 0) +highlight-keywords-faces)))
+			  prepend)))))
+	"Keywords and corresponding faces for `emacs-solo/highlight-keywords-mode'.")
 
   (defun emacs-solo/highlight-keywords-mode-on ()
-    (when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
-      (font-lock-add-keywords nil +highlight-keywords--keywords t)
-      (font-lock-flush)))
+	(when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
+	  (font-lock-add-keywords nil +highlight-keywords--keywords t)
+	  (font-lock-flush)))
 
   (defun emacs-solo/highlight-keywords-mode-off ()
-    (font-lock-remove-keywords nil +highlight-keywords--keywords)
-    (font-lock-flush))
+	(font-lock-remove-keywords nil +highlight-keywords--keywords)
+	(font-lock-flush))
 
   (define-minor-mode emacs-solo/highlight-keywords-mode
-    "Highlight TODO and similar keywords in comments and strings."
-    :lighter " +HL"
-    :group '+highlight-keywords
-    (if emacs-solo/highlight-keywords-mode
-        (emacs-solo/highlight-keywords-mode-on)
-      (emacs-solo/highlight-keywords-mode-off)))
+	"Highlight TODO and similar keywords in comments and strings."
+	:lighter " +HL"
+	:group '+highlight-keywords
+	(if emacs-solo/highlight-keywords-mode
+		(emacs-solo/highlight-keywords-mode-on)
+	  (emacs-solo/highlight-keywords-mode-off)))
 
   :hook
   (prog-mode-hook .
-                  (lambda ()
-                    (when (and buffer-file-name ; only if it's visiting a file
-                               (not (string-match-p "^\\*" (buffer-name)))) ; avoid *scratch*, etc.
-                      (message "[emacs-solo-highlight-keywords-mode]: running on buffer %s" (buffer-name))
-                      (run-with-idle-timer 1 nil #'emacs-solo/highlight-keywords-mode-on)))))
+				  (lambda ()
+					(when (and buffer-file-name ; only if it's visiting a file
+							   (not (string-match-p "^\\*" (buffer-name)))) ; avoid *scratch*, etc.
+					  (message "[emacs-solo-highlight-keywords-mode]: running on buffer %s" (buffer-name))
+					  (run-with-idle-timer 1 nil #'emacs-solo/highlight-keywords-mode-on)))))
 
 
 ;;; │ EMACS-SOLO-GUTTER
@@ -4312,126 +4345,126 @@ A compound word includes letters, numbers, `-`, and `_`."
   :defer t
   :init
   (defun emacs-solo/goto-next-hunk ()
-    "Jump cursor to the closest next hunk."
-    (interactive)
-    (let* ((current-line (line-number-at-pos))
-           (line-numbers (mapcar #'car git-gutter-diff-info))
-           (sorted-line-numbers (sort line-numbers '<))
-           (next-line-number
-            (if (not (member current-line sorted-line-numbers))
-                ;; If the current line is not in the list, find the next closest line number
-                (cl-find-if (lambda (line) (> line current-line)) sorted-line-numbers)
-              ;; If the current line is in the list, find the next line number that is not consecutive
-              (let ((last-line nil))
-                (cl-loop for line in sorted-line-numbers
-                         when (and (> line current-line)
-                                   (or (not last-line)
-                                       (/= line (1+ last-line))))
-                         return line
-                         do (setq last-line line))))))
+	"Jump cursor to the closest next hunk."
+	(interactive)
+	(let* ((current-line (line-number-at-pos))
+		   (line-numbers (mapcar #'car git-gutter-diff-info))
+		   (sorted-line-numbers (sort line-numbers '<))
+		   (next-line-number
+			(if (not (member current-line sorted-line-numbers))
+				;; If the current line is not in the list, find the next closest line number
+				(cl-find-if (lambda (line) (> line current-line)) sorted-line-numbers)
+			  ;; If the current line is in the list, find the next line number that is not consecutive
+			  (let ((last-line nil))
+				(cl-loop for line in sorted-line-numbers
+						 when (and (> line current-line)
+								   (or (not last-line)
+									   (/= line (1+ last-line))))
+						 return line
+						 do (setq last-line line))))))
 
-      (when next-line-number
-        (goto-line next-line-number))))
+	  (when next-line-number
+		(goto-line next-line-number))))
 
   (defun emacs-solo/goto-previous-hunk ()
-    "Jump cursor to the closest previous hunk."
-    (interactive)
-    (let* ((current-line (line-number-at-pos))
-           (line-numbers (mapcar #'car git-gutter-diff-info))
-           (sorted-line-numbers (sort line-numbers '<))
-           (previous-line-number
-            (if (not (member current-line sorted-line-numbers))
-                ;; If the current line is not in the list, find the previous closest line number
-                (cl-find-if (lambda (line) (< line current-line)) (reverse sorted-line-numbers))
-              ;; If the current line is in the list, find the previous line number that has no direct predecessor
-              (let ((previous-line nil))
-                (dolist (line sorted-line-numbers)
-                  (when (and (< line current-line)
-                             (not (member (1- line) line-numbers)))
-                    (setq previous-line line)))
-                previous-line))))
+	"Jump cursor to the closest previous hunk."
+	(interactive)
+	(let* ((current-line (line-number-at-pos))
+		   (line-numbers (mapcar #'car git-gutter-diff-info))
+		   (sorted-line-numbers (sort line-numbers '<))
+		   (previous-line-number
+			(if (not (member current-line sorted-line-numbers))
+				;; If the current line is not in the list, find the previous closest line number
+				(cl-find-if (lambda (line) (< line current-line)) (reverse sorted-line-numbers))
+			  ;; If the current line is in the list, find the previous line number that has no direct predecessor
+			  (let ((previous-line nil))
+				(dolist (line sorted-line-numbers)
+				  (when (and (< line current-line)
+							 (not (member (1- line) line-numbers)))
+					(setq previous-line line)))
+				previous-line))))
 
-      (when previous-line-number
-        (goto-line previous-line-number))))
+	  (when previous-line-number
+		(goto-line previous-line-number))))
 
 
   (defun emacs-solo/git-gutter-process-git-diff ()
-    "Process git diff for adds/mods/removals.
+	"Process git diff for adds/mods/removals.
 Marks lines as added, deleted, or changed."
-    (interactive)
-    (setq-local result '())
-    (let* ((file-path (buffer-file-name))
-           (grep-command "rg -Po")                         ; for rgrep
-           ;; (grep-command (if (eq system-type 'darwin)   ; for grep / ggrep
-           ;;                   "ggrep -Po"
-           ;;                 "grep -Po"))
-           (output (shell-command-to-string
-                    (format
-                     "git diff --unified=0 %s | %s '^@@ -[0-9]+(,[0-9]+)? \\+\\K[0-9]+(,[0-9]+)?(?= @@)'"
-                     file-path
-                     grep-command))))
-      (setq-local lines (split-string output "\n"))
-      (dolist (line lines)
-        (if (string-match "\\(^[0-9]+\\),\\([0-9]+\\)\\(?:,0\\)?$" line)
-            (let ((num (string-to-number (match-string 1 line)))
-                  (count (string-to-number (match-string 2 line))))
-              (if (= count 0)
-                  (add-to-list 'result (cons (+ 1 num) "deleted"))
-                (dotimes (i count)
-                  (add-to-list 'result (cons (+ num i) "changed")))))
-          (if (string-match "\\(^[0-9]+\\)$" line)
-              (add-to-list 'result (cons (string-to-number line) "added"))))
-        (setq-local git-gutter-diff-info result))
-      result))
+	(interactive)
+	(setq-local result '())
+	(let* ((file-path (buffer-file-name))
+		   (grep-command "rg -Po")                         ; for rgrep
+		   ;; (grep-command (if (eq system-type 'darwin)   ; for grep / ggrep
+		   ;;                   "ggrep -Po"
+		   ;;                 "grep -Po"))
+		   (output (shell-command-to-string
+					(format
+					 "git diff --unified=0 %s | %s '^@@ -[0-9]+(,[0-9]+)? \\+\\K[0-9]+(,[0-9]+)?(?= @@)'"
+					 file-path
+					 grep-command))))
+	  (setq-local lines (split-string output "\n"))
+	  (dolist (line lines)
+		(if (string-match "\\(^[0-9]+\\),\\([0-9]+\\)\\(?:,0\\)?$" line)
+			(let ((num (string-to-number (match-string 1 line)))
+				  (count (string-to-number (match-string 2 line))))
+			  (if (= count 0)
+				  (add-to-list 'result (cons (+ 1 num) "deleted"))
+				(dotimes (i count)
+				  (add-to-list 'result (cons (+ num i) "changed")))))
+		  (if (string-match "\\(^[0-9]+\\)$" line)
+			  (add-to-list 'result (cons (string-to-number line) "added"))))
+		(setq-local git-gutter-diff-info result))
+	  result))
 
 
   (defun emacs-solo/git-gutter-add-mark (&rest args)
-    "Add symbols to the left margin based on Git diff statuses.
+	"Add symbols to the left margin based on Git diff statuses.
 - '+' for added lines (uses `success` face)
 - '~' for changed lines (uses `warning` face)
 - '-' for deleted lines (uses `error` face)."
-    (interactive)
-    (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
-    (let ((lines-status (or (emacs-solo/git-gutter-process-git-diff) '())))
-      (save-excursion
-        (dolist (line-status lines-status)
-          (let* ((line-num (car line-status))
-                 (status (cdr line-status))
-                 (symbol (cond                                ;; Alternatives:
-                          ((string= status "added")   "┃")    ;; +  │ ▏┃
-                          ((string= status "changed") "┃")    ;; ~  │ ▏┃
-                          ((string= status "deleted") "┃")))  ;; _  _‾ x
-                 (face (cond
-                        ((string= status "added")   'success)
-                        ((string= status "changed") 'warning)
-                        ((string= status "deleted") 'error))))
-            (when (and line-num status)
-              (goto-char (point-min))
-              (forward-line (1- line-num))
-              (let ((overlay (make-overlay (point-at-bol) (point-at-bol))))
-                (overlay-put overlay 'emacs-solo--git-gutter-overlay t)
-                (overlay-put overlay 'before-string
-                             (propertize " "
-                                         'display
-                                         `((margin left-margin)
-                                           ,(propertize symbol 'face face)))))))))))
+	(interactive)
+	(remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
+	(let ((lines-status (or (emacs-solo/git-gutter-process-git-diff) '())))
+	  (save-excursion
+		(dolist (line-status lines-status)
+		  (let* ((line-num (car line-status))
+				 (status (cdr line-status))
+				 (symbol (cond                                ;; Alternatives:
+						  ((string= status "added")   "┃")    ;; +  │ ▏┃
+						  ((string= status "changed") "┃")    ;; ~  │ ▏┃
+						  ((string= status "deleted") "┃")))  ;; _  _‾ x
+				 (face (cond
+						((string= status "added")   'success)
+						((string= status "changed") 'warning)
+						((string= status "deleted") 'error))))
+			(when (and line-num status)
+			  (goto-char (point-min))
+			  (forward-line (1- line-num))
+			  (let ((overlay (make-overlay (point-at-bol) (point-at-bol))))
+				(overlay-put overlay 'emacs-solo--git-gutter-overlay t)
+				(overlay-put overlay 'before-string
+							 (propertize " "
+										 'display
+										 `((margin left-margin)
+										   ,(propertize symbol 'face face)))))))))))
 
   (defun emacs-solo/timed-git-gutter-on()
-    (run-at-time 0.1 nil #'emacs-solo/git-gutter-add-mark))
+	(run-at-time 0.1 nil #'emacs-solo/git-gutter-add-mark))
 
   (defun emacs-solo/git-gutter-off ()
-    "Remove all `emacs-solo--git-gutter-overlay' marks and other overlays."
-    (interactive)
-    (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
-    (remove-hook 'find-file-hook #'emacs-solo-git-gutter-on)
-    (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
+	"Remove all `emacs-solo--git-gutter-overlay' marks and other overlays."
+	(interactive)
+	(remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
+	(remove-hook 'find-file-hook #'emacs-solo-git-gutter-on)
+	(remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
 
   (defun emacs-solo/git-gutter-on ()
-    (interactive)
-    (add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
-    (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
-    (when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
-      (emacs-solo/git-gutter-add-mark)))
+	(interactive)
+	(add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
+	(add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
+	(when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
+	  (emacs-solo/git-gutter-add-mark)))
 
   (global-set-key (kbd "M-9") 'emacs-solo/goto-previous-hunk)
   (global-set-key (kbd "M-0") 'emacs-solo/goto-next-hunk)
@@ -4454,54 +4487,54 @@ Marks lines as added, deleted, or changed."
   :defer t
   :init
   (defvar emacs-solo-ace-window/quick-window-overlays nil
-    "List of overlays used to temporarily display window labels.")
+	"List of overlays used to temporarily display window labels.")
 
   (defun emacs-solo-ace-window/quick-window-jump ()
-    "Jump to a window by typing its assigned character label.
+	"Jump to a window by typing its assigned character label.
 Windows are labeled starting from the top-left window and proceeding top to bottom, then left to right."
-    (interactive)
-    (let* ((window-list (emacs-solo-ace-window/get-windows))
-           (window-keys (seq-take '("1" "2" "3" "4" "5" "6" "7" "8")
-                                  (length window-list)))
-           (window-map (cl-pairlis window-keys window-list)))
-      (emacs-solo-ace-window/add-window-key-overlays window-map)
-      (let ((key (read-key (format "Select window [%s]: " (string-join window-keys ", ")))))
-        (emacs-solo-ace-window/remove-window-key-overlays)
-        (if-let* ((selected-window (cdr (assoc (char-to-string key) window-map))))
-            (select-window selected-window)
-          (message "No window assigned to key: %c" key)))))
+	(interactive)
+	(let* ((window-list (emacs-solo-ace-window/get-windows))
+		   (window-keys (seq-take '("1" "2" "3" "4" "5" "6" "7" "8")
+								  (length window-list)))
+		   (window-map (cl-pairlis window-keys window-list)))
+	  (emacs-solo-ace-window/add-window-key-overlays window-map)
+	  (let ((key (read-key (format "Select window [%s]: " (string-join window-keys ", ")))))
+		(emacs-solo-ace-window/remove-window-key-overlays)
+		(if-let* ((selected-window (cdr (assoc (char-to-string key) window-map))))
+			(select-window selected-window)
+		  (message "No window assigned to key: %c" key)))))
 
   (defun emacs-solo-ace-window/get-windows ()
-    "Return a list of windows in the current frame, ordered from top to bottom, left to right."
-    (sort (window-list nil 'no-mini)
-          (lambda (w1 w2)
-            (let ((edges1 (window-edges w1))
-                  (edges2 (window-edges w2)))
-              (or (< (car edges1) (car edges2)) ; Compare top edges
-                  (and (= (car edges1) (car edges2)) ; If equal, compare left edges
-                       (< (cadr edges1) (cadr edges2))))))))
+	"Return a list of windows in the current frame, ordered from top to bottom, left to right."
+	(sort (window-list nil 'no-mini)
+		  (lambda (w1 w2)
+			(let ((edges1 (window-edges w1))
+				  (edges2 (window-edges w2)))
+			  (or (< (car edges1) (car edges2)) ; Compare top edges
+				  (and (= (car edges1) (car edges2)) ; If equal, compare left edges
+					   (< (cadr edges1) (cadr edges2))))))))
 
   (defun emacs-solo-ace-window/add-window-key-overlays (window-map)
-    "Add temporary overlays to windows with their assigned key labels from WINDOW-MAP."
-    (setq emacs-solo-ace-window/quick-window-overlays nil)
-    (dolist (entry window-map)
-      (let* ((key (car entry))
-             (window (cdr entry))
-             (start (window-start window))
-             (overlay (make-overlay start start (window-buffer window))))
-        (overlay-put overlay 'after-string
-                     (propertize (format " [%s] " key)
-                                 'face '(:foreground "#c3e88d"
-                                                     :background "#232635"
-                                                     :weight bold
-                                                     :height default)))
-        (overlay-put overlay 'window window)
-        (push overlay emacs-solo-ace-window/quick-window-overlays))))
+	"Add temporary overlays to windows with their assigned key labels from WINDOW-MAP."
+	(setq emacs-solo-ace-window/quick-window-overlays nil)
+	(dolist (entry window-map)
+	  (let* ((key (car entry))
+			 (window (cdr entry))
+			 (start (window-start window))
+			 (overlay (make-overlay start start (window-buffer window))))
+		(overlay-put overlay 'after-string
+					 (propertize (format " [%s] " key)
+								 'face '(:foreground "#c3e88d"
+													 :background "#232635"
+													 :weight bold
+													 :height default)))
+		(overlay-put overlay 'window window)
+		(push overlay emacs-solo-ace-window/quick-window-overlays))))
 
   (defun emacs-solo-ace-window/remove-window-key-overlays ()
-    "Remove all temporary overlays used to display key labels in windows."
-    (mapc 'delete-overlay emacs-solo-ace-window/quick-window-overlays)
-    (setq emacs-solo-ace-window/quick-window-overlays nil))
+	"Remove all temporary overlays used to display key labels in windows."
+	(mapc 'delete-overlay emacs-solo-ace-window/quick-window-overlays)
+	(setq emacs-solo-ace-window/quick-window-overlays nil))
 
   (global-set-key (kbd "M-O") #'emacs-solo-ace-window/quick-window-jump))
 
@@ -4514,32 +4547,32 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   :defer t
   :init
   (defvar emacs-solo-center-document-desired-width 120
-    "The desired width of a document centered in the window.")
+	"The desired width of a document centered in the window.")
 
   (defun emacs-solo/center-document--adjust-margins ()
-    ;; Reset margins first before recalculating
-    (set-window-parameter nil 'min-margins nil)
-    (set-window-margins nil nil)
+	;; Reset margins first before recalculating
+	(set-window-parameter nil 'min-margins nil)
+	(set-window-margins nil nil)
 
-    ;; Adjust margins if the mode is on
-    (when emacs-solo/center-document-mode
-      (let ((margin-width (max 0
-                               (truncate
-                                (/ (- (window-width)
-                                      emacs-solo-center-document-desired-width)
-                                   2.0)))))
-        (when (> margin-width 0)
-          (set-window-parameter nil 'min-margins '(0 . 0))
-          (set-window-margins nil margin-width margin-width)))))
+	;; Adjust margins if the mode is on
+	(when emacs-solo/center-document-mode
+	  (let ((margin-width (max 0
+							   (truncate
+								(/ (- (window-width)
+									  emacs-solo-center-document-desired-width)
+								   2.0)))))
+		(when (> margin-width 0)
+		  (set-window-parameter nil 'min-margins '(0 . 0))
+		  (set-window-margins nil margin-width margin-width)))))
 
   (define-minor-mode emacs-solo/center-document-mode
-    "Toggle centered text layout in the current buffer."
-    :lighter " Centered"
-    :group 'editing
-    (if emacs-solo/center-document-mode
-        (add-hook 'window-configuration-change-hook #'emacs-solo/center-document--adjust-margins 'append 'local)
-      (remove-hook 'window-configuration-change-hook #'emacs-solo/center-document--adjust-margins 'local))
-    (emacs-solo/center-document--adjust-margins))
+	"Toggle centered text layout in the current buffer."
+	:lighter " Centered"
+	:group 'editing
+	(if emacs-solo/center-document-mode
+		(add-hook 'window-configuration-change-hook #'emacs-solo/center-document--adjust-margins 'append 'local)
+	  (remove-hook 'window-configuration-change-hook #'emacs-solo/center-document--adjust-margins 'local))
+	(emacs-solo/center-document--adjust-margins))
 
 
   (add-hook 'org-mode-hook #'emacs-solo/center-document-mode)
@@ -4561,27 +4594,27 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   :defer t
   :init
   (defun emacs-solo/0x0-upload-text ()
-    (interactive)
-    (let* ((contents (if (use-region-p)
-                         (buffer-substring-no-properties (region-beginning) (region-end))
-                       (buffer-string)))
-           (temp-file (make-temp-file "0x0" nil ".txt" contents)))
-      (message "Sending %s to 0x0.st..." temp-file)
-      (let ((url (string-trim-right
-                  (shell-command-to-string
-                   (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" temp-file)))))
-        (message "The URL is %s" url)
-        (kill-new url)
-        (delete-file temp-file))))
+	(interactive)
+	(let* ((contents (if (use-region-p)
+						 (buffer-substring-no-properties (region-beginning) (region-end))
+					   (buffer-string)))
+		   (temp-file (make-temp-file "0x0" nil ".txt" contents)))
+	  (message "Sending %s to 0x0.st..." temp-file)
+	  (let ((url (string-trim-right
+				  (shell-command-to-string
+				   (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" temp-file)))))
+		(message "The URL is %s" url)
+		(kill-new url)
+		(delete-file temp-file))))
 
   (defun emacs-solo/0x0-upload-file (file-path)
-    (interactive "fSelect a file to upload: ")
-    (message "Sending %s to 0x0.st..." file-path)
-    (let ((url (string-trim-right
-                (shell-command-to-string
-                 (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
-      (message "The URL is %s" url)
-      (kill-new url))))
+	(interactive "fSelect a file to upload: ")
+	(message "Sending %s to 0x0.st..." file-path)
+	(let ((url (string-trim-right
+				(shell-command-to-string
+				 (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
+	  (message "The URL is %s" url)
+	  (kill-new url))))
 
 
 ;;; │ EMACS-SOLO-SUDO-EDIT
@@ -4596,15 +4629,15 @@ Windows are labeled starting from the top-left window and proceeding top to bott
   :defer t
   :init
   (defun emacs-solo/sudo-edit (&optional arg)
-    "Edit currently visited file as root.
+	"Edit currently visited file as root.
 With a prefix ARG prompt for a file to visit.
 Will also prompt for a file to visit if current
 buffer is not visiting a file."
-    (interactive "P")
-    (if (or arg (not buffer-file-name))
-        (find-file (concat "/sudo:root@localhost:"
-                           (completing-read "Find file(as root): ")))
-      (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
+	(interactive "P")
+	(if (or arg (not buffer-file-name))
+		(find-file (concat "/sudo:root@localhost:"
+						   (completing-read "Find file(as root): ")))
+	  (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
 
 
 ;;; │ EMACS-SOLO-REPLACE-AS-DIFF
@@ -4632,30 +4665,30 @@ buffer is not visiting a file."
   ;; `*replace-diff*` buffer. This allows for easy review and application of changes
   ;; across multiple files.
   (defun emacs-solo/multi-file-replace-regexp-as-diff-with-glob (dir regexp to-string &optional delimited glob-pattern)
-    "Wrapper for `multi-file-replace-regexp-as-diff` that accepts a directory and a glob pattern.
+	"Wrapper for `multi-file-replace-regexp-as-diff` that accepts a directory and a glob pattern.
 DIR is the directory to search recursively.
 REGEXP is the regular expression to replace.
 TO-STRING is the replacement string.
 DELIMITED is an optional argument passed to `multi-file-replace-regexp-as-diff`.
 GLOB-PATTERN is the glob pattern to match files (e.g., \"*.el\")."
-    (interactive
-     (let ((dir (file-truename (read-directory-name "Directory: ")))
-           (common (query-replace-read-args
-                    (concat "Replace"
-                            (if current-prefix-arg " word" "")
-                            " regexp as diff in files")
-                    t t))
-           (glob-pattern (read-string "Glob pattern (e.g., *.el): " "*")))
-       (list dir (nth 0 common) (nth 1 common) (nth 2 common) glob-pattern)))
+	(interactive
+	 (let ((dir (file-truename (read-directory-name "Directory: ")))
+		   (common (query-replace-read-args
+					(concat "Replace"
+							(if current-prefix-arg " word" "")
+							" regexp as diff in files")
+					t t))
+		   (glob-pattern (read-string "Glob pattern (e.g., *.el): " "*")))
+	   (list dir (nth 0 common) (nth 1 common) (nth 2 common) glob-pattern)))
 
-    (let* ((glob-regexp (wildcard-to-regexp glob-pattern))
-           ;; file-expand-wildcards instead of directory-files-recursively, would
-           ;; not allow us to traverse directories
-           (files (directory-files-recursively dir glob-regexp)))
+	(let* ((glob-regexp (wildcard-to-regexp glob-pattern))
+		   ;; file-expand-wildcards instead of directory-files-recursively, would
+		   ;; not allow us to traverse directories
+		   (files (directory-files-recursively dir glob-regexp)))
 
-      (if files
-          (multi-file-replace-regexp-as-diff files regexp to-string delimited)
-        (message "No files found for glob-pattern: %s" glob-pattern))))
+	  (if files
+		  (multi-file-replace-regexp-as-diff files regexp to-string delimited)
+		(message "No files found for glob-pattern: %s" glob-pattern))))
 
 
   ;; `M-x dired RET' mark files and/or directories then
@@ -4667,33 +4700,33 @@ GLOB-PATTERN is the glob pattern to match files (e.g., \"*.el\")."
   ;; The replacements are displayed as diffs in the `*replace-diff*` buffer, allowing
   ;; for review and application of changes across multiple files and directories.
   (defun emacs-solo/expand-directories (items)
-    "Expand ITEMS to include all files within directories (recursively).
+	"Expand ITEMS to include all files within directories (recursively).
 Directories themselves are excluded from the final list."
-    (cl-loop for item in items
-             if (file-directory-p item)
-             append (let ((files (directory-files-recursively item ".*" t)))
-                      (cl-remove-if #'file-directory-p files))
-             else if (file-regular-p item) ; Ensure only regular files are included
-             collect item))
+	(cl-loop for item in items
+			 if (file-directory-p item)
+			 append (let ((files (directory-files-recursively item ".*" t)))
+					  (cl-remove-if #'file-directory-p files))
+			 else if (file-regular-p item) ; Ensure only regular files are included
+			 collect item))
 
   (defun emacs-solo/dired-do-replace-regexp-as-diff (from to &optional delimited)
-    "Do `replace-regexp' of FROM with TO as diff, on all marked files and directories.
+	"Do `replace-regexp' of FROM with TO as diff, on all marked files and directories.
 If a marked item is a directory, all files within it (recursively) are included.
 Third arg DELIMITED (prefix arg) means replace only word-delimited matches.
 The replacements are displayed in the buffer *replace-diff* that
 you can later apply as a patch after reviewing the changes."
-    (interactive
-     (let ((common
-            (query-replace-read-args
-             "Replace regexp as diff in marked files and directories" t t t)))
-       (list (nth 0 common) (nth 1 common) (nth 2 common))))
-    (dired-post-do-command)
-    (let* ((marked-items (dired-get-marked-files)) ; Include directories in the list
-           (files (emacs-solo/expand-directories marked-items)))
-      (if files
-          (progn
-            (multi-file-replace-regexp-as-diff files from to delimited))
-        (message "No files found in marked items.")))))
+	(interactive
+	 (let ((common
+			(query-replace-read-args
+			 "Replace regexp as diff in marked files and directories" t t t)))
+	   (list (nth 0 common) (nth 1 common) (nth 2 common))))
+	(dired-post-do-command)
+	(let* ((marked-items (dired-get-marked-files)) ; Include directories in the list
+		   (files (emacs-solo/expand-directories marked-items)))
+	  (if files
+		  (progn
+			(multi-file-replace-regexp-as-diff files from to delimited))
+		(message "No files found in marked items.")))))
 
 ;;; │ EMACS-SOLO-WEATHER
 ;;
@@ -4705,64 +4738,64 @@ you can later apply as a patch after reviewing the changes."
   (setq emacs-solo-weather-city "Indaiatuba")
 
   (defun emacs-solo/weather-buffer (&optional which)
-    "Open a new buffer and asynchronously fetch wttr.in weather data.
+	"Open a new buffer and asynchronously fetch wttr.in weather data.
 
 Optional WHICH:
   'url1 → fetch only wttr.in
   'url2 → fetch only v2d.wttr.in
   nil   → fetch both."
-    (interactive)
-    (let* ((city (shell-quote-argument emacs-solo-weather-city))
-           (buffer (get-buffer-create
-                    (format "*Weather-%s*"
-                            (format-time-string "%Y-%m-%dT%H:%M:%S"))))
-           (url1 (format "curl -s 'wttr.in/%s?format'" city))
-           (url2 (format "curl -s 'v2d.wttr.in/%s?format'" city)))
-      (with-current-buffer buffer
-        (read-only-mode -1)
-        (erase-buffer)
-        (insert "Fetching weather data...\n")
-        (read-only-mode 1))
-      (switch-to-buffer buffer)
+	(interactive)
+	(let* ((city (shell-quote-argument emacs-solo-weather-city))
+		   (buffer (get-buffer-create
+					(format "*Weather-%s*"
+							(format-time-string "%Y-%m-%dT%H:%M:%S"))))
+		   (url1 (format "curl -s 'wttr.in/%s?format'" city))
+		   (url2 (format "curl -s 'v2d.wttr.in/%s?format'" city)))
+	  (with-current-buffer buffer
+		(read-only-mode -1)
+		(erase-buffer)
+		(insert "Fetching weather data...\n")
+		(read-only-mode 1))
+	  (switch-to-buffer buffer)
 
-      (pcase which
-        ('url1
-         (emacs-solo--fetch-weather url1 buffer))
-        ('url2
-         (emacs-solo--fetch-weather url2 buffer t))
-        (_
-         (emacs-solo--fetch-weather url1 buffer)
-         (emacs-solo--fetch-weather url2 buffer t)))))
+	  (pcase which
+		('url1
+		 (emacs-solo--fetch-weather url1 buffer))
+		('url2
+		 (emacs-solo--fetch-weather url2 buffer t))
+		(_
+		 (emacs-solo--fetch-weather url1 buffer)
+		 (emacs-solo--fetch-weather url2 buffer t)))))
 
   (defun emacs-solo--fetch-weather (cmd buffer &optional second)
-    "Run CMD asynchronously and insert results into BUFFER.
+	"Run CMD asynchronously and insert results into BUFFER.
 If SECOND is non-nil, separate the results with a newline."
-    (make-process
-     :name "weather-fetch"
-     :buffer (generate-new-buffer " *weather-temp*")
-     :command (list "sh" "-c" cmd)
-     :sentinel
-     (lambda (proc _event)
-       (when (eq (process-status proc) 'exit)
-         (let ((output (with-current-buffer (process-buffer proc)
-                         (buffer-string))))
-           (kill-buffer (process-buffer proc))
-           (setq output
-                 (seq-reduce
-                  (lambda (s rule) (replace-regexp-in-string (car rule) (cdr rule) s))
-                  '(("[\u2800-\u28FF]" . "*")
-                    ("―" . "-")
-                    (".*NEW.*" . " ")
-                    (".*Follow.*" . " ")
-                    ("[\x0f]" . ""))
-                  output))
-           (with-current-buffer buffer
-             (read-only-mode -1)
-             (when second (insert "\n\n"))
-             (insert output)
-             (ansi-color-apply-on-region (point-min) (point-max))
-             (goto-char (point-min))
-             (read-only-mode 1))))))))
+	(make-process
+	 :name "weather-fetch"
+	 :buffer (generate-new-buffer " *weather-temp*")
+	 :command (list "sh" "-c" cmd)
+	 :sentinel
+	 (lambda (proc _event)
+	   (when (eq (process-status proc) 'exit)
+		 (let ((output (with-current-buffer (process-buffer proc)
+						 (buffer-string))))
+		   (kill-buffer (process-buffer proc))
+		   (setq output
+				 (seq-reduce
+				  (lambda (s rule) (replace-regexp-in-string (car rule) (cdr rule) s))
+				  '(("[\u2800-\u28FF]" . "*")
+					("―" . "-")
+					(".*NEW.*" . " ")
+					(".*Follow.*" . " ")
+					("[\x0f]" . ""))
+				  output))
+		   (with-current-buffer buffer
+			 (read-only-mode -1)
+			 (when second (insert "\n\n"))
+			 (insert output)
+			 (ansi-color-apply-on-region (point-min) (point-max))
+			 (goto-char (point-min))
+			 (read-only-mode 1))))))))
 
 
 ;;; │ EMACS-SOLO-RATE
@@ -4784,62 +4817,62 @@ WHICH may be:
   nil   → fetch both"
   (interactive)
   (let* ((crypto (shell-quote-argument emacs-solo-rate-crypto))
-         (fiat   (shell-quote-argument emacs-solo-rate-fiat))
-         (buffer (get-buffer-create
-                  (format "*Rate-%s*"
-                          (format-time-string "%Y-%m-%dT%H:%M:%S"))))
-         (url1   (format "curl -s '%s.rate.sx/%s'" fiat crypto))
-         (url2   (format "curl -s '%s.rate.sx/'"   fiat)))
-    (with-current-buffer buffer
-      (read-only-mode -1)
-      (erase-buffer)
-      (read-only-mode 1))
-    (switch-to-buffer buffer)
+		 (fiat   (shell-quote-argument emacs-solo-rate-fiat))
+		 (buffer (get-buffer-create
+				  (format "*Rate-%s*"
+						  (format-time-string "%Y-%m-%dT%H:%M:%S"))))
+		 (url1   (format "curl -s '%s.rate.sx/%s'" fiat crypto))
+		 (url2   (format "curl -s '%s.rate.sx/'"   fiat)))
+	(with-current-buffer buffer
+	  (read-only-mode -1)
+	  (erase-buffer)
+	  (read-only-mode 1))
+	(switch-to-buffer buffer)
 
-    (pcase which
-      ('url1
-       (emacs-solo--fetch-rate url1 buffer))
-      ('url2
-       (emacs-solo--fetch-rate url2 buffer t))
-      (_
-       (emacs-solo--fetch-rate url1 buffer)
-       (emacs-solo--fetch-rate url2 buffer t)))))
+	(pcase which
+	  ('url1
+	   (emacs-solo--fetch-rate url1 buffer))
+	  ('url2
+	   (emacs-solo--fetch-rate url2 buffer t))
+	  (_
+	   (emacs-solo--fetch-rate url1 buffer)
+	   (emacs-solo--fetch-rate url2 buffer t)))))
 
   (defun emacs-solo--fetch-rate (cmd buffer &optional second)
-    "Run CMD asynchronously and insert results into BUFFER.
+	"Run CMD asynchronously and insert results into BUFFER.
 If SECOND is non-nil, separate the results with a newline."
-    (make-process
-     :name "rate-fetch"
-     :buffer (generate-new-buffer " *rate-temp*")
-     :command (list "sh" "-c" cmd)
-     :sentinel
-     (lambda (proc _event)
-       (when (eq (process-status proc) 'exit)
-         (let ((output (with-current-buffer (process-buffer proc)
-                         (buffer-string))))
-           (kill-buffer (process-buffer proc))
-           (setq output
-                 (seq-reduce
-                  (lambda (s rule) (replace-regexp-in-string (car rule) (cdr rule) s))
-                  '(("[\u2800-\u28FF]" . "*")
-                    ("―" . "-")
-                    ("^Use.*" . " ")
-                    (".*NEW.*" . " ")
-                    (".*Follow.*" . " ")
-                    ("[\x0f]" . ""))
-                  output))
-           (when second
-             (setq output
-                   (string-join
-                    (nthcdr 5 (split-string output "\n"))
-                    "\n")))
-           (with-current-buffer buffer
-             (read-only-mode -1)
-             (when second (insert "\n\n"))
-             (insert output)
-             (ansi-color-apply-on-region (point-min) (point-max))
-             (goto-char (point-min))
-             (read-only-mode 1))))))))
+	(make-process
+	 :name "rate-fetch"
+	 :buffer (generate-new-buffer " *rate-temp*")
+	 :command (list "sh" "-c" cmd)
+	 :sentinel
+	 (lambda (proc _event)
+	   (when (eq (process-status proc) 'exit)
+		 (let ((output (with-current-buffer (process-buffer proc)
+						 (buffer-string))))
+		   (kill-buffer (process-buffer proc))
+		   (setq output
+				 (seq-reduce
+				  (lambda (s rule) (replace-regexp-in-string (car rule) (cdr rule) s))
+				  '(("[\u2800-\u28FF]" . "*")
+					("―" . "-")
+					("^Use.*" . " ")
+					(".*NEW.*" . " ")
+					(".*Follow.*" . " ")
+					("[\x0f]" . ""))
+				  output))
+		   (when second
+			 (setq output
+				   (string-join
+					(nthcdr 5 (split-string output "\n"))
+					"\n")))
+		   (with-current-buffer buffer
+			 (read-only-mode -1)
+			 (when second (insert "\n\n"))
+			 (insert output)
+			 (ansi-color-apply-on-region (point-min) (point-max))
+			 (goto-char (point-min))
+			 (read-only-mode 1))))))))
 
 
 ;;; │ EMACS-SOLO-HOW-IN
@@ -4850,41 +4883,41 @@ If SECOND is non-nil, separate the results with a newline."
   :defer t
   :init
   (defun emacs-solo/how-in ()
-    "Open a new Emacs buffer and asynchronously fetch cheat.sh data."
-    (interactive)
-    (let* (
-           (program (read-string "How in (program name): " nil nil nil))
-           (prompt  (read-string (concat "How in " program " would I: ") nil nil nil))
-           (encoded-prompt (url-hexify-string prompt))
-           (buffer (get-buffer-create "*HowIn*"))
-           (url (format "curl -s 'cheat.sh/%s/%s'" program encoded-prompt)))
-      (with-current-buffer buffer
-        (read-only-mode -1)
-        (erase-buffer)
-        (insert (concat "Answering: How in " program " would I " prompt "\n"))
-        (read-only-mode 1))
-      (switch-to-buffer buffer)
-      (emacs-solo--fetch-how-in url buffer)))
+	"Open a new Emacs buffer and asynchronously fetch cheat.sh data."
+	(interactive)
+	(let* (
+		   (program (read-string "How in (program name): " nil nil nil))
+		   (prompt  (read-string (concat "How in " program " would I: ") nil nil nil))
+		   (encoded-prompt (url-hexify-string prompt))
+		   (buffer (get-buffer-create "*HowIn*"))
+		   (url (format "curl -s 'cheat.sh/%s/%s'" program encoded-prompt)))
+	  (with-current-buffer buffer
+		(read-only-mode -1)
+		(erase-buffer)
+		(insert (concat "Answering: How in " program " would I " prompt "\n"))
+		(read-only-mode 1))
+	  (switch-to-buffer buffer)
+	  (emacs-solo--fetch-how-in url buffer)))
 
   (defun emacs-solo--fetch-how-in (cmd buffer &optional)
-    "Run CMD asynchronously and insert results into BUFFER."
-    (make-process
-     :name "how-in-fetch"
-     :buffer (generate-new-buffer "*how-in-temp*")
-     :command (list "sh" "-c" cmd)
-     :sentinel
-     (lambda (proc _event)
-       (when (eq (process-status proc) 'exit)
-         (let ((output (with-current-buffer (process-buffer proc)
-                         (buffer-string))))
-           (kill-buffer (process-buffer proc))
+	"Run CMD asynchronously and insert results into BUFFER."
+	(make-process
+	 :name "how-in-fetch"
+	 :buffer (generate-new-buffer "*how-in-temp*")
+	 :command (list "sh" "-c" cmd)
+	 :sentinel
+	 (lambda (proc _event)
+	   (when (eq (process-status proc) 'exit)
+		 (let ((output (with-current-buffer (process-buffer proc)
+						 (buffer-string))))
+		   (kill-buffer (process-buffer proc))
 
-           (with-current-buffer buffer
-             (read-only-mode -1)
-             (insert output)
-             (ansi-color-apply-on-region (point-min) (point-max))
-             (goto-char (point-min))
-             (read-only-mode 1))))))))
+		   (with-current-buffer buffer
+			 (read-only-mode -1)
+			 (insert output)
+			 (ansi-color-apply-on-region (point-min) (point-max))
+			 (goto-char (point-min))
+			 (read-only-mode 1))))))))
 
 
 ;;; │ EMACS-SOLO-AI
@@ -4895,29 +4928,29 @@ If SECOND is non-nil, separate the results with a newline."
   :defer t
   :init
   (defun emacs-solo/ollama-run-model ()
-    "Run `ollama list`, let the user choose a model, and open it in `ansi-term`.
+	"Run `ollama list`, let the user choose a model, and open it in `ansi-term`.
 If a region is selected, use it as a query. If a prompt is provided, it's prepended."
-    (interactive)
-    (let* ((output (shell-command-to-string "ollama list"))
-           (models (mapcar (lambda (line) (car (split-string line)))
-                           (cdr (split-string output "\n" t))))
-           (selected (completing-read "Select Ollama model: " models nil t))
-           (region-text (when (use-region-p)
-                          (buffer-substring-no-properties (region-beginning)
-                                                          (region-end))))
-           (prompt (read-string "Ollama Prompt (optional): " nil nil nil)))
-      (when (and selected (not (string-empty-p selected)))
-        (ansi-term "/bin/sh")
-        (sit-for 1)
-        (let* ((body (string-join (delq nil (list prompt region-text)) "\n"))
-               (escaped-body (replace-regexp-in-string "\"" "\\\\\"" body))
-               (command (format "printf \"%s\" | ollama run %s" escaped-body selected)))
-          (term-send-raw-string command)
-          (term-send-raw-string "\n")))))
+	(interactive)
+	(let* ((output (shell-command-to-string "ollama list"))
+		   (models (mapcar (lambda (line) (car (split-string line)))
+						   (cdr (split-string output "\n" t))))
+		   (selected (completing-read "Select Ollama model: " models nil t))
+		   (region-text (when (use-region-p)
+						  (buffer-substring-no-properties (region-beginning)
+														  (region-end))))
+		   (prompt (read-string "Ollama Prompt (optional): " nil nil nil)))
+	  (when (and selected (not (string-empty-p selected)))
+		(ansi-term "/bin/sh")
+		(sit-for 1)
+		(let* ((body (string-join (delq nil (list prompt region-text)) "\n"))
+			   (escaped-body (replace-regexp-in-string "\"" "\\\\\"" body))
+			   (command (format "printf \"%s\" | ollama run %s" escaped-body selected)))
+		  (term-send-raw-string command)
+		  (term-send-raw-string "\n")))))
 
 
   (defun emacs-solo/gemini-run-model (&optional interactive)
-    "Run the `gemini` CLI with optional prompt and/or selected region.
+	"Run the `gemini` CLI with optional prompt and/or selected region.
 
 If INTERACTIVE (prefix arg), start `gemini -i` inside `ansi-term`
 and preload the query from a temp file inside the project root.
@@ -4927,39 +4960,39 @@ the *gemini* buffer.
 
 If `emacs-solo--gemini-scratch-path` is non-nil, temporarily `cd`
 into that directory before executing the Gemini command."
-    (interactive "P")
-    (let* ((default-directory (or emacs-solo-gemini-scratch-path default-directory))
-           (region (when (use-region-p)
-                     (buffer-substring-no-properties (region-beginning) (region-end))))
-           (prompt (read-string "Gemini Prompt (optional): " nil nil nil))
-           (body (string-join (delq nil (list prompt region)) "\n")))
-      (if interactive
-          ;; Interactive: temp file inside project root (or scratch dir)
-          (let* ((proj-root (or (vc-root-dir) default-directory))
-                 (tmpfile (expand-file-name
-                           (format ".gemini-query-%s.txt" (format-time-string "%s"))
-                           proj-root))
-                 (relpath (file-relative-name tmpfile proj-root)))
-            (with-temp-file tmpfile (insert body))
-            (ansi-term "/bin/bash")
-            (sit-for 0.1)
-            ;; must be relative to project root for Gemini to accept it
-            (term-send-raw-string (format "cd %s && gemini -i @%s\n"
-                                          (shell-quote-argument proj-root)
-                                          relpath))
-            ;; delete temp file after 10 seconds
-            (run-at-time "10 sec" nil
-                         (lambda (f)
-                           (when (file-exists-p f)
-                             (delete-file f)))
-                         tmpfile))
-        ;; Non-interactive
-        (let ((buf (get-buffer-create "*gemini*")))
-          (with-current-buffer buf (erase-buffer))
-          (start-process "gemini" buf "gemini" "-p" body)
-          (pop-to-buffer buf)
-          (visual-line-mode)
-          (markdown-ts-mode))))))
+	(interactive "P")
+	(let* ((default-directory (or emacs-solo-gemini-scratch-path default-directory))
+		   (region (when (use-region-p)
+					 (buffer-substring-no-properties (region-beginning) (region-end))))
+		   (prompt (read-string "Gemini Prompt (optional): " nil nil nil))
+		   (body (string-join (delq nil (list prompt region)) "\n")))
+	  (if interactive
+		  ;; Interactive: temp file inside project root (or scratch dir)
+		  (let* ((proj-root (or (vc-root-dir) default-directory))
+				 (tmpfile (expand-file-name
+						   (format ".gemini-query-%s.txt" (format-time-string "%s"))
+						   proj-root))
+				 (relpath (file-relative-name tmpfile proj-root)))
+			(with-temp-file tmpfile (insert body))
+			(ansi-term "/bin/bash")
+			(sit-for 0.1)
+			;; must be relative to project root for Gemini to accept it
+			(term-send-raw-string (format "cd %s && gemini -i @%s\n"
+										  (shell-quote-argument proj-root)
+										  relpath))
+			;; delete temp file after 10 seconds
+			(run-at-time "10 sec" nil
+						 (lambda (f)
+						   (when (file-exists-p f)
+							 (delete-file f)))
+						 tmpfile))
+		;; Non-interactive
+		(let ((buf (get-buffer-create "*gemini*")))
+		  (with-current-buffer buf (erase-buffer))
+		  (start-process "gemini" buf "gemini" "-p" body)
+		  (pop-to-buffer buf)
+		  (visual-line-mode)
+		  (markdown-ts-mode))))))
 
 
 ;;; │ EMACS-SOLO-DIRED-GUTTER
@@ -4973,74 +5006,74 @@ into that directory before executing the Gemini command."
   (setq emacs-solo-dired-gutter-enabled t)
 
   (defvar emacs-solo/dired-git-status-overlays nil
-    "List of active overlays in Dired for Git status.")
+	"List of active overlays in Dired for Git status.")
 
   (defun emacs-solo/dired--git-status-face (code)
-    "Return a cons cell (STATUS . FACE) for a given Git porcelain CODE."
-    (let* ((git-status-untracked "??")
-           (git-status-modified " M")
-           (git-status-modified-alt "M ")
-           (git-status-deleted "D ")
-           (git-status-added "A ")
-           (git-status-renamed "R ")
-           (git-status-copied "C ")
-           (git-status-ignored "!!")
-           (status (cond
-                    ((string-match-p "\\?\\?" code) git-status-untracked)
-                    ((string-match-p "^ M" code) git-status-modified)
-                    ((string-match-p "^M " code) git-status-modified-alt)
-                    ((string-match-p "^D" code) git-status-deleted)
-                    ((string-match-p "^A" code) git-status-added)
-                    ((string-match-p "^R" code) git-status-renamed)
-                    ((string-match-p "^C" code) git-status-copied)
-                    ((string-match-p "\\!\\!" code) git-status-ignored)
-                    (t "  ")))
-           (face (cond
-                  ((string= status git-status-ignored) 'shadow)
-                  ((string= status git-status-untracked) 'warning)
-                  ((string= status git-status-modified) 'font-lock-function-name-face)
-                  ((string= status git-status-modified-alt) 'font-lock-function-name-face)
-                  ((string= status git-status-deleted) 'error)
-                  ((string= status git-status-added) 'success)
-                  (t 'font-lock-keyword-face))))
-      (cons status face)))
+	"Return a cons cell (STATUS . FACE) for a given Git porcelain CODE."
+	(let* ((git-status-untracked "??")
+		   (git-status-modified " M")
+		   (git-status-modified-alt "M ")
+		   (git-status-deleted "D ")
+		   (git-status-added "A ")
+		   (git-status-renamed "R ")
+		   (git-status-copied "C ")
+		   (git-status-ignored "!!")
+		   (status (cond
+					((string-match-p "\\?\\?" code) git-status-untracked)
+					((string-match-p "^ M" code) git-status-modified)
+					((string-match-p "^M " code) git-status-modified-alt)
+					((string-match-p "^D" code) git-status-deleted)
+					((string-match-p "^A" code) git-status-added)
+					((string-match-p "^R" code) git-status-renamed)
+					((string-match-p "^C" code) git-status-copied)
+					((string-match-p "\\!\\!" code) git-status-ignored)
+					(t "  ")))
+		   (face (cond
+				  ((string= status git-status-ignored) 'shadow)
+				  ((string= status git-status-untracked) 'warning)
+				  ((string= status git-status-modified) 'font-lock-function-name-face)
+				  ((string= status git-status-modified-alt) 'font-lock-function-name-face)
+				  ((string= status git-status-deleted) 'error)
+				  ((string= status git-status-added) 'success)
+				  (t 'font-lock-keyword-face))))
+	  (cons status face)))
 
   (defun emacs-solo/dired-git-status-overlay ()
-    "Overlay Git status indicators on the first column in Dired."
-    (interactive)
-    (require 'vc-git)
-    (let ((git-root (ignore-errors (vc-git-root default-directory))))
-      (when (and git-root
-                 (not (file-remote-p default-directory))
-                 emacs-solo-dired-gutter-enabled)
-        (setq git-root (expand-file-name git-root))
-        (let* ((git-status (vc-git--run-command-string nil "status" "--porcelain" "--ignored" "--untracked-files=normal"))
-               (status-map (make-hash-table :test 'equal)))
-          (mapc #'delete-overlay emacs-solo/dired-git-status-overlays)
-          (setq emacs-solo/dired-git-status-overlays nil)
+	"Overlay Git status indicators on the first column in Dired."
+	(interactive)
+	(require 'vc-git)
+	(let ((git-root (ignore-errors (vc-git-root default-directory))))
+	  (when (and git-root
+				 (not (file-remote-p default-directory))
+				 emacs-solo-dired-gutter-enabled)
+		(setq git-root (expand-file-name git-root))
+		(let* ((git-status (vc-git--run-command-string nil "status" "--porcelain" "--ignored" "--untracked-files=normal"))
+			   (status-map (make-hash-table :test 'equal)))
+		  (mapc #'delete-overlay emacs-solo/dired-git-status-overlays)
+		  (setq emacs-solo/dired-git-status-overlays nil)
 
-          (dolist (line (split-string git-status "\n" t))
-            (when (string-match "^\\(..\\) \\(.+\\)$" line)
-              (let* ((code (match-string 1 line))
-                     (file (match-string 2 line))
-                     (fullpath (expand-file-name file git-root))
-                     (status-face (emacs-solo/dired--git-status-face code)))
-                (puthash fullpath status-face status-map))))
+		  (dolist (line (split-string git-status "\n" t))
+			(when (string-match "^\\(..\\) \\(.+\\)$" line)
+			  (let* ((code (match-string 1 line))
+					 (file (match-string 2 line))
+					 (fullpath (expand-file-name file git-root))
+					 (status-face (emacs-solo/dired--git-status-face code)))
+				(puthash fullpath status-face status-map))))
 
-          (save-excursion
-            (goto-char (point-min))
-            (while (not (eobp))
-              (let* ((file (ignore-errors (expand-file-name (dired-get-filename nil t)))))
-                (when file
-                  (setq file (if (file-directory-p file) (concat file "/") file))
-                  (let* ((status-face (gethash file status-map (cons "  " 'font-lock-keyword-face)))
-                         (status (car status-face))
-                         (face (cdr status-face))
-                         (status-str (propertize (format " %s " status) 'face face))
-                         (ov (make-overlay (line-beginning-position) (1+ (line-beginning-position)))))
-                    (overlay-put ov 'before-string status-str)
-                    (push ov emacs-solo/dired-git-status-overlays))))
-              (forward-line 1)))))))
+		  (save-excursion
+			(goto-char (point-min))
+			(while (not (eobp))
+			  (let* ((file (ignore-errors (expand-file-name (dired-get-filename nil t)))))
+				(when file
+				  (setq file (if (file-directory-p file) (concat file "/") file))
+				  (let* ((status-face (gethash file status-map (cons "  " 'font-lock-keyword-face)))
+						 (status (car status-face))
+						 (face (cdr status-face))
+						 (status-str (propertize (format " %s " status) 'face face))
+						 (ov (make-overlay (line-beginning-position) (1+ (line-beginning-position)))))
+					(overlay-put ov 'before-string status-str)
+					(push ov emacs-solo/dired-git-status-overlays))))
+			  (forward-line 1)))))))
 
   (add-hook 'dired-after-readin-hook #'emacs-solo/dired-git-status-overlay))
 
@@ -5056,75 +5089,75 @@ into that directory before executing the Gemini command."
   :defer t
   :init
   (let ((emoji-icons
-         '(("el" . "📜")       ("rb" . "💎")       ("js" . "⚙️")      ("ts" . "⚙️")
-           ("json" . "🗂️")     ("md" . "📝")       ("txt" . "📝")     ("html" . "🌐")
-           ("css" . "🎨")      ("scss" . "🎨")     ("png" . "🖼️")     ("jpg" . "🖼️")
-           ("jpeg" . "🖼️")     ("gif" . "🖼️")      ("svg" . "🖼️")     ("pdf" . "📄")
-           ("zip" . "📦")      ("tar" . "📦")      ("gz" . "📦")      ("bz2" . "📦")
-           ("7z" . "📦")       ("org" . "🦄")      ("sh" . "💻")      ("c" . "🅲")
-           ("h" . "📘")        ("cpp" . "🅲")      ("hpp" . "📘")     ("py" . "🐍")
-           ("java" . "☕")    ("go" . "🌍")       ("rs" . "💨")      ("php" . "🐘")
-           ("pl" . "🐍")       ("lua" . "🎮")      ("ps1" . "🔧")     ("exe" . "⚡")
-           ("dll" . "🔌")      ("bat" . "⚡")     ("yaml" . "⚙️")    ("toml" . "⚙️")
-           ("ini" . "⚙️")      ("csv" . "📊")      ("xls" . "📊")     ("xlsx" . "📊")
-           ("sql" . "🗄️")      ("log" . "📝")      ("apk" . "📱")     ("dmg" . "💻")
-           ("iso" . "💿")      ("torrent" . "🧲")  ("bak" . "🗃️")     ("tmp" . "⚠️")
-           ("desktop" . "🖥️")  ("md5" . "🔐")      ("sha256" . "🔐")  ("pem" . "🔐")
-           ("sqlite" . "🗄️")   ("db" . "🗄️")       ("gpg" . "🔐")     ("hash" . "#️⃣")
-           ("mp3" . "🎶")      ("wav" . "🎶")      ("flac" . "🎶" )  ("mail" . "📧")
-           ("ogg" . "🎶")      ("m4a" . "🎶")      ("mp4" . "🎬")     ("avi" . "🎬")
-           ("mov" . "🎬")      ("mkv" . "🎬")      ("webm" . "🎬")    ("flv" . "🎬")
-           ("ico" . "🖼️")      ("ttf" . "🔠")      ("otf" . "🔠")     ("eot" . "🔠")
-           ("woff" . "🔠")     ("woff2" . "🔠")    ("epub" . "📚")    ("mobi" . "📚")
-           ("azw3" . "📚")     ("fb2" . "📚")      ("chm" . "📚")     ("tex" . "📚")
-           ("bib" . "📚")      ("apk" . "📱")      ("rar" . "📦")     ("xz" . "📦")
-           ("zst" . "📦")      ("tar.xz" . "📦")   ("tar.zst" . "📦") ("tar.gz" . "📦")
-           ("tgz" . "📦")      ("bz2" . "📦")      ("mpg" . "🎬")     ("webp" . "🖼️")
-           ("flv" . "🎬")      ("3gp" . "🎬")      ("ogv" . "🎬")     ("srt" . "🔠")
-           ("vtt" . "🔠")      ("cue" . "📀")      ("terminal" . "💻") ("info" . "ℹ️")
-           ("direddir" . "📁") ("diredfile" . "📄") ("wranch" . "🔧") ("news" . "📰")))
-        (nerd-icons
-         '(("el" . "")       ("rb" . "")       ("js" . "")      ("ts" . "")
-           ("json" . "")     ("md" . "")       ("txt" . "")     ("html" . "")
-           ("css" . "")      ("scss" . "")     ("png" . "")     ("jpg" . "")
-           ("jpeg" . "")     ("gif" . "")      ("svg" . "")     ("pdf" . "")
-           ("zip" . "")      ("tar" . "")      ("gz" . "")      ("bz2" . "")
-           ("7z" . "")       ("org" . "")      ("sh" . "")      ("c" . "")
-           ("h" . "")        ("cpp" . "")      ("hpp" . "")     ("py" . "")
-           ("java" . "")    ("go" . "")       ("rs" . "")      ("php" . "")
-           ("pl" . "")       ("lua" . "")      ("ps1" . "")     ("exe" . "")
-           ("dll" . "")      ("bat" . "")     ("yaml" . "")    ("toml" . "")
-           ("ini" . "")      ("csv" . "")      ("xls" . "")     ("xlsx" . "")
-           ("sql" . "")      ("log" . "")      ("apk" . "")     ("dmg" . "")
-           ("iso" . "")      ("torrent" . "")  ("bak" . "")     ("tmp" . "")
-           ("desktop" . "")  ("md5" . "")      ("sha256" . "")  ("pem" . "")
-           ("sqlite" . "")   ("db" . "")       ("gpg" . "")     ("hash" . "")
-           ("mp3" . "")      ("wav" . "")      ("flac" . "" )   ("mail" . "")
-           ("ogg" . "")      ("m4a" . "")      ("mp4" . "")     ("avi" . "")
-           ("mov" . "")      ("mkv" . "")      ("webm" . "")    ("flv" . "")
-           ("ico" . "")      ("ttf" . "")      ("otf" . "")     ("eot" . "")
-           ("woff" . "")     ("woff2" . "")    ("epub" . "")    ("mobi" . "")
-           ("azw3" . "")     ("fb2" . "")      ("chm" . "")     ("tex" . "")
-           ("bib" . "")      ("rar" . "")     ("xz" . "")
-           ("zst" . "")      ("tar.xz" . "")   ("tar.zst" . "") ("tar.gz" . "")
-           ("tgz" . "")      ("bz2" . "")      ("mpg" . "")     ("webp" . "")
-           ("flv" . "")      ("3gp" . "")      ("ogv" . "")     ("srt" . "")
-           ("vtt" . "")      ("cue" . "")      ("terminal" . "") ("info" . "ℹ")
-           ("direddir" . "") ("diredfile" . "") ("wranch" . "") ("news" . ""))))
+		 '(("el" . "📜")       ("rb" . "💎")       ("js" . "⚙️")      ("ts" . "⚙️")
+		   ("json" . "🗂️")     ("md" . "📝")       ("txt" . "📝")     ("html" . "🌐")
+		   ("css" . "🎨")      ("scss" . "🎨")     ("png" . "🖼️")     ("jpg" . "🖼️")
+		   ("jpeg" . "🖼️")     ("gif" . "🖼️")      ("svg" . "🖼️")     ("pdf" . "📄")
+		   ("zip" . "📦")      ("tar" . "📦")      ("gz" . "📦")      ("bz2" . "📦")
+		   ("7z" . "📦")       ("org" . "🦄")      ("sh" . "💻")      ("c" . "🅲")
+		   ("h" . "📘")        ("cpp" . "🅲")      ("hpp" . "📘")     ("py" . "🐍")
+		   ("java" . "☕")    ("go" . "🌍")       ("rs" . "💨")      ("php" . "🐘")
+		   ("pl" . "🐍")       ("lua" . "🎮")      ("ps1" . "🔧")     ("exe" . "⚡")
+		   ("dll" . "🔌")      ("bat" . "⚡")     ("yaml" . "⚙️")    ("toml" . "⚙️")
+		   ("ini" . "⚙️")      ("csv" . "📊")      ("xls" . "📊")     ("xlsx" . "📊")
+		   ("sql" . "🗄️")      ("log" . "📝")      ("apk" . "📱")     ("dmg" . "💻")
+		   ("iso" . "💿")      ("torrent" . "🧲")  ("bak" . "🗃️")     ("tmp" . "⚠️")
+		   ("desktop" . "🖥️")  ("md5" . "🔐")      ("sha256" . "🔐")  ("pem" . "🔐")
+		   ("sqlite" . "🗄️")   ("db" . "🗄️")       ("gpg" . "🔐")     ("hash" . "#️⃣")
+		   ("mp3" . "🎶")      ("wav" . "🎶")      ("flac" . "🎶" )  ("mail" . "📧")
+		   ("ogg" . "🎶")      ("m4a" . "🎶")      ("mp4" . "🎬")     ("avi" . "🎬")
+		   ("mov" . "🎬")      ("mkv" . "🎬")      ("webm" . "🎬")    ("flv" . "🎬")
+		   ("ico" . "🖼️")      ("ttf" . "🔠")      ("otf" . "🔠")     ("eot" . "🔠")
+		   ("woff" . "🔠")     ("woff2" . "🔠")    ("epub" . "📚")    ("mobi" . "📚")
+		   ("azw3" . "📚")     ("fb2" . "📚")      ("chm" . "📚")     ("tex" . "📚")
+		   ("bib" . "📚")      ("apk" . "📱")      ("rar" . "📦")     ("xz" . "📦")
+		   ("zst" . "📦")      ("tar.xz" . "📦")   ("tar.zst" . "📦") ("tar.gz" . "📦")
+		   ("tgz" . "📦")      ("bz2" . "📦")      ("mpg" . "🎬")     ("webp" . "🖼️")
+		   ("flv" . "🎬")      ("3gp" . "🎬")      ("ogv" . "🎬")     ("srt" . "🔠")
+		   ("vtt" . "🔠")      ("cue" . "📀")      ("terminal" . "💻") ("info" . "ℹ️")
+		   ("direddir" . "📁") ("diredfile" . "📄") ("wranch" . "🔧") ("news" . "📰")))
+		(nerd-icons
+		 '(("el" . "")       ("rb" . "")       ("js" . "")      ("ts" . "")
+		   ("json" . "")     ("md" . "")       ("txt" . "")     ("html" . "")
+		   ("css" . "")      ("scss" . "")     ("png" . "")     ("jpg" . "")
+		   ("jpeg" . "")     ("gif" . "")      ("svg" . "")     ("pdf" . "")
+		   ("zip" . "")      ("tar" . "")      ("gz" . "")      ("bz2" . "")
+		   ("7z" . "")       ("org" . "")      ("sh" . "")      ("c" . "")
+		   ("h" . "")        ("cpp" . "")      ("hpp" . "")     ("py" . "")
+		   ("java" . "")    ("go" . "")       ("rs" . "")      ("php" . "")
+		   ("pl" . "")       ("lua" . "")      ("ps1" . "")     ("exe" . "")
+		   ("dll" . "")      ("bat" . "")     ("yaml" . "")    ("toml" . "")
+		   ("ini" . "")      ("csv" . "")      ("xls" . "")     ("xlsx" . "")
+		   ("sql" . "")      ("log" . "")      ("apk" . "")     ("dmg" . "")
+		   ("iso" . "")      ("torrent" . "")  ("bak" . "")     ("tmp" . "")
+		   ("desktop" . "")  ("md5" . "")      ("sha256" . "")  ("pem" . "")
+		   ("sqlite" . "")   ("db" . "")       ("gpg" . "")     ("hash" . "")
+		   ("mp3" . "")      ("wav" . "")      ("flac" . "" )   ("mail" . "")
+		   ("ogg" . "")      ("m4a" . "")      ("mp4" . "")     ("avi" . "")
+		   ("mov" . "")      ("mkv" . "")      ("webm" . "")    ("flv" . "")
+		   ("ico" . "")      ("ttf" . "")      ("otf" . "")     ("eot" . "")
+		   ("woff" . "")     ("woff2" . "")    ("epub" . "")    ("mobi" . "")
+		   ("azw3" . "")     ("fb2" . "")      ("chm" . "")     ("tex" . "")
+		   ("bib" . "")      ("rar" . "")     ("xz" . "")
+		   ("zst" . "")      ("tar.xz" . "")   ("tar.zst" . "") ("tar.gz" . "")
+		   ("tgz" . "")      ("bz2" . "")      ("mpg" . "")     ("webp" . "")
+		   ("flv" . "")      ("3gp" . "")      ("ogv" . "")     ("srt" . "")
+		   ("vtt" . "")      ("cue" . "")      ("terminal" . "") ("info" . "ℹ")
+		   ("direddir" . "") ("diredfile" . "") ("wranch" . "") ("news" . ""))))
 
-    (defvar emacs-solo/file-icons
-      (cond
-       ;; If nerd icons are enabled, use them.
-       ((memq 'nerd emacs-solo-enabled-icons)
-        nerd-icons)
-       ;; If on kitty terminal AND not using nerd icons, use blank icons
-       ;; to prevent emoji rendering issues.
-       ((string= (getenv "TERM") "xterm-kitty")
-        (mapcar (lambda (p) (cons (car p) "")) emoji-icons))
-       ;; Otherwise, use the default emoji icons.
-       (t
-        emoji-icons))
-      "Icons for specific file extensions in Dired and Eshell.")))
+	(defvar emacs-solo/file-icons
+	  (cond
+	   ;; If nerd icons are enabled, use them.
+	   ((memq 'nerd emacs-solo-enabled-icons)
+		nerd-icons)
+	   ;; If on kitty terminal AND not using nerd icons, use blank icons
+	   ;; to prevent emoji rendering issues.
+	   ((string= (getenv "TERM") "xterm-kitty")
+		(mapcar (lambda (p) (cons (car p) "")) emoji-icons))
+	   ;; Otherwise, use the default emoji icons.
+	   (t
+		emoji-icons))
+	  "Icons for specific file extensions in Dired and Eshell.")))
 
 
 ;;; │ EMACS-SOLO-DIRED-ICONS
@@ -5136,50 +5169,50 @@ into that directory before executing the Gemini command."
   :defer t
   :init
   (defun emacs-solo/dired-icons-icon-for-file (file)
-    (if (file-directory-p file)
-        (assoc-default "direddir" emacs-solo/file-icons)
-      (let* ((ext (file-name-extension file))
-             (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
-        (or icon (assoc-default "diredfile" emacs-solo/file-icons)))))
+	(if (file-directory-p file)
+		(assoc-default "direddir" emacs-solo/file-icons)
+	  (let* ((ext (file-name-extension file))
+			 (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
+		(or icon (assoc-default "diredfile" emacs-solo/file-icons)))))
 
   (defun emacs-solo/dired-icons-icons-regexp ()
-    "Return a regexp that matches any icon we use."
-    (let ((icons (mapcar #'cdr emacs-solo/file-icons)))
-      (concat "^\\(" (regexp-opt (cons "📁" icons)) "\\) ")))
+	"Return a regexp that matches any icon we use."
+	(let ((icons (mapcar #'cdr emacs-solo/file-icons)))
+	  (concat "^\\(" (regexp-opt (cons "📁" icons)) "\\) ")))
 
   (defun emacs-solo/dired-icons-add-icons ()
-    "Add icons and suffixes as overlays to filenames in Dired buffer."
-    (when (derived-mode-p 'dired-mode)
-      (let ((inhibit-read-only t)
-            (icon-regex (emacs-solo/dired-icons-icons-regexp)))
-        (remove-overlays (point-min) (point-max) 'emacs-solo-dired-icon-overlay t)
+	"Add icons and suffixes as overlays to filenames in Dired buffer."
+	(when (derived-mode-p 'dired-mode)
+	  (let ((inhibit-read-only t)
+			(icon-regex (emacs-solo/dired-icons-icons-regexp)))
+		(remove-overlays (point-min) (point-max) 'emacs-solo-dired-icon-overlay t)
 
-        (save-excursion
-          (goto-char (point-min))
-          (while (not (eobp))
-            (condition-case nil
-                (when-let* ((file (dired-get-filename nil t)))
-                  (dired-move-to-filename)
-                  (let* ((beg (point))
-                         (end (line-end-position))
-                         (icon (emacs-solo/dired-icons-icon-for-file file))
-                         (suffix
-                          (cond
-                           ((file-directory-p file)
-                            (propertize "/" 'face 'dired-directory))
-                           ((file-executable-p file)
-                            (propertize "*" 'face '(:foreground "#79a8ff")))
-                           (t ""))))
-                    ;; Add icon before filename
-                    (let ((ov1 (make-overlay beg beg)))
-                      (overlay-put ov1 'before-string (concat icon " "))
-                      (overlay-put ov1 'emacs-solo-dired-icon-overlay t))
-                    ;; Add styled suffix after filename
-                    (let ((ov2 (make-overlay end end)))
-                      (overlay-put ov2 'after-string suffix)
-                      (overlay-put ov2 'emacs-solo-dired-icon-overlay t))))
-              (error nil))
-            (forward-line 1))))))
+		(save-excursion
+		  (goto-char (point-min))
+		  (while (not (eobp))
+			(condition-case nil
+				(when-let* ((file (dired-get-filename nil t)))
+				  (dired-move-to-filename)
+				  (let* ((beg (point))
+						 (end (line-end-position))
+						 (icon (emacs-solo/dired-icons-icon-for-file file))
+						 (suffix
+						  (cond
+						   ((file-directory-p file)
+							(propertize "/" 'face 'dired-directory))
+						   ((file-executable-p file)
+							(propertize "*" 'face '(:foreground "#79a8ff")))
+						   (t ""))))
+					;; Add icon before filename
+					(let ((ov1 (make-overlay beg beg)))
+					  (overlay-put ov1 'before-string (concat icon " "))
+					  (overlay-put ov1 'emacs-solo-dired-icon-overlay t))
+					;; Add styled suffix after filename
+					(let ((ov2 (make-overlay end end)))
+					  (overlay-put ov2 'after-string suffix)
+					  (overlay-put ov2 'emacs-solo-dired-icon-overlay t))))
+			  (error nil))
+			(forward-line 1))))))
 
   (add-hook 'dired-after-readin-hook #'emacs-solo/dired-icons-add-icons))
 
@@ -5193,40 +5226,40 @@ into that directory before executing the Gemini command."
   :defer t
   :init
   (defun emacs-solo/ibuffer-icon-for-buffer (buf)
-    "Return an icon for BUF: file-extension emoji if visiting a file,
+	"Return an icon for BUF: file-extension emoji if visiting a file,
 otherwise mode-based emoji."
-    (with-current-buffer buf
-      (if-let* ((file (buffer-file-name)))
-          ;; File-based icons
-          (let* ((ext (file-name-extension file))
-                 (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
-            (or icon (assoc-default "diredfile" emacs-solo/file-icons)))
-        ;; Mode-based icons for non-file buffers
-        (cond
-         ((derived-mode-p 'dired-mode)  (assoc-default "direddir" emacs-solo/file-icons))
-         ((derived-mode-p 'eshell-mode) (assoc-default "terminal" emacs-solo/file-icons))
-         ((derived-mode-p 'org-mode)    (assoc-default "terminal" emacs-solo/file-icons))
-         ((derived-mode-p 'shell-mode)  (assoc-default "terminal" emacs-solo/file-icons))
-         ((derived-mode-p 'term-mode)   (assoc-default "terminal" emacs-solo/file-icons))
-         ((derived-mode-p 'help-mode)   (assoc-default "info" emacs-solo/file-icons))
-         ((derived-mode-p 'erc-mode)    (assoc-default "hash" emacs-solo/file-icons))
-         ((derived-mode-p 'rcirc-mode)  (assoc-default "hash" emacs-solo/file-icons))
-         ((derived-mode-p 'gnus-mode)   (assoc-default "mail" emacs-solo/file-icons))
-         ((derived-mode-p 'newsticker-treeview-mode)   (assoc-default "news" emacs-solo/file-icons))
-         (t                             (assoc-default "wranch" emacs-solo/file-icons))))))
+	(with-current-buffer buf
+	  (if-let* ((file (buffer-file-name)))
+		  ;; File-based icons
+		  (let* ((ext (file-name-extension file))
+				 (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
+			(or icon (assoc-default "diredfile" emacs-solo/file-icons)))
+		;; Mode-based icons for non-file buffers
+		(cond
+		 ((derived-mode-p 'dired-mode)  (assoc-default "direddir" emacs-solo/file-icons))
+		 ((derived-mode-p 'eshell-mode) (assoc-default "terminal" emacs-solo/file-icons))
+		 ((derived-mode-p 'org-mode)    (assoc-default "terminal" emacs-solo/file-icons))
+		 ((derived-mode-p 'shell-mode)  (assoc-default "terminal" emacs-solo/file-icons))
+		 ((derived-mode-p 'term-mode)   (assoc-default "terminal" emacs-solo/file-icons))
+		 ((derived-mode-p 'help-mode)   (assoc-default "info" emacs-solo/file-icons))
+		 ((derived-mode-p 'erc-mode)    (assoc-default "hash" emacs-solo/file-icons))
+		 ((derived-mode-p 'rcirc-mode)  (assoc-default "hash" emacs-solo/file-icons))
+		 ((derived-mode-p 'gnus-mode)   (assoc-default "mail" emacs-solo/file-icons))
+		 ((derived-mode-p 'newsticker-treeview-mode)   (assoc-default "news" emacs-solo/file-icons))
+		 (t                             (assoc-default "wranch" emacs-solo/file-icons))))))
 
   (define-ibuffer-column icon
-    (:name " ")
-    (emacs-solo/ibuffer-icon-for-buffer buffer))
+	(:name " ")
+	(emacs-solo/ibuffer-icon-for-buffer buffer))
 
   ;; Update ibuffer formats
   (setq ibuffer-formats
-        '((mark modified read-only locked " "
-                (icon 2 2 :left) " "
-                (name 30 30 :left :elide) " "
-                (size 9 -1 :right) " "
-                (mode 16 16 :left :elide) " "
-                filename-and-process))))
+		'((mark modified read-only locked " "
+				(icon 2 2 :left) " "
+				(name 30 30 :left :elide) " "
+				(size 9 -1 :right) " "
+				(mode 16 16 :left :elide) " "
+				filename-and-process))))
 
 
 ;;; │ EMACS-SOLO-ESHELL-ICONS
@@ -5239,58 +5272,58 @@ otherwise mode-based emoji."
   :defer t
   :init
   (defun emacs-solo/eshell-icons (file)
-    "Return a cons of propertized display string and file metadata.
+	"Return a cons of propertized display string and file metadata.
 FILE is a list (NAME IS-DIR EXECUTABLE ...), like from `eshell/ls`.
 The full list is like:
 (FILENAME IS-DIR SIZE OWNER GROUP MOD-TIME ACCESS-TIME CHANGE-TIME
 SIZE-LONG PERMS HARDLINKS INODE DEVICE).
 "
-    (let* ((filename (car file))
-           (is-dir (eq (cadr file) t))
-           (perms (nth 9 file))
-           (is-exec (and perms (string-match-p "x" perms)))
-           (ext (and (not is-dir) (file-name-extension filename)))
-           (icon (if is-dir
-                     (cdr (assoc "direddir" emacs-solo/file-icons))
-                   (or (cdr (assoc ext emacs-solo/file-icons))
-                       (cdr (assoc "diredfile" emacs-solo/file-icons)))))
-           (suffix (cond
-                    (is-dir "/")
-                    (is-exec "*")
-                    (t "")))
-           (display-text (propertize
-                          (concat icon " " filename suffix)
-                          'file-name filename
-                          'mouse-face 'highlight
-                          'help-echo (concat "Open " filename)
-                          'keymap eshell-ls-file-keymap)))
-      (cons display-text (cdr file))))
+	(let* ((filename (car file))
+		   (is-dir (eq (cadr file) t))
+		   (perms (nth 9 file))
+		   (is-exec (and perms (string-match-p "x" perms)))
+		   (ext (and (not is-dir) (file-name-extension filename)))
+		   (icon (if is-dir
+					 (cdr (assoc "direddir" emacs-solo/file-icons))
+				   (or (cdr (assoc ext emacs-solo/file-icons))
+					   (cdr (assoc "diredfile" emacs-solo/file-icons)))))
+		   (suffix (cond
+					(is-dir "/")
+					(is-exec "*")
+					(t "")))
+		   (display-text (propertize
+						  (concat icon " " filename suffix)
+						  'file-name filename
+						  'mouse-face 'highlight
+						  'help-echo (concat "Open " filename)
+						  'keymap eshell-ls-file-keymap)))
+	  (cons display-text (cdr file))))
 
 
   (defvar eshell-ls-file-keymap
-    (let ((map (make-sparse-keymap)))
-      (define-key map (kbd "RET") #'eshell-ls-find-file)
-      (define-key map (kbd "<return>") #'eshell-ls-find-file)
-      (define-key map [mouse-1] #'eshell-ls-find-file)
-      (define-key map (kbd "D") #'eshell-ls-delete-file)
-      map)
-    "Keymap active on Eshell file entries.")
+	(let ((map (make-sparse-keymap)))
+	  (define-key map (kbd "RET") #'eshell-ls-find-file)
+	  (define-key map (kbd "<return>") #'eshell-ls-find-file)
+	  (define-key map [mouse-1] #'eshell-ls-find-file)
+	  (define-key map (kbd "D") #'eshell-ls-delete-file)
+	  map)
+	"Keymap active on Eshell file entries.")
 
   (defun eshell-ls-file-at-point ()
-    "Get the full path of the Eshell listing at point."
-    (get-text-property (point) 'file-name))
+	"Get the full path of the Eshell listing at point."
+	(get-text-property (point) 'file-name))
 
   (defun eshell-ls-find-file ()
-    "Open the Eshell listing at point."
-    (interactive)
-    (find-file (eshell-ls-file-at-point)))
+	"Open the Eshell listing at point."
+	(interactive)
+	(find-file (eshell-ls-file-at-point)))
 
   (defun eshell-ls-delete-file ()
-    "Delete the Eshell listing at point."
-    (interactive)
-    (let ((file (eshell-ls-file-at-point)))
-      (when (yes-or-no-p (format "Delete file %s?" file))
-        (delete-file file 'trash))))
+	"Delete the Eshell listing at point."
+	(interactive)
+	(let ((file (eshell-ls-file-at-point)))
+	  (when (yes-or-no-p (format "Delete file %s?" file))
+		(delete-file file 'trash))))
 
   (advice-remove 'eshell-ls-decorated-name #'emacs-solo/eshell-icons)
   (advice-add #'eshell-ls-annotate :filter-return #'emacs-solo/eshell-icons))
@@ -5309,101 +5342,101 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   (require 'project)
 
   (defvar container-backend 'podman
-    "Current container backend. Either 'docker or 'podman.")
+	"Current container backend. Either 'docker or 'podman.")
 
   (defvar container-profile 'dev
-    "Current profile: either 'prod or 'dev.")
+	"Current profile: either 'prod or 'dev.")
 
   (defconst container-buffer-name "*container*"
-    "Buffer name for container command output.")
+	"Buffer name for container command output.")
 
   (defvar container--process nil)
 
   (defun container-toggle-backend ()
-    "Toggle between Docker and Podman."
-    (interactive)
-    (setq container-backend (if (eq container-backend 'docker) 'podman 'docker))
-    (message "Switched to backend: %s" container-backend))
+	"Toggle between Docker and Podman."
+	(interactive)
+	(setq container-backend (if (eq container-backend 'docker) 'podman 'docker))
+	(message "Switched to backend: %s" container-backend))
 
   (defun container-toggle-profile ()
-    "Toggle between prod and dev profiles."
-    (interactive)
-    (setq container-profile (if (eq container-profile 'prod) 'dev 'prod))
-    (message "Switched to profile: %s (%s)" container-profile
-             (if (eq container-profile 'prod)
-                 "Dockerfile / docker-compose.yml"
-               "Dockerfile.dev / docker-compose-dev.yml")))
+	"Toggle between prod and dev profiles."
+	(interactive)
+	(setq container-profile (if (eq container-profile 'prod) 'dev 'prod))
+	(message "Switched to profile: %s (%s)" container-profile
+			 (if (eq container-profile 'prod)
+				 "Dockerfile / docker-compose.yml"
+			   "Dockerfile.dev / docker-compose-dev.yml")))
 
   (defun container--command ()
-    "Return the container backend command."
-    (pcase container-backend
-      ('docker "docker")
-      ('podman "podman")
-      (_ (error "Unknown backend: %s" container-backend))))
+	"Return the container backend command."
+	(pcase container-backend
+	  ('docker "docker")
+	  ('podman "podman")
+	  (_ (error "Unknown backend: %s" container-backend))))
 
   (defun container--compose-command ()
-    "Return the container backend compose command."
-    (pcase container-backend
-      ('docker "docker compose")
-      ('podman "podman compose")
-      (_ (error "Unknown backend: %s" container-backend))))
+	"Return the container backend compose command."
+	(pcase container-backend
+	  ('docker "docker compose")
+	  ('podman "podman compose")
+	  (_ (error "Unknown backend: %s" container-backend))))
 
   (defun container--project-name ()
-    "Return the base name of the current project or buffer."
-    (let* ((project (project-current))
-           (name (if project
-                     (file-name-nondirectory (directory-file-name (project-root project)))
-                   (file-name-base (or buffer-file-name default-directory)))))
-      (downcase name)))
+	"Return the base name of the current project or buffer."
+	(let* ((project (project-current))
+		   (name (if project
+					 (file-name-nondirectory (directory-file-name (project-root project)))
+				   (file-name-base (or buffer-file-name default-directory)))))
+	  (downcase name)))
 
   (defun container--dockerfile ()
-    "Return the appropriate Dockerfile path based on profile and context."
-    (let ((base (container--project-name)))
-      (pcase container-profile
-        ('prod (or (car (file-expand-wildcards (format "%s.Dockerfile" base))) "Dockerfile"))
-        ('dev  (or (car (file-expand-wildcards (format "%s.Dockerfile.dev" base))) "Dockerfile.dev")))))
+	"Return the appropriate Dockerfile path based on profile and context."
+	(let ((base (container--project-name)))
+	  (pcase container-profile
+		('prod (or (car (file-expand-wildcards (format "%s.Dockerfile" base))) "Dockerfile"))
+		('dev  (or (car (file-expand-wildcards (format "%s.Dockerfile.dev" base))) "Dockerfile.dev")))))
 
   (defun container--compose-file ()
-    "Return the appropriate docker-compose file path based on profile and context."
-    (let ((project-root (or (project-root (project-current)) default-directory))  ;; Get the project root
-          (base (container--project-name)))
-      (pcase container-profile
-        ('prod (or (car (file-expand-wildcards (format "%s.docker-compose.yml" base))) (concat project-root "docker-compose.yml")))
-        ('dev  (or (car (file-expand-wildcards (format "%s.docker-compose-dev.yml" base))) (concat project-root "docker-compose-dev.yml"))))))
+	"Return the appropriate docker-compose file path based on profile and context."
+	(let ((project-root (or (project-root (project-current)) default-directory))  ;; Get the project root
+		  (base (container--project-name)))
+	  (pcase container-profile
+		('prod (or (car (file-expand-wildcards (format "%s.docker-compose.yml" base))) (concat project-root "docker-compose.yml")))
+		('dev  (or (car (file-expand-wildcards (format "%s.docker-compose-dev.yml" base))) (concat project-root "docker-compose-dev.yml"))))))
 
   (defun container--run-to-buffer (cmd-template)
-    "Build CMD-TEMPLATE string, prompt user to edit it, then run it in *container* buffer."
-    (interactive)
-    (let* ((final-cmd (read-shell-command "Running command: " cmd-template)))
-      (let ((buf (get-buffer-create "*container*")))
-        (with-current-buffer buf
-          (setq buffer-read-only nil)
-          (erase-buffer)
-          (comint-mode)
-          (ansi-color-for-comint-mode-on))
-        (setq container--process
-              (start-process-shell-command "container" buf final-cmd))
-        (set-process-filter container--process 'comint-output-filter)
-        (display-buffer buf)
-        (select-window (get-buffer-window buf))
-        (delete-other-windows))))
+	"Build CMD-TEMPLATE string, prompt user to edit it, then run it in *container* buffer."
+	(interactive)
+	(let* ((final-cmd (read-shell-command "Running command: " cmd-template)))
+	  (let ((buf (get-buffer-create "*container*")))
+		(with-current-buffer buf
+		  (setq buffer-read-only nil)
+		  (erase-buffer)
+		  (comint-mode)
+		  (ansi-color-for-comint-mode-on))
+		(setq container--process
+			  (start-process-shell-command "container" buf final-cmd))
+		(set-process-filter container--process 'comint-output-filter)
+		(display-buffer buf)
+		(select-window (get-buffer-window buf))
+		(delete-other-windows))))
 
   (defun container--run (args)
-    "Run a container command with ARGS."
-    (container--run-to-buffer (format "%s %s" (container--command) args)))
+	"Run a container command with ARGS."
+	(container--run-to-buffer (format "%s %s" (container--command) args)))
 
   (defun container--run-compose (args)
-    "Run a compose command with ARGS using profile-specific file."
-    (container--run-to-buffer
-     (format "%s -f %s %s"
-             (container--compose-command)
-             (container--compose-file)
-             args)))
+	"Run a compose command with ARGS using profile-specific file."
+	(container--run-to-buffer
+	 (format "%s -f %s %s"
+			 (container--compose-command)
+			 (container--compose-file)
+			 args)))
 
   (defun container--run-interactive (prompt action)
-    "Prompt for a container/image name and run ACTION with it."
-    (let ((name (read-string prompt)))
-      (container--run (format "%s %s" action name))))
+	"Prompt for a container/image name and run ACTION with it."
+	(let ((name (read-string prompt)))
+	  (container--run (format "%s %s" action name))))
 
   ;; === Container actions ===
   (defun container-list () (interactive) (container--run "ps -a "))
@@ -5418,11 +5451,11 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   (defun container-pull-image () (interactive) (container--run "pull "))
 
   (defun container-build-image ()
-    (interactive)
-    (let ((image "TAG")
-          (file (container--dockerfile)))
-      (container--run-to-buffer
-       (format "%s build -f %s -t %s ." (container--command) file image))))
+	(interactive)
+	(let ((image "TAG")
+		  (file (container--dockerfile)))
+	  (container--run-to-buffer
+	   (format "%s build -f %s -t %s ." (container--command) file image))))
 
   ;; === Compose actions ===
   (defun container-compose-up () (interactive) (container--run-compose "up -d"))
@@ -5433,40 +5466,40 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   (defun container-compose-restart () (interactive) (container--run-compose "restart"))
 
   (defun container-kill-buffer ()
-    "Kill the *container* buffer."
-    (interactive)
-    (let ((buf (get-buffer container-buffer-name)))
-      (when buf
-        (kill-buffer buf))))
+	"Kill the *container* buffer."
+	(interactive)
+	(let ((buf (get-buffer container-buffer-name)))
+	  (when buf
+		(kill-buffer buf))))
 
   ;; === Transient menu ===
   (transient-define-prefix container-menu ()
-    "Container and Compose management menu."
-    [["Backend/Profile"
-      ("b" (lambda () (format "Toggle backend (%s)" container-backend))
-       container-toggle-backend :transient t)
-      ("p" (lambda () (format "Toggle profile (%s)" container-profile))
-       container-toggle-profile :transient t)
-      ("q" "Kill output buffer" container-kill-buffer :transient t)]
-     ["Containers"
-      ("l" "List containers" container-list :transient t)
-      ("s" "Start container" container-start :transient t)
-      ("t" "Stop container" container-stop :transient t)
-      ("r" "Restart container" container-restart :transient t)
-      ("R" "Remove container" container-remove :transient t)
-      ("L" "Logs" container-logs :transient t)]
-     ["Images"
-      ("i" "List images" container-list-images :transient t)
-      ("P" "Pull image" container-pull-image :transient t)
-      ("B" "Build image" container-build-image :transient t)]
-     ["Compose"
-      ("u" "Compose up" container-compose-up :transient t)
-      ("d" "Compose down" container-compose-down :transient t)
-      ("c" "Compose ps" container-compose-ps :transient t)
-      ("C" "Compose build" container-compose-build :transient t)
-      ("x" "Compose restart" container-compose-restart :transient t)
-      ("g" "Compose logs" container-compose-logs :transient t)]
-     ])
+	"Container and Compose management menu."
+	[["Backend/Profile"
+	  ("b" (lambda () (format "Toggle backend (%s)" container-backend))
+	   container-toggle-backend :transient t)
+	  ("p" (lambda () (format "Toggle profile (%s)" container-profile))
+	   container-toggle-profile :transient t)
+	  ("q" "Kill output buffer" container-kill-buffer :transient t)]
+	 ["Containers"
+	  ("l" "List containers" container-list :transient t)
+	  ("s" "Start container" container-start :transient t)
+	  ("t" "Stop container" container-stop :transient t)
+	  ("r" "Restart container" container-restart :transient t)
+	  ("R" "Remove container" container-remove :transient t)
+	  ("L" "Logs" container-logs :transient t)]
+	 ["Images"
+	  ("i" "List images" container-list-images :transient t)
+	  ("P" "Pull image" container-pull-image :transient t)
+	  ("B" "Build image" container-build-image :transient t)]
+	 ["Compose"
+	  ("u" "Compose up" container-compose-up :transient t)
+	  ("d" "Compose down" container-compose-down :transient t)
+	  ("c" "Compose ps" container-compose-ps :transient t)
+	  ("C" "Compose build" container-compose-build :transient t)
+	  ("x" "Compose restart" container-compose-restart :transient t)
+	  ("g" "Compose logs" container-compose-logs :transient t)]
+	 ])
 
   (global-set-key (kbd "C-c d") #'container-menu))
 
@@ -5483,124 +5516,124 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   :defer t
   :init
   (defvar emacs-solo/mpv-process nil
-    "Process object for the currently running mpv instance.")
+	"Process object for the currently running mpv instance.")
 
   (defvar emacs-solo/mpv-ipc-socket "/cache/mpv-socket"
-    "Path to mpv's IPC UNIX domain socket.")
+	"Path to mpv's IPC UNIX domain socket.")
 
   (defun emacs-solo/mpv-play-files ()
-    "Play marked files in Dired using mpv with IPC."
-    (interactive)
-    (unless (derived-mode-p 'dired-mode)
-      (user-error "Not in a Dired buffer"))
-    (let ((files (dired-get-marked-files)))
-      (when (file-exists-p emacs-solo/mpv-ipc-socket)
-        (delete-file emacs-solo/mpv-ipc-socket))
-      (when (process-live-p emacs-solo/mpv-process)
-        (kill-process emacs-solo/mpv-process))
-      (setq emacs-solo/mpv-process
-            (apply #'start-process
-                   "mpv" "*mpv*"
-                   "mpv"
-                   "--force-window=yes"
-                   (concat "--input-ipc-server=" emacs-solo/mpv-ipc-socket)
-                   files))))
+	"Play marked files in Dired using mpv with IPC."
+	(interactive)
+	(unless (derived-mode-p 'dired-mode)
+	  (user-error "Not in a Dired buffer"))
+	(let ((files (dired-get-marked-files)))
+	  (when (file-exists-p emacs-solo/mpv-ipc-socket)
+		(delete-file emacs-solo/mpv-ipc-socket))
+	  (when (process-live-p emacs-solo/mpv-process)
+		(kill-process emacs-solo/mpv-process))
+	  (setq emacs-solo/mpv-process
+			(apply #'start-process
+				   "mpv" "*mpv*"
+				   "mpv"
+				   "--force-window=yes"
+				   (concat "--input-ipc-server=" emacs-solo/mpv-ipc-socket)
+				   files))))
 
   (defun emacs-solo/mpv-stop ()
-    "Stop mpv playback."
-    (interactive)
-    (when (process-live-p emacs-solo/mpv-process)
-      (kill-process emacs-solo/mpv-process)
-      (setq emacs-solo/mpv-process nil)))
+	"Stop mpv playback."
+	(interactive)
+	(when (process-live-p emacs-solo/mpv-process)
+	  (kill-process emacs-solo/mpv-process)
+	  (setq emacs-solo/mpv-process nil)))
 
   (defun emacs-solo/mpv-send-command (json-cmd)
-    "Send JSON-CMD to mpv's IPC socket directly."
-    (let ((socket emacs-solo/mpv-ipc-socket))
-      (if (file-exists-p socket)
-          (let ((proc (make-network-process
-                       :name "mpv-ipc"
-                       :family 'local
-                       :service socket
-                       :nowait t)))
-            (process-send-string proc (concat json-cmd "\n"))
-            (delete-process proc))
-        (message "❌ mpv IPC socket not found at %s" socket))))
+	"Send JSON-CMD to mpv's IPC socket directly."
+	(let ((socket emacs-solo/mpv-ipc-socket))
+	  (if (file-exists-p socket)
+		  (let ((proc (make-network-process
+					   :name "mpv-ipc"
+					   :family 'local
+					   :service socket
+					   :nowait t)))
+			(process-send-string proc (concat json-cmd "\n"))
+			(delete-process proc))
+		(message "❌ mpv IPC socket not found at %s" socket))))
 
 
   (defun emacs-solo/mpv-show-playlist ()
-    "Show the current mpv playlist in a readable buffer."
-    (interactive)
-    (let ((buf (get-buffer-create "*mpv-playlist*"))
-          (socket emacs-solo/mpv-ipc-socket)
-          (output ""))
-      (if (file-exists-p socket)
-          (let ((proc
-                 (make-network-process
-                  :name "mpv-ipc-playlist"
-                  :family 'local
-                  :service socket
-                  :nowait nil
-                  :filter (lambda (_proc chunk)
-                            (setq output (concat output chunk))))))
-            (process-send-string proc
-                                 "{\"command\": [\"get_property\", \"playlist\"]}\n")
-            (sleep-for 0.1)
-            (delete-process proc)
+	"Show the current mpv playlist in a readable buffer."
+	(interactive)
+	(let ((buf (get-buffer-create "*mpv-playlist*"))
+		  (socket emacs-solo/mpv-ipc-socket)
+		  (output ""))
+	  (if (file-exists-p socket)
+		  (let ((proc
+				 (make-network-process
+				  :name "mpv-ipc-playlist"
+				  :family 'local
+				  :service socket
+				  :nowait nil
+				  :filter (lambda (_proc chunk)
+							(setq output (concat output chunk))))))
+			(process-send-string proc
+								 "{\"command\": [\"get_property\", \"playlist\"]}\n")
+			(sleep-for 0.1)
+			(delete-process proc)
 
-            (with-current-buffer buf
-              (let ((inhibit-read-only t)
-                    (json-object-type 'alist)
-                    (json-array-type 'list)
-                    (json-key-type 'symbol))
-                (erase-buffer)
-                (let* ((json-data (ignore-errors (json-read-from-string output)))
-                       (playlist (alist-get 'data json-data)))
-                  (if playlist
-                      (progn
-                        (insert "🎵 MPV Playlist:\n\n")
-                        (cl-loop for i from 0
-                                 for entry in playlist do
-                                 (insert
-                                  (format "%s %s. %s\n"
-                                          (if (eq (alist-get 'current entry) t)
-                                              "now playing ➡️ " "")
-                                          (1+ i)
-                                          (alist-get 'filename entry)
-                                          ))))
-                    (insert "❌ Failed to parse playlist or playlist is empty."))))
-              (special-mode)
-              (goto-char (point-min)))
-            (display-buffer buf))
-        (message "❌ mpv IPC socket not found at %s" socket))))
+			(with-current-buffer buf
+			  (let ((inhibit-read-only t)
+					(json-object-type 'alist)
+					(json-array-type 'list)
+					(json-key-type 'symbol))
+				(erase-buffer)
+				(let* ((json-data (ignore-errors (json-read-from-string output)))
+					   (playlist (alist-get 'data json-data)))
+				  (if playlist
+					  (progn
+						(insert "🎵 MPV Playlist:\n\n")
+						(cl-loop for i from 0
+								 for entry in playlist do
+								 (insert
+								  (format "%s %s. %s\n"
+										  (if (eq (alist-get 'current entry) t)
+											  "now playing ➡️ " "")
+										  (1+ i)
+										  (alist-get 'filename entry)
+										  ))))
+					(insert "❌ Failed to parse playlist or playlist is empty."))))
+			  (special-mode)
+			  (goto-char (point-min)))
+			(display-buffer buf))
+		(message "❌ mpv IPC socket not found at %s" socket))))
 
   (require 'transient)
 
   (transient-define-prefix emacs-solo/mpv-transient ()
-    "🎵 MPV Controls"
-    [[" 🔅 Controls"
-      ("p" "⏸️ Pause/Resume"
-       (lambda () (interactive)
-         (emacs-solo/mpv-send-command
-          "{\"command\": [\"cycle\", \"pause\"]}")))
-      ("x" "⏹️ Stop" emacs-solo/mpv-stop)
-      ("n" "⏭️ Next"
-       (lambda () (interactive)
-         (emacs-solo/mpv-send-command
-          "{\"command\": [\"playlist-next\"]}")))
-      ("b" "⏮️ Previous"
-       (lambda () (interactive)
-         (emacs-solo/mpv-send-command
-          "{\"command\": [\"playlist-prev\"]}")))
-      ("l" "🔁 Loop"
-       (lambda () (interactive)
-         (emacs-solo/mpv-send-command
-          "{\"command\": [\"cycle\", \"loop\"]}")))]
-     [" 🎧 Playback"
-      ("RET" "▶️ Play marked" emacs-solo/mpv-play-files)
-      ("L"   "▶️ List playlist" emacs-solo/mpv-show-playlist)]])
+	"🎵 MPV Controls"
+	[[" 🔅 Controls"
+	  ("p" "⏸️ Pause/Resume"
+	   (lambda () (interactive)
+		 (emacs-solo/mpv-send-command
+		  "{\"command\": [\"cycle\", \"pause\"]}")))
+	  ("x" "⏹️ Stop" emacs-solo/mpv-stop)
+	  ("n" "⏭️ Next"
+	   (lambda () (interactive)
+		 (emacs-solo/mpv-send-command
+		  "{\"command\": [\"playlist-next\"]}")))
+	  ("b" "⏮️ Previous"
+	   (lambda () (interactive)
+		 (emacs-solo/mpv-send-command
+		  "{\"command\": [\"playlist-prev\"]}")))
+	  ("l" "🔁 Loop"
+	   (lambda () (interactive)
+		 (emacs-solo/mpv-send-command
+		  "{\"command\": [\"cycle\", \"loop\"]}")))]
+	 [" 🎧 Playback"
+	  ("RET" "▶️ Play marked" emacs-solo/mpv-play-files)
+	  ("L"   "▶️ List playlist" emacs-solo/mpv-show-playlist)]])
 
   (defun emacs-solo/mpv-dired-setup ()
-    (global-set-key (kbd "C-c m") #'emacs-solo/mpv-transient))
+	(global-set-key (kbd "C-c m") #'emacs-solo/mpv-transient))
 
   (add-hook 'dired-mode-hook #'emacs-solo/mpv-dired-setup))
 
@@ -5618,242 +5651,242 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   :defer t
   :init
   (defvar emacs-solo/m3u-radio-sources
-    '(("Full List" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/---everything-full.m3u")
-      ("60s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/60s.m3u")
-      ("70s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/70s.m3u")
-      ("80s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/80s.m3u")
-      ("90s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/90s.m3u"))
-    "Alist of named M3U radio sources.")
+	'(("Full List" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/---everything-full.m3u")
+	  ("60s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/60s.m3u")
+	  ("70s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/70s.m3u")
+	  ("80s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/80s.m3u")
+	  ("90s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/90s.m3u"))
+	"Alist of named M3U radio sources.")
 
   (defvar m3u-visualizer-buffer "*M3U Playlist*"
-    "Buffer name for the visualized M3U playlist.")
+	"Buffer name for the visualized M3U playlist.")
 
   (defvar-local m3u-visualizer--entries nil
-    "List of parsed entries as (TITLE GROUP LOGO URL).")
+	"List of parsed entries as (TITLE GROUP LOGO URL).")
 
   (defvar-local m3u-visualizer--active-url nil
-    "Currently active/playing entry URL.")
+	"Currently active/playing entry URL.")
 
   (defvar m3u-visualizer--mpv-process nil
-    "Holds the current mpv process instance.")
+	"Holds the current mpv process instance.")
 
   (defun m3u-visualizer--collect-entries-from-buffer ()
-    "Parse current buffer as M3U and return list of (title group logo url)."
-    (let ((entries '()))
-      (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward
-                ;; Match lines like: #EXTINF:-1 [optional attributes], Title
-                "^#EXTINF:-1\\(?:\\s-+\\([^,]+\\)\\)?[ \t]*,[ \t]*\\(.*?\\)[ \t]*[\r\n]+\\(http[^\r\n]+\\)"
-                nil t)
-          (let* ((attr-str (match-string 1))
-                 (title (string-trim (match-string 2)))
-                 (url (match-string 3))
-                 (logo "")
-                 (group ""))
-            (when attr-str
-              (when (string-match "tvg-logo=\"\\([^\"]*\\)\"" attr-str)
-                (setq logo (match-string 1 attr-str)))
-              (when (string-match "group-title=\"\\([^\"]*\\)\"" attr-str)
-                (setq group (match-string 1 attr-str))))
-            (push (list title group logo url) entries))))
-      (nreverse entries)))
+	"Parse current buffer as M3U and return list of (title group logo url)."
+	(let ((entries '()))
+	  (save-excursion
+		(goto-char (point-min))
+		(while (re-search-forward
+				;; Match lines like: #EXTINF:-1 [optional attributes], Title
+				"^#EXTINF:-1\\(?:\\s-+\\([^,]+\\)\\)?[ \t]*,[ \t]*\\(.*?\\)[ \t]*[\r\n]+\\(http[^\r\n]+\\)"
+				nil t)
+		  (let* ((attr-str (match-string 1))
+				 (title (string-trim (match-string 2)))
+				 (url (match-string 3))
+				 (logo "")
+				 (group ""))
+			(when attr-str
+			  (when (string-match "tvg-logo=\"\\([^\"]*\\)\"" attr-str)
+				(setq logo (match-string 1 attr-str)))
+			  (when (string-match "group-title=\"\\([^\"]*\\)\"" attr-str)
+				(setq group (match-string 1 attr-str))))
+			(push (list title group logo url) entries))))
+	  (nreverse entries)))
 
   (define-derived-mode m3u-visualizer-mode tabulated-list-mode "M3U-Visualizer"
-    "Major mode for viewing M3U playlists in a table."
-    (setq tabulated-list-format
-          [(" " 2 nil)   ;; status marker (▶)
-           ("Title" 50 t)
-           ("Group" 20 t)
-           ("Logo" 40 t)
-           ("URL" 60 t)])
-    (setq tabulated-list-padding 2)
-    (tabulated-list-init-header)
-    (setq truncate-lines t)
-    (buffer-disable-undo))
+	"Major mode for viewing M3U playlists in a table."
+	(setq tabulated-list-format
+		  [(" " 2 nil)   ;; status marker (▶)
+		   ("Title" 50 t)
+		   ("Group" 20 t)
+		   ("Logo" 40 t)
+		   ("URL" 60 t)])
+	(setq tabulated-list-padding 2)
+	(tabulated-list-init-header)
+	(setq truncate-lines t)
+	(buffer-disable-undo))
 
   (defun m3u-visualizer--build-tab-entries ()
-    "Return tabulated-list entries built from `m3u-visualizer--entries'."
-    (mapcar (lambda (entry)
-              (let* ((title (or (nth 0 entry) ""))
-                     (group (or (nth 1 entry) ""))
-                     (logo  (or (nth 2 entry) ""))
-                     (url   (or (nth 3 entry) ""))
-                     (status (if (and m3u-visualizer--active-url
-                                      (string= url m3u-visualizer--active-url))
-                                 "▶"
-                               "")))
-                ;; id = url (helps us find the row later)
-                (list url (vector status title group logo url))))
-            m3u-visualizer--entries))
+	"Return tabulated-list entries built from `m3u-visualizer--entries'."
+	(mapcar (lambda (entry)
+			  (let* ((title (or (nth 0 entry) ""))
+					 (group (or (nth 1 entry) ""))
+					 (logo  (or (nth 2 entry) ""))
+					 (url   (or (nth 3 entry) ""))
+					 (status (if (and m3u-visualizer--active-url
+									  (string= url m3u-visualizer--active-url))
+								 "▶"
+							   "")))
+				;; id = url (helps us find the row later)
+				(list url (vector status title group logo url))))
+			m3u-visualizer--entries))
 
   (defun m3u-visualizer--refresh ()
-    "Refresh the tabulated buffer from `m3u-visualizer--entries'."
-    (setq tabulated-list-entries (m3u-visualizer--build-tab-entries))
+	"Refresh the tabulated buffer from `m3u-visualizer--entries'."
+	(setq tabulated-list-entries (m3u-visualizer--build-tab-entries))
 
-    (tabulated-list-print t)
+	(tabulated-list-print t)
 
-    (when m3u-visualizer--active-url
-      (goto-char (point-min))
-      (when (re-search-forward (regexp-quote m3u-visualizer--active-url) nil t)
-        (beginning-of-line))))
+	(when m3u-visualizer--active-url
+	  (goto-char (point-min))
+	  (when (re-search-forward (regexp-quote m3u-visualizer--active-url) nil t)
+		(beginning-of-line))))
 
   (defun m3u-visualizer-open-buffer (raw-buffer)
-    "Parse RAW-BUFFER (M3U contents) and pop to the tabulated view."
-    (with-current-buffer raw-buffer
-      (let ((entries (m3u-visualizer--collect-entries-from-buffer)))
-        (with-current-buffer (get-buffer-create m3u-visualizer-buffer)
-          (let ((inhibit-read-only t))
-            (erase-buffer)
-            (m3u-visualizer-mode)
-            (setq m3u-visualizer--entries entries)
-            (m3u-visualizer--refresh)
-            (pop-to-buffer (current-buffer)))))))
+	"Parse RAW-BUFFER (M3U contents) and pop to the tabulated view."
+	(with-current-buffer raw-buffer
+	  (let ((entries (m3u-visualizer--collect-entries-from-buffer)))
+		(with-current-buffer (get-buffer-create m3u-visualizer-buffer)
+		  (let ((inhibit-read-only t))
+			(erase-buffer)
+			(m3u-visualizer-mode)
+			(setq m3u-visualizer--entries entries)
+			(m3u-visualizer--refresh)
+			(pop-to-buffer (current-buffer)))))))
 
   (defun emacs-solo/get-online-radio-list-m3u ()
-    "Select and download an online M3U playlist, then visualize it."
-    (interactive)
-    (let* ((choice (completing-read "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources))
-           (url (cdr (assoc choice emacs-solo/m3u-radio-sources)))
-           (raw-buffer (get-buffer-create "*M3U Raw*")))
-      (message "Getting the playlist...")
-      (url-retrieve
-       url
-       (lambda (_status)
-         (goto-char (point-min))
-         (when (re-search-forward "\n\n" nil t)
-           (let* ((body-start (point))
-                  (raw (buffer-substring-no-properties body-start (point-max)))
-                  (decoded (decode-coding-string raw 'utf-8)))
-             (with-current-buffer raw-buffer
-               (let ((inhibit-read-only t))
-                 (erase-buffer)
-                 (insert decoded)
-                 (message "Playlist loaded!")
-                 (goto-char (point-min))
-                 (m3u-visualizer-open-buffer (current-buffer)))))))
-       nil t)))
+	"Select and download an online M3U playlist, then visualize it."
+	(interactive)
+	(let* ((choice (completing-read "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources))
+		   (url (cdr (assoc choice emacs-solo/m3u-radio-sources)))
+		   (raw-buffer (get-buffer-create "*M3U Raw*")))
+	  (message "Getting the playlist...")
+	  (url-retrieve
+	   url
+	   (lambda (_status)
+		 (goto-char (point-min))
+		 (when (re-search-forward "\n\n" nil t)
+		   (let* ((body-start (point))
+				  (raw (buffer-substring-no-properties body-start (point-max)))
+				  (decoded (decode-coding-string raw 'utf-8)))
+			 (with-current-buffer raw-buffer
+			   (let ((inhibit-read-only t))
+				 (erase-buffer)
+				 (insert decoded)
+				 (message "Playlist loaded!")
+				 (goto-char (point-min))
+				 (m3u-visualizer-open-buffer (current-buffer)))))))
+	   nil t)))
 
   (defun m3u-visualizer--mpv-sentinel (proc event)
-    "Sentinel for mpv PROC. When it ends, clear active marker and refresh."
-    ;; When process is no longer live, clear the active marker and refresh the table
-    (unless (process-live-p proc)
-      (let ((buf (process-get proc 'm3u-buffer)))
-        (when (buffer-live-p buf)
-          (with-current-buffer buf
-            (setq m3u-visualizer--active-url nil)
-            (setq m3u-visualizer--mpv-process nil)
-            (m3u-visualizer--refresh))))))
+	"Sentinel for mpv PROC. When it ends, clear active marker and refresh."
+	;; When process is no longer live, clear the active marker and refresh the table
+	(unless (process-live-p proc)
+	  (let ((buf (process-get proc 'm3u-buffer)))
+		(when (buffer-live-p buf)
+		  (with-current-buffer buf
+			(setq m3u-visualizer--active-url nil)
+			(setq m3u-visualizer--mpv-process nil)
+			(m3u-visualizer--refresh))))))
 
   (defun m3u-visualizer--kill-mpv ()
-    "Force kill the current mpv process if running."
-    (when (and m3u-visualizer--mpv-process
-               (process-live-p m3u-visualizer--mpv-process))
-      ;; First try SIGTERM
-      (ignore-errors (kill-process m3u-visualizer--mpv-process))
-      ;; If still alive, send SIGKILL
-      (when (process-live-p m3u-visualizer--mpv-process)
-        (ignore-errors (signal-process (process-id m3u-visualizer--mpv-process) 9)))
-      ;; Wait until it's gone
-      (while (process-live-p m3u-visualizer--mpv-process)
-        (sleep-for 0.05))
-      (setq m3u-visualizer--mpv-process nil)))
+	"Force kill the current mpv process if running."
+	(when (and m3u-visualizer--mpv-process
+			   (process-live-p m3u-visualizer--mpv-process))
+	  ;; First try SIGTERM
+	  (ignore-errors (kill-process m3u-visualizer--mpv-process))
+	  ;; If still alive, send SIGKILL
+	  (when (process-live-p m3u-visualizer--mpv-process)
+		(ignore-errors (signal-process (process-id m3u-visualizer--mpv-process) 9)))
+	  ;; Wait until it's gone
+	  (while (process-live-p m3u-visualizer--mpv-process)
+		(sleep-for 0.05))
+	  (setq m3u-visualizer--mpv-process nil)))
 
   (defun m3u-visualizer-play-current ()
-    "Play the stream URL at point using mpv and mark the row as playing."
-    (interactive)
-    (let ((url (tabulated-list-get-id)))
-      (unless url (user-error "No URL at point"))
+	"Play the stream URL at point using mpv and mark the row as playing."
+	(interactive)
+	(let ((url (tabulated-list-get-id)))
+	  (unless url (user-error "No URL at point"))
 
-      (m3u-visualizer--kill-mpv)
+	  (m3u-visualizer--kill-mpv)
 
-      (setq m3u-visualizer--active-url url)
-      (let ((proc (start-process "mpv-stream" "*mpv*" "mpv" "--no-terminal" url)))
-        (setq m3u-visualizer--mpv-process proc)
-        (process-put proc 'm3u-buffer (current-buffer))
-        (set-process-sentinel
-         proc
-         (lambda (p e)
-           (when (not (process-live-p p))
-             (let ((buf (process-get p 'm3u-buffer)))
-               (when (buffer-live-p buf)
-                 (with-current-buffer buf
-                   (setq m3u-visualizer--active-url nil)
-                   (setq m3u-visualizer--mpv-process nil)
-                   (m3u-visualizer--refresh))))))))
-      (m3u-visualizer--refresh)
-      (message "Playing: %s" url)))
+	  (setq m3u-visualizer--active-url url)
+	  (let ((proc (start-process "mpv-stream" "*mpv*" "mpv" "--no-terminal" url)))
+		(setq m3u-visualizer--mpv-process proc)
+		(process-put proc 'm3u-buffer (current-buffer))
+		(set-process-sentinel
+		 proc
+		 (lambda (p e)
+		   (when (not (process-live-p p))
+			 (let ((buf (process-get p 'm3u-buffer)))
+			   (when (buffer-live-p buf)
+				 (with-current-buffer buf
+				   (setq m3u-visualizer--active-url nil)
+				   (setq m3u-visualizer--mpv-process nil)
+				   (m3u-visualizer--refresh))))))))
+	  (m3u-visualizer--refresh)
+	  (message "Playing: %s" url)))
 
   (defun m3u-visualizer-stop-mpv ()
-    "Stop current mpv process and clear playing marker."
-    (interactive)
-    (if (and m3u-visualizer--mpv-process (process-live-p m3u-visualizer--mpv-process))
-        (progn
-          (kill-process m3u-visualizer--mpv-process)
-          ;; sentinel will clear marker, but do it immediately for snappiness
-          (setq m3u-visualizer--mpv-process nil)
-          (setq m3u-visualizer--active-url nil)
-          (m3u-visualizer--refresh)
-          (message "Stopped mpv."))
-      (message "No mpv process running.")))
+	"Stop current mpv process and clear playing marker."
+	(interactive)
+	(if (and m3u-visualizer--mpv-process (process-live-p m3u-visualizer--mpv-process))
+		(progn
+		  (kill-process m3u-visualizer--mpv-process)
+		  ;; sentinel will clear marker, but do it immediately for snappiness
+		  (setq m3u-visualizer--mpv-process nil)
+		  (setq m3u-visualizer--active-url nil)
+		  (m3u-visualizer--refresh)
+		  (message "Stopped mpv."))
+	  (message "No mpv process running.")))
 
 
   (defvar-local m3u-visualizer--logo-cache nil
-    "Alist mapping logo-URL -> propertized display string (cached images).")
+	"Alist mapping logo-URL -> propertized display string (cached images).")
 
   (defun m3u-visualizer--find-entry-by-url (url)
-    "Return the entry (list) from `m3u-visualizer--entries' whose 4th element equals URL."
-    (catch 'found
-      (dolist (e m3u-visualizer--entries)
-        (when (and (nth 3 e) (string= (nth 3 e) url))
-          (throw 'found e)))
-      nil))
+	"Return the entry (list) from `m3u-visualizer--entries' whose 4th element equals URL."
+	(catch 'found
+	  (dolist (e m3u-visualizer--entries)
+		(when (and (nth 3 e) (string= (nth 3 e) url))
+		  (throw 'found e)))
+	  nil))
 
 
   (defun m3u-visualizer-toggle-logo-at-point ()
-    "Toggle inline logo image for the entry at point.
+	"Toggle inline logo image for the entry at point.
 
 If the logo column is a URL, download (or reuse cached) image and replace the
 logo field in `m3u-visualizer--entries' with a propertized string that has a
 `display' property. If it's already an image, restore the original URL text."
-    (interactive)
-    (let* ((id (tabulated-list-get-id)) ;; stream URL (we use it to find the entry)
-           (entry (and id (m3u-visualizer--find-entry-by-url id))))
-      (unless entry (user-error "No entry at point"))
+	(interactive)
+	(let* ((id (tabulated-list-get-id)) ;; stream URL (we use it to find the entry)
+		   (entry (and id (m3u-visualizer--find-entry-by-url id))))
+	  (unless entry (user-error "No entry at point"))
 
-      (let ((logo (nth 2 entry))) ;; the entry's logo field (string or propertized string)
-        (cond
-         ;; If it's already a propertized string with a display property -> hide it.
-         ((and (stringp logo) (get-text-property 0 'display logo))
-          (let ((orig (get-text-property 0 'orig-url logo)))
-            (setf (nth 2 entry) (or orig ""))
-            (message "Logo hidden")))
-         ;; No logo info at all
-         ((or (not logo) (string-empty-p logo))
-          (message "No logo available for this entry"))
-         ;; Otherwise: it's a URL string -> show image (use cache if present)
-         (t
-          (let ((cached (assoc logo m3u-visualizer--logo-cache)))
-            (if cached
-                (progn
-                  (setf (nth 2 entry) (cdr cached))
-                  (message "Logo loaded! (from cache)"))
-              (message "Getting playlist entry logo...")
-              (let ((img-buf (url-retrieve-synchronously logo t t 6)))
-                (unless img-buf (user-error "Failed to fetch logo: %s" logo))
-                (with-current-buffer img-buf
-                  (goto-char (point-min))
-                  (when (search-forward "\n\n" nil t)
-                    (let* ((data (buffer-substring-no-properties (point) (point-max)))
-                           ;; adjust scale to taste - 0.3..0.6 are reasonable for table cells
-                           (img (create-image data nil t :scale 0.6))
-                           (disp (propertize " " 'display img 'orig-url logo)))
-                      ;; cache and set entry's logo field to the propertized display string
-                      (push (cons logo disp) m3u-visualizer--logo-cache)
-                      (setf (nth 2 entry) disp)
-                      (message "Logo loaded!"))))))))))
-      ;; Rebuild the table from the (now-modified) m3u-visualizer--entries
-      (m3u-visualizer--refresh)))
+	  (let ((logo (nth 2 entry))) ;; the entry's logo field (string or propertized string)
+		(cond
+		 ;; If it's already a propertized string with a display property -> hide it.
+		 ((and (stringp logo) (get-text-property 0 'display logo))
+		  (let ((orig (get-text-property 0 'orig-url logo)))
+			(setf (nth 2 entry) (or orig ""))
+			(message "Logo hidden")))
+		 ;; No logo info at all
+		 ((or (not logo) (string-empty-p logo))
+		  (message "No logo available for this entry"))
+		 ;; Otherwise: it's a URL string -> show image (use cache if present)
+		 (t
+		  (let ((cached (assoc logo m3u-visualizer--logo-cache)))
+			(if cached
+				(progn
+				  (setf (nth 2 entry) (cdr cached))
+				  (message "Logo loaded! (from cache)"))
+			  (message "Getting playlist entry logo...")
+			  (let ((img-buf (url-retrieve-synchronously logo t t 6)))
+				(unless img-buf (user-error "Failed to fetch logo: %s" logo))
+				(with-current-buffer img-buf
+				  (goto-char (point-min))
+				  (when (search-forward "\n\n" nil t)
+					(let* ((data (buffer-substring-no-properties (point) (point-max)))
+						   ;; adjust scale to taste - 0.3..0.6 are reasonable for table cells
+						   (img (create-image data nil t :scale 0.6))
+						   (disp (propertize " " 'display img 'orig-url logo)))
+					  ;; cache and set entry's logo field to the propertized display string
+					  (push (cons logo disp) m3u-visualizer--logo-cache)
+					  (setf (nth 2 entry) disp)
+					  (message "Logo loaded!"))))))))))
+	  ;; Rebuild the table from the (now-modified) m3u-visualizer--entries
+	  (m3u-visualizer--refresh)))
 
   (global-set-key (kbd "C-c r") #'emacs-solo/get-online-radio-list-m3u)
   (define-key m3u-visualizer-mode-map (kbd "RET") #'m3u-visualizer-play-current)
@@ -5875,58 +5908,58 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
   (cond
    ;; macOS: use pbcopy/pbpaste
    ((eq system-type 'darwin)
-    (setq interprogram-cut-function
-          (lambda (text &optional _)
-            (let ((process-connection-type nil))
-              (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-                (process-send-string proc text)
-                (process-send-eof proc)))))
-    (setq interprogram-paste-function
-          (lambda ()
-            (with-temp-buffer
-              (call-process "/usr/bin/pbpaste" nil t nil)
-              (buffer-string)))))
+	(setq interprogram-cut-function
+		  (lambda (text &optional _)
+			(let ((process-connection-type nil))
+			  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+				(process-send-string proc text)
+				(process-send-eof proc)))))
+	(setq interprogram-paste-function
+		  (lambda ()
+			(with-temp-buffer
+			  (call-process "/usr/bin/pbpaste" nil t nil)
+			  (buffer-string)))))
 
    ;; WSL (Windows Subsystem for Linux): Use clip.exe for copy and powershell.exe for paste
    ((and (eq system-type 'gnu/linux)
-         (getenv "WSLENV"))
-    (setq interprogram-cut-function
-          (lambda (text &optional _)
-            (let ((process-connection-type nil))
-              (let ((proc (start-process "clip.exe" "*Messages*" "clip.exe")))
-                (process-send-string proc text)
-                (process-send-eof proc)))))
-    (setq interprogram-paste-function
-          (lambda ()
-            (string-trim (shell-command-to-string "powershell.exe -command Get-Clipboard")))))
+		 (getenv "WSLENV"))
+	(setq interprogram-cut-function
+		  (lambda (text &optional _)
+			(let ((process-connection-type nil))
+			  (let ((proc (start-process "clip.exe" "*Messages*" "clip.exe")))
+				(process-send-string proc text)
+				(process-send-eof proc)))))
+	(setq interprogram-paste-function
+		  (lambda ()
+			(string-trim (shell-command-to-string "powershell.exe -command Get-Clipboard")))))
 
    ;; Linux with wl-copy/wl-paste (Wayland)
    ((and (eq system-type 'gnu/linux)
-         (getenv "WAYLAND_DISPLAY")
-         (executable-find "wl-copy"))
-    (setq interprogram-cut-function
-          (lambda (text &optional _)
-            (let ((process-connection-type nil))
-              (let ((proc (start-process "wl-copy" "*Messages*" "wl-copy")))
-                (process-send-string proc text)
-                (process-send-eof proc)))))
-    (setq interprogram-paste-function
-          (lambda ()
-            (shell-command-to-string "wl-paste -n"))))
+		 (getenv "WAYLAND_DISPLAY")
+		 (executable-find "wl-copy"))
+	(setq interprogram-cut-function
+		  (lambda (text &optional _)
+			(let ((process-connection-type nil))
+			  (let ((proc (start-process "wl-copy" "*Messages*" "wl-copy")))
+				(process-send-string proc text)
+				(process-send-eof proc)))))
+	(setq interprogram-paste-function
+		  (lambda ()
+			(shell-command-to-string "wl-paste -n"))))
 
    ;; Linux with xclip (X11)
    ((and (eq system-type 'gnu/linux)
-         (getenv "DISPLAY")
-         (executable-find "xclip"))
-    (setq interprogram-cut-function
-          (lambda (text &optional _)
-            (let ((process-connection-type nil))
-              (let ((proc (start-process "xclip" "*Messages*" "xclip" "-selection" "clipboard")))
-                (process-send-string proc text)
-                (process-send-eof proc)))))
-    (setq interprogram-paste-function
-          (lambda ()
-            (shell-command-to-string "xclip -selection clipboard -o"))))))
+		 (getenv "DISPLAY")
+		 (executable-find "xclip"))
+	(setq interprogram-cut-function
+		  (lambda (text &optional _)
+			(let ((process-connection-type nil))
+			  (let ((proc (start-process "xclip" "*Messages*" "xclip" "-selection" "clipboard")))
+				(process-send-string proc text)
+				(process-send-eof proc)))))
+	(setq interprogram-paste-function
+		  (lambda ()
+			(shell-command-to-string "xclip -selection clipboard -o"))))))
 
 
 ;;; │ EMACS-SOLO-ELDOC-BOX
@@ -5941,130 +5974,130 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
   :init
   ;; HOLDS CHILDFRAME
   (defvar simple-eldoc-box--child-frame nil
-    "Holds the current eldoc child frame, if any.")
+	"Holds the current eldoc child frame, if any.")
 
   ;; CREATES CHILDFRAME
   (defun simple-eldoc-box--make-frame ()
-    (interactive)
-    (when (frame-live-p simple-eldoc-box--child-frame)
-      (delete-frame simple-eldoc-box--child-frame))
-    (let* ((parent (selected-frame))
-           (origin-major-mode major-mode)
-           (buffer (eldoc-doc-buffer))
-           (line-count (with-current-buffer buffer
-                         (count-lines (point-min) (point-max))))
-           (max-lines 20)
-           (min-lines 0)
-           (desired-lines (min max-lines (max min-lines line-count)))
-           (frame (make-frame
-                   `((parent-frame . ,parent)
-                     (no-accept-focus . t)
-                     (no-focus-on-map . t)
-                     (internal-border-width . 1)
-                     (undecorated . t)
-                     (fullscreen . nil)
-                     (left . ,(+ (window-pixel-left) (car (posn-x-y (posn-at-point)))))
-                     (top . ,(+ (cdr (posn-x-y (posn-at-point)))
-                                (frame-char-height)))
-                     (width . 60)
-                     (height . ,desired-lines)
-                     (minibuffer . nil)
-                     (visibility . nil)
-                     (desktop-dont-save . t)
-                     (right-fringe . 0)
-                     (left-fringe . 0)
-                     (menu-bar-lines . 0)
-                     (tool-bar-lines . 0)
-                     (tab-bar-lines-keep-state . 1)
-                     (tab-bar-lines . 0)
-                     (line-spacing . 0)
-                     (unsplittable . t)
-                     (cursor-type . nil)
-                     (mouse-wheel-frame . nil)
-                     (no-other-frame . t)
-                     (inhibit-double-buffering . t)
-                     (drag-internal-border . t)
-                     (no-special-glyphs . t)
-                     (name . "emacs-solo-eldoc-box")))))
+	(interactive)
+	(when (frame-live-p simple-eldoc-box--child-frame)
+	  (delete-frame simple-eldoc-box--child-frame))
+	(let* ((parent (selected-frame))
+		   (origin-major-mode major-mode)
+		   (buffer (eldoc-doc-buffer))
+		   (line-count (with-current-buffer buffer
+						 (count-lines (point-min) (point-max))))
+		   (max-lines 20)
+		   (min-lines 0)
+		   (desired-lines (min max-lines (max min-lines line-count)))
+		   (frame (make-frame
+				   `((parent-frame . ,parent)
+					 (no-accept-focus . t)
+					 (no-focus-on-map . t)
+					 (internal-border-width . 1)
+					 (undecorated . t)
+					 (fullscreen . nil)
+					 (left . ,(+ (window-pixel-left) (car (posn-x-y (posn-at-point)))))
+					 (top . ,(+ (cdr (posn-x-y (posn-at-point)))
+								(frame-char-height)))
+					 (width . 60)
+					 (height . ,desired-lines)
+					 (minibuffer . nil)
+					 (visibility . nil)
+					 (desktop-dont-save . t)
+					 (right-fringe . 0)
+					 (left-fringe . 0)
+					 (menu-bar-lines . 0)
+					 (tool-bar-lines . 0)
+					 (tab-bar-lines-keep-state . 1)
+					 (tab-bar-lines . 0)
+					 (line-spacing . 0)
+					 (unsplittable . t)
+					 (cursor-type . nil)
+					 (mouse-wheel-frame . nil)
+					 (no-other-frame . t)
+					 (inhibit-double-buffering . t)
+					 (drag-internal-border . t)
+					 (no-special-glyphs . t)
+					 (name . "emacs-solo-eldoc-box")))))
 
-      ;; Turn on markdown-ts-mode on some modes
-      (with-current-buffer buffer
-        (let ((supported-markdown-modes '(typescript-ts-mode tsx-ts-mode js-ts-mode)))
-          (when (memq origin-major-mode supported-markdown-modes)
-            (markdown-ts-mode)
-            (font-lock-ensure)))
+	  ;; Turn on markdown-ts-mode on some modes
+	  (with-current-buffer buffer
+		(let ((supported-markdown-modes '(typescript-ts-mode tsx-ts-mode js-ts-mode)))
+		  (when (memq origin-major-mode supported-markdown-modes)
+			(markdown-ts-mode)
+			(font-lock-ensure)))
 
-        (when (memq origin-major-mode '(go-ts-mode))
-          (go-ts-mode)
-          (font-lock-ensure))
+		(when (memq origin-major-mode '(go-ts-mode))
+		  (go-ts-mode)
+		  (font-lock-ensure))
 
-        (visual-line-mode 1)
-        (display-line-numbers-mode -1))
+		(visual-line-mode 1)
+		(display-line-numbers-mode -1))
 
-      ;; Force-disable mode line in all windows of this frame
-      (walk-windows
-       (lambda (win)
-         (when (eq (window-frame win) frame)
-           (set-window-parameter win 'mode-line-format 'none)
-           (set-window-parameter win 'header-line-format 'none))
-         nil frame))
+	  ;; Force-disable mode line in all windows of this frame
+	  (walk-windows
+	   (lambda (win)
+		 (when (eq (window-frame win) frame)
+		   (set-window-parameter win 'mode-line-format 'none)
+		   (set-window-parameter win 'header-line-format 'none))
+		 nil frame))
 
-      (set-window-buffer (frame-root-window frame) buffer)
-      (set-frame-parameter frame 'visibility t)
+	  (set-window-buffer (frame-root-window frame) buffer)
+	  (set-frame-parameter frame 'visibility t)
 
-      ;; Darker background
-      (let* ((bg (face-background 'default nil parent))
-             (rgb (color-name-to-rgb bg))
-             (darker (apply #'color-rgb-to-hex
-                            (mapcar (lambda (c) (* 0.9 c)) rgb))))
-        (set-frame-parameter frame 'background-color darker)
-        (with-current-buffer buffer
-          (face-remap-add-relative 'default `(:background ,darker))))
+	  ;; Darker background
+	  (let* ((bg (face-background 'default nil parent))
+			 (rgb (color-name-to-rgb bg))
+			 (darker (apply #'color-rgb-to-hex
+							(mapcar (lambda (c) (* 0.9 c)) rgb))))
+		(set-frame-parameter frame 'background-color darker)
+		(with-current-buffer buffer
+		  (face-remap-add-relative 'default `(:background ,darker))))
 
-      (setq simple-eldoc-box--child-frame frame)
+	  (setq simple-eldoc-box--child-frame frame)
 
-      (simple-eldoc-box--enable-auto-close)
+	  (simple-eldoc-box--enable-auto-close)
 
-      (let ((key (read-key "Eldoc Box: Press q(uit) / o(pen) doc on new window")))
-        (cond
-         ((equal key ?q)
-          (simple-eldoc-box--delete-frame))
-         ((equal key ?o)
-          (simple-eldoc-box--delete-frame)
-          (run-with-idle-timer 0.05 nil
-                               (lambda ()
-                                 (eldoc-doc-buffer t))))
-         (t
-          (simple-eldoc-box--delete-frame))))
+	  (let ((key (read-key "Eldoc Box: Press q(uit) / o(pen) doc on new window")))
+		(cond
+		 ((equal key ?q)
+		  (simple-eldoc-box--delete-frame))
+		 ((equal key ?o)
+		  (simple-eldoc-box--delete-frame)
+		  (run-with-idle-timer 0.05 nil
+							   (lambda ()
+								 (eldoc-doc-buffer t))))
+		 (t
+		  (simple-eldoc-box--delete-frame))))
 
-      frame))
+	  frame))
 
   ;; CLOSES THE BOX FRAME
   (defun simple-eldoc-box--delete-frame ()
-    (interactive)
-    (when (frame-live-p simple-eldoc-box--child-frame)
-      (delete-frame simple-eldoc-box--child-frame)
-      (setq simple-eldoc-box--child-frame nil)))
+	(interactive)
+	(when (frame-live-p simple-eldoc-box--child-frame)
+	  (delete-frame simple-eldoc-box--child-frame)
+	  (setq simple-eldoc-box--child-frame nil)))
 
   ;; CLOSE ON NEXT "MOVE"
   (defvar simple-eldoc-box--last-point nil
-    "Stores the last known position of point to detect movement.")
+	"Stores the last known position of point to detect movement.")
 
   (defun simple-eldoc-box--maybe-close-frame ()
-    "Close the eldoc child frame if point has moved."
-    (when (and simple-eldoc-box--child-frame
-               (frame-live-p simple-eldoc-box--child-frame)
-               (not (equal simple-eldoc-box--last-point (point))))
-      (simple-eldoc-box--delete-frame)))
+	"Close the eldoc child frame if point has moved."
+	(when (and simple-eldoc-box--child-frame
+			   (frame-live-p simple-eldoc-box--child-frame)
+			   (not (equal simple-eldoc-box--last-point (point))))
+	  (simple-eldoc-box--delete-frame)))
 
   (defun simple-eldoc-box--enable-auto-close ()
-    "Enable automatic closing of eldoc box when point moves."
-    (setq simple-eldoc-box--last-point (point))
-    (add-hook 'post-command-hook #'simple-eldoc-box--maybe-close-frame))
+	"Enable automatic closing of eldoc box when point moves."
+	(setq simple-eldoc-box--last-point (point))
+	(add-hook 'post-command-hook #'simple-eldoc-box--maybe-close-frame))
 
   (defun simple-eldoc-box--disable-auto-close ()
-    "Disable automatic closing of eldoc box."
-    (remove-hook 'post-command-hook #'simple-eldoc-box--maybe-close-frame))
+	"Disable automatic closing of eldoc box."
+	(remove-hook 'post-command-hook #'simple-eldoc-box--maybe-close-frame))
 
   ;; BINDINGS
   (global-set-key (kbd "C-c h") 'simple-eldoc-box--make-frame))
@@ -6084,159 +6117,159 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
   :init
   ;; HOLDS CHILDFRAME
   (defvar simple-completions-box--child-frame nil
-    "Holds the current completions child frame, if any.")
+	"Holds the current completions child frame, if any.")
 
   ;; CREATES CHILDFRAME
   (defun simple-completions-box--make-frame ()
-    (interactive)
-    (when (frame-live-p simple-completions-box--child-frame)
-      (delete-frame simple-completions-box--child-frame))
+	(interactive)
+	(when (frame-live-p simple-completions-box--child-frame)
+	  (delete-frame simple-completions-box--child-frame))
 
 
-    ;; Delete current completions window
-    (delete-window (get-buffer-window (get-buffer "*Completions*")))
+	;; Delete current completions window
+	(delete-window (get-buffer-window (get-buffer "*Completions*")))
 
-    (let* ((parent (selected-frame))
-           (pos (posn-at-point))
-           (x (car (posn-x-y pos)))
-           (y (cdr (posn-x-y pos)))
-           (window (posn-window pos))
-           (frame (window-frame window))
-           (buffer (get-buffer "*Completions*"))
-           (line-count (with-current-buffer buffer
-                         (count-lines (point-min) (point-max))))
-           (max-lines 15)
-           (desired-lines (min max-lines line-count))
-           (frame (make-frame
-                   `((parent-frame . ,parent)
-                     (no-accept-focus . nil)
-                     (no-focus-on-map . nil)
-                     (internal-border-width . 1)
-                     (undecorated . t)
-                     (fullscreen . nil)
-                     (left . ,(+ (window-pixel-left) (car (posn-x-y (posn-at-point)))))
-                     (top . ,(+ (cdr (posn-x-y (posn-at-point)))
-                                (frame-char-height)))
-                     (width . 40)
-                     (height . ,desired-lines)
-                     (minibuffer . nil)
-                     (visibility . nil)
-                     (desktop-dont-save . t)
-                     (right-fringe . 0)
-                     (left-fringe . 0)
-                     (menu-bar-lines . 0)
-                     (tool-bar-lines . 0)
-                     (tab-bar-lines . 0)
-                     (line-spacing . 0)
-                     (unsplittable . t)
-                     (cursor-type . nil)
-                     (mouse-wheel-frame . t)
-                     (no-other-frame . t)
-                     (inhibit-double-buffering . t)
-                     (drag-internal-border . t)
-                     (no-special-glyphs . t)
-                     (name . "emacs-solo-completions-box")))))
+	(let* ((parent (selected-frame))
+		   (pos (posn-at-point))
+		   (x (car (posn-x-y pos)))
+		   (y (cdr (posn-x-y pos)))
+		   (window (posn-window pos))
+		   (frame (window-frame window))
+		   (buffer (get-buffer "*Completions*"))
+		   (line-count (with-current-buffer buffer
+						 (count-lines (point-min) (point-max))))
+		   (max-lines 15)
+		   (desired-lines (min max-lines line-count))
+		   (frame (make-frame
+				   `((parent-frame . ,parent)
+					 (no-accept-focus . nil)
+					 (no-focus-on-map . nil)
+					 (internal-border-width . 1)
+					 (undecorated . t)
+					 (fullscreen . nil)
+					 (left . ,(+ (window-pixel-left) (car (posn-x-y (posn-at-point)))))
+					 (top . ,(+ (cdr (posn-x-y (posn-at-point)))
+								(frame-char-height)))
+					 (width . 40)
+					 (height . ,desired-lines)
+					 (minibuffer . nil)
+					 (visibility . nil)
+					 (desktop-dont-save . t)
+					 (right-fringe . 0)
+					 (left-fringe . 0)
+					 (menu-bar-lines . 0)
+					 (tool-bar-lines . 0)
+					 (tab-bar-lines . 0)
+					 (line-spacing . 0)
+					 (unsplittable . t)
+					 (cursor-type . nil)
+					 (mouse-wheel-frame . t)
+					 (no-other-frame . t)
+					 (inhibit-double-buffering . t)
+					 (drag-internal-border . t)
+					 (no-special-glyphs . t)
+					 (name . "emacs-solo-completions-box")))))
 
-      ;; Set up the frame
-      (set-window-buffer (frame-root-window frame) buffer)
-      (set-frame-parameter frame 'visibility t)
+	  ;; Set up the frame
+	  (set-window-buffer (frame-root-window frame) buffer)
+	  (set-frame-parameter frame 'visibility t)
 
-      ;; Watchdog
-      (simple-completions-box--start-frame-watchdog frame buffer)
+	  ;; Watchdog
+	  (simple-completions-box--start-frame-watchdog frame buffer)
 
-      ;; Force-disable mode line in all windows of this frame
-      (walk-windows
-       (lambda (win)
-         (when (eq (window-frame win) frame)
-           (set-window-parameter win 'mode-line-format 'none)
-           (set-window-parameter win 'header-line-format 'none))
-         nil frame))
+	  ;; Force-disable mode line in all windows of this frame
+	  (walk-windows
+	   (lambda (win)
+		 (when (eq (window-frame win) frame)
+		   (set-window-parameter win 'mode-line-format 'none)
+		   (set-window-parameter win 'header-line-format 'none))
+		 nil frame))
 
-      ;; Darker background
-      (let* ((bg (face-background 'default nil parent))
-             (rgb (color-name-to-rgb bg))
-             (darker (apply #'color-rgb-to-hex
-                            (mapcar (lambda (c) (* 0.9 c)) rgb))))
-        (set-frame-parameter frame 'background-color darker)
-        (with-current-buffer buffer
-          (face-remap-add-relative 'default `(:background ,darker))))
+	  ;; Darker background
+	  (let* ((bg (face-background 'default nil parent))
+			 (rgb (color-name-to-rgb bg))
+			 (darker (apply #'color-rgb-to-hex
+							(mapcar (lambda (c) (* 0.9 c)) rgb))))
+		(set-frame-parameter frame 'background-color darker)
+		(with-current-buffer buffer
+		  (face-remap-add-relative 'default `(:background ,darker))))
 
-      (setq simple-completions-box--child-frame frame)
+	  (setq simple-completions-box--child-frame frame)
 
-      frame))
+	  frame))
 
 
   ;; WATCHDOG TO CLOSE THE FRAME
   (defun simple-completions-box--start-frame-watchdog (frame buffer)
-    "Monitor FRAME and close it if BUFFER is no longer current in that frame."
-    (let ((watchdog
-           (lambda ()
-             (when (and (frame-live-p frame)
-                        (not (eq (selected-frame) frame)))
-               ;; Also check if buffer is no longer visible
-               (unless (eq (window-buffer (frame-selected-window frame)) buffer)
-                 (message "Completions frame lost focus or buffer changed — deleting.")
-                 (delete-frame frame))))))
-      ;; Store the lambda so we can remove it later if needed
-      (setq simple-completions-box--frame-watchdog watchdog)
-      (add-hook 'post-command-hook watchdog)))
+	"Monitor FRAME and close it if BUFFER is no longer current in that frame."
+	(let ((watchdog
+		   (lambda ()
+			 (when (and (frame-live-p frame)
+						(not (eq (selected-frame) frame)))
+			   ;; Also check if buffer is no longer visible
+			   (unless (eq (window-buffer (frame-selected-window frame)) buffer)
+				 (message "Completions frame lost focus or buffer changed — deleting.")
+				 (delete-frame frame))))))
+	  ;; Store the lambda so we can remove it later if needed
+	  (setq simple-completions-box--frame-watchdog watchdog)
+	  (add-hook 'post-command-hook watchdog)))
 
   (defun simple-completions-box--stop-frame-watchdog ()
-    "Stop the completions frame watchdog."
-    (when simple-completions-box--frame-watchdog
-      (remove-hook 'post-command-hook simple-completions-box--frame-watchdog)
-      (setq simple-completions-box--frame-watchdog nil)))
+	"Stop the completions frame watchdog."
+	(when simple-completions-box--frame-watchdog
+	  (remove-hook 'post-command-hook simple-completions-box--frame-watchdog)
+	  (setq simple-completions-box--frame-watchdog nil)))
 
 
   ;; CLOSES THE BOX FRAME
   (defun simple-completions-box--delete-frame ()
-    (interactive)
-    (when (frame-live-p simple-completions-box--child-frame)
-      (delete-frame simple-completions-box--child-frame)
-      (setq simple-completions-box--child-frame nil)))
+	(interactive)
+	(when (frame-live-p simple-completions-box--child-frame)
+	  (delete-frame simple-completions-box--child-frame)
+	  (setq simple-completions-box--child-frame nil)))
 
 
   ;; ADVISE COMPLETION COMMANDS TO CLOSE FRAME
   (defun simple-completions-box--close-frame-advice (&rest _)
-    (delete-frame simple-completions-box--child-frame)
-    (setq simple-completions-box--child-frame nil)
-    (simple-completions-box--stop-frame-watchdog))
+	(delete-frame simple-completions-box--child-frame)
+	(setq simple-completions-box--child-frame nil)
+	(simple-completions-box--stop-frame-watchdog))
 
 
   ;; SETUP ADVICE FOR KEY COMMANDS
   (defun simple-completions-box--setup-advice ()
-    "Setup advice for completion commands that should close the frame."
-    (advice-add 'choose-completion :after #'simple-completions-box--close-frame-advice)
-    (advice-add 'quit-window :after #'simple-completions-box--close-frame-advice)
-    (advice-add 'delete-completion-window :after #'simple-completions-box--close-frame-advice)
-    (advice-add 'minibuffer-choose-completion :after #'simple-completions-box--close-frame-advice)
-    (advice-add 'keyboard-quit :after #'simple-completions-box--close-frame-advice)
-    (advice-add 'handle-switch-frame :after #'simple-completions-box--close-frame-advice))
+	"Setup advice for completion commands that should close the frame."
+	(advice-add 'choose-completion :after #'simple-completions-box--close-frame-advice)
+	(advice-add 'quit-window :after #'simple-completions-box--close-frame-advice)
+	(advice-add 'delete-completion-window :after #'simple-completions-box--close-frame-advice)
+	(advice-add 'minibuffer-choose-completion :after #'simple-completions-box--close-frame-advice)
+	(advice-add 'keyboard-quit :after #'simple-completions-box--close-frame-advice)
+	(advice-add 'handle-switch-frame :after #'simple-completions-box--close-frame-advice))
 
   ;; REMOVE ADVICE WHEN DONE
   (defun simple-completions-box--remove-advice ()
-    "Remove advice from completion commands."
-    (advice-remove 'choose-completion #'simple-completions-box--close-frame-advice)
-    (advice-remove 'quit-window #'simple-completions-box--close-frame-advice)
-    (advice-remove 'delete-completion-window #'simple-completions-box--close-frame-advice)
-    (advice-remove 'minibuffer-choose-completion #'simple-completions-box--close-frame-advice)
-    (advice-remove 'keyboard-quit #'simple-completions-box--close-frame-advice)
-    (advice-remove 'handle-switch-frame #'simple-completions-box--close-frame-advice))
+	"Remove advice from completion commands."
+	(advice-remove 'choose-completion #'simple-completions-box--close-frame-advice)
+	(advice-remove 'quit-window #'simple-completions-box--close-frame-advice)
+	(advice-remove 'delete-completion-window #'simple-completions-box--close-frame-advice)
+	(advice-remove 'minibuffer-choose-completion #'simple-completions-box--close-frame-advice)
+	(advice-remove 'keyboard-quit #'simple-completions-box--close-frame-advice)
+	(advice-remove 'handle-switch-frame #'simple-completions-box--close-frame-advice))
 
   (add-hook 'completion-list-mode-hook #'setup-completions-hook)
 
   ;; HOOK INTO COMPLETION DISPLAY
   (defun simple-completions-box--display-completions ()
-    "Display completions in child frame when *Completions* buffer is shown."
-    (when (get-buffer "*Completions*")
-      (simple-completions-box--make-frame)
-      (simple-completions-box--setup-advice)
+	"Display completions in child frame when *Completions* buffer is shown."
+	(when (get-buffer "*Completions*")
+	  (simple-completions-box--make-frame)
+	  (simple-completions-box--setup-advice)
 
-      ;; Clean up when completions buffer is killed
-      (with-current-buffer "*Completions*"
-        (add-hook 'kill-buffer-hook #'simple-completions-box--remove-advice nil t)
-        (add-hook 'kill-buffer-hook #'simple-completions-box--delete-frame nil t)
-        (add-hook 'post-command-hook #'simple-completions-box--delete-frame nil t))))
+	  ;; Clean up when completions buffer is killed
+	  (with-current-buffer "*Completions*"
+		(add-hook 'kill-buffer-hook #'simple-completions-box--remove-advice nil t)
+		(add-hook 'kill-buffer-hook #'simple-completions-box--delete-frame nil t)
+		(add-hook 'post-command-hook #'simple-completions-box--delete-frame nil t))))
 
   (add-hook 'completion-setup-hook 'simple-completions-box--display-completions))
 
@@ -6250,70 +6283,70 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
   (require 'tabulated-list)
 
   (defvar emacs-solo-khard-buffer "*Khard Contacts*"
-    "Buffer name for displaying khard contacts.")
+	"Buffer name for displaying khard contacts.")
 
   (defun emacs-solo--parse-khard-output (output)
-    "Parse khard OUTPUT into tabulated list entries."
-    (let ((lines (split-string output "\n" t))
-          entries)
-      ;; Drop header lines (find where actual table starts)
-      (dolist (line lines)
-        (when (string-match-p "gmail\\|icloud" line)
-          (let* ((cols (split-string line "\\s-\\{2,\\}" t))
-                 (index (car cols)))
-            (push
-             (list index
-                   (vector
-                    (or index "")
-                    (or (nth 1 cols) "")
-                    (or (nth 2 cols) "")
-                    (or (nth 3 cols) "")
-                    (or (nth 4 cols) "")
-                    (or (nth 5 cols) "")))
-             entries))))
-      (nreverse entries)))
+	"Parse khard OUTPUT into tabulated list entries."
+	(let ((lines (split-string output "\n" t))
+		  entries)
+	  ;; Drop header lines (find where actual table starts)
+	  (dolist (line lines)
+		(when (string-match-p "gmail\\|icloud" line)
+		  (let* ((cols (split-string line "\\s-\\{2,\\}" t))
+				 (index (car cols)))
+			(push
+			 (list index
+				   (vector
+					(or index "")
+					(or (nth 1 cols) "")
+					(or (nth 2 cols) "")
+					(or (nth 3 cols) "")
+					(or (nth 4 cols) "")
+					(or (nth 5 cols) "")))
+			 entries))))
+	  (nreverse entries)))
 
   (define-derived-mode emacs-solo-khard-mode tabulated-list-mode "Khard"
-    "Major mode for viewing Khard contacts."
-    (setq tabulated-list-format [("Index" 5 t)
-                                 ("Name" 40 t)
-                                 ("Phone" 25 t)
-                                 ("Email" 40 t)
-                                 ("Book" 10 t)
-                                 ("UID" 8 t)])
-    (setq tabulated-list-padding 2)
-    (tabulated-list-init-header))
+	"Major mode for viewing Khard contacts."
+	(setq tabulated-list-format [("Index" 5 t)
+								 ("Name" 40 t)
+								 ("Phone" 25 t)
+								 ("Email" 40 t)
+								 ("Book" 10 t)
+								 ("UID" 8 t)])
+	(setq tabulated-list-padding 2)
+	(tabulated-list-init-header))
 
   (defun emacs-solo/khard-list ()
-    "Run khard and display contacts in a tabulated buffer."
-    (interactive)
-    (let* ((output (shell-command-to-string "khard"))
-           (entries (emacs-solo--parse-khard-output output)))
-      (with-current-buffer (get-buffer-create emacs-solo-khard-buffer)
-        (emacs-solo-khard-mode)
-        (setq tabulated-list-entries entries)
-        (tabulated-list-print t)
-        (switch-to-buffer (current-buffer)))))
+	"Run khard and display contacts in a tabulated buffer."
+	(interactive)
+	(let* ((output (shell-command-to-string "khard"))
+		   (entries (emacs-solo--parse-khard-output output)))
+	  (with-current-buffer (get-buffer-create emacs-solo-khard-buffer)
+		(emacs-solo-khard-mode)
+		(setq tabulated-list-entries entries)
+		(tabulated-list-print t)
+		(switch-to-buffer (current-buffer)))))
 
   (defun emacs-solo/khard-search ()
-    "Search khard contacts and return `Name <email>`."
-    (interactive)
-    (let* ((output (shell-command-to-string "khard"))
-           (lines (split-string output "\n" t))
-           (candidates '()))
-      (dolist (line lines)
-        (when (string-match-p "gmail\\|icloud" line)
-          (let* ((cols (split-string line "\\s-\\{2,\\}" t))
-                 (name (or (nth 1 cols) ""))
-                 (email (or (nth 3 cols) "")))
-            (when (and (not (string-empty-p name))
-                       (not (string-empty-p email)))
-              (push (cons (format "%s <%s>" name email) email) candidates)))))
-      (let* ((choice (completing-read "Search on Khard: " (mapcar #'car candidates)))
-             (res choice))
-        (kill-new res)
-        (message "Copied contact: %s" res)
-        res))))
+	"Search khard contacts and return `Name <email>`."
+	(interactive)
+	(let* ((output (shell-command-to-string "khard"))
+		   (lines (split-string output "\n" t))
+		   (candidates '()))
+	  (dolist (line lines)
+		(when (string-match-p "gmail\\|icloud" line)
+		  (let* ((cols (split-string line "\\s-\\{2,\\}" t))
+				 (name (or (nth 1 cols) ""))
+				 (email (or (nth 3 cols) "")))
+			(when (and (not (string-empty-p name))
+					   (not (string-empty-p email)))
+			  (push (cons (format "%s <%s>" name email) email) candidates)))))
+	  (let* ((choice (completing-read "Search on Khard: " (mapcar #'car candidates)))
+			 (res choice))
+		(kill-new res)
+		(message "Copied contact: %s" res)
+		res))))
 
 
 ;;; │ EMACS-SOLO-FLYMAKE-ESLINT
@@ -6331,56 +6364,56 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
   :init
   (require 'cl-lib)
   (when (featurep 'project)
-    (require 'project))
+	(require 'project))
   (when (featurep 'json)
-    (require 'json))
+	(require 'json))
 
   (require 'tramp)
 
   (defcustom flymake-eslint-executable-name "eslint"
-    "Name of executable to run when checker is called.
+	"Name of executable to run when checker is called.
 Must be present in variable `exec-path'."
-    :type 'string
-    :group 'emacs-solo)
+	:type 'string
+	:group 'emacs-solo)
 
   (defcustom flymake-eslint-executable-args nil
-    "Extra arguments to pass to eslint."
-    :type '(choice string (repeat string))
-    :group 'emacs-solo)
+	"Extra arguments to pass to eslint."
+	:type '(choice string (repeat string))
+	:group 'emacs-solo)
 
   (defcustom flymake-eslint-show-rule-name t
-    "When non-nil show eslint rule name in flymake diagnostic."
-    :type 'boolean
-    :group 'emacs-solo)
+	"When non-nil show eslint rule name in flymake diagnostic."
+	:type 'boolean
+	:group 'emacs-solo)
 
   (defcustom flymake-eslint-defer-binary-check t
-    "Defer the eslint binary presence check.
+	"Defer the eslint binary presence check.
 When non-nil, the initial check, which ensures that eslint binary
 is present, is disabled.  Instead, this check is performed during
 backend execution.
 
 Useful when the value of variable `exec-path' is set dynamically
 and the location of eslint might not be known ahead of time."
-    :type 'boolean
-    :group 'emacs-solo)
+	:type 'boolean
+	:group 'emacs-solo)
 
   (defcustom flymake-eslint-project-root nil
-    "Buffer-local.
+	"Buffer-local.
 Set to a filesystem path to use that path as the current working
 directory of the linting process."
-    :type 'string
-    :group 'emacs-solo)
+	:type 'string
+	:group 'emacs-solo)
 
   (defcustom flymake-eslint-prefer-json-diagnostics t
-    "Try to use the JSON diagnostic format when running eslint.
+	"Try to use the JSON diagnostic format when running eslint.
 This gives more accurate diagnostics but requires having an Emacs
 installation with JSON support."
-    :type 'boolean
-    :group 'emacs-solo)
+	:type 'boolean
+	:group 'emacs-solo)
 
   (defcustom flymake-eslint-project-markers
-    '("eslint.config.js" "eslint.config.mjs" "eslint.config.cjs" "package.json")
-    "List of files indicating the root of a JavaScript project.
+	'("eslint.config.js" "eslint.config.mjs" "eslint.config.cjs" "package.json")
+	"List of files indicating the root of a JavaScript project.
 
 flymake-eslint starts ESLint at the root of your JavaScript
 project. This root is defined as the first directory containing a file
@@ -6389,100 +6422,100 @@ current buffer.
 
 Adding a \".eslintrc.js\" entry (or another supported extension) to this
 list only makes sense if there is at most one such file per project."
-    :type '(repeat string)
-    :group 'emacs-solo)
+	:type '(repeat string)
+	:group 'emacs-solo)
 
   (defvar flymake-eslint--message-regexp
-    (rx bol (* space) (group (+ num)) ":" (group (+ num)) ; line:col
-        (+ space) (group (or "error" "warning"))          ; type
-        (+ space) (group (+? anychar))                    ; message
-        (>= 2 space) (group (* not-newline)) eol)         ; rule name
-    "Regexp to match eslint messages.")
+	(rx bol (* space) (group (+ num)) ":" (group (+ num)) ; line:col
+		(+ space) (group (or "error" "warning"))          ; type
+		(+ space) (group (+? anychar))                    ; message
+		(>= 2 space) (group (* not-newline)) eol)         ; rule name
+	"Regexp to match eslint messages.")
 
   (defvar-local flymake-eslint--process nil
-    "Handle to the linter process for the current buffer.")
+	"Handle to the linter process for the current buffer.")
 
   (defun flymake-eslint-enable ()
-    "Enable Flymake and flymake-eslint.
+	"Enable Flymake and flymake-eslint.
 Add this function to some js major mode hook."
-    (interactive)
-    (unless flymake-eslint-defer-binary-check
-      (flymake-eslint--ensure-binary-exists))
-    (make-local-variable 'flymake-eslint-project-root)
-    (flymake-mode t)
-    (add-hook 'flymake-diagnostic-functions 'flymake-eslint--checker nil t))
+	(interactive)
+	(unless flymake-eslint-defer-binary-check
+	  (flymake-eslint--ensure-binary-exists))
+	(make-local-variable 'flymake-eslint-project-root)
+	(flymake-mode t)
+	(add-hook 'flymake-diagnostic-functions 'flymake-eslint--checker nil t))
 
   (defun flymake-eslint--executable-args ()
-    "Get additional arguments for `flymake-eslint-executable-name'.
+	"Get additional arguments for `flymake-eslint-executable-name'.
 Return `flymake-eslint-executable-args' value and ensure that
 this is a list."
-    (if (listp flymake-eslint-executable-args)
-        flymake-eslint-executable-args
-      (list flymake-eslint-executable-args)))
+	(if (listp flymake-eslint-executable-args)
+		flymake-eslint-executable-args
+	  (list flymake-eslint-executable-args)))
 
   (defun flymake-eslint--ensure-binary-exists ()
-    "Ensure that `flymake-eslint-executable-name' exists.
+	"Ensure that `flymake-eslint-executable-name' exists.
 Otherwise, throw an error and tell Flymake to disable this
 backend if `flymake-eslint-executable-name' can't be found in
 variable `exec-path'"
-    (unless (executable-find flymake-eslint-executable-name t)
-      (let ((option 'flymake-eslint-executable-name))
-        (error "Can't find \"%s\" in exec-path - try to configure `%s'"
-               (symbol-value option) option))))
+	(unless (executable-find flymake-eslint-executable-name t)
+	  (let ((option 'flymake-eslint-executable-name))
+		(error "Can't find \"%s\" in exec-path - try to configure `%s'"
+			   (symbol-value option) option))))
 
   (defun flymake-eslint--get-position (line column buffer)
-    "Get the position at LINE and COLUMN for BUFFER."
-    (with-current-buffer buffer
-      (save-excursion
-        (when (and line column)
-          (goto-char (point-min))
-          (forward-line (1- line))
-          (forward-char (1- column))
-          (point)))))
+	"Get the position at LINE and COLUMN for BUFFER."
+	(with-current-buffer buffer
+	  (save-excursion
+		(when (and line column)
+		  (goto-char (point-min))
+		  (forward-line (1- line))
+		  (forward-char (1- column))
+		  (point)))))
 
   (defun flymake-eslint--diag-from-eslint (eslint-diag buffer)
-    "Transform ESLINT-DIAG diagnostic for BUFFER into a Flymake one."
-    (let* ((beg-line (gethash "line" eslint-diag))
-           (beg-col (gethash "column" eslint-diag))
-           (beg-pos (flymake-eslint--get-position beg-line beg-col buffer))
-           (end-line (gethash "endLine" eslint-diag))
-           (end-col (gethash "endColumn" eslint-diag))
-           (end-pos (if end-line
-                        (flymake-eslint--get-position end-line end-col buffer)
-                      (cdr (flymake-diag-region buffer beg-line))))
-           (lint-rule (gethash "ruleId" eslint-diag))
-           (severity (gethash "severity" eslint-diag))
-           (type (if (equal severity 1) :warning :error))
-           (msg (gethash "message" eslint-diag))
-           (full-msg (concat
-                      msg
-                      (when (and flymake-eslint-show-rule-name lint-rule)
-                        (format " [%s]" lint-rule)))))
-      (flymake-make-diagnostic
-       buffer
-       beg-pos
-       end-pos
-       type
-       full-msg
-       (list :rule-name lint-rule))))
+	"Transform ESLINT-DIAG diagnostic for BUFFER into a Flymake one."
+	(let* ((beg-line (gethash "line" eslint-diag))
+		   (beg-col (gethash "column" eslint-diag))
+		   (beg-pos (flymake-eslint--get-position beg-line beg-col buffer))
+		   (end-line (gethash "endLine" eslint-diag))
+		   (end-col (gethash "endColumn" eslint-diag))
+		   (end-pos (if end-line
+						(flymake-eslint--get-position end-line end-col buffer)
+					  (cdr (flymake-diag-region buffer beg-line))))
+		   (lint-rule (gethash "ruleId" eslint-diag))
+		   (severity (gethash "severity" eslint-diag))
+		   (type (if (equal severity 1) :warning :error))
+		   (msg (gethash "message" eslint-diag))
+		   (full-msg (concat
+					  msg
+					  (when (and flymake-eslint-show-rule-name lint-rule)
+						(format " [%s]" lint-rule)))))
+	  (flymake-make-diagnostic
+	   buffer
+	   beg-pos
+	   end-pos
+	   type
+	   full-msg
+	   (list :rule-name lint-rule))))
 
   (defun flymake-eslint--report-json (eslint-stdout-buffer source-buffer)
-    "Create Flymake diagnostics from the JSON diagnostic in ESLINT-STDOUT-BUFFER.
+	"Create Flymake diagnostics from the JSON diagnostic in ESLINT-STDOUT-BUFFER.
 The diagnostics are reported against SOURCE-BUFFER."
-    (if (featurep 'json)
-        (with-current-buffer eslint-stdout-buffer
-          (goto-char (point-min))
-          (let* ((full-diagnostics (flymake-eslint--json-parse-buffer))
-                 (eslint-diags (gethash "messages"(elt full-diagnostics 0))))
-            (seq-map
-             (lambda (diag)
-               (flymake-eslint--diag-from-eslint diag source-buffer))
-             eslint-diags)))
-      (error
-       "Tried to parse JSON diagnostics but current Emacs does not support it.")))
+	(if (featurep 'json)
+		(with-current-buffer eslint-stdout-buffer
+		  (goto-char (point-min))
+		  (let* ((full-diagnostics (flymake-eslint--json-parse-buffer))
+				 (eslint-diags (gethash "messages"(elt full-diagnostics 0))))
+			(seq-map
+			 (lambda (diag)
+			   (flymake-eslint--diag-from-eslint diag source-buffer))
+			 eslint-diags)))
+	  (error
+	   "Tried to parse JSON diagnostics but current Emacs does not support it.")))
 
   (defun flymake-eslint--json-parse-buffer ()
-    "Return eslint diagnostics in the current buffer.
+	"Return eslint diagnostics in the current buffer.
 
 The current buffer is expected to contain a JSON output of
 diagnostics messages written by eslint.
@@ -6494,161 +6527,161 @@ When eslint crashes, the current buffer may contain non-JSON
 output. In this case, the function returns the same kind of data
 but the only contained error consists of information about the
 crash."
-    (condition-case nil
-        (json-parse-buffer)
-      (json-parse-error (flymake-eslint--generate-fake-diagnostics-from-non-json-output))))
+	(condition-case nil
+		(json-parse-buffer)
+	  (json-parse-error (flymake-eslint--generate-fake-diagnostics-from-non-json-output))))
 
   (defun flymake-eslint--generate-fake-diagnostics-from-non-json-output ()
-    "Return a diagnostic list containing the reason for eslint's crash."
-    (let ((eslint-message (make-hash-table :test 'equal)))
-      (puthash "line" 1 eslint-message)
-      (puthash "column" 1 eslint-message)
-      (puthash "ruleId" "eslint" eslint-message)
-      (puthash "severity" 2 eslint-message)
-      (puthash "message"
-               (buffer-substring-no-properties (point-min) (point-max))
-               eslint-message)
-      (let ((eslint-messages (list eslint-message))
-            (result (make-hash-table :test 'equal)))
-        (puthash "messages" eslint-messages result)
-        (list result))))
+	"Return a diagnostic list containing the reason for eslint's crash."
+	(let ((eslint-message (make-hash-table :test 'equal)))
+	  (puthash "line" 1 eslint-message)
+	  (puthash "column" 1 eslint-message)
+	  (puthash "ruleId" "eslint" eslint-message)
+	  (puthash "severity" 2 eslint-message)
+	  (puthash "message"
+			   (buffer-substring-no-properties (point-min) (point-max))
+			   eslint-message)
+	  (let ((eslint-messages (list eslint-message))
+			(result (make-hash-table :test 'equal)))
+		(puthash "messages" eslint-messages result)
+		(list result))))
 
   (defun flymake-eslint--use-json-p ()
-    "Check if eslint diagnostics should be requested to be formatted as JSON."
-    (and (featurep 'json) flymake-eslint-prefer-json-diagnostics))
+	"Check if eslint diagnostics should be requested to be formatted as JSON."
+	(and (featurep 'json) flymake-eslint-prefer-json-diagnostics))
 
   (defun flymake-eslint--report (eslint-stdout-buffer source-buffer)
-    "Create Flymake diag messages from contents of ESLINT-STDOUT-BUFFER.
+	"Create Flymake diag messages from contents of ESLINT-STDOUT-BUFFER.
 They are reported against SOURCE-BUFFER.  Return a list of
 results."
-    (with-current-buffer eslint-stdout-buffer
-      ;; start at the top and check each line for an eslint message
-      (goto-char (point-min))
-      (if (looking-at-p "Error:")
-          (pcase-let ((`(,beg . ,end) (with-current-buffer source-buffer
-                                        (cons (point-min) (point-max))))
-                      (msg (thing-at-point 'line t)))
-            (list (flymake-make-diagnostic source-buffer beg end :error msg)))
-        (cl-loop
-         until (eobp)
-         when (looking-at flymake-eslint--message-regexp)
-         collect (let* ((row (string-to-number (match-string 1)))
-                        (column (string-to-number (match-string 2)))
-                        (type (match-string 3))
-                        (msg (match-string 4))
-                        (lint-rule (match-string 5))
-                        (msg-text (concat (format "%s: %s" type msg)
-                                          (when flymake-eslint-show-rule-name
-                                            (format " [%s]" lint-rule))))
-                        (type-symbol (pcase type ("warning" :warning) (_ :error)))
-                        (src-pos (flymake-diag-region source-buffer row column)))
-                   ;; new Flymake diag message
-                   (flymake-make-diagnostic
-                    source-buffer
-                    (car src-pos)
-                    ;; buffer might have changed size
-                    (min (buffer-size source-buffer) (cdr src-pos))
-                    type-symbol
-                    msg-text
-                    (list :rule-name lint-rule)))
-         do (forward-line 1)))))
+	(with-current-buffer eslint-stdout-buffer
+	  ;; start at the top and check each line for an eslint message
+	  (goto-char (point-min))
+	  (if (looking-at-p "Error:")
+		  (pcase-let ((`(,beg . ,end) (with-current-buffer source-buffer
+										(cons (point-min) (point-max))))
+					  (msg (thing-at-point 'line t)))
+			(list (flymake-make-diagnostic source-buffer beg end :error msg)))
+		(cl-loop
+		 until (eobp)
+		 when (looking-at flymake-eslint--message-regexp)
+		 collect (let* ((row (string-to-number (match-string 1)))
+						(column (string-to-number (match-string 2)))
+						(type (match-string 3))
+						(msg (match-string 4))
+						(lint-rule (match-string 5))
+						(msg-text (concat (format "%s: %s" type msg)
+										  (when flymake-eslint-show-rule-name
+											(format " [%s]" lint-rule))))
+						(type-symbol (pcase type ("warning" :warning) (_ :error)))
+						(src-pos (flymake-diag-region source-buffer row column)))
+				   ;; new Flymake diag message
+				   (flymake-make-diagnostic
+					source-buffer
+					(car src-pos)
+					;; buffer might have changed size
+					(min (buffer-size source-buffer) (cdr src-pos))
+					type-symbol
+					msg-text
+					(list :rule-name lint-rule)))
+		 do (forward-line 1)))))
 
   ;; Heavily based on the example found at
   ;; https://www.gnu.org/software/emacs/manual/html_node/flymake/An-annotated-example-backend.html
   (defun flymake-eslint--create-process (source-buffer callback)
-    "Create linter process for SOURCE-BUFFER.
+	"Create linter process for SOURCE-BUFFER.
 CALLBACK is invoked once linter has finished the execution.
 CALLBACK accepts a buffer containing stdout from linter as its
 argument."
-    (when (process-live-p flymake-eslint--process)
-      (kill-process flymake-eslint--process))
-    (let ((default-directory
-           (or
-            flymake-eslint-project-root
-            (flymake-eslint--directory-containing-project-marker)
-            (when (and (featurep 'project)
-                       (project-current))
-              (project-root (project-current)))
-            default-directory))
-          (format-args
-           (if (flymake-eslint--use-json-p)
-               '("--format" "json")
-             ""))
-          (file-name (let ((file-name (buffer-file-name source-buffer)))
-                       (if (file-remote-p file-name)
-                           (tramp-file-name-localname (tramp-dissect-file-name file-name))
-                         file-name))))
-      (setq flymake-eslint--process
-            (make-process
-             :name "flymake-eslint"
-             :file-handler t
-             :connection-type 'pipe
-             :noquery t
-             :buffer (generate-new-buffer " *flymake-eslint*")
-             :command `(,flymake-eslint-executable-name
-                        "--no-color"
-                        "--no-ignore"
-                        ,@format-args
-                        "--stdin"
-                        "--stdin-filename"
-                        ,(or file-name (buffer-name source-buffer))
-                        ,@(flymake-eslint--executable-args))
-             :sentinel
-             (lambda (proc &rest ignored)
-               (let ((status (process-status proc))
-                     (buffer (process-buffer proc)))
-                 (when (and (eq 'exit status)
-                            ;; make sure we're not using a deleted buffer
-                            (buffer-live-p source-buffer)
-                            ;; make sure we're using the latest lint process
-                            (eq proc (buffer-local-value 'flymake-eslint--process
-                                                         source-buffer)))
-                   ;; read from eslint output
-                   (funcall callback buffer))
-                 ;; destroy temp buffer when done or killed
-                 (when (memq status '(exit signal))
-                   (kill-buffer buffer))))))))
+	(when (process-live-p flymake-eslint--process)
+	  (kill-process flymake-eslint--process))
+	(let ((default-directory
+		   (or
+			flymake-eslint-project-root
+			(flymake-eslint--directory-containing-project-marker)
+			(when (and (featurep 'project)
+					   (project-current))
+			  (project-root (project-current)))
+			default-directory))
+		  (format-args
+		   (if (flymake-eslint--use-json-p)
+			   '("--format" "json")
+			 ""))
+		  (file-name (let ((file-name (buffer-file-name source-buffer)))
+					   (if (file-remote-p file-name)
+						   (tramp-file-name-localname (tramp-dissect-file-name file-name))
+						 file-name))))
+	  (setq flymake-eslint--process
+			(make-process
+			 :name "flymake-eslint"
+			 :file-handler t
+			 :connection-type 'pipe
+			 :noquery t
+			 :buffer (generate-new-buffer " *flymake-eslint*")
+			 :command `(,flymake-eslint-executable-name
+						"--no-color"
+						"--no-ignore"
+						,@format-args
+						"--stdin"
+						"--stdin-filename"
+						,(or file-name (buffer-name source-buffer))
+						,@(flymake-eslint--executable-args))
+			 :sentinel
+			 (lambda (proc &rest ignored)
+			   (let ((status (process-status proc))
+					 (buffer (process-buffer proc)))
+				 (when (and (eq 'exit status)
+							;; make sure we're not using a deleted buffer
+							(buffer-live-p source-buffer)
+							;; make sure we're using the latest lint process
+							(eq proc (buffer-local-value 'flymake-eslint--process
+														 source-buffer)))
+				   ;; read from eslint output
+				   (funcall callback buffer))
+				 ;; destroy temp buffer when done or killed
+				 (when (memq status '(exit signal))
+				   (kill-buffer buffer))))))))
 
   (defun flymake-eslint--directory-containing-project-marker ()
-    "Return the directory containing a project marker.
+	"Return the directory containing a project marker.
 
 Return the first directory containing a file of `flymake-eslint-project-markers',
 starting from the value of `default-directory' in the current buffer."
-    (locate-dominating-file
-     default-directory
-     (lambda (directory)
-       (seq-find
-        (lambda (project-marker)
-          (file-exists-p (expand-file-name project-marker directory)))
-        flymake-eslint-project-markers))))
+	(locate-dominating-file
+	 default-directory
+	 (lambda (directory)
+	   (seq-find
+		(lambda (project-marker)
+		  (file-exists-p (expand-file-name project-marker directory)))
+		flymake-eslint-project-markers))))
 
   (defun flymake-eslint--check-and-report (source-buffer report-fn)
-    "Run eslint against SOURCE-BUFFER.
+	"Run eslint against SOURCE-BUFFER.
 Use REPORT-FN to report results."
-    (when flymake-eslint-defer-binary-check
-      (flymake-eslint--ensure-binary-exists))
-    (let ((diag-builder-fn
-           (if (flymake-eslint--use-json-p)
-               'flymake-eslint--report-json
-             'flymake-eslint--report)))
-      (let ((content (buffer-string)))
-        (if (string-empty-p content)
-            (funcall report-fn (list))
-          (flymake-eslint--create-process
-           source-buffer
-           (lambda (eslint-stdout)
-             (funcall
-              report-fn
-              (funcall diag-builder-fn eslint-stdout source-buffer))))
-          (with-current-buffer source-buffer
-            (process-send-string flymake-eslint--process (buffer-string))
-            (process-send-eof flymake-eslint--process))))))
+	(when flymake-eslint-defer-binary-check
+	  (flymake-eslint--ensure-binary-exists))
+	(let ((diag-builder-fn
+		   (if (flymake-eslint--use-json-p)
+			   'flymake-eslint--report-json
+			 'flymake-eslint--report)))
+	  (let ((content (buffer-string)))
+		(if (string-empty-p content)
+			(funcall report-fn (list))
+		  (flymake-eslint--create-process
+		   source-buffer
+		   (lambda (eslint-stdout)
+			 (funcall
+			  report-fn
+			  (funcall diag-builder-fn eslint-stdout source-buffer))))
+		  (with-current-buffer source-buffer
+			(process-send-string flymake-eslint--process (buffer-string))
+			(process-send-eof flymake-eslint--process))))))
 
   (defun flymake-eslint--checker (report-fn &rest _ignored)
-    "Run eslint on the current buffer.
+	"Run eslint on the current buffer.
 Report results using REPORT-FN.  All other parameters are
 currently ignored."
-    (flymake-eslint--check-and-report (current-buffer) report-fn)))
+	(flymake-eslint--check-and-report (current-buffer) report-fn)))
 
 
 ;;; │ EMACS-SOLO-YOUTUBE
@@ -6667,187 +6700,187 @@ currently ignored."
   (require 'subr-x)
 
   (defvar youtube-search-max-results 10
-    "Default max results for YouTube searches.")
+	"Default max results for YouTube searches.")
 
   (defvar youtube-mpv-process nil
-    "Holds the current mpv process started by YouTube results.")
+	"Holds the current mpv process started by YouTube results.")
 
   (defvar youtube-active-url nil
-    "URL of the video currently being played.")
+	"URL of the video currently being played.")
 
   (defvar-local youtube--thumbnail-cache nil
-    "Alist mapping thumbnail URL -> propertized display string.")
+	"Alist mapping thumbnail URL -> propertized display string.")
 
   (defun youtube--first-thumb-url (entry)
-    "Return the first thumbnail URL from yt-dlp ENTRY."
-    (let ((thumbs (alist-get 'thumbnails entry)))
-      (when (and thumbs (> (length thumbs) 0))
-        (cdr (assoc 'url (aref thumbs 0))))))
+	"Return the first thumbnail URL from yt-dlp ENTRY."
+	(let ((thumbs (alist-get 'thumbnails entry)))
+	  (when (and thumbs (> (length thumbs) 0))
+		(cdr (assoc 'url (aref thumbs 0))))))
 
 
   (defun youtube--thumb-retrieve-async (video-url thumb-url callback)
-    "Retrieve THUMB-URL asynchronously and call CALLBACK with VIDEO-URL and image property."
-    (let ((fixed-url (if (and (stringp thumb-url) (string-prefix-p "//" thumb-url))
-                         (concat "https:" thumb-url)
-                       thumb-url)))
-      (if-let* ((cached (cdr (assoc fixed-url youtube--thumbnail-cache))))
-          (funcall callback video-url cached)
-        (if (not (and (stringp fixed-url) (not (string-empty-p fixed-url))))
-            (funcall callback video-url "[img]")
-          (url-retrieve
-           fixed-url
-           (lambda (status)
-             (let ((result "[img]"))
-               (if (not (plist-get status :error))
-                   (with-current-buffer (current-buffer)
-                     (goto-char (point-min))
-                     (when (search-forward "
+	"Retrieve THUMB-URL asynchronously and call CALLBACK with VIDEO-URL and image property."
+	(let ((fixed-url (if (and (stringp thumb-url) (string-prefix-p "//" thumb-url))
+						 (concat "https:" thumb-url)
+					   thumb-url)))
+	  (if-let* ((cached (cdr (assoc fixed-url youtube--thumbnail-cache))))
+		  (funcall callback video-url cached)
+		(if (not (and (stringp fixed-url) (not (string-empty-p fixed-url))))
+			(funcall callback video-url "[img]")
+		  (url-retrieve
+		   fixed-url
+		   (lambda (status)
+			 (let ((result "[img]"))
+			   (if (not (plist-get status :error))
+				   (with-current-buffer (current-buffer)
+					 (goto-char (point-min))
+					 (when (search-forward "
 
 " nil t)
-                       (let* ((image-data (buffer-substring-no-properties (point) (point-max)))
-                              (image-object (condition-case nil
-                                                (create-image image-data 'jpeg t
-                                                              :width 120 :height 68
-                                                              :max-width 120 :max-height 68
-                                                              :ascent 'center)
-                                              (error nil))))
-                         (when image-object
-                           (setq result (propertize (format " %s " (make-string 12 ? )) 'display image-object)))))))
-               (when (buffer-live-p (current-buffer))
-                 (kill-buffer (current-buffer)))
-               (push (cons fixed-url result) youtube--thumbnail-cache)
-               (funcall callback video-url result)))
-           nil ; cb-args
-           t   ; quiet
-           t))))) ; raw-data
+					   (let* ((image-data (buffer-substring-no-properties (point) (point-max)))
+							  (image-object (condition-case nil
+												(create-image image-data 'jpeg t
+															  :width 120 :height 68
+															  :max-width 120 :max-height 68
+															  :ascent 'center)
+											  (error nil))))
+						 (when image-object
+						   (setq result (propertize (format " %s " (make-string 12 ? )) 'display image-object)))))))
+			   (when (buffer-live-p (current-buffer))
+				 (kill-buffer (current-buffer)))
+			   (push (cons fixed-url result) youtube--thumbnail-cache)
+			   (funcall callback video-url result)))
+		   nil ; cb-args
+		   t   ; quiet
+		   t))))) ; raw-data
 
   (defun youtube-search--parse-line (line)
-    "Parse a single LINE of yt-dlp JSON output into an alist."
-    (condition-case nil
-        (json-parse-string line :object-type 'alist)
-      (error nil)))
+	"Parse a single LINE of yt-dlp JSON output into an alist."
+	(condition-case nil
+		(json-parse-string line :object-type 'alist)
+	  (error nil)))
 
   (defun youtube-search--insert-results (results)
-    "Insert RESULTS into the tabulated-list buffer and fetch thumbnails asynchronously."
-    (with-current-buffer (get-buffer-create "*YouTube Results*")
-      (message "Processing youtube results...")
-      (youtube-results-mode)
-      (setq tabulated-list-entries
-            (mapcar
-             (lambda (r)
-               (let* ((url (alist-get 'url r))
-                      (title (or (alist-get 'title r) ""))
-                      (channel (or (alist-get 'uploader r) ""))
-                      (duration (or (alist-get 'duration_string r) ""))
-                      (status (if (and youtube-active-url
-                                       (string= url youtube-active-url))
-                                  "▶" ""))
-                      (thumb-url (youtube--first-thumb-url r)))
+	"Insert RESULTS into the tabulated-list buffer and fetch thumbnails asynchronously."
+	(with-current-buffer (get-buffer-create "*YouTube Results*")
+	  (message "Processing youtube results...")
+	  (youtube-results-mode)
+	  (setq tabulated-list-entries
+			(mapcar
+			 (lambda (r)
+			   (let* ((url (alist-get 'url r))
+					  (title (or (alist-get 'title r) ""))
+					  (channel (or (alist-get 'uploader r) ""))
+					  (duration (or (alist-get 'duration_string r) ""))
+					  (status (if (and youtube-active-url
+									   (string= url youtube-active-url))
+								  "▶" ""))
+					  (thumb-url (youtube--first-thumb-url r)))
 
-                 (when (and thumb-url (> (length thumb-url) 0))
-                   (youtube--thumb-retrieve-async
-                    url thumb-url
-                    (lambda (video-url-cb thumb-prop)
-                      (when (get-buffer "*YouTube Results*")
-                        (with-current-buffer "*YouTube Results*"
-                          (let ((entry (assoc video-url-cb tabulated-list-entries)))
-                            (when entry
-                              (aset (cadr entry) 1 thumb-prop)
-                              (when (get-buffer-window (current-buffer))
-                                (tabulated-list-print t)))))))))
+				 (when (and thumb-url (> (length thumb-url) 0))
+				   (youtube--thumb-retrieve-async
+					url thumb-url
+					(lambda (video-url-cb thumb-prop)
+					  (when (get-buffer "*YouTube Results*")
+						(with-current-buffer "*YouTube Results*"
+						  (let ((entry (assoc video-url-cb tabulated-list-entries)))
+							(when entry
+							  (aset (cadr entry) 1 thumb-prop)
+							  (when (get-buffer-window (current-buffer))
+								(tabulated-list-print t)))))))))
 
-                 (list url (vector status
-                                   "[img]"
-                                   title
-                                   duration
-                                   channel
-                                   url))))
-             results))
-      (tabulated-list-init-header)
-      (tabulated-list-print t)
-      (display-buffer (current-buffer)))
-    (message "Processing youtube results: Done!"))
+				 (list url (vector status
+								   "[img]"
+								   title
+								   duration
+								   channel
+								   url))))
+			 results))
+	  (tabulated-list-init-header)
+	  (tabulated-list-print t)
+	  (display-buffer (current-buffer)))
+	(message "Processing youtube results: Done!"))
 
   (defun youtube-search-async (query &optional max-results)
-    "Search YouTube asynchronously using yt-dlp."
-    (interactive "sSearch YouTube:
+	"Search YouTube asynchronously using yt-dlp."
+	(interactive "sSearch YouTube:
 P")
-    (let* ((buf (get-buffer-create "*YouTube Search Raw*"))
-           (max-results (or max-results youtube-search-max-results)))
-      (with-current-buffer buf (erase-buffer))
-      (message "Searching YouTube...")
-      (make-process
-       :name "youtube-search"
-       :buffer buf
-       :command `("yt-dlp"
-                  "--default-search" "ytsearchdate"
-                  "--flat-playlist"
-                  "--dump-json"
-                  ,(format "ytsearch%d:%s" max-results query))
-       :sentinel
-       (lambda (p _e)
-         (when (eq (process-status p) 'exit)
-           (with-current-buffer (process-buffer p)
-             (goto-char (point-min))
-             (let (results)
-               (while (not (eobp))
-                 (let* ((line (string-trim (thing-at-point 'line t)))
-                        (obj (and (not (string-empty-p line))
-                                  (youtube-search--parse-line line))))
-                   (when obj (push obj results)))
-                 (forward-line 1))
-               (message "YouTube search done.")
-               (youtube-search--insert-results (nreverse results)))))))))
+	(let* ((buf (get-buffer-create "*YouTube Search Raw*"))
+		   (max-results (or max-results youtube-search-max-results)))
+	  (with-current-buffer buf (erase-buffer))
+	  (message "Searching YouTube...")
+	  (make-process
+	   :name "youtube-search"
+	   :buffer buf
+	   :command `("yt-dlp"
+				  "--default-search" "ytsearchdate"
+				  "--flat-playlist"
+				  "--dump-json"
+				  ,(format "ytsearch%d:%s" max-results query))
+	   :sentinel
+	   (lambda (p _e)
+		 (when (eq (process-status p) 'exit)
+		   (with-current-buffer (process-buffer p)
+			 (goto-char (point-min))
+			 (let (results)
+			   (while (not (eobp))
+				 (let* ((line (string-trim (thing-at-point 'line t)))
+						(obj (and (not (string-empty-p line))
+								  (youtube-search--parse-line line))))
+				   (when obj (push obj results)))
+				 (forward-line 1))
+			   (message "YouTube search done.")
+			   (youtube-search--insert-results (nreverse results)))))))))
 
   ;; Table UI
 
   (define-derived-mode youtube-results-mode tabulated-list-mode "YouTube Results"
-    "Major mode for displaying YouTube search results."
-    (setq tabulated-list-format [("▶" 2 nil)
-                                 ("Thumb" 20 nil)
-                                 ("Title" 60 t)
-                                 ("Duration" 10 t)
-                                 ("Channel" 25 t)
-                                 ("URL" 40 t)])
-    (setq tabulated-list-padding 2)
-    (setq tabulated-list-sort-key (cons "Title" nil))
-    (tabulated-list-init-header))
+	"Major mode for displaying YouTube search results."
+	(setq tabulated-list-format [("▶" 2 nil)
+								 ("Thumb" 20 nil)
+								 ("Title" 60 t)
+								 ("Duration" 10 t)
+								 ("Channel" 25 t)
+								 ("URL" 40 t)])
+	(setq tabulated-list-padding 2)
+	(setq tabulated-list-sort-key (cons "Title" nil))
+	(tabulated-list-init-header))
 
   (defun youtube-results-play ()
-    "Play the selected video with mpv."
-    (interactive)
-    (let* ((url (tabulated-list-get-id)))
-      (when url
-        (when (process-live-p youtube-mpv-process)
-          (delete-process youtube-mpv-process)
-          (setq youtube-mpv-process nil))
-        (setq youtube-active-url url)
-        (setq youtube-mpv-process
-              (start-process "mpv" "*mpv*"
-                             "mpv"
-                             "--geometry=50%x50%"
-                             "--autofit=640x360"
-                             url))
-        (youtube-search--refresh-status)
-        (message "Playing: %s" url))))
+	"Play the selected video with mpv."
+	(interactive)
+	(let* ((url (tabulated-list-get-id)))
+	  (when url
+		(when (process-live-p youtube-mpv-process)
+		  (delete-process youtube-mpv-process)
+		  (setq youtube-mpv-process nil))
+		(setq youtube-active-url url)
+		(setq youtube-mpv-process
+			  (start-process "mpv" "*mpv*"
+							 "mpv"
+							 "--geometry=50%x50%"
+							 "--autofit=640x360"
+							 url))
+		(youtube-search--refresh-status)
+		(message "Playing: %s" url))))
 
   (defun youtube-results-stop ()
-    "Stop current mpv process."
-    (interactive)
-    (if (process-live-p youtube-mpv-process)
-        (progn
-          (delete-process youtube-mpv-process)
-          (setq youtube-mpv-process nil)
-          (setq youtube-active-url nil)
-          (youtube-search--refresh-status)
-          (message "Stopped mpv."))
-      (message "No mpv process running.")))
+	"Stop current mpv process."
+	(interactive)
+	(if (process-live-p youtube-mpv-process)
+		(progn
+		  (delete-process youtube-mpv-process)
+		  (setq youtube-mpv-process nil)
+		  (setq youtube-active-url nil)
+		  (youtube-search--refresh-status)
+		  (message "Stopped mpv."))
+	  (message "No mpv process running.")))
 
   (defun youtube-search--refresh-status ()
-    "Refresh play status in the results buffer."
-    (when (get-buffer "*YouTube Results*")
-      (with-current-buffer "*YouTube Results*"
-        (tabulated-list-print t))))
+	"Refresh play status in the results buffer."
+	(when (get-buffer "*YouTube Results*")
+	  (with-current-buffer "*YouTube Results*"
+		(tabulated-list-print t))))
 
   ;; Keybindings
   (define-key youtube-results-mode-map (kbd "RET") #'youtube-results-play)
