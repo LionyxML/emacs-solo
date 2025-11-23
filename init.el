@@ -454,6 +454,7 @@ This allows using a specific environment or scratch context."
   (setenv "GIT_EDITOR" (format "emacs --init-dir=%s " (shell-quote-argument user-emacs-directory)))
   (setenv "JJ_EDITOR" (format "emacs --init-dir=%s " (shell-quote-argument user-emacs-directory)))
   (setenv "EDITOR" (format "emacs --init-dir=%s " (shell-quote-argument user-emacs-directory)))
+  (setenv "PAGER" "cat")
   ;; So rebase from eshell opens with a bit of syntax highlight
   (add-to-list 'auto-mode-alist '("/git-rebase-todo\\'" . conf-mode))
 
