@@ -3529,15 +3529,15 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (add-to-list 'treesit-language-source-alist '(rust "https://github.com/tree-sitter/tree-sitter-rust" "master" "src")))
 
 
-;;; │ ZIG-TS-MODE (из GitHub)
+;;; │ ZIG-TS-MODE
 (let ((zig-dir (expand-file-name "lisp/zig-ts-mode" user-emacs-directory))
 	  (zig-file (expand-file-name "lisp/zig-ts-mode/zig-ts-mode.el" user-emacs-directory)))
 
-  ;; Create directory
+
   (unless (file-directory-p zig-dir)
 	(make-directory zig-dir t))
 
-  ;; Download if not exists
+
   (unless (file-exists-p zig-file)
 	(message "Downloading zig-ts-mode...")
 	(url-copy-file
@@ -3545,12 +3545,12 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 	 zig-file t)
 	(message "zig-ts-mode downloaded!"))
 
-  ;; Add to load-path
+
   (add-to-list 'load-path zig-dir))
 
-;; Load and configure
+
 (use-package zig-ts-mode
-  :ensure nil  ; we downloaded it manually
+  :ensure nil
   :defer t
   :mode "\\.zig\\'"
   :mode "\\.zon\\'"
