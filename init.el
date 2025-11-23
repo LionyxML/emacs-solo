@@ -1832,17 +1832,16 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   (add-hook 'eshell-mode-hook (lambda () (setenv "TERM" "xterm-256color")))
 
 
-  ;; LIST OF VISUAL COMMANDS TO RUN IN A SEPARATED ANSI-TERM
-  ;;
-  (with-eval-after-load 'em-term
-    (add-to-list 'eshell-visual-subcommands '("jj" "resolve"))
-    (add-to-list 'eshell-visual-subcommands '("jj" "squash")))
+  (setq eshell-visual-subcommands
+        '(("podman" "run" "exec" "attach" "top" "logs" "stats")
+          ("docker" "run" "exec" "attach" "top" "logs" "stats")
+          ("jj" "resolve" "squash" "split")))
 
   (setq eshell-visual-commands
         '("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
           "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"
           "lazygit" "lazydocker" "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux"
-          "docker" "podman" "jqp")))
+          "jqp")))
 
 
 ;;; │ ISEARCH
