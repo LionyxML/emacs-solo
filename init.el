@@ -1833,8 +1833,8 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
 
 
   (setq eshell-visual-subcommands
-        '(("podman" "run" "exec" "attach" "top" "logs" "stats")
-          ("docker" "run" "exec" "attach" "top" "logs" "stats")
+        '(("podman" "run" "exec" "attach" "top" "logs" "stats" "compose")
+          ("docker" "run" "exec" "attach" "top" "logs" "stats" "compose")
           ("jj" "resolve" "squash" "split")))
 
   (setq eshell-visual-commands
