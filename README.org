@@ -414,4 +414,11 @@ Use =C-x f= and then =M-n= to get the path under point fed to =file-find=.
 Usually =C-x k= kills a buffer, but it keeps the window opened. If you
 wish to kill and close window, use =C-x 4 0= (=kill-buffer-and-window=).
 
+*** 21.) Attach multiple files in message-mode?
+
+When on =gnus= and composing a message, if you'd like to attach multiple
+files using dired, just split with dired =C-x 4 d=, use =M-x
+turn-on-gnus-dired-mode RET=, mark files with =m= and use =C-c RET C-a= to
+populate your composing buffer.
+
 #+html:</details>
