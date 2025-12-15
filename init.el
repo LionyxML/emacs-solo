@@ -202,7 +202,6 @@ This allows using a specific environment or scratch context."
   (inhibit-startup-message t)
   (initial-scratch-message "")
   (ibuffer-human-readable-size t) ; EMACS-31
-  (ispell-dictionary "en_US")
   (kill-do-not-save-duplicates t)
   (kill-region-dwim 'emacs-word)  ; EMACS-31
   (create-lockfiles nil)   ; No lock files
@@ -2227,6 +2226,20 @@ and restart Flymake to apply the changes."
     (message "Flymake diagnostics at end of line: %s"
              (if flymake-show-diagnostics-at-end-of-line
                  "Enabled" "Disabled"))))
+
+
+;;; │ FLYSPELL
+(use-package flyspell
+  :ensure nil
+  :defer t
+  :config
+  (setq ispell-program-name "aspell")
+  (setq ispell-dictionary "en_US")
+  (ispell-set-spellchecker-params)
+  ;; :hook
+  ;; ((text-mode-hook . flyspell-mode)
+  ;;  (prog-mode-hook . flyspell-prog-mode))
+  )
 
 
 ;;; │ WHITESPACE
