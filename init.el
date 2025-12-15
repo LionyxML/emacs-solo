@@ -6073,6 +6073,7 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
           (rust-ts-mode)
           (font-lock-ensure))
 
+        (flymake-mode -1)
         (visual-line-mode 1)
         (display-line-numbers-mode -1))
 
