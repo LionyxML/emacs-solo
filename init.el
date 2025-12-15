@@ -2814,7 +2814,35 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
 
   ;; Ellipsis styling
   (setq org-ellipsis " ▼ ")
-  (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil))
+  (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
+
+
+  ;; Keywords
+  ;; As seen in https://github.com/gregnewman/gmacs/blob/master/gmacs.org
+  (setq org-todo-keywords
+        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)" "PROJECTDONE(e)")
+                (sequence "WAITING(w@/!)" "SOMEDAY(s@/!)" "|" "CANCELLED(c@/!)"))))
+  (setq org-todo-keyword-faces
+        (quote (("TODO" :foreground "lime green" :weight bold)
+                ("NEXT" :foreground "cyan" :weight bold)
+                ("DONE" :foreground "dim gray" :weight bold)
+                ("PROJECTDONE" :foreground "dim gray" :weight bold)
+                ("WAITING" :foreground "tomato" :weight bold)
+                ("SOMEDAY" :foreground "magenta" :weight bold)
+                ("CANCELLED" :foreground "dim gray" :weight bold))))
+
+  ;; Anytime a task is marked done the line states `CLOSED: [timestamp]
+  (setq org-log-done 'time)
+
+  ;; Load babel only when org loads
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((python . t)
+       (js . t)
+       (emacs-lisp . t)
+       (org . t)
+       (shell . t)))
+    (setq org-confirm-babel-evaluate nil))
 
 
 ;;; │ SPEEDBAR
