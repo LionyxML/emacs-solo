@@ -677,10 +677,11 @@ If ###@### is found, remove it and place point there at the end."
   :ensure nil
   :defer t
   :config
+  (setq epg-pinentry-mode 'loopback)
   (setq auth-sources
         (list (expand-file-name ".authinfo.gpg" user-emacs-directory)))
-  (setq user-full-name "Rahul Martim Juliato"
-        user-mail-address "rahul.juliato@gmail.com")
+  (setq user-full-name "User Name and Surnames"
+        user-mail-address "user@mail.com")
 
   ;; Use `pass` as an auth-source
   (when (file-exists-p "~/.password-store")
