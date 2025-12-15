@@ -2162,6 +2162,9 @@ The completion candidates include the Git status of each file."
   :ensure nil
   :custom
   (eldoc-help-at-pt t) ;; EMACS-31
+  (eldoc-echo-area-use-multiline-p nil)
+  (eldoc-echo-area-prefer-doc-buffer t)
+  (eldoc-documentation-strategy 'eldoc-documentation-compose)
   :init
   (global-eldoc-mode))
 
