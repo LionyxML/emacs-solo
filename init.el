@@ -1244,6 +1244,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   :bind
   (("M-i" . emacs-solo/window-dired-vc-root-left))
   :custom
+  (dired-auto-revert-buffer t)
   (dired-dwim-target t)
   (dired-guess-shell-alist-user
    '(("\\.\\(png\\|jpe?g\\|tiff\\)" "feh" "xdg-open" "open")
