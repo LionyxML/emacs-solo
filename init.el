@@ -1587,7 +1587,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (setq emacs-solo/eshell-full-prompt-resource-intensive
           (not emacs-solo/eshell-full-prompt-resource-intensive))
     (message "Eshell prompt: %s"
-             (if emacs-solo/eshell-full-prompt-resource-intensive "lighter" "heavier"))
+             (if emacs-solo/eshell-full-prompt-resource-intensive "heavier" "lighter"))
     (when (derived-mode-p 'eshell-mode)
       (eshell-reset)))
 
@@ -1631,7 +1631,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
         (modified          . "M")
         (untracked         . "U")
         (conflict          . "X")
-        (git-merge         . "M")
+        (git-diverged      . "D")
         (git-ahead         . "A")
         (git-behind        . "B"))
       "Alist of all icons used in the Eshell prompt (no icons)."))
@@ -1654,7 +1654,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
         (modified          . "✏️")
         (untracked         . "✨")
         (conflict          . "⚔️")
-        (git-merge         . "🔀")
+        (git-diverged      . "🔀")
         (git-ahead         . "⬆️")
         (git-behind        . "⬇️"))
       "Alist of all icons used in the Eshell prompt (emoji)."))
@@ -1677,7 +1677,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
         (modified          . " ")
         (untracked         . " ")
         (conflict          . " ")
-        (git-merge         . " ")
+        (git-diverged      . " ")
         (git-ahead         . " ")
         (git-behind        . " "))
       "Alist of all icons used in the Eshell prompt (nerd font)."))
@@ -1689,20 +1689,26 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
   (defvar emacs-solo/git-cache-time 0)
 
   (defun emacs-solo/git-info ()
-    "Return cached Git info, with debug messages."
+    "Return cached Git info."
     (let ((root (ignore-errors (vc-git-root default-directory)))
           (now (float-time)))
       (if (or (not root)
               (not (numberp emacs-solo/git-cache-time))
               (not emacs-solo/git-cache)
               (not (equal root emacs-solo/git-cache-dir))
-              (> (- now (or emacs-solo/git-cache-time 0)) 5))
+              (> (- now (or emacs-solo/git-cache-time 0)) 2)) ;; Only run this once every X secs
           (progn
             (setq emacs-solo/git-cache-time now
                   emacs-solo/git-cache-dir root)
             (setq emacs-solo/git-cache
                   (when root
-                    (let* ((out (shell-command-to-string "git status --porcelain=v2 --branch 2>/dev/null"))
+                    (let* ((out
+                            (with-temp-buffer
+                              (when (zerop
+                                     (process-file
+                                      "git" nil (current-buffer) nil
+                                      "status" "--porcelain=v2" "--branch"))
+                                (buffer-string))))
                            (lines (split-string out "\n" t))
                            (ahead 0)
                            (behind 0)
@@ -1710,27 +1716,24 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                            (untracked 0)
                            (conflicts 0)
                            (branch nil))
-
                       (dolist (l lines)
                         (cond
                          ((string-match "^#? *branch\\.head \\(.+\\)" l)
                           (setq branch (match-string 1 l)))
                          ((string-match "^#? *branch\\.ab \\+\\([0-9]+\\) -\\([0-9]+\\)" l)
-                          (setq ahead (string-to-number (match-string 1 l)))
-                          (setq behind (string-to-number (match-string 2 l))))
+                          (setq ahead (string-to-number (match-string 1 l))
+                                behind (string-to-number (match-string 2 l))))
                          ((string-match "^1 " l) (cl-incf modified))
-                         ((string-match "^\\?\\?" l) (cl-incf untracked))
+                         ((string-match "^\\?" l) (cl-incf untracked))
                          ((string-match "^u " l) (cl-incf conflicts))))
-
                       (list :branch (or branch "HEAD")
                             :ahead ahead
                             :behind behind
                             :modified modified
                             :untracked untracked
                             :conflicts conflicts)))))
-        (progn
-          emacs-solo/git-cache))))
-
+        emacs-solo/git-cache)
+      emacs-solo/git-cache))
 
   (setopt eshell-prompt-function
           (lambda ()
@@ -1793,8 +1796,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                  (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
                              'face `(:foreground ,eshell-solo/color-bg-dark))
 
-                 (when-let* ((info (emacs-solo/git-info))
-                             (branch (plist-get info :branch)))
+                 (when-let* ((branch (vc-git--current-branch)))
                    (concat
                     (propertize (assoc-default 'arrow-left emacs-solo/eshell-icons)
                                 'face `(:foreground ,eshell-solo/color-bg-dark))
@@ -1802,18 +1804,19 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                      (concat
                       (concat " " (assoc-default 'branch emacs-solo/eshell-icons) " " branch " ")
                       (when emacs-solo/eshell-full-prompt-resource-intensive
-                        (let ((ahead (plist-get info :ahead))
-                              (behind (plist-get info :behind))
-                              (modified (plist-get info :modified))
-                              (untracked (plist-get info :untracked))
-                              (conflicts (plist-get info :conflicts)))
+                        (let* ((info (emacs-solo/git-info))
+                               (ahead (plist-get info :ahead))
+                               (behind (plist-get info :behind))
+                               (modified (plist-get info :modified))
+                               (untracked (plist-get info :untracked))
+                               (conflicts (plist-get info :conflicts)))
                           (concat
                            (when (> ahead 0)
                              (format (concat " " (assoc-default 'git-ahead emacs-solo/eshell-icons) "%d") ahead))
                            (when (> behind 0)
                              (format (concat " " (assoc-default 'git-behind emacs-solo/eshell-icons) "%d") behind))
                            (when (and (> ahead 0) (> behind 0))
-                             (concat " " (assoc-default 'git-merge emacs-solo/eshell-icons)))
+                             (concat " " (assoc-default 'git-diverged emacs-solo/eshell-icons)))
                            (when (> modified 0)
                              (format (concat " " (assoc-default 'modified emacs-solo/eshell-icons) "%d") modified))
                            (when (> untracked 0)
