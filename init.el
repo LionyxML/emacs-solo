@@ -1887,10 +1887,11 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
    vc-git-log-edit-summary-max-len 70
    vc-git-print-log-follow t
    vc-git-revision-complete-only-branches nil
+   vc-git-show-stash 0                                        ;; do not polute vc-dir with stash lines
    vc-annotate-display-mode 'scale
    add-log-keep-changes-together t
    vc-dir-hide-up-to-date-on-revert t       ; EMACS-31
-   vc-make-backup-files nil)                                  ;; Do not backup version controlled files
+   vc-make-backup-files nil)                                  ;; do not backup version controlled files
 
   (with-eval-after-load 'vc-annotate
     (setopt vc-annotate-color-map
