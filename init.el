@@ -853,6 +853,7 @@ Uses position instead of index field."
   (erc-save-queries-on-quit t)
   (erc-log-write-after-send t)
   (erc-log-write-after-insert t)
+  (erc-spelling-dictionaries '(("Libera.Chat" "en_US")))
   :config
   (make-directory (expand-file-name "cache/erc/logs" user-emacs-directory) t)
 
@@ -876,6 +877,7 @@ Uses position instead of index field."
   (add-hook 'erc-insert-modify-hook #'emacs-solo/erc-colorize-nick)
 
   (add-to-list 'erc-modules 'log)
+  (erc-spelling-mode 1)
   :init
   (with-eval-after-load 'erc
 
