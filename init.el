@@ -211,6 +211,7 @@ This allows using a specific environment or scratch context."
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (project-list-file (expand-file-name "cache/projects" user-emacs-directory))
+  (project-vc-extra-root-markers '("Cargo.toml" "package.json" "go.mod")) ; Excelent for mono repos with multiple langs, makes Eglot happy
   (ring-bell-function 'ignore)
   (read-answer-short t)
   (recentf-max-saved-items 300) ; default is 20
