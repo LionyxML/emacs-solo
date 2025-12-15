@@ -2301,6 +2301,8 @@ and restart Flymake to apply the changes."
   (gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
   (gnus-secondary-select-methods
    '((nntp "news.gwene.org")))
+  :hook
+  (gnus-group-mode-hook . gnus-topic-mode)
   :init
   (run-at-time 1 nil (lambda () (setq gnus-logo-colors '("#676E95")))))
 
