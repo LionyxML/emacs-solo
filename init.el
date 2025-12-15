@@ -2296,7 +2296,7 @@ and restart Flymake to apply the changes."
   (gnus-sum-thread-tree-leaf-with-other "├► ")
   (gnus-sum-thread-tree-root "● ")
   (gnus-sum-thread-tree-single-leaf "╰► ")
-  (gnus-sum-thread-tree-vertical "│)")
+  (gnus-sum-thread-tree-vertical "│")
   (gnus-select-method '(nnnil nil))
   (gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
   (gnus-secondary-select-methods
