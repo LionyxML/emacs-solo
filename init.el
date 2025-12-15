@@ -176,6 +176,9 @@ This allows using a specific environment or scratch context."
   (auto-save-default t)
   (bookmark-file (expand-file-name "cache/bookmarks" user-emacs-directory))
   (shared-game-score-directory (expand-file-name "cache/games/" user-emacs-directory)) ; FIXME: is this even working?
+  (calendar-latitude 42.36)                   ;; These are needed
+  (calendar-longitude -42.36)                 ;; for M-x `sunrise-sunset'
+  (calendar-location-name "Cambridge, MA")
   (column-number-mode t)
   (line-number-mode t)
   (line-spacing nil)
