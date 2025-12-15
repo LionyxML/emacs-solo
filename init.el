@@ -190,7 +190,7 @@ This allows using a specific environment or scratch context."
   (display-line-numbers-width 4)
   (display-line-numbers-widen t)
   (display-fill-column-indicator-warning nil) ; EMACS-31
-  (delete-selection-mode 1)
+  (delete-selection-mode t)
   (enable-recursive minibuffers t)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
