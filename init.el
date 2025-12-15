@@ -4945,6 +4945,20 @@ If a region is selected, use it as a query. If a prompt is provided, it's prepen
           (term-send-raw-string "\n")))))
 
 
+  (defun emacs-solo/gemini-chat ()
+    "Start a new interactive `gemini` session in an `ansi-term` buffer.
+This provides better rendering for the CLI's rich text user interface."
+    (interactive)
+    (let* ((default-directory (or emacs-solo-gemini-scratch-path (vc-root-dir) default-directory))
+           (buffer-name (generate-new-buffer-name
+                         (format "gemini-chat:%s"
+                                 (file-name-nondirectory (directory-file-name default-directory))))))
+      (let ((proc-buffer (ansi-term "gemini" buffer-name)))
+        (with-current-buffer proc-buffer
+          (pop-to-buffer proc-buffer)
+          (setq-local column-number-mode nil)))))
+
+
   (defun emacs-solo/gemini-run-model (&optional interactive)
     "Run the `gemini` CLI with optional prompt and/or selected region.
 
