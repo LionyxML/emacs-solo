@@ -2790,6 +2790,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
    org-startup-folded t
 
    ;; Edit settings
+   org-hide-leading-stars t
    org-auto-align-tags nil
    org-tags-column 0
    org-catch-invisible-edits 'show-and-error
