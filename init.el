@@ -775,18 +775,33 @@ If ###@### is found, remove it and place point there at the end."
   (tab-bar-new-button-show nil)
   (tab-bar-tab-hints t)
   (tab-bar-auto-width nil)
-  (tab-bar-separator "  ")
+  (tab-bar-separator "")
   (tab-bar-format '(tab-bar-format-tabs-groups
-                    tab-bar-separator))
+                    tab-bar-separator
+                    tab-bar-format-align-right
+                    tab-bar-format-global))
   :init
   ;;; --- OPTIONAL INTERNAL FN OVERRIDES TO DECORATE NAMES
-  (defun tab-bar-tab-name-format-hints (name _tab i)
-    (if tab-bar-tab-hints (concat (format "»%d«" i) "") name))
+  (defun tab-bar-tab-name-format-hints (name tab i)
+    (if tab-bar-tab-hints
+        (if (eq (car tab) 'current-tab)
+        (concat (format "  *%d*  " i) "")
+        (concat (format "   %d   " i) ""))
+      name))
 
   (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
     (propertize
      (concat (funcall tab-bar-tab-group-function tab))
      'face (if current-p 'tab-bar-tab-group-current 'tab-bar-tab-group-inactive)))
+
+  (defun emacs-solo/tab-bar-toggle-time ()
+    "Enable `display-time-mode' when `tab-bar-mode' is on, disable it otherwise."
+    (setq display-time-format "%a. %d %b %H:%M")
+    (if tab-bar-mode
+        (display-time-mode 1)
+      (display-time-mode -1)))
+
+  (add-hook 'tab-bar-mode-hook #'emacs-solo/tab-bar-toggle-time)
 
 
   ;;; --- UTILITIES FUNCTIONS
@@ -3102,7 +3117,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      (bg-removed-refine "#574658")
      (bg-tab-bar      "#1e1e2e")
      (bg-tab-current  bg-main)
-     (bg-tab-other    "#1e1e2e")
+     (bg-tab-other    "#181825")
      (border-mode-line-active nil)
      (border-mode-line-inactive nil)
      (builtin "#89b4fa")
@@ -3175,13 +3190,13 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      `(newsticker-feed-face ((,c :foreground "#f38ba8" :height 1.2 :weight bold)))
      `(newsticker-treeview-face ((,c :foreground "#cdd6f4")))
      `(newsticker-treeview-selection-face ((,c :background "#3e5768" :foreground "#cdd6f5")))
-     `(tab-bar ((,c :background "#1e1e2e" :foreground "#bac2de")))
-     `(tab-bar-tab ((,c :background "#1e1e2e" :underline t)))
+     `(tab-bar ((,c :background "#181825" :foreground "#bac2de")))
+     `(tab-bar-tab ((,c :background "#1e1e2e" :underline nil)))
+     `(tab-bar-tab-inactive ((,c :background "#181825" :foreground "#00ff00")))
      `(tab-bar-tab-group-current ((,c :background "#1e1e2e" :foreground "#bac2de" :underline t)))
-     `(tab-bar-tab-group-inactive ((,c :background "#1e1e2e" :foreground "#9399b2"))))
-    `(tab-bar-tab-inactive ((,c :background "#1e1e2e" :foreground "#a6adc8")))
-    `(vc-dir-file ((,c :foreground "#89b4fa")))
-    `(vc-dir-header-value ((,c :foreground "#b4befe"))))
+     `(tab-bar-tab-group-inactive ((,c :background "#1e1e2e" :foreground "#9399b2")))
+     `(vc-dir-file ((,c :foreground "#89b4fa")))
+     `(vc-dir-header-value ((,c :foreground "#b4befe")))))
   :init
   (load-theme 'modus-vivendi t))
 
@@ -3225,9 +3240,9 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      (bg-region "#3C435E")
      (bg-removed "#4d2d2d")
      (bg-removed-refine "#603939")
-     (bg-tab-bar      "#292D3E")
+     (bg-tab-bar      "#232635")
      (bg-tab-current  bg-main)
-     (bg-tab-other    "#292D3E")
+     (bg-tab-other    "#232635")
      (border-mode-line-active nil)
      (border-mode-line-inactive nil)
      (builtin "#82aaff")
@@ -3299,18 +3314,18 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      `(newsticker-feed-face ((,c :foreground "#ff5370" :height 1.2 :weight bold)))
      `(newsticker-treeview-face ((,c :foreground "#EEFFFF")))
      `(newsticker-treeview-selection-face ((,c :background "#3C435E" :foreground "#EEFFFF")))
-     `(tab-bar ((,c :background "#292D3E" :foreground "#A6Accd")))
-     `(tab-bar-tab ((,c :background "#292D3E" :underline t)))
-     `(tab-bar-tab-group-current ((,c :background "#292D3E" :foreground "#A6Accd" :underline t)))
-     `(tab-bar-tab-group-inactive ((,c :background "#292D3E" :foreground "#777")))
-     `(tab-bar-tab-inactive ((,c :background "#292D3E" :foreground "#676E95")))
+     `(tab-bar ((,c :background "#232635" :foreground "#A6Accd")))
+     `(tab-bar-tab ((,c :background "#292D3E")))
+     `(tab-bar-tab-group-current ((,c :background "#292D3E" :foreground "#A6Accd")))
+     `(tab-bar-tab-group-inactive ((,c :background "#232635" :foreground "#777")))
+     `(tab-bar-tab-inactive ((,c :background "#232635" :foreground "#676E95")))
      `(vc-dir-file ((,c :foreground "#82aaff")))
      `(vc-dir-header-value ((,c :foreground "#a1bfff")))))
   :init
   (load-theme 'modus-vivendi-tinted t))
 
 
-;;; │ Matrix Based Theme (hacked Modus)
+;;; │ Matrix           Based Theme (hacked Modus)
 (use-package modus-themes
   :if (eq emacs-solo-use-custom-theme 'matrix)
   :ensure nil
@@ -3355,9 +3370,9 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      (bg-region "#003B00")
      (bg-removed "#190A10")
      (bg-removed-refine "#2B1520")
-     (bg-tab-bar      "#0D0208")
+     (bg-tab-bar      "#001900")
      (bg-tab-current  bg-main)
-     (bg-tab-other    "#0D0208")
+     (bg-tab-other    "#001900")
 
      ;; borders
      (border-mode-line-active nil)
@@ -3422,15 +3437,12 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      `(diff-file-header ((,c :foreground "#00C738")))
      `(diff-header ((,c :foreground "#00FF41")))
      `(diff-hunk-header ((,c :foreground "#008F11")))
-
      `(flymake-warning ((,c :foreground "#00A52A"
-                      :underline (:color "#00A52A" :style wave))))
+                            :underline (:color "#00A52A" :style wave))))
      `(flymake-note ((,c :foreground "#00FF41"
-                      :underline (:color "#00FF41" :style wave))))
+                         :underline (:color "#00FF41" :style wave))))
      `(link ((,c :foreground "#00FF41"
-                      :underline (:color "#00FF41" :style line))))
-
-     ;; GNUS
+                 :underline (:color "#00FF41" :style line))))
      `(gnus-button ((,c :foreground "#00FF41")))
      `(gnus-group-mail-3 ((,c :foreground "#00FF41")))
      `(gnus-group-mail-3-empty ((,c :foreground "#00FF41")))
@@ -3438,28 +3450,21 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      `(gnus-header-from ((,c :foreground "#008F11")))
      `(gnus-header-name ((,c :foreground "#00C738")))
      `(gnus-header-subject ((,c :foreground "#00FF41")))
-
      `(log-view-message ((,c :foreground "#00C738")))
      `(match ((,c :background "#003B00" :foreground "#00FF41")))
-
      `(modus-themes-search-current ((,c :background "#00FF41" :foreground "#0D0208")))
      `(modus-themes-search-lazy ((,c :background "#003B00" :foreground "#00FF41")))
-
-     ;; Newsticker
      `(newsticker-extra-face ((,c :foreground "#005A00" :height 0.8 :slant italic)))
      `(newsticker-feed-face ((,c :foreground "#00A52A" :height 1.2 :weight bold)))
      `(newsticker-treeview-face ((,c :foreground "#00FF41")))
      `(newsticker-treeview-selection-face ((,c :background "#003B00" :foreground "#00FF41")))
-
-     ;; Tabs
-     `(tab-bar ((,c :background "#0D0208" :foreground "#00C738")))
-     `(tab-bar-tab ((,c :background "#0D0208" :underline t)))
-     `(tab-bar-tab-group-current ((,c :background "#0D0208" :foreground "#00C738" :underline t)))
-     `(tab-bar-tab-group-inactive ((,c :background "#0D0208" :foreground "#005A00"))))
-
-    `(tab-bar-tab-inactive ((,c :background "#0D0208" :foreground "#008F11")))
-    `(vc-dir-file ((,c :foreground "#00FF41")))
-    `(vc-dir-header-value ((,c :foreground "#00C738"))))
+     `(tab-bar ((,c :background "#001900" :foreground "#00C738")))
+     `(tab-bar-tab ((,c :background "#0D0208")))
+     `(tab-bar-tab-group-current ((,c :background "#0D0208" :foreground "#00C738")))
+     `(tab-bar-tab-group-inactive ((,c :background "#0D0208" :foreground "#005A00")))
+     `(tab-bar-tab-inactive ((,c :background "#0D0208" :foreground "#008F11")))
+     `(vc-dir-file ((,c :foreground "#00FF41")))
+     `(vc-dir-header-value ((,c :foreground "#00C738")))))
   :init
   (load-theme 'modus-vivendi t))
 
