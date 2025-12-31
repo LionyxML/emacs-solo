@@ -35,9 +35,9 @@
 ;;; │ by default to help you better navigate its structure.  Use outline-mode │
 ;;; │ keybindings to explore sections as needed:                              │
 ;;; │                                                                         │
-;;; │   C-c @ C-a → Show all sections                                         │
-;;; │   C-c @ C-q → Hide all sections                                         │
-;;; │   C-c @ C-c → Toggle section at point                                   │
+;;; │   C-c @ C-a -> Show all sections                                        │
+;;; │   C-c @ C-q -> Hide all sections                                        │
+;;; │   C-c @ C-c -> Toggle section at point                                  │
 ;;; │                                                                         │
 ;;; │ If you're viewing this file on a code forge (e.g., GitHub, Codeberg)    │
 ;;; │ or in another editor, you might see it fully expanded.  For the best    │
