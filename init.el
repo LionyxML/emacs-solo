@@ -194,7 +194,6 @@ This allows using a specific environment or scratch context."
   (enable-recursive minibuffers t)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
-  (global-auto-revert-non-file-buffers t)
   (global-goto-address-mode t)                            ;     C-c RET on URLs open in default browser
   (browse-url-secondary-browser-function 'eww-browse-url) ; C-u C-c RET on URLs open in EWW
   (help-window-select t)
@@ -524,7 +523,6 @@ or is an ERC buffer."
 
   (select-frame-set-input-focus (selected-frame))
   (blink-cursor-mode 0)
-  (global-auto-revert-mode 1)
   (recentf-mode 1)
   (repeat-mode 1)
   (savehist-mode 1)
@@ -687,6 +685,17 @@ If ###@### is found, remove it and place point there at the end."
   ;; Use `pass` as an auth-source
   (when (file-exists-p "~/.password-store")
     (auth-source-pass-enable)))
+
+
+;;; │ AUTO-REVERT
+(use-package autorevert
+  :ensure nil
+  :hook (emacs-startup-hook . global-auto-revert-mode)
+  :custom
+  (auto-revert-remote-files nil)   ;; t makes tramp slow
+  (auto-revert-verbose t)
+  (auto-revert-avoid-polling t)
+  (global-auto-revert-non-file-buffers t))
 
 
 ;;; │ CONF
