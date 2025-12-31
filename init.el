@@ -202,6 +202,7 @@ This allows using a specific environment or scratch context."
   (inhibit-startup-message t)
   (initial-scratch-message "")
   (ibuffer-human-readable-size t) ; EMACS-31
+  (ielm-history-file-name (expand-file-name "cache/ielm-history.eld" user-emacs-directory)) ; EMACS-31
   (kill-do-not-save-duplicates t)
   (kill-region-dwim 'emacs-word)  ; EMACS-31
   (create-lockfiles nil)   ; No lock files
