@@ -2491,6 +2491,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :ensure nil
   :defer t
   :custom
+  (newsticker-retrieval-interval 0) ;; Only fetches when first opening (avoids unwanted fetching/ui locking while doing other things later)
   (newsticker-treeview-treewindow-width 40)
   (newsticker-dir (expand-file-name "cache/newsticker/" user-emacs-directory))
   (newsticker-retrieval-method (if (executable-find "wget") 'extern 'intern))
