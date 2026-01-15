@@ -147,6 +147,11 @@ This allows using a specific environment or scratch context."
                  (directory :tag "Gemini Scratch Directory"))
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-erc-image 't
+  "List of default font sizes (first for macOS, second for GNU/Linux)."
+  :type 'boolean
+  :group 'emacs-solo)
+
 ;;; ┌──────────────────── GENERAL EMACS CONFIG
 ;;; │ EMACS
 (use-package emacs
@@ -6744,6 +6749,94 @@ Use REPORT-FN to report results."
 Report results using REPORT-FN.  All other parameters are
 currently ignored."
     (flymake-eslint--check-and-report (current-buffer) report-fn)))
+
+
+;;; │ EMACS-SOLO-ERC-IMAGE
+;;
+;; Heavily based on https://github.com/kidd/erc-image.el/blob/master/erc-image.el
+(use-package emacs-solo-erc-image
+  :if emacs-solo-enable-erc-image
+  :ensure nil
+  :no-require t
+  :after erc
+  :config
+  (defvar erc-image-cache-directory
+    (expand-file-name "cache/erc/images/" user-emacs-directory)
+    "Cache directory for inline ERC images.")
+
+  (unless (file-directory-p erc-image-cache-directory)
+    (make-directory erc-image-cache-directory t))
+
+  (defvar erc-image-max-width  300
+    "Hard maximum width for inline ERC images (in pixels).")
+
+  (defvar erc-image-max-height 300
+    "Hard maximum height for inline ERC images (in pixels).")
+
+  (require 'url-queue)
+
+  (defun erc-image--create (file)
+    (let* ((edges (window-inside-absolute-pixel-edges))
+           (win-w (- (nth 2 edges) (nth 0 edges)))
+           (win-h (- (nth 3 edges) (nth 1 edges)))
+           (max-w (min win-w erc-image-max-width))
+           (max-h (min win-h erc-image-max-height)))
+      (create-image file nil nil
+                    :max-width  max-w
+                    :max-height max-h)))
+
+  (defun erc-image--insert (status file marker)
+    (unless (eq (car status) :error)
+      (goto-char (point-min))
+      (search-forward "\n\n")
+      (let ((coding-system-for-write 'binary))
+        (write-region (point) (point-max) file))
+      (with-current-buffer (marker-buffer marker)
+        (save-excursion
+          (let ((inhibit-read-only t))
+            ;; move to end of the message line
+            (goto-char (marker-position marker))
+            (end-of-line)
+            (insert "\n"
+                    (propertize " "
+                                'display (erc-image--create file))
+                    "\n"))))))
+
+  (defun erc-image--maybe-show ()
+    (when (display-graphic-p)
+      (save-excursion
+        (goto-char (line-beginning-position))
+        (when (search-forward "http" (line-end-position) t)
+          (let ((url (thing-at-point 'url)))
+            (when url
+              (url-queue-retrieve
+               url
+               #'erc-image--insert
+               (list (make-temp-file
+                      (expand-file-name "erc-img-" erc-image-cache-directory))
+                     (point-marker))
+               t)))))))
+
+  (defun erc-image-cleanup-cache ()
+    "Delete all cached ERC images."
+    (interactive)
+    (when (and (boundp 'erc-image-cache-directory)
+               (file-directory-p erc-image-cache-directory)
+               (yes-or-no-p "Delete all cached ERC images? "))
+      (dolist (file (directory-files erc-image-cache-directory t "\\`[^.]"))
+        (ignore-errors (delete-file file)))
+      (message "ERC image cache cleared.")))
+
+  (define-erc-module image nil
+    "Inline scaled images in ERC"
+    ((add-hook 'erc-insert-modify-hook #'erc-image--maybe-show t)
+     (add-hook 'erc-send-modify-hook   #'erc-image--maybe-show t))
+    ((remove-hook 'erc-insert-modify-hook #'erc-image--maybe-show)
+     (remove-hook 'erc-send-modify-hook   #'erc-image--maybe-show))
+    t)
+
+  (with-eval-after-load 'erc
+    (add-to-list 'erc-modules 'image)))
 
 
 ;;; │ EMACS-SOLO-YOUTUBE
