@@ -6428,10 +6428,11 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
 
 ;;; │ EMACS-SOLO-FLYMAKE-ESLINT
 ;;
-;; An very little adapted version of: https://github.com/orzechowskid/flymake-eslint (archived)
+;; Adapted version of: https://github.com/orzechowskid/flymake-eslint (archived)
 ;; Maybe as time passes I will need something more modern like: https://github.com/orzechowskid/flymake-jsts
 ;;
 (use-package emacs-solo-flymake-eslint
+  :if emacs-solo-enable-flymake-eslint
   :ensure nil
   :no-require t
   :defer t
@@ -6869,9 +6870,6 @@ currently ignored."
   :ensure nil
   :no-require t
   :defer t
-  :hook
-  ((typescript-ts-base-mode-hook . (lambda () (run-with-idle-timer 1 nil #'flymake-eslint-enable)))
-   (js-base-mode-hook . (lambda () (run-with-idle-timer 1 nil #'flymake-eslint-enable))))
   :init
   (require 'tabulated-list)
   (require 'json)
