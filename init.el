@@ -94,7 +94,7 @@
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-custom-orderless nil
-  "Enable `emacs-solo-completions-box'."
+  "Enable `emacs-solo-simple-orderless'."
   :type 'boolean
   :group 'emacs-solo)
 
@@ -120,7 +120,8 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-completion-box nil
-  "Enable `emacs-solo-completion-box'."
+  "Enable `emacs-solo-completion-box'.
+In order to this to work properly, disable `icomplete-in-buffer'."
   :type 'boolean
   :group 'emacs-solo)
 
