@@ -2216,7 +2216,7 @@ The completion candidates include the Git status of each file."
   :ensure nil
   :custom
   (eglot-autoshutdown t)
-  (eglot-events-buffer-size 0)
+  (eglot-events-buffer-size 0) ;; EMACS-31 -- do we still need it?
   (eglot-events-buffer-config '(:size 0 :format full))
   (eglot-prefer-plaintext nil)
   (jsonrpc-event-hook nil)
@@ -2235,7 +2235,21 @@ The completion candidates include the Git status of each file."
   (add-hook 'prog-mode-hook #'emacs-solo/eglot-setup)
 
   (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
+    (add-to-list
+     'eglot-server-programs
+     '((ruby-mode ruby-ts-mode) "ruby-lsp")))
+
+  (with-eval-after-load 'eglot
+    (add-to-list
+     'eglot-server-programs
+     '((tsx-ts-mode typescript-ts-mode)
+       . ("rass"
+          "--"
+          "typescript-language-server" "--stdio"
+          "--"
+          "eslint-lsp" "--stdio"
+          "--"
+          "tailwindcss-language-server" "--stdio"))))
 
   :bind (:map
          eglot-mode-map
