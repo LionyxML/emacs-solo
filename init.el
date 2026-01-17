@@ -5276,7 +5276,8 @@ into that directory before executing the Gemini command."
               (error nil))
             (forward-line 1))))))
 
-  (add-hook 'dired-after-readin-hook #'emacs-solo/dired-icons-add-icons))
+  (add-hook 'dired-after-readin-hook #'emacs-solo/dired-icons-add-icons)
+  (add-hook 'dired-before-readin-hook #'emacs-solo/dired-icons-add-icons))
 
 
 ;;; │ EMACS-SOLO-IBUFFER-ICONS
