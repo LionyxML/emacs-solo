@@ -2369,7 +2369,7 @@ and restart Flymake to apply the changes."
   (completion-show-help nil)
   (completion-styles '(partial-completion flex initials))
   (completions-format 'one-column)
-  (completions-max-height 10)
+  (completions-max-height nil)
   (completions-sort 'historical)
   (enable-recursive-minibuffers t)
   (read-buffer-completion-ignore-case t)
