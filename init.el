@@ -4528,12 +4528,14 @@ Marks lines as added, deleted, or changed."
     (interactive)
     (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
     (remove-hook 'find-file-hook #'emacs-solo-git-gutter-on)
-    (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark))
+    (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
+    (remove-hook 'after-revert-hook #'emacs-solo-git-gutter-on))
 
   (defun emacs-solo/git-gutter-on ()
     (interactive)
     (add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
     (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
+    (add-hook 'after-revert-hook #'emacs-solo/timed-git-gutter-on)
     (when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
       (emacs-solo/git-gutter-add-mark)))
 
