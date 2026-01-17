@@ -147,8 +147,17 @@ This allows using a specific environment or scratch context."
                  (directory :tag "Gemini Scratch Directory"))
   :group 'emacs-solo)
 
-(defcustom emacs-solo-enable-erc-image 't
-  "List of default font sizes (first for macOS, second for GNU/Linux)."
+(defcustom emacs-solo-enable-erc-image t
+  "Whether to enable inline image support in ERC buffers.
+This is enabled by default and allows displaying images directly from
+URLs posted in ERC channels."
+  :type 'boolean
+  :group 'emacs-solo)
+
+(defcustom emacs-solo-enable-flymake-eslint nil
+  "Whether to enable Flymake integration using ESLint.
+This is disabled by default, since nowadays we tend to use LSP servers
+for ESLint."
   :type 'boolean
   :group 'emacs-solo)
 
@@ -6803,20 +6812,33 @@ currently ignored."
                                 'display (erc-image--create file))
                     "\n"))))))
 
+  (defvar erc-image-url-regexp
+    (rx "." (or "png" "jpg" "jpeg" "gif" "webp" "bmp" "svg")
+        (? (or "?" "#") (* nonl)) string-end)
+    "Regexp matching URLs that look like images.")
+
+  (defun erc-image--image-url-p (url)
+    "Return non-nil if URL looks like an image."
+    (and (stringp url)
+         (string-match-p erc-image-url-regexp url)))
+
   (defun erc-image--maybe-show ()
     (when (display-graphic-p)
       (save-excursion
         (goto-char (line-beginning-position))
         (when (search-forward "http" (line-end-position) t)
-          (let ((url (thing-at-point 'url)))
-            (when url
-              (url-queue-retrieve
-               url
-               #'erc-image--insert
-               (list (make-temp-file
-                      (expand-file-name "erc-img-" erc-image-cache-directory))
-                     (point-marker))
-               t)))))))
+          (let ((url (thing-at-point 'url t)))
+            (when (and url
+                       (erc-image--image-url-p url))
+              (let ((file (make-temp-file
+                           (expand-file-name "erc-img-" erc-image-cache-directory)))
+                    (marker (copy-marker (line-end-position) t)))
+                (url-queue-retrieve
+                 url
+                 (lambda (status)
+                   (erc-image--insert status file marker))
+                 nil
+                 t))))))))
 
   (defun erc-image-cleanup-cache ()
     "Delete all cached ERC images."
@@ -6830,10 +6852,10 @@ currently ignored."
 
   (define-erc-module image nil
     "Inline scaled images in ERC"
-    ((add-hook 'erc-insert-modify-hook #'erc-image--maybe-show t)
-     (add-hook 'erc-send-modify-hook   #'erc-image--maybe-show t))
-    ((remove-hook 'erc-insert-modify-hook #'erc-image--maybe-show)
-     (remove-hook 'erc-send-modify-hook   #'erc-image--maybe-show))
+    ((add-hook 'erc-insert-post-hook #'erc-image--maybe-show t)
+     (add-hook 'erc-send-post-hook   #'erc-image--maybe-show t))
+    ((remove-hook 'erc-insert-post-hook #'erc-image--maybe-show)
+     (remove-hook 'erc-send-post-hook   #'erc-image--maybe-show))
     t)
 
   (with-eval-after-load 'erc
