@@ -2242,7 +2242,7 @@ The completion candidates include the Git status of each file."
   (with-eval-after-load 'eglot
     (add-to-list
      'eglot-server-programs
-     '((tsx-ts-mode typescript-ts-mode)
+     '((tsx-ts-mode typescript-ts-mode js-mode js-jsx-mode js-ts-mode)
        . ("rass"
           "--"
           "typescript-language-server" "--stdio"
