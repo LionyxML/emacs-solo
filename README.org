@@ -181,6 +181,10 @@ It is recommended you have this programs in your system:
 
   Only needed if you'd like to use =emacs-solo/khard-...= funcitons.
 
+- =rassumfrassum=
+
+  Only needed if you'd like to use multiple LSP servers per buffer.
+
 
 In order to proper copy/paste from terminals (TUI), you need:
 
@@ -420,5 +424,18 @@ When on =gnus= and composing a message, if you'd like to attach multiple
 files using dired, just split with dired =C-x 4 d=, use =M-x
 turn-on-gnus-dired-mode RET=, mark files with =m= and use =C-c RET C-a= to
 populate your composing buffer.
+
+*** 22.) Use multiple LSP servers per buffer?
+
+For this you need to use an external LSP multiplexer, so Eglot can
+connect to it. Eglot's author made his own implementation of such a
+program: [[https://github.com/joaotavora/rassumfrassum]].
+
+Basically =C-u M-x eglot= and enter =rass -- server1 [options] -- server2
+[options] --...=.
+
+You can read more about it in this blogpost:
+[[https://www.rahuljuliato.com/posts/eglot-rassumfrassum]].
+
 
 #+html:</details>
