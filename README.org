@@ -151,17 +151,19 @@ It is recommended you have this programs in your system:
 
   Also used for =emacs-solo-weather= and =emacs-solo-rate=.
 
+
 - =wget=
 
   If present on the system, emacs-solo =newsticker= config uses it
   instead of the internal fetcher.
 
+
 - =mpv=
 
   Only needed if you'd like to play videos directly from news in
   =newsticker=, play music from dired with dired music player =C-c m=,
-  play something from a m3u file with =m3u-visualize-buffer= or
-  listen to online radio with =C-c r=.
+  play something from a m3u file with =M-x m3u-visualizer-open-buffer=
+  or listen to online radio with =C-c r=.
 
 
 - =rsync=
@@ -173,13 +175,16 @@ It is recommended you have this programs in your system:
 
   Only needed if you'd like to use =emacs-solo/ollama-run-model=.
 
+
 - =gemmini-cli=
 
   Only needed if you'd like to use =emacs-solo/gemini-run-model=.
 
+
 - =khard=
 
   Only needed if you'd like to use =emacs-solo/khard-...= funcitons.
+
 
 - =rassumfrassum=
 

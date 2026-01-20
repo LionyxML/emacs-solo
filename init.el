@@ -5820,17 +5820,20 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
       (when (re-search-forward (regexp-quote m3u-visualizer--active-url) nil t)
         (beginning-of-line))))
 
-  (defun m3u-visualizer-open-buffer (raw-buffer)
-    "Parse RAW-BUFFER (M3U contents) and pop to the tabulated view."
-    (with-current-buffer raw-buffer
-      (let ((entries (m3u-visualizer--collect-entries-from-buffer)))
-        (with-current-buffer (get-buffer-create m3u-visualizer-buffer)
-          (let ((inhibit-read-only t))
-            (erase-buffer)
-            (m3u-visualizer-mode)
-            (setq m3u-visualizer--entries entries)
-            (m3u-visualizer--refresh)
-            (pop-to-buffer (current-buffer)))))))
+  (defun m3u-visualizer-open-buffer (&optional raw-buffer)
+    "Parse RAW-BUFFER (M3U contents) and pop to the tabulated view.
+If RAW-BUFFER is nil, use the current buffer."
+    (interactive)
+    (let ((raw-buffer (or raw-buffer (current-buffer))))
+      (with-current-buffer raw-buffer
+        (let ((entries (m3u-visualizer--collect-entries-from-buffer)))
+          (with-current-buffer (get-buffer-create m3u-visualizer-buffer)
+            (let ((inhibit-read-only t))
+              (erase-buffer)
+              (m3u-visualizer-mode)
+              (setq m3u-visualizer--entries entries)
+              (m3u-visualizer--refresh)
+              (pop-to-buffer (current-buffer))))))))
 
   (defun emacs-solo/get-online-radio-list-m3u ()
     "Select and download an online M3U playlist, then visualize it."
