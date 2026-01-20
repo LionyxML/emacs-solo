@@ -1836,7 +1836,12 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                  (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
                              'face `(:foreground ,eshell-solo/color-bg-dark))
 
-                 (when-let* ((branch (vc-git--current-branch)))
+                 (when-let* ((branch
+                              (cond
+                               ((fboundp 'vc-git-working-branch)  ; >= EMACS 31
+                                (vc-git-working-branch))
+                               ((fboundp 'vc-git--current-branch) ; < EMACS 31
+                                (vc-git--current-branch)))))
                    (concat
                     (propertize (assoc-default 'arrow-left emacs-solo/eshell-icons)
                                 'face `(:foreground ,eshell-solo/color-bg-dark))
