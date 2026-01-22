@@ -5035,7 +5035,7 @@ This provides better rendering for the CLI's rich text user interface."
            (buffer-name (generate-new-buffer-name
                          (format "gemini-chat:%s"
                                  (file-name-nondirectory (directory-file-name default-directory))))))
-      (let ((proc-buffer (ansi-term "gemini" buffer-name)))
+      (let ((proc-buffer (ansi-term "gemini --screen-reader" buffer-name)))
         (with-current-buffer proc-buffer
           (pop-to-buffer proc-buffer)
           (setq-local column-number-mode nil)))))
