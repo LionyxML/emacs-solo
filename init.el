@@ -2331,7 +2331,6 @@ and restart Flymake to apply the changes."
   (gnus-mode-line-logo nil)
   (gnus-init-file (concat user-emacs-directory ".gnus.el"))
   (gnus-startup-file (concat user-emacs-directory ".newsrc"))
-  (gnus-init-file (concat user-emacs-directory ".newsrc.eld"))
   (gnus-activate-level 3)
   (gnus-message-archive-group nil)
   (gnus-check-new-newsgroups nil)
