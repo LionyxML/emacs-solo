@@ -5031,60 +5031,14 @@ If a region is selected, use it as a query. If a prompt is provided, it's prepen
     "Start a new interactive `gemini` session in an `ansi-term` buffer.
 This provides better rendering for the CLI's rich text user interface."
     (interactive)
-    (let* ((default-directory (or emacs-solo-gemini-scratch-path (vc-root-dir) default-directory))
+    (let* ((default-directory (or (vc-root-dir) emacs-solo-gemini-scratch-path default-directory))
            (buffer-name (generate-new-buffer-name
                          (format "gemini-chat:%s"
                                  (file-name-nondirectory (directory-file-name default-directory))))))
-      (let ((proc-buffer (ansi-term "gemini --screen-reader" buffer-name)))
+      (let ((proc-buffer (ansi-term "gemini" buffer-name)))
         (with-current-buffer proc-buffer
           (pop-to-buffer proc-buffer)
-          (setq-local column-number-mode nil)))))
-
-
-  (defun emacs-solo/gemini-run-model (&optional interactive)
-    "Run the `gemini` CLI with optional prompt and/or selected region.
-
-If INTERACTIVE (prefix arg), start `gemini -i` inside `ansi-term`
-and preload the query from a temp file inside the project root.
-
-Otherwise, run non-interactive with `gemini -p` and show output in
-the *gemini* buffer.
-
-If `emacs-solo--gemini-scratch-path` is non-nil, temporarily `cd`
-into that directory before executing the Gemini command."
-    (interactive "P")
-    (let* ((default-directory (or emacs-solo-gemini-scratch-path default-directory))
-           (region (when (use-region-p)
-                     (buffer-substring-no-properties (region-beginning) (region-end))))
-           (prompt (read-string "Gemini Prompt (optional): " nil nil nil))
-           (body (string-join (delq nil (list prompt region)) "\n")))
-      (if interactive
-          ;; Interactive: temp file inside project root (or scratch dir)
-          (let* ((proj-root (or (vc-root-dir) default-directory))
-                 (tmpfile (expand-file-name
-                           (format ".gemini-query-%s.txt" (format-time-string "%s"))
-                           proj-root))
-                 (relpath (file-relative-name tmpfile proj-root)))
-            (with-temp-file tmpfile (insert body))
-            (ansi-term "/bin/bash")
-            (sit-for 0.1)
-            ;; must be relative to project root for Gemini to accept it
-            (term-send-raw-string (format "cd %s && gemini -i @%s\n"
-                                          (shell-quote-argument proj-root)
-                                          relpath))
-            ;; delete temp file after 10 seconds
-            (run-at-time "10 sec" nil
-                         (lambda (f)
-                           (when (file-exists-p f)
-                             (delete-file f)))
-                         tmpfile))
-        ;; Non-interactive
-        (let ((buf (get-buffer-create "*gemini*")))
-          (with-current-buffer buf (erase-buffer))
-          (start-process "gemini" buf "gemini" "-p" body)
-          (pop-to-buffer buf)
-          (visual-line-mode)
-          (markdown-ts-mode))))))
+          (setq-local column-number-mode nil))))))
 
 
 ;;; │ EMACS-SOLO-DIRED-GUTTER
