@@ -141,11 +141,11 @@ Examples: `Maple Mono NF' or `JetBrainsMono Nerd Font'."
   :type '(repeat integer)
   :group 'emacs-solo)
 
-(defcustom emacs-solo-gemini-scratch-path nil
-  "If non-nil, Gemini commands run from this directory.
+(defcustom emacs-solo-ai-scratch-path nil
+  "If non-nil, AI commands run from this directory.
 This allows using a specific environment or scratch context."
   :type '(choice (const :tag "Disabled" nil)
-                 (directory :tag "Gemini Scratch Directory"))
+                 (directory :tag "AI Scratch Directory"))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-erc-image t
@@ -2708,7 +2708,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                     "grep -v '^[[:space:]]*$' | "
                     "uniq | "
                     "(echo '%s'; cat -) | "
-                    "gemini -p -")
+                    "claude -p --model haiku -")
+                    ;; "gemini --extensions none --model \"gemini-2.5-flash\" -p -")
                    (shell-quote-argument base-path)      ;; For trap
                    (shell-quote-argument base-path)      ;; For yt-dlp's -o
                    (shell-quote-argument video-url)      ;; The video URL
@@ -2724,7 +2725,11 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                 (display-buffer (current-buffer))
                 (select-window (get-buffer-window (current-buffer)))
                 (special-mode)
-                (visual-line-mode)
+                (visual-line-mode 1)
+                (when (fboundp 'markdown-ts-mode)
+                  (markdown-ts-mode)
+                  (display-line-numbers-mode -1)
+                  (visual-line-mode 1))
                 (let ((map (make-sparse-keymap)))
                   (define-key map (kbd "q")
                               (lambda ()
@@ -5031,11 +5036,24 @@ If a region is selected, use it as a query. If a prompt is provided, it's prepen
     "Start a new interactive `gemini` session in an `ansi-term` buffer.
 This provides better rendering for the CLI's rich text user interface."
     (interactive)
-    (let* ((default-directory (or (vc-root-dir) emacs-solo-gemini-scratch-path default-directory))
+    (let* ((default-directory (or (vc-root-dir) emacs-solo-ai-scratch-path default-directory))
            (buffer-name (generate-new-buffer-name
                          (format "gemini-chat:%s"
                                  (file-name-nondirectory (directory-file-name default-directory))))))
       (let ((proc-buffer (ansi-term "gemini" buffer-name)))
+        (with-current-buffer proc-buffer
+          (pop-to-buffer proc-buffer)
+          (setq-local column-number-mode nil)))))
+
+  (defun emacs-solo/claude-chat ()
+    "Start a new interactive `claude` session in an `ansi-term` buffer.
+This provides better rendering for the CLI's rich text user interface."
+    (interactive)
+    (let* ((default-directory (or (vc-root-dir) emacs-solo-ai-scratch-path default-directory))
+           (buffer-name (generate-new-buffer-name
+                         (format "claude:%s"
+                                 (file-name-nondirectory (directory-file-name default-directory))))))
+      (let ((proc-buffer (ansi-term "claude" buffer-name)))
         (with-current-buffer proc-buffer
           (pop-to-buffer proc-buffer)
           (setq-local column-number-mode nil))))))
