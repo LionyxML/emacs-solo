@@ -202,6 +202,7 @@ for ESLint."
   (doc-view-resolution 200)
   (delete-by-moving-to-trash t)
   (delete-pair-blink-delay 0)
+  (delete-pair-push-mark t)                   ; EMACS-31 for easy subsequent C-x C-x
   (display-line-numbers-width 4)
   (display-line-numbers-widen t)
   (display-fill-column-indicator-warning nil) ; EMACS-31
