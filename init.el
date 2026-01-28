@@ -5046,17 +5046,54 @@ This provides better rendering for the CLI's rich text user interface."
           (setq-local column-number-mode nil)))))
 
   (defun emacs-solo/claude-chat ()
-    "Start a new interactive `claude` session in an `ansi-term` buffer.
-This provides better rendering for the CLI's rich text user interface."
+    "Start or reuse an interactive `claude` session in an `ansi-term` buffer.
+  If a region is active, prompt for a query and send the region text
+  along with the query to Claude. If a claude buffer for the current
+  project already exists with a live process, reuse it. Otherwise,
+  start a new session."
     (interactive)
     (let* ((default-directory (or (vc-root-dir) emacs-solo-ai-scratch-path default-directory))
-           (buffer-name (generate-new-buffer-name
-                         (format "claude:%s"
-                                 (file-name-nondirectory (directory-file-name default-directory))))))
-      (let ((proc-buffer (ansi-term "claude" buffer-name)))
-        (with-current-buffer proc-buffer
-          (pop-to-buffer proc-buffer)
-          (setq-local column-number-mode nil))))))
+           (region-text (when (use-region-p)
+                          (buffer-substring-no-properties (region-beginning) (region-end))))
+           (query (when region-text
+                    (read-string "Prompt about this region: ")))
+           (initial-input (when region-text
+                            (format "%s\n\n```\n%s\n```" query region-text)))
+           (base-name (format "claude:%s"
+                              (file-name-nondirectory (directory-file-name default-directory))))
+           (term-buffer-name (format "*%s*" base-name))
+           (existing-buffer (get-buffer term-buffer-name)))
+      (if (and existing-buffer
+               (buffer-live-p existing-buffer)
+               (get-buffer-process existing-buffer))
+          ;; Reuse existing buffer — just switch and send input
+          (progn
+            (pop-to-buffer existing-buffer)
+            (when initial-input
+              (let ((proc (get-buffer-process existing-buffer)))
+                (term-send-string proc "\e[200~")
+                (term-send-string proc initial-input)
+                (term-send-string proc "\e[201~")
+                (term-send-string proc "\r"))))
+        ;; Kill stale buffer if process is dead
+        (when (and existing-buffer (not (get-buffer-process existing-buffer)))
+          (kill-buffer existing-buffer))
+        ;; Create new session
+        (let ((proc-buffer (ansi-term "claude" base-name)))
+          (with-current-buffer proc-buffer
+            (pop-to-buffer proc-buffer)
+            (setq-local column-number-mode nil)
+            (when initial-input
+              (run-at-time 1 nil
+                           (lambda (buf input)
+                             (when (buffer-live-p buf)
+                               (let ((proc (get-buffer-process buf)))
+                                 (when proc
+                                   (term-send-string proc "\e[200~")
+                                   (term-send-string proc input)
+                                   (term-send-string proc "\e[201~")
+                                   (term-send-string proc "\r")))))
+                           proc-buffer initial-input))))))))
 
 
 ;;; │ EMACS-SOLO-DIRED-GUTTER
