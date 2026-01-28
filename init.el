@@ -6855,8 +6855,8 @@ currently ignored."
      (remove-hook 'erc-send-post-hook   #'erc-image--maybe-show))
     t)
 
-  (with-eval-after-load 'erc
-    (add-to-list 'erc-modules 'image)))
+  (add-hook 'erc-insert-post-hook #'erc-image--maybe-show t)
+  (add-hook 'erc-send-post-hook   #'erc-image--maybe-show t))
 
 
 ;;; │ EMACS-SOLO-YOUTUBE
