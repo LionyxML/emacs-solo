@@ -280,11 +280,11 @@ for ESLint."
   (visible-bell nil)
   (window-combination-resize t)
   (window-resize-pixelwise nil)
-  (xref-search-program 'ripgrep)
+  (xref-search-program 'ripgrep)        ; TODO: make it dinamic check if ripgrep is available before setting it and if it costs too much of the init time
   (zone-all-frames t)            ; EMACS-31
   (zone-all-windows-in-frame t)  ; EMACS-31
   (zone-programs '[zone-pgm-rat-race])
-  (grep-command "rg -nS --no-heading ")
+  (grep-command "rg -nS --no-heading ") ; TODO: make it dinamic check if ripgrep is available before setting it and if it costs too much of the init time
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".jj" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
@@ -3738,6 +3738,8 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
       (split-window-right)
       (switch-to-buffer temp-name)))
 
+  ;; FIXME: this basically do the same as (tear-off-window) binded to C-x w ^ f
+  ;;        consider removing it
   (global-set-key (kbd "C-x x x") 'emacs-solo/rename-buffer-and-move-to-new-window)
 
 
@@ -3761,6 +3763,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (global-set-key (kbd "M-v") #'emacs-solo-movements/scroll-up-centralize)
 
 
+  ;; TODO: Expand this into its own mini-package, with a list of formatter/file extension.
   (defun emacs-solo-movements/format-current-file (&optional manual)
     "Format the current file using biome or prettier if available.
 If MANUAL is non-nil, the function was called interactively."
@@ -3852,6 +3855,8 @@ If MANUAL is non-nil, the function was called interactively."
         (set-window-buffer (next-window) other-buf)
         (select-window this-win))))
 
+  ;; FIXME: remove this once EMACS-31 drops as stable
+  ;;        C-x w t does the same and we also get C-x w o ...
   (global-set-key (kbd "C-x 4 t") #'emacs-solo/transpose-split))
 
 
@@ -4086,6 +4091,7 @@ Opening and closing delimiters will have matching colors."
     "Find and switch to a project directory from ~/Projects."
     (interactive)
     (let* ((d (or directory emacs-solo-default-projects-folder))
+           ;; TODO: make it (if available) use 'fd'
            ;; (find-command (concat "fd --type d --max-depth 4 . " d))           ; with fd
            (find-command (concat "find " d " -mindepth 1 -maxdepth 4 -type d"))  ; with find
            (project-list (split-string (shell-command-to-string find-command) "\n" t))
@@ -6219,7 +6225,9 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
 ;;    NOTE: This is usable, but admittedly, a work in progress.
 ;;          An eldoc-box, but for the *completions* buffer, trying
 ;;          to become a built-in 'corfu/company'
-
+;;
+;;    TODO: Consider completely drop this.
+;;
 (use-package emacs-solo-completions-box
   :if emacs-solo-enable-completion-box
   :ensure nil
