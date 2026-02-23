@@ -116,7 +116,8 @@ IMPORTANT NOTE: If you disable this or choose another theme, also check
           (const :tag "Disabled" nil)
           (const :tag "Catppuccin" catppuccin)
           (const :tag "Crafters" crafters)
-          (const :tag "Matrix" matrix))
+          (const :tag "Matrix" matrix)
+          (const :tag "GITS" gits))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-preferred-font t
@@ -3357,6 +3358,128 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :init
   (load-theme 'modus-vivendi-tinted t))
 
+;;; │ GITS             Based Theme (hacked Modus)
+(use-package modus-themes
+  :if (eq emacs-solo-use-custom-theme 'gits)
+  :ensure nil
+  :defer t
+  :custom
+  (modus-themes-italic-constructs t)
+  (modus-themes-bold-constructs t)
+  (modus-themes-mixed-fonts nil)
+  (modus-themes-prompts '(bold intense))
+  (modus-themes-common-palette-overrides
+   `((accent-0 "#00e5ff")           ; neon cyan
+     (accent-1 "#ff0044")           ; hot pink
+     (bg-active bg-main)
+     (bg-added "#0a2018")
+     (bg-added-refine "#143a22")
+     (bg-changed "#0a1e38")
+     (bg-changed-refine "#142840")
+     (bg-completion "#0a1a2a")
+     (bg-completion-match-0 "#050810")
+     (bg-completion-match-1 "#050810")
+     (bg-completion-match-2 "#050810")
+     (bg-completion-match-3 "#050810")
+     (bg-hl-line "#0d1e2e")
+     (bg-hover-secondary "#0d2030")
+     (bg-line-number-active unspecified)
+     (bg-line-number-inactive "#050810")
+     (bg-main "#050810")            ; deep space
+     (bg-mark-delete "#2a0a14")
+     (bg-mark-select "#0a1e38")
+     (bg-mode-line-active "#0a1628")
+     (bg-mode-line-inactive "#080c16")
+     (bg-prominent-err "#2a0a14")
+     (bg-prompt unspecified)
+     (bg-prose-block-contents "#0d1628")
+     (bg-prose-block-delimiter bg-prose-block-contents)
+     (bg-region "#0d2840")
+     (bg-removed "#2a0a14")
+     (bg-removed-refine "#3a1020")
+     (bg-tab-bar      "#050810")
+     (bg-tab-current  "#080c16")
+     (bg-tab-other    "#050810")
+     (border-mode-line-active nil)
+     (border-mode-line-inactive nil)
+     (builtin "#00e5ff")            ; neon cyan
+     (comment "#2d5a70")            ; dim teal — recedes like noise
+     (constant "#ff4466")           ; hot pink
+     (cursor "#00e5ff")
+     (date-weekday "#00e5ff")
+     (date-weekend "#ffaa00")
+     (docstring "#4a7a8a")          ; slightly brighter than comment
+     (err "#ff0044")
+     (fg-active fg-main)
+     (fg-completion "#8ecede")
+     (fg-completion-match-0 "#00e5ff")
+     (fg-completion-match-1 "#ff0044")
+     (fg-completion-match-2 "#00cc77")
+     (fg-completion-match-3 "#ffaa00")
+     (fg-heading-0 "#ff0044")
+     (fg-heading-1 "#ff4466")
+     (fg-heading-2 "#ffaa00")
+     (fg-heading-3 "#00cc77")
+     (fg-heading-4 "#00e5ff")
+     (fg-line-number-active "#00e5ff")
+     (fg-line-number-inactive "#1a3a50")
+     (fg-link "#00e5ff")
+     (fg-main "#68b8cc")            ; teal-grey
+     (fg-mark-delete "#ff0044")
+     (fg-mark-select "#00e5ff")
+     (fg-mode-line-active "#8ecede")
+     (fg-mode-line-inactive "#2a4a5a")
+     (fg-prominent-err "#ff0044")
+     (fg-prompt "#cc55ff")          ; purple
+     (fg-prose-block-delimiter "#1a3a50")
+     (fg-prose-verbatim "#00cc77")
+     (fg-region "#8ecede")
+     (fnname "#00c5dd")
+     (fringe "#050810")
+     (identifier "#cc55ff")         ; purple
+     (info "#00cc77")
+     (keyword "#cc55ff")            ; purple
+     (name "#00e5ff")
+     (number "#ffaa00")             ; amber
+     (property "#00b8cc")
+     (string "#00cc77")             ; neon green
+     (type "#ffaa00")               ; amber
+     (variable "#ff8800")           ; orange
+     (warning "#ffaa00")))
+  :config
+  (modus-themes-with-colors
+    (custom-set-faces
+     `(change-log-acknowledgment ((,c :foreground "#00e5ff")))
+     `(change-log-date ((,c :foreground "#00cc77")))
+     `(change-log-name ((,c :foreground "#ffaa00")))
+     `(diff-context ((,c :foreground "#1a3a50")))
+     `(diff-file-header ((,c :foreground "#ff4466")))
+     `(diff-header ((,c :foreground "#00e5ff")))
+     `(diff-hunk-header ((,c :foreground "#ffaa00")))
+     `(gnus-button ((,c :foreground "#00e5ff")))
+     `(gnus-group-mail-3 ((,c :foreground "#00e5ff")))
+     `(gnus-group-mail-3-empty ((,c :foreground "#00e5ff")))
+     `(gnus-header-content ((,c :foreground "#68b8cc")))
+     `(gnus-header-from ((,c :foreground "#cc55ff")))
+     `(gnus-header-name ((,c :foreground "#00cc77")))
+     `(gnus-header-subject ((,c :foreground "#00e5ff")))
+     `(log-view-message ((,c :foreground "#00e5ff")))
+     `(match ((,c :background "#0d2840" :foreground "#8ecede")))
+     `(modus-themes-search-current ((,c :background "#ff0044" :foreground "#050810")))
+     `(modus-themes-search-lazy ((,c :background "#0d2840" :foreground "#8ecede")))
+     `(newsticker-extra-face ((,c :foreground "#1a3a50" :height 0.8 :slant italic)))
+     `(newsticker-feed-face ((,c :foreground "#ff0044" :height 1.2 :weight bold)))
+     `(newsticker-treeview-face ((,c :foreground "#68b8cc")))
+     `(newsticker-treeview-selection-face ((,c :background "#0d2840" :foreground "#8ecede")))
+     `(tab-bar ((,c :background "#050810" :foreground "#2a4a5a")))
+     `(tab-bar-tab ((,c :background "#080c16" :underline nil)))
+     `(tab-bar-tab-inactive ((,c :background "#050810" :foreground "#1a3a50")))
+     `(tab-bar-tab-group-current ((,c :background "#080c16" :foreground "#68b8cc" :underline t)))
+     `(tab-bar-tab-group-inactive ((,c :background "#050810" :foreground "#2a4a5a")))
+     `(vc-dir-file ((,c :foreground "#00e5ff")))
+     `(vc-dir-header-value ((,c :foreground "#68b8cc")))))
+  :init
+  (load-theme 'modus-vivendi t))
 
 ;;; │ Matrix           Based Theme (hacked Modus)
 (use-package modus-themes
