@@ -506,6 +506,24 @@ for ESLint."
     (define-key xref--xref-buffer-mode-map (kbd "E")
                 #'emacs-solo/xref-to-grep-compilation))
 
+  ;; ELISP evaluations show results in an overlay
+  (defun emacs-solo/eval-last-sexp-overlay ()
+    "Eval last sexp and show result inline as overlay.
+Use ⇒ if displayable, otherwise fallback to =>."
+    (interactive)
+    (let* ((value (elisp--eval-last-sexp nil))
+           (arrow (if (char-displayable-p ?⇒) " ⇒ " " => "))
+           (str (concat arrow (format "%S" value)))
+           (ov (make-overlay (point) (point))))
+      (overlay-put ov 'after-string
+                   (propertize str 'face 'font-lock-comment-face))
+      (run-with-timer
+       3 nil
+       (lambda (o) (delete-overlay o))
+       ov)))
+  (global-set-key (kbd "C-x C-e") #'emacs-solo/eval-last-sexp-overlay)
+
+
   ;; Runs 'private.el' after Emacs inits
   (add-hook 'after-init-hook
             (lambda ()
