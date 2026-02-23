@@ -2518,7 +2518,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
 (eval-after-load 'newst-treeview
   '(define-widget 'newsticker--tree-widget-leaf-icon 'tree-widget-icon
      "Icon for a newsticker leaf node (customized)."
-     :tag (if (display-graphic-p) "  " "> ")))
+     :tag (if (memq 'nerd emacs-solo-enabled-icons) "  " "> ")))
 
 
 ;; FIXME: There's a bug on newsticker when using newsticker-treeview,
