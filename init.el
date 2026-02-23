@@ -779,7 +779,8 @@ If ###@### is found, remove it and place point there at the end."
   (("C-x t <left>" . tab-bar-history-back)
    ("C-x t <right>" . tab-bar-history-forward)
    ("C-x t P" . #'emacs-solo/tab-group-from-project)
-   ("C-x t g" . #'emacs-solo/tab-switch-to-group))
+   ("C-x t g" . #'emacs-solo/tab-switch-to-group)
+   ("C-x t RET" . #'emacs-solo/tab-select-by-number))
   :custom
   (tab-bar-new-tab-choice "*scratch*")
   (tab-bar-close-button-show nil)
@@ -814,6 +815,11 @@ If ###@### is found, remove it and place point there at the end."
 
   (add-hook 'tab-bar-mode-hook #'emacs-solo/tab-bar-toggle-time)
 
+  (defun emacs-solo/tab-select-by-number ()
+    "Switch to a tab by its hint number."
+    (interactive)
+    (let ((num (read-number "Tab number: ")))
+      (tab-bar-select-tab num)))
 
   ;;; --- UTILITIES FUNCTIONS
   (defun emacs-solo/tab-group-from-project ()
