@@ -103,7 +103,7 @@
   :type 'boolean
   :group 'emacs-solo)
 
-(defcustom emacs-solo-use-custom-theme 'crafters
+(defcustom emacs-solo-use-custom-theme 'gits
   "Select which `emacs-solo` customization theme to use.
 
 - nil: Disable custom theme
@@ -6961,12 +6961,29 @@ currently ignored."
     (and (stringp url)
          (string-match-p erc-image-url-regexp url)))
 
+  (defun erc-image--youtube-video-id (url)
+    (when (stringp url)
+      (cond
+       ;; youtube.com/watch?v=ID
+       ((string-match "youtube\\.com/watch\\?.*v=\\([A-Za-z0-9_-]+\\)" url)
+        (match-string 1 url))
+       ;; youtu.be/ID
+       ((string-match "youtu\\.be/\\([A-Za-z0-9_-]+\\)" url)
+        (match-string 1 url))
+       ;; youtube.com/shorts/ID
+       ((string-match "youtube\\.com/shorts/\\([A-Za-z0-9_-]+\\)" url)
+        (match-string 1 url)))))
+
   (defun erc-image--maybe-show ()
     (when (display-graphic-p)
       (save-excursion
         (goto-char (line-beginning-position))
         (when (search-forward "http" (line-end-position) t)
-          (let ((url (thing-at-point 'url t)))
+          (let* ((url (thing-at-point 'url t))
+                 (yt-id (erc-image--youtube-video-id url))
+                 (url (if yt-id
+                          (format "https://img.youtube.com/vi/%s/hqdefault.jpg" yt-id)
+                        url)))
             (when (and url
                        (erc-image--image-url-p url))
               (let ((file (make-temp-file
