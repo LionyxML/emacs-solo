@@ -161,7 +161,7 @@ for ESLint."
 ;;; │ EMACS
 (use-package emacs
   :ensure nil
-  :bind
+  :bind                      ; NOTE: M-x describe-personal-bindings (for all use-packge binds)
   (("M-o" . other-window)
    ("M-j" . duplicate-dwim)
    ("M-g r" . recentf)
