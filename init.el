@@ -4755,7 +4755,6 @@ Windows are labeled starting from the top-left window and proceeding top to bott
         (overlay-put overlay 'after-string
                      (propertize (format " [%s] " key)
                                  'face '(:foreground "#c3e88d"
-                                                     :background "#232635"
                                                      :weight bold
                                                      :height default)))
         (overlay-put overlay 'window window)
