@@ -103,12 +103,15 @@
   :type 'boolean
   :group 'emacs-solo)
 
-(defcustom emacs-solo-use-custom-theme 'gits
+(defcustom emacs-solo-use-custom-theme 'crafters
   "Select which `emacs-solo` customization theme to use.
 
+Valid values are:
+- 'catppuccin
+- 'crafters
+- 'gits
+- 'matrix
 - nil: Disable custom theme
-- 'catppuccin: Use customizations for Catppuccin
-- 'crafters: Use customizations for the Crafters theme
 
 IMPORTANT NOTE: If you disable this or choose another theme, also check
 `emacs-solo-avoid-flash-options` to ensure compatibility."
