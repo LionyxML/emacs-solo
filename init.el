@@ -103,8 +103,8 @@
   :type 'boolean
   :group 'emacs-solo)
 
-(defcustom emacs-solo-use-custom-theme 'catppuccin
-  "Select which `emacs-solo` customization theme to use.
+(defcustom emacs-solo-use-custom-theme 'crafters
+  "Select which `emacs-solo' customization theme to use.
 
 Valid values are:
 - 'catppuccin
@@ -168,7 +168,7 @@ for ESLint."
   :type 'boolean
   :group 'emacs-solo)
 
-;;; ┌──────────────────── GENERAL EMACS CONFIG
+;;; ├──────────────────── GENERAL EMACS CONFIG
 ;;; │ EMACS
 (use-package emacs
   :ensure nil
@@ -3141,7 +3141,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
      ("ChatGPT" . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
 
 
-;;; ┌──────────────────── THEMES
+;;; ├──────────────────── THEMES
 ;;; │ Cattpuccin Mocha Based Theme (hacked Modus)
 ;;
 ;; This tries to follow: https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md
@@ -3859,7 +3859,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
     (setq-local go-ts-mode-indent-offset tab-width)))
 
 
-;;; ┌──────────────────── EMACS-SOLO CUSTOMS
+;;; ├──────────────────── EMACS-SOLO CUSTOMS
 ;;; │ EMACS-SOLO-HOOKS
 ;;
 (use-package emacs-solo-hooks
@@ -7329,4 +7329,4 @@ P")
 
 
 (provide 'init)
-;;; │ init.el ends here
+;;; └ init.el ends here
