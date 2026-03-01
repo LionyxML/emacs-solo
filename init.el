@@ -103,7 +103,7 @@
   :type 'boolean
   :group 'emacs-solo)
 
-(defcustom emacs-solo-use-custom-theme 'crafters
+(defcustom emacs-solo-use-custom-theme 'catppuccin
   "Select which `emacs-solo` customization theme to use.
 
 Valid values are:
@@ -3910,9 +3910,11 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   ;; TODO: Expand this into its own mini-package, with a list of formatter/file extension.
   (defun emacs-solo-movements/format-current-file (&optional manual)
     "Format the current file using biome or prettier if available.
+Runs the formatter asynchronously so Emacs stays responsive.
 If MANUAL is non-nil, the function was called interactively."
     (interactive (list t)) ;; sets manual to t if called via M-x
     (let* ((file (buffer-file-name))
+           (buf (current-buffer))
            (project-root (locate-dominating-file file "node_modules"))
            (biome-config (and project-root (file-exists-p (expand-file-name "biome.json" project-root))))
            (local-biome (and project-root (expand-file-name "node_modules/.bin/biome" project-root)))
@@ -3921,36 +3923,36 @@ If MANUAL is non-nil, the function was called interactively."
            (global-prettier (executable-find "prettier"))
            (formatter nil)
            (source nil)
-           (command nil)
-           (start-time (float-time))) ;; Capture the start time
+           (args nil)
+           (start-time (float-time)))
       (cond
        ;; Use Biome if biome.json exists
        ((and biome-config local-biome (file-executable-p local-biome))
-        (setq formatter local-biome)
-        (setq source "biome (local)")
-        (setq command (format "%s format --write %s" formatter (shell-quote-argument file))))
+        (setq formatter local-biome source "biome (local)" args (list "format" "--write" file)))
        ((and biome-config global-biome)
-        (setq formatter global-biome)
-        (setq source "biome (global)")
-        (setq command (format "%s format --write %s" formatter (shell-quote-argument file))))
+        (setq formatter global-biome source "biome (global)" args (list "format" "--write" file)))
 
        ;; Fall back to Prettier if no biome.json
        ((and local-prettier (file-executable-p local-prettier))
-        (setq formatter local-prettier)
-        (setq source "prettier (local)")
-        (setq command (format "%s --write %s" formatter (shell-quote-argument file))))
+        (setq formatter local-prettier source "prettier (local)" args (list "--write" file)))
        ((and global-prettier)
-        (setq formatter global-prettier)
-        (setq source "prettier (global)")
-        (setq command (format "%s --write %s" formatter (shell-quote-argument file)))))
-      (if command
+        (setq formatter global-prettier source "prettier (global)" args (list "--write" file))))
+      (if formatter
           (progn
             (when manual
               (save-buffer))
-            (shell-command command)
-            (revert-buffer t t t)
-            (let ((elapsed-time (* 1000 (- (float-time) start-time)))) ;; Calculate elapsed time in ms
-              (message "Formatted with %s - %.2f ms" source elapsed-time)))
+            (make-process
+             :name "formatter"
+             :command (cons formatter args)
+             :noquery t
+             :sentinel
+             (lambda (proc event)
+               (when (string-match-p "finished" event)
+                 (when (buffer-live-p buf)
+                   (with-current-buffer buf
+                     (revert-buffer t t t)
+                     (let ((elapsed-time (* 1000 (- (float-time) start-time))))
+                       (message "Formatted with %s - %.0f ms" source elapsed-time))))))))
         (message "No formatter found (biome or prettier)"))))
 
 
