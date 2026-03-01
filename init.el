@@ -153,6 +153,14 @@ URLs posted in ERC channels."
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-auto-formatter t
+  "Whether to automatically enable format-on-save for files.
+Respects the `emacs-solo-formatter-alist'.  When non-nil, opening a file whose
+extension has a registered formatter will add format-on-save to the
+buffer's `after-save-hook'."
+  :type 'boolean
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-enable-flymake-eslint nil
   "Whether to enable Flymake integration using ESLint.
 This is disabled by default, since nowadays we tend to use LSP servers
@@ -3682,8 +3690,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :defer t
   :hook
   ((js-ts-mode-hook . (lambda ()
-                        (setq indent-tabs-mode nil)
-                        (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t))))
+                        (setq indent-tabs-mode nil))))
   :custom
   (js-indent-level 2)
   :config
@@ -3696,8 +3703,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :defer t
   :hook
   ((json-ts-mode-hook . (lambda ()
-                          (setq indent-tabs-mode nil)
-                          (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)))))
+                          (setq indent-tabs-mode nil)))))
 
 
 ;;; │ TYPESCRIPT-TS-MODE
@@ -3751,7 +3757,6 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   ((typescript-ts-mode-hook .
                             (lambda ()
                               (setq indent-tabs-mode nil)
-                              (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
                               (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
   :custom
   (typescript-indent-level 2)
@@ -3767,13 +3772,21 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   ((tsx-ts-mode-hook .
                      (lambda ()
                        (setq indent-tabs-mode nil)
-                       (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
                        (emacs-solo/add-jsdoc-in-typescript-ts-mode))))
   :custom
   (typescript-indent-level 2)
   :config
   (add-to-list 'treesit-language-source-alist '(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))  ;; EMACS-31 this is now defined on mode code
   (unbind-key "M-." typescript-ts-base-mode-map))
+
+
+;;; │ BASH-TS-MODE
+(use-package bash-ts-mode
+  :ensure nil
+  :mode "\\.\\(sh\\|bash\\)\\'"
+  :defer t
+  :config
+  (add-to-list 'treesit-language-source-alist '(bash "https://github.com/tree-sitter/tree-sitter-bash" "master" "src")))
 
 
 ;;; │ RUST-TS-MODE
@@ -3907,78 +3920,6 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (global-set-key (kbd "M-v") #'emacs-solo-movements/scroll-up-centralize)
 
 
-  ;; TODO: Expand this into its own mini-package, with a list of formatter/file extension.
-  (defun emacs-solo-movements/format-current-file (&optional manual)
-    "Format the current file using biome or prettier if available.
-Runs the formatter asynchronously so Emacs stays responsive.
-If MANUAL is non-nil, the function was called interactively."
-    (interactive (list t)) ;; sets manual to t if called via M-x
-    (let* ((file (buffer-file-name))
-           (buf (current-buffer))
-           (project-root (locate-dominating-file file "node_modules"))
-           (biome-config (and project-root (file-exists-p (expand-file-name "biome.json" project-root))))
-           (local-biome (and project-root (expand-file-name "node_modules/.bin/biome" project-root)))
-           (global-biome (executable-find "biome"))
-           (local-prettier (and project-root (expand-file-name "node_modules/.bin/prettier" project-root)))
-           (global-prettier (executable-find "prettier"))
-           (formatter nil)
-           (source nil)
-           (args nil)
-           (start-time (float-time)))
-      (cond
-       ;; Use Biome if biome.json exists
-       ((and biome-config local-biome (file-executable-p local-biome))
-        (setq formatter local-biome source "biome (local)" args (list "format" "--write" file)))
-       ((and biome-config global-biome)
-        (setq formatter global-biome source "biome (global)" args (list "format" "--write" file)))
-
-       ;; Fall back to Prettier if no biome.json
-       ((and local-prettier (file-executable-p local-prettier))
-        (setq formatter local-prettier source "prettier (local)" args (list "--write" file)))
-       ((and global-prettier)
-        (setq formatter global-prettier source "prettier (global)" args (list "--write" file))))
-      (if formatter
-          (progn
-            (when manual
-              (save-buffer))
-            (make-process
-             :name "formatter"
-             :command (cons formatter args)
-             :noquery t
-             :sentinel
-             (lambda (proc event)
-               (when (string-match-p "finished" event)
-                 (when (buffer-live-p buf)
-                   (with-current-buffer buf
-                     (revert-buffer t t t)
-                     (let ((elapsed-time (* 1000 (- (float-time) start-time))))
-                       (message "Formatted with %s - %.0f ms" source elapsed-time))))))))
-        (message "No formatter found (biome or prettier)"))))
-
-
-  (defun emacs-solo-movements/format-current-file-manual ()
-    "Manually invoke format for current file."
-    (interactive)
-    (emacs-solo-movements/format-current-file t))
-
-  (global-set-key (kbd "C-c p") #'emacs-solo-movements/format-current-file-manual)
-  (global-set-key (kbd "C-c C-p") #'emacs-solo-movements/format-current-file-manual)
-
-
-  (defun emacs-solo/add-format-on-save ()
-    "Add `emacs-solo-movements/format-current-file` to the current buffer's `after-save-hook`."
-    (interactive)
-    (add-hook 'after-save-hook #'emacs-solo-movements/format-current-file nil t)
-    (message "Format-on-save enabled for this buffer."))
-
-
-  (defun emacs-solo/remove-format-on-save ()
-    "Remove `emacs-solo-movements/format-current-file` from the current buffer's `after-save-hook`."
-    (interactive)
-    (remove-hook 'after-save-hook #'emacs-solo-movements/format-current-file t)
-    (message "Format-on-save disabled for this buffer."))
-
-
   (defun emacs-solo/transpose-split ()
     "Transpose a horizontal split into a vertical split, or vice versa."
     (interactive)
@@ -4002,8 +3943,133 @@ If MANUAL is non-nil, the function was called interactively."
         (select-window this-win))))
 
   ;; FIXME: remove this once EMACS-31 drops as stable
-  ;;        C-x w t does the same and we also get C-x w o ...
+  ;;        C-x w t does the same and we also get C-x w t ...
   (global-set-key (kbd "C-x 4 t") #'emacs-solo/transpose-split))
+
+
+;;; │ EMACS-SOLO-FORMATTER
+;;
+;;  Configurable format-on-save with a registry of formatters per file extension
+;;
+(use-package emacs-solo-formatter
+  :ensure nil
+  :no-require t
+  :if emacs-solo-enable-auto-formatter
+  :init
+  (defcustom emacs-solo-formatter-alist
+    '(;; Node.js ecosystem — try biome first, fall back to prettier
+      (("js" "jsx" "ts" "tsx" "json" "css" "html" "sass" "yaml" "md")
+       . ((:cmd "biome" :args ("format" "--write") :local "node_modules/.bin/biome" :config "biome.json")
+          (:cmd "prettier" :args ("--write") :local "node_modules/.bin/prettier")))
+      ;; Shell scripts
+      (("sh" "bash")
+       . ((:cmd "shfmt" :args ("-w")))))
+    "Alist mapping file extensions to an ordered list of formatter candidates.
+Each entry is (EXTENSIONS . FORMATTERS) where EXTENSIONS is a list of
+file extension strings (without dots) and FORMATTERS is a list of plists.
+
+Each formatter plist supports the following keys:
+  :cmd    — executable name for `executable-find' (global fallback)
+  :args   — list of arguments (file path is appended automatically)
+  :local  — optional relative path from project root for local install lookup
+  :config — optional config file that must exist in the project root for
+            this formatter to be selected (e.g. biome needs \"biome.json\")"
+    :type '(alist :key-type (repeat string)
+                  :value-type (repeat plist))
+    :group 'emacs-solo)
+
+  (defun emacs-solo-formatter--find-formatter (file)
+    "Find a suitable formatter for FILE based on `emacs-solo-formatter-alist'.
+Returns a plist (:executable CMD :args ARGS :source SOURCE) or nil."
+    (let* ((ext (file-name-extension file))
+           (project-root (or (locate-dominating-file file "node_modules")
+                             (locate-dominating-file file ".git")))
+           (entry (cl-find-if (lambda (e) (member ext (car e)))
+                              emacs-solo-formatter-alist)))
+      (when entry
+        (cl-loop for fmt in (cdr entry) do
+                 (let* ((cmd (plist-get fmt :cmd))
+                        (args (plist-get fmt :args))
+                        (local-path (plist-get fmt :local))
+                        (config (plist-get fmt :config))
+                        ;; Check config requirement
+                        (config-ok (or (null config)
+                                       (and project-root
+                                            (file-exists-p (expand-file-name config project-root)))))
+                        ;; Find executable: local first, then global
+                        (local-bin (and local-path project-root
+                                        (let ((p (expand-file-name local-path project-root)))
+                                          (and (file-executable-p p) p))))
+                        (global-bin (executable-find cmd))
+                        (executable (or local-bin global-bin))
+                        (source (cond
+                                 (local-bin (format "%s (local)" cmd))
+                                 (global-bin (format "%s (global)" cmd)))))
+                   (when (and config-ok executable)
+                     (cl-return (list :executable executable
+                                      :args args
+                                      :source source))))))))
+
+  (defun emacs-solo-formatter/format-current-file (&optional manual)
+    "Format the current file using the first matching formatter.
+Runs the formatter asynchronously so Emacs stays responsive.
+If MANUAL is non-nil, save the buffer before formatting."
+    (interactive (list t))
+    (let* ((file (buffer-file-name))
+           (buf (current-buffer))
+           (result (and file (emacs-solo-formatter--find-formatter file))))
+      (if result
+          (let* ((executable (plist-get result :executable))
+                 (args (append (plist-get result :args) (list file)))
+                 (source (plist-get result :source))
+                 (start-time (float-time)))
+            (when manual
+              (save-buffer))
+            (make-process
+             :name "formatter"
+             :command (cons executable args)
+             :noquery t
+             :sentinel
+             (lambda (_proc event)
+               (when (string-match-p "finished" event)
+                 (when (buffer-live-p buf)
+                   (with-current-buffer buf
+                     (revert-buffer t t t)
+                     (font-lock-update)
+                     (let ((elapsed-time (* 1000 (- (float-time) start-time))))
+                       (message "Formatted with %s - %.0f ms" source elapsed-time))))))))
+        (when manual
+          (message "No formatter found for this file")))))
+
+  (defun emacs-solo-formatter/format-current-file-manual ()
+    "Manually invoke format for current file (saves first)."
+    (interactive)
+    (emacs-solo-formatter/format-current-file t))
+
+  (defun emacs-solo-formatter/enable-format-on-save ()
+    "Add format-on-save to the current buffer's `after-save-hook'."
+    (interactive)
+    (add-hook 'after-save-hook #'emacs-solo-formatter/format-current-file nil t)
+    (message "Format-on-save enabled for this buffer."))
+
+  (defun emacs-solo-formatter/disable-format-on-save ()
+    "Remove format-on-save from the current buffer's `after-save-hook'."
+    (interactive)
+    (remove-hook 'after-save-hook #'emacs-solo-formatter/format-current-file t)
+    (message "Format-on-save disabled for this buffer."))
+
+  (defun emacs-solo-formatter--maybe-enable ()
+    "Auto-enable format-on-save if the file's extension has a registered formatter."
+    (when-let* ((file (buffer-file-name))
+                (ext (file-name-extension file)))
+      (when (cl-find-if (lambda (e) (member ext (car e)))
+                        emacs-solo-formatter-alist)
+        (add-hook 'after-save-hook #'emacs-solo-formatter/format-current-file nil t))))
+
+  (add-hook 'find-file-hook #'emacs-solo-formatter--maybe-enable)
+
+  (global-set-key (kbd "C-c p") #'emacs-solo-formatter/format-current-file-manual)
+  (global-set-key (kbd "C-c C-p") #'emacs-solo-formatter/format-current-file-manual))
 
 
 ;;; │ EMACS-SOLO-TRANSPARENCY
@@ -4460,7 +4526,7 @@ A compound word includes letters, numbers, `-`, and `_`."
   (define-key viper-vi-global-user-map (kbd "SPC c a") 'eglot-code-actions)
   (define-key viper-vi-global-user-map (kbd "SPC s g") 'project-find-regexp)
   (define-key viper-vi-global-user-map (kbd "SPC s f") 'project-find-file)
-  (define-key viper-vi-global-user-map (kbd "SPC m p") 'emacs-solo-movements/format-current-file)
+  (define-key viper-vi-global-user-map (kbd "SPC m p") 'emacs-solo-formatter/format-current-file-manual)
   (global-set-key (kbd "C-o") 'xref-go-back)
 
   ;; Map `C-w` followed by specific keys to window commands in Viper
