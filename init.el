@@ -4678,23 +4678,50 @@ Marks lines as added, deleted, or changed."
                                            ,(propertize symbol 'face face)))))))))))
 
   (defun emacs-solo/timed-git-gutter-on()
-    (run-at-time 0.1 nil #'emacs-solo/git-gutter-add-mark))
+    (let ((buf (current-buffer)))
+      (run-at-time 0.1 nil (lambda ()
+                             (when (buffer-live-p buf)
+                               (with-current-buffer buf
+                                 (emacs-solo/git-gutter-add-mark)))))))
 
   (defun emacs-solo/git-gutter-off ()
     "Remove all `emacs-solo--git-gutter-overlay' marks and other overlays."
     (interactive)
     (remove-overlays (point-min) (point-max) 'emacs-solo--git-gutter-overlay t)
-    (remove-hook 'find-file-hook #'emacs-solo-git-gutter-on)
+    (remove-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
     (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
-    (remove-hook 'after-revert-hook #'emacs-solo-git-gutter-on))
+    (remove-hook 'after-revert-hook #'emacs-solo/timed-git-gutter-on)
+    (remove-hook 'after-focus-change-function #'emacs-solo/git-gutter-refresh-visible)
+    (remove-hook 'window-selection-change-functions #'emacs-solo/git-gutter-on-window-switch))
 
   (defun emacs-solo/git-gutter-on ()
     (interactive)
     (add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
     (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
     (add-hook 'after-revert-hook #'emacs-solo/timed-git-gutter-on)
+    (add-hook 'after-focus-change-function #'emacs-solo/git-gutter-refresh-visible)
+    (add-hook 'window-selection-change-functions #'emacs-solo/git-gutter-on-window-switch)
     (when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
       (emacs-solo/git-gutter-add-mark)))
+
+  (defun emacs-solo/git-gutter-refresh-visible ()
+    "Refresh gutter marks in all visible file-visiting buffers.
+Runs after Emacs regains focus (e.g. switching back from terminal
+after git add/commit, or after an external tool modifies files)."
+    (when (frame-focus-state)
+      (dolist (win (window-list))
+        (let ((buf (window-buffer win)))
+          (when (buffer-file-name buf)
+            (with-current-buffer buf
+              (emacs-solo/timed-git-gutter-on)))))))
+
+  (defun emacs-solo/git-gutter-on-window-switch (_frame)
+    "Refresh gutter marks in the newly selected window's buffer.
+Called by `window-selection-change-functions' on C-x o, etc."
+    (let ((buf (window-buffer (selected-window))))
+      (when (buffer-file-name buf)
+        (with-current-buffer buf
+          (emacs-solo/timed-git-gutter-on)))))
 
   (global-set-key (kbd "M-9") 'emacs-solo/goto-previous-hunk)
   (global-set-key (kbd "M-0") 'emacs-solo/goto-next-hunk)
