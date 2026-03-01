@@ -4564,7 +4564,6 @@ A compound word includes letters, numbers, `-`, and `_`."
 
 ;;; │ EMACS-SOLO-GUTTER
 ;;
-;;  A **HIGHLY** `experimental' and slow and buggy git gutter like.
 ;;
 (use-package emacs-solo-gutter
   :if emacs-solo-enable-buffer-gutter
@@ -4592,7 +4591,8 @@ A compound word includes letters, numbers, `-`, and `_`."
                          do (setq last-line line))))))
 
       (when next-line-number
-        (goto-line next-line-number))))
+        (goto-char (point-min))
+        (forward-line (1- next-line-number)))))
 
   (defun emacs-solo/goto-previous-hunk ()
     "Jump cursor to the closest previous hunk."
@@ -4613,15 +4613,16 @@ A compound word includes letters, numbers, `-`, and `_`."
                 previous-line))))
 
       (when previous-line-number
-        (goto-line previous-line-number))))
+        (goto-char (point-min))
+        (forward-line (1- previous-line-number)))))
 
 
   (defun emacs-solo/git-gutter-process-git-diff ()
     "Process git diff for adds/mods/removals.
 Marks lines as added, deleted, or changed."
     (interactive)
-    (setq-local result '())
-    (let* ((file-path (buffer-file-name))
+    (let* ((result '())
+           (file-path (buffer-file-name))
            (grep-command "rg -Po")                         ; for rgrep
            ;; (grep-command (if (eq system-type 'darwin)   ; for grep / ggrep
            ;;                   "ggrep -Po"
@@ -4629,20 +4630,20 @@ Marks lines as added, deleted, or changed."
            (output (shell-command-to-string
                     (format
                      "git diff --unified=0 %s | %s '^@@ -[0-9]+(,[0-9]+)? \\+\\K[0-9]+(,[0-9]+)?(?= @@)'"
-                     file-path
-                     grep-command))))
-      (setq-local lines (split-string output "\n"))
+                     (shell-quote-argument file-path)
+                     grep-command)))
+           (lines (split-string output "\n")))
       (dolist (line lines)
         (if (string-match "\\(^[0-9]+\\),\\([0-9]+\\)\\(?:,0\\)?$" line)
             (let ((num (string-to-number (match-string 1 line)))
                   (count (string-to-number (match-string 2 line))))
               (if (= count 0)
-                  (add-to-list 'result (cons (+ 1 num) "deleted"))
+                  (push (cons (+ 1 num) "deleted") result)
                 (dotimes (i count)
-                  (add-to-list 'result (cons (+ num i) "changed")))))
+                  (push (cons (+ num i) "changed") result))))
           (if (string-match "\\(^[0-9]+\\)$" line)
-              (add-to-list 'result (cons (string-to-number line) "added"))))
-        (setq-local git-gutter-diff-info result))
+              (push (cons (string-to-number line) "added") result))))
+      (setq-local git-gutter-diff-info result)
       result))
 
 
@@ -4669,7 +4670,7 @@ Marks lines as added, deleted, or changed."
             (when (and line-num status)
               (goto-char (point-min))
               (forward-line (1- line-num))
-              (let ((overlay (make-overlay (point-at-bol) (point-at-bol))))
+              (let ((overlay (make-overlay (line-beginning-position) (line-beginning-position))))
                 (overlay-put overlay 'emacs-solo--git-gutter-overlay t)
                 (overlay-put overlay 'before-string
                              (propertize " "
@@ -4691,7 +4692,7 @@ Marks lines as added, deleted, or changed."
     (remove-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
     (remove-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
     (remove-hook 'after-revert-hook #'emacs-solo/timed-git-gutter-on)
-    (remove-hook 'after-focus-change-function #'emacs-solo/git-gutter-refresh-visible)
+    (remove-function after-focus-change-function #'emacs-solo/git-gutter-refresh-visible)
     (remove-hook 'window-selection-change-functions #'emacs-solo/git-gutter-on-window-switch))
 
   (defun emacs-solo/git-gutter-on ()
@@ -4699,7 +4700,7 @@ Marks lines as added, deleted, or changed."
     (add-hook 'find-file-hook #'emacs-solo/timed-git-gutter-on)
     (add-hook 'after-save-hook #'emacs-solo/git-gutter-add-mark)
     (add-hook 'after-revert-hook #'emacs-solo/timed-git-gutter-on)
-    (add-hook 'after-focus-change-function #'emacs-solo/git-gutter-refresh-visible)
+    (add-function :after after-focus-change-function #'emacs-solo/git-gutter-refresh-visible)
     (add-hook 'window-selection-change-functions #'emacs-solo/git-gutter-on-window-switch)
     (when (not (string-match-p "^\\*" (buffer-name))) ; avoid *scratch*, etc.
       (emacs-solo/git-gutter-add-mark)))
@@ -4711,7 +4712,9 @@ after git add/commit, or after an external tool modifies files)."
     (when (frame-focus-state)
       (dolist (win (window-list))
         (let ((buf (window-buffer win)))
-          (when (buffer-file-name buf)
+          (when (and (buffer-file-name buf)
+                     (not (string-match-p "^\\*" (buffer-name buf)))
+                     (vc-git-root (buffer-file-name buf)))
             (with-current-buffer buf
               (emacs-solo/timed-git-gutter-on)))))))
 
@@ -4719,7 +4722,9 @@ after git add/commit, or after an external tool modifies files)."
     "Refresh gutter marks in the newly selected window's buffer.
 Called by `window-selection-change-functions' on C-x o, etc."
     (let ((buf (window-buffer (selected-window))))
-      (when (buffer-file-name buf)
+      (when (and (buffer-file-name buf)
+                 (not (string-match-p "^\\*" (buffer-name buf)))
+                 (vc-git-root (buffer-file-name buf)))
         (with-current-buffer buf
           (emacs-solo/timed-git-gutter-on)))))
 
