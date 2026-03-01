@@ -4028,16 +4028,23 @@ If MANUAL is non-nil, save the buffer before formatting."
             (make-process
              :name "formatter"
              :command (cons executable args)
+             :connection-type 'pipe
              :noquery t
              :sentinel
              (lambda (_proc event)
                (when (string-match-p "finished" event)
-                 (when (buffer-live-p buf)
-                   (with-current-buffer buf
-                     (revert-buffer t t t)
-                     (font-lock-update)
-                     (let ((elapsed-time (* 1000 (- (float-time) start-time))))
-                       (message "Formatted with %s - %.0f ms" source elapsed-time))))))))
+                 (run-with-timer
+                  0 nil
+                  (lambda ()
+                    (when (buffer-live-p buf)
+                      (with-current-buffer buf
+                        (let ((point (point)))
+                          (insert-file-contents file nil nil nil t)
+                          (goto-char (min point (point-max)))
+                          (set-buffer-modified-p nil)
+                          (font-lock-update)
+                          (let ((elapsed-time (* 1000 (- (float-time) start-time))))
+                            (message "Formatted with %s - %.0f ms" source elapsed-time)))))))))))
         (when manual
           (message "No formatter found for this file")))))
 
