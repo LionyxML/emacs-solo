@@ -6068,7 +6068,7 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   (defun emacs-solo/mpv-quit-transient ()
     "Quit the mpv transient, closing the playlist window if open."
     (interactive)
-    (when-let ((win (get-buffer-window "*mpv-playlist*" t)))
+    (when-let* ((win (get-buffer-window "*mpv-playlist*" t)))
       (delete-window win))
     (transient-quit-all))
 
