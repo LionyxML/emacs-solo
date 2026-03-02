@@ -5296,11 +5296,25 @@ This provides better rendering for the CLI's rich text user interface."
           (setq-local column-number-mode nil)))))
 
   (defun emacs-solo/claude-chat ()
-    "Start or reuse an interactive `claude` session in an `ansi-term` buffer.
+    "Start or reuse an interactive `claude' session in an `ansi-term' buffer.
   If a region is active, prompt for a query and send the region text
   along with the query to Claude. If a claude buffer for the current
   project already exists with a live process, reuse it. Otherwise,
-  start a new session."
+  start a new session.
+
+  In order to Emacs best behave using the built-in `ansi-term', edit
+  `~/.claude/settings.json' and add these to the json:
+
+  {
+  ...
+    \"prefersReducedMotion\": true,
+    \"spinnerVerbs\": {
+      \"mode\": \"replace\",
+      \"verbs\": [\"Processing\"]
+    }
+  ...
+  }
+"
     (interactive)
     (let* ((default-directory (or (vc-root-dir) emacs-solo-ai-scratch-path default-directory))
            (region-text (when (use-region-p)
