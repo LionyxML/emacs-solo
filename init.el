@@ -2830,7 +2830,11 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
               (goto-char (point-min))
               (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
                 (let ((video-id (match-string 1)))
-                  (start-process "mpv-video" nil "mpv" (if no-video "--no-video" "") (format "https://www.youtube.com/watch?v=%s" video-id))
+                  (apply #'start-process "mpv-video" nil "mpv"
+                         (append (if no-video
+                                     '("--no-video")
+                                   '("--autofit=400" "--geometry=-0+100" "--ontop"))
+                                 (list (format "https://www.youtube.com/watch?v=%s" video-id))))
                   (message "Playing with mpv: %s" video-id)))))
 
         (message "No window showing *Newsticker Item* buffer."))))
