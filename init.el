@@ -1,4 +1,4 @@
-;;; init.el --- Emacs Solo (no external packages) Configuration --- Init  -*- lexical-binding: t; -*-
+;;; init.el --- Emacs Solo (no external packages) Configuration --- Init  -*- lexical-binding: t; byte-compile-warnings: (not free-vars unresolved make-local); -*-
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
@@ -104,17 +104,17 @@
   :group 'emacs-solo)
 
 (defcustom emacs-solo-use-custom-theme 'crafters
-  "Select which `emacs-solo' customization theme to use.
+  "Select which emacs-solo customization theme to use.
 
 Valid values are:
-- 'catppuccin
-- 'crafters
-- 'gits
-- 'matrix
+- \\='catppuccin
+- \\='crafters
+- \\='gits
+- \\='matrix
 - nil: Disable custom theme
 
 IMPORTANT NOTE: If you disable this or choose another theme, also check
-`emacs-solo-avoid-flash-options` to ensure compatibility."
+\\='emacs-solo-avoid-flash-options to ensure compatibility."
   :type '(choice
           (const :tag "Disabled" nil)
           (const :tag "Catppuccin" catppuccin)
@@ -303,8 +303,10 @@ for ESLint."
     (when (and (buffer-file-name)
                (string-match-p "init\\.el\\'" (buffer-file-name)))
       (outline-minor-mode 1)
+      (declare-function outline-hide-sublevels "")
       (outline-hide-sublevels 1)))
   (when emacs-solo-enable-outline-init
+    (declare-function emacs-solo/outline-init-file "")
     (add-hook 'emacs-lisp-mode-hook #'emacs-solo/outline-init-file))
 
   ;; Make C-x 5 o repeatable
@@ -320,6 +322,7 @@ for ESLint."
   (modify-coding-system-alist 'file "" 'utf-8)
 
   ;; Setup preferred fonts when present on System
+  (declare-function emacs-solo/setup-font "")
   (defun emacs-solo/setup-font ()
     (let* ((emacs-solo-have-default-font (find-font (font-spec :family emacs-solo-preferred-font-name)))
            (size (nth (if (eq system-type 'darwin) 0 1)
@@ -352,9 +355,11 @@ for ESLint."
         auto-save-file-name-transforms `((".*" ,(expand-file-name "cache/auto-saves/" user-emacs-directory) t)))
 
   ;; For OSC 52 compatible terminals support
+  (defvar xterm-extra-capabilities)
   (setq xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 
   ;; TERMs should use the entire window space
+  (declare-function emacs-solo/disable-global-scrolling-in-ansi-term "")
   (defun emacs-solo/disable-global-scrolling-in-ansi-term ()
     "Disable global scrolling behavior in ansi-term buffers."
     (setq-local scroll-conservatively 101)
@@ -372,6 +377,7 @@ for ESLint."
    '(:application tramp :protocol "scp")
    'remote-direct-async-process)
 
+  (declare-function tramp-compile-disable-ssh-controlmaster-options "")
   (with-eval-after-load 'tramp
     (with-eval-after-load 'compile
       (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
@@ -451,7 +457,7 @@ for ESLint."
 
 
   (defun emacs-solo/filtered-project-buffer-completer (project files-only)
-    "A custom `project-buffers-viewer` that filters '*...*' buffers and uses `completing-read`."
+    "A function that filters special buffers and uses `completing-read`."
     (let* ((project-buffers (project-buffers project))
            (filtered-buffers
             (cl-remove-if
@@ -1272,23 +1278,24 @@ away from the bottom.  Counts wrapped lines as real lines."
                        max-comp-len max-comp-len-aux))
         ;; Serialize completions and section titles into a list
         ;; of lines to render
-        (cl-loop
-         for (comp prefix suffix section) in tuples
-         when section
-         collect (propertize section 'face 'icomplete-section) into lines-aux
-         and count 1 into nsections-aux
-         for comp = (icomplete-vertical--add-indicator-to-selected comp)
-         when (get-text-property 0 'icomplete-selected comp)
-         do (add-face-text-property 0 (length comp)
-                                    'icomplete-selected-match 'append comp)
-         collect (concat prefix
-                         (make-string (max 0 (- max-prefix-len (length prefix))) ? )
-                         (completion-lazy-hilit comp)
-                         (make-string (max 0 (- max-comp-len (length comp))) ? )
-                         suffix)
-         into lines-aux
-         finally (setq lines lines-aux
-                       nsections nsections-aux))
+        (with-no-warnings
+          (cl-loop
+           for (comp prefix suffix section) in tuples
+           when section
+           collect (propertize section 'face 'icomplete-section) into lines-aux
+           and count 1 into nsections-aux
+           for comp = (icomplete-vertical--add-indicator-to-selected comp)
+           when (get-text-property 0 'icomplete-selected comp)
+           do (add-face-text-property 0 (length comp)
+                                      'icomplete-selected-match 'append comp)
+           collect (concat prefix
+                           (make-string (max 0 (- max-prefix-len (length prefix))) ? )
+                           (completion-lazy-hilit comp)
+                           (make-string (max 0 (- max-comp-len (length comp))) ? )
+                           suffix)
+           into lines-aux
+           finally (setq lines lines-aux
+                         nsections nsections-aux)))
         ;; Kick out some lines from the beginning due to extra sections.
         ;; This hopes to keep the selected entry more or less in the
         ;; middle of the dropdown-like widget when `icomplete-scroll' is
@@ -1331,7 +1338,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))) ;; Turning this ON also sets the C-x M-o binding.
 
   (defun emacs-solo/dired-rsync-copy (dest)
-    "Copy marked files in Dired to DEST using rsync async, with real-time processing of output."
+    "Copy marked files in Dired to DEST using rsync in an async shell buffer."
     (interactive
      (list (expand-file-name (read-file-name "rsync to: "
                                              (dired-dwim-target-directory)))))
@@ -1533,7 +1540,7 @@ Ex: mpv file1 file2 file3 file4..."
   ;; MAKES C-c l GIVE AN ICOMPLETE LIKE SEARCH TO HISTORY COMMANDS
   ;;
   (defun emacs-solo/eshell-pick-history ()
-    "Show a unified and unique Eshell history from all open sessions and the history file.
+    "Show a unified and unique Eshell history from all open sessions + history file.
 Pre-fills the minibuffer with current Eshell input (from prompt to point)."
     (interactive)
     (unless (derived-mode-p 'eshell-mode)
@@ -1663,7 +1670,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
       (eshell-reset)))
 
   (defun enabled-icons-p ()
-    "Return 'emoji, 'nerd or nil depending on what is in `emacs-solo-enabled-icons`."
+    "Return \\='emoji, \\='nerd or nil depending on what is in `emacs-solo-enabled-icons'."
     (cond
      ((memq 'nerd emacs-solo-enabled-icons) 'nerd)
      ((memq 'eshell emacs-solo-enabled-icons) 'emoji)
@@ -1904,10 +1911,10 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                     (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-icons) "\n")
                                 'face `(:foreground ,eshell-solo/color-bg-dark))))
 
-                 (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))
+                 (propertize emacs-solo/eshell-lambda-symbol 'face 'font-lock-keyword-face))
 
               ;; Minimal prompt
-              (propertize emacs-solo/eshell-lambda-symbol 'face font-lock-keyword-face))))
+              (propertize emacs-solo/eshell-lambda-symbol 'face 'font-lock-keyword-face))))
 
 
   (setq eshell-prompt-regexp emacs-solo/eshell-lambda-symbol)
@@ -2007,7 +2014,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     ;; In vc-git and vc-dir for git buffers, make (C-x v) a run git add, u run git
     ;; reset, and r run git reset and checkout from head.
     (defun emacs-solo/vc-git-command (verb fn)
-      "Execute a Git command with VERB as action description and FN as operation on files."
+      "Execute a Git command with VERB as action and FN as operations."
       (let* ((fileset (vc-deduce-fileset t)) ;; Deduce fileset
              (backend (car fileset))
              (files (nth 1 fileset)))
@@ -2017,11 +2024,11 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
               (message "%s %d file(s)." verb (length files)))
           (message "Not in a VC Git buffer."))))
 
-    (defun emacs-solo/vc-git-add (&optional revision vc-fileset comment)
+    (defun emacs-solo/vc-git-add (&optional _revision _vc-fileset _comment)
       (interactive "P")
       (emacs-solo/vc-git-command "Staged" 'vc-git-register))
 
-    (defun emacs-solo/vc-git-reset (&optional revision vc-fileset comment)
+    (defun emacs-solo/vc-git-reset (&optional _revision _vc-fileset _comment)
       (interactive "P")
       (emacs-solo/vc-git-command "Unstaged"
                                  (lambda (files) (vc-git-command nil 0 files "reset" "-q" "--")))))
@@ -2031,8 +2038,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     "Show the Git status of files in the `vc-log` buffer."
     (interactive)
     (let* ((fileset (vc-deduce-fileset t))
-           (backend (car fileset))
-           (files (nth 1 fileset)))
+           (backend (car fileset)))
       (if (eq backend 'Git)
           (let ((output-buffer "*Git Status*"))
             (with-current-buffer (get-buffer-create output-buffer)
@@ -2075,7 +2081,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
 
 
   (defun emacs-solo/vc-pull-merge-current-branch ()
-    "Pull the latest change from origin for the current branch and display output in a buffer."
+    "Pull the from origin for the current branch and display output in a buffer."
     (interactive)
     (let* ((branch (vc-git--symbolic-ref "HEAD"))
            (buffer (get-buffer-create "*Git Pull Output*"))
@@ -2115,7 +2121,7 @@ Otherwise, open the repository's main page."
 
 
   (defun emacs-solo/vc-diff-on-current-hunk ()
-    "Show the diff for the current file and jump to the hunk containing the current line."
+    "Open diff jumping to the current hunk."
     (interactive)
     (let ((current-line (line-number-at-pos)))
       (message "Current line in file: %d" current-line)
@@ -2195,7 +2201,7 @@ The completion candidates include the Git status of each file."
   (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
   (define-key vc-prefix-map (kbd "R") #'emacs-solo/vc-git-reflog)
   (define-key vc-prefix-map (kbd "B") #'emacs-solo/vc-browse-remote)
-  (define-key vc-prefix-map (kbd "o") '(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
+  (define-key vc-prefix-map (kbd "o") #'(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
   (define-key vc-prefix-map (kbd "=") #'emacs-solo/vc-diff-on-current-hunk)
 
   ;; Switch-buffer between modified files
@@ -2453,14 +2459,10 @@ are defining or executing a macro."
 
 
   (defun emacs-solo/setup-simple-orderless ()
-    (defun simple-orderless-completion (string table pred point)
+    (defun simple-orderless-completion (string table pred _point)
       "Enhanced orderless completion with better partial matching.
 As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--building-your-own-orderless-style-completion-in-emacs-lisp/"
-      (let* ((words (split-string string "[-, ]+"))
-             (patterns (mapcar (lambda (word)
-                                 (concat "\\b.*" (regexp-quote word) ".*"))
-                               words))
-             (full-regexp (mapconcat 'identity patterns "")))
+      (let* ((words (split-string string "[-, ]+")))
         (if (string-empty-p string)
             (all-completions "" table pred)
           (cl-remove-if-not
@@ -2895,7 +2897,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
    org-hide-leading-stars t
    org-auto-align-tags nil
    org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
+   org-fold-catch-invisible-edits 'show-and-error
    org-special-ctrl-a/e t
    org-insert-heading-respect-content t
 
@@ -3037,7 +3039,9 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :config
   (setq uniquify-buffer-name-style 'forward)
   (setq uniquify-strip-common-suffix t)
-  (setq uniquify-after-kill-buffer-p t))
+  (with-no-warnings
+    (setq uniquify-after-kill-buffer-p t)
+    (setq uniquify-after-kill-buffer-flag t))) ;; EMACS-31 keep this one, delete the one above
 
 
 ;;; │ WHICH-KEY
@@ -3846,15 +3850,6 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 
 
 ;;; │ GO-TS-MODE
-(use-package go-ts-mode
-  :ensure t
-  :mode ("\\.go\\'" . go-ts-mode)
-  :mode ("go\\.mod\\'" . go-mod-ts-mode)
-  :hook
-  ((go-ts-mode-hook . emacs-solo/go-common-setup)
-   (go-mod-ts-mode-hook . emacs-solo/go-common-setup))
-  :defer t)
-
 (defun emacs-solo/go-common-setup ()
   "Common settings for Go tree-sitter modes."
   (add-hook 'before-save-hook #'eglot-format nil t) ; buffer-local
@@ -3863,6 +3858,14 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   (when (derived-mode-p 'go-ts-mode)
     (setq-local go-ts-mode-indent-offset tab-width)))
 
+(use-package go-ts-mode
+  :ensure t
+  :mode ("\\.go\\'" . go-ts-mode)
+  :mode ("go\\.mod\\'" . go-mod-ts-mode)
+  :hook
+  ((go-ts-mode-hook . emacs-solo/go-common-setup)
+   (go-mod-ts-mode-hook . emacs-solo/go-common-setup))
+  :defer t)
 
 ;;; ├──────────────────── EMACS-SOLO CUSTOMS
 ;;; │ EMACS-SOLO-HOOKS
@@ -4260,7 +4263,7 @@ This works with bash, zsh, or fish)."
   :defer t
   :init
   (defun emacs-solo/rainbow-delimiters ()
-    "Apply simple rainbow coloring to parentheses, brackets, and braces in the current buffer.
+    "Apply simple rainbow coloring to (), [] and {} in the current buffer.
 Opening and closing delimiters will have matching colors."
     (interactive)
     (let ((colors '(font-lock-function-name-face
@@ -4723,7 +4726,7 @@ Marks lines as added, deleted, or changed."
       result))
 
 
-  (defun emacs-solo/git-gutter-add-mark (&rest args)
+  (defun emacs-solo/git-gutter-add-mark (&rest _args)
     "Add symbols to the left margin based on Git diff statuses.
 - '+' for added lines (uses `success` face)
 - '~' for changed lines (uses `warning` face)
@@ -4829,7 +4832,8 @@ Called by `window-selection-change-functions' on C-x o, etc."
 
   (defun emacs-solo-ace-window/quick-window-jump ()
     "Jump to a window by typing its assigned character label.
-Windows are labeled starting from the top-left window and proceeding top to bottom, then left to right."
+Windows are labeled starting from the top-left window and proceeding
+top to bottom, then left to right."
     (interactive)
     (let* ((window-list (emacs-solo-ace-window/get-windows))
            (window-keys (seq-take '("1" "2" "3" "4" "5" "6" "7" "8")
@@ -4843,7 +4847,8 @@ Windows are labeled starting from the top-left window and proceeding top to bott
           (message "No window assigned to key: %c" key)))))
 
   (defun emacs-solo-ace-window/get-windows ()
-    "Return a list of windows in the current frame, ordered from top to bottom, left to right."
+    "Return a list of windows in the current frame.
+Ordered from top to bottom, left to right."
     (sort (window-list nil 'no-mini)
           (lambda (w1 w2)
             (let ((edges1 (window-edges w1))
@@ -4853,7 +4858,8 @@ Windows are labeled starting from the top-left window and proceeding top to bott
                        (< (cadr edges1) (cadr edges2))))))))
 
   (defun emacs-solo-ace-window/add-window-key-overlays (window-map)
-    "Add temporary overlays to windows with their assigned key labels from WINDOW-MAP."
+    "From WINDOW-MAP, add temporary overlays to windows.
+With their assigned key labels ."
     (setq emacs-solo-ace-window/quick-window-overlays nil)
     (dolist (entry window-map)
       (let* ((key (car entry))
@@ -4974,7 +4980,7 @@ buffer is not visiting a file."
     (interactive "P")
     (if (or arg (not buffer-file-name))
         (find-file (concat "/sudo:root@localhost:"
-                           (completing-read "Find file(as root): ")))
+                           (read-file-name "Find file (as root): ")))
       (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name)))))
 
 
@@ -5003,7 +5009,8 @@ buffer is not visiting a file."
   ;; `*replace-diff*` buffer. This allows for easy review and application of changes
   ;; across multiple files.
   (defun emacs-solo/multi-file-replace-regexp-as-diff-with-glob (dir regexp to-string &optional delimited glob-pattern)
-    "Wrapper for `multi-file-replace-regexp-as-diff` that accepts a directory and a glob pattern.
+    "Wrapper for `multi-file-replace-regexp-as-diff`.
+That accepts a directory and a glob pattern.
 DIR is the directory to search recursively.
 REGEXP is the regular expression to replace.
 TO-STRING is the replacement string.
@@ -5048,7 +5055,8 @@ Directories themselves are excluded from the final list."
              collect item))
 
   (defun emacs-solo/dired-do-replace-regexp-as-diff (from to &optional delimited)
-    "Do `replace-regexp' of FROM with TO as diff, on all marked files and directories.
+    "Do `replace-regexp' of FROM with TO as diff.
+On all marked files and directories.
 If a marked item is a directory, all files within it (recursively) are included.
 Third arg DELIMITED (prefix arg) means replace only word-delimited matches.
 The replacements are displayed in the buffer *replace-diff* that
@@ -5079,8 +5087,8 @@ you can later apply as a patch after reviewing the changes."
     "Open a new buffer and asynchronously fetch wttr.in weather data.
 
 Optional WHICH:
-  'url1 → fetch only wttr.in
-  'url2 → fetch only v2d.wttr.in
+  \\='url1 → fetch only wttr.in
+  \\='url2 → fetch only v2d.wttr.in
   nil   → fetch both."
     (interactive)
     (let* ((city (shell-quote-argument emacs-solo-weather-city))
@@ -5150,8 +5158,8 @@ If SECOND is non-nil, separate the results with a newline."
   "Open a new buffer and asynchronously fetch rate.sx data.
 
 WHICH may be:
-  'url1 → fetch only the crypto pair
-  'url2 → fetch only the fiat summary
+  \\='url1 → fetch only the crypto pair
+  \\='url2 → fetch only the fiat summary
   nil   → fetch both"
   (interactive)
   (let* ((crypto (shell-quote-argument emacs-solo-rate-crypto))
@@ -5266,8 +5274,10 @@ If SECOND is non-nil, separate the results with a newline."
   :defer t
   :init
   (defun emacs-solo/ollama-run-model ()
-    "Run `ollama list`, let the user choose a model, and open it in `ansi-term`.
-If a region is selected, use it as a query. If a prompt is provided, it's prepended."
+    "Run `ollama list`, let the user choose a model.
+And open it in `ansi-term`.
+If a region is selected, use it as a query.
+If a prompt is provided, it's prepended."
     (interactive)
     (let* ((output (shell-command-to-string "ollama list"))
            (models (mapcar (lambda (line) (car (split-string line)))
@@ -5553,8 +5563,7 @@ This provides better rendering for the CLI's rich text user interface."
   (defun emacs-solo/dired-icons-add-icons ()
     "Add icons and suffixes as overlays to filenames in Dired buffer."
     (when (derived-mode-p 'dired-mode)
-      (let ((inhibit-read-only t)
-            (icon-regex (emacs-solo/dired-icons-icons-regexp)))
+      (let ((inhibit-read-only t))
         (remove-overlays (point-min) (point-max) 'emacs-solo-dired-icon-overlay t)
 
         (save-excursion
@@ -5713,10 +5722,10 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
   (require 'project)
 
   (defvar container-backend 'podman
-    "Current container backend. Either 'docker or 'podman.")
+    "Current container backend. Either \\='docker or \\='podman.")
 
   (defvar container-profile 'dev
-    "Current profile: either 'prod or 'dev.")
+    "Current profile: either \\='prod or \\='dev.")
 
   (defconst container-buffer-name "*container*"
     "Buffer name for container command output.")
@@ -5776,7 +5785,8 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
         ('dev  (or (car (file-expand-wildcards (format "%s.docker-compose-dev.yml" base))) (concat project-root "docker-compose-dev.yml"))))))
 
   (defun container--run-to-buffer (cmd-template)
-    "Build CMD-TEMPLATE string, prompt user to edit it, then run it in *container* buffer."
+    "Build CMD-TEMPLATE string, prompt user to edit it.
+Then run it in *container* buffer."
     (interactive)
     (let* ((final-cmd (read-shell-command "Running command: " cmd-template)))
       (let ((buf (get-buffer-create "*container*")))
@@ -6269,7 +6279,7 @@ If RAW-BUFFER is nil, use the current buffer."
                  (m3u-visualizer-open-buffer (current-buffer)))))))
        nil t)))
 
-  (defun m3u-visualizer--mpv-sentinel (proc event)
+  (defun m3u-visualizer--mpv-sentinel (proc _event)
     "Sentinel for mpv PROC. When it ends, clear active marker and refresh."
     ;; When process is no longer live, clear the active marker and refresh the table
     (unless (process-live-p proc)
@@ -6308,7 +6318,7 @@ If RAW-BUFFER is nil, use the current buffer."
         (process-put proc 'm3u-buffer (current-buffer))
         (set-process-sentinel
          proc
-         (lambda (p e)
+         (lambda (p _e)
            (when (not (process-live-p p))
              (let ((buf (process-get p 'm3u-buffer)))
                (when (buffer-live-p buf)
@@ -6337,7 +6347,8 @@ If RAW-BUFFER is nil, use the current buffer."
     "Alist mapping logo-URL -> propertized display string (cached images).")
 
   (defun m3u-visualizer--find-entry-by-url (url)
-    "Return the entry (list) from `m3u-visualizer--entries' whose 4th element equals URL."
+    "Return the entry (list) from `m3u-visualizer--entries'.
+whose 4th element equals URL."
     (catch 'found
       (dolist (e m3u-visualizer--entries)
         (when (and (nth 3 e) (string= (nth 3 e) url))
@@ -6849,7 +6860,7 @@ The diagnostics are reported against SOURCE-BUFFER."
                (flymake-eslint--diag-from-eslint diag source-buffer))
              eslint-diags)))
       (error
-       "Tried to parse JSON diagnostics but current Emacs does not support it.")))
+       "Tried to parse JSON diagnostics but current Emacs does not support it:")))
 
   (defun flymake-eslint--json-parse-buffer ()
     "Return eslint diagnostics in the current buffer.
@@ -6964,7 +6975,7 @@ argument."
                         ,(or file-name (buffer-name source-buffer))
                         ,@(flymake-eslint--executable-args))
              :sentinel
-             (lambda (proc &rest ignored)
+             (lambda (proc &rest _ignored)
                (let ((status (process-status proc))
                      (buffer (process-buffer proc)))
                  (when (and (eq 'exit status)
@@ -6982,8 +6993,9 @@ argument."
   (defun flymake-eslint--directory-containing-project-marker ()
     "Return the directory containing a project marker.
 
-Return the first directory containing a file of `flymake-eslint-project-markers',
-starting from the value of `default-directory' in the current buffer."
+Return the first directory containing a file of
+`flymake-eslint-project-markers', starting from the value of
+`default-directory' in the current buffer."
     (locate-dominating-file
      default-directory
      (lambda (directory)
@@ -7171,7 +7183,7 @@ currently ignored."
 
 
   (defun youtube--thumb-retrieve-async (video-url thumb-url callback)
-    "Retrieve THUMB-URL asynchronously and call CALLBACK with VIDEO-URL and image property."
+    "Retrieve THUMB-URL asynchronously and call CALLBACK with VIDEO-URL."
     (let ((fixed-url (if (and (stringp thumb-url) (string-prefix-p "//" thumb-url))
                          (concat "https:" thumb-url)
                        thumb-url)))
@@ -7213,7 +7225,8 @@ currently ignored."
       (error nil)))
 
   (defun youtube-search--insert-results (results)
-    "Insert RESULTS into the tabulated-list buffer and fetch thumbnails asynchronously."
+    "Insert RESULTS into the tabulated-list buffer.
+Also fetch thumbnails asynchronously."
     (with-current-buffer (get-buffer-create "*YouTube Results*")
       (message "Processing youtube results...")
       (youtube-results-mode)
