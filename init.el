@@ -5532,7 +5532,20 @@ This provides better rendering for the CLI's rich text user interface."
             (forward-line 1))))))
 
   (add-hook 'dired-after-readin-hook #'emacs-solo/dired-icons-add-icons)
-  (add-hook 'dired-before-readin-hook #'emacs-solo/dired-icons-add-icons))
+  (defvar-local emacs-solo/dired-icons--last-mod-tick nil)
+
+  (defun emacs-solo/dired-icons-refresh-if-changed ()
+    "Redraw dired icons when the buffer content changes."
+    (when (derived-mode-p 'dired-mode)
+      (let ((tick (buffer-modified-tick)))
+        (unless (equal tick emacs-solo/dired-icons--last-mod-tick)
+          (setq emacs-solo/dired-icons--last-mod-tick tick)
+          (emacs-solo/dired-icons-add-icons)))))
+
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (setq emacs-solo/dired-icons--last-mod-tick (buffer-modified-tick))
+              (add-hook 'post-command-hook #'emacs-solo/dired-icons-refresh-if-changed nil t))))
 
 
 ;;; │ EMACS-SOLO-IBUFFER-ICONS
