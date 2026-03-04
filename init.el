@@ -6014,7 +6014,7 @@ Then run it in *container* buffer."
                          (playlist (alist-get 'data json-data)))
                     (if playlist
                         (progn
-                          (insert "🎵 MPV Playlist:\n\n")
+                          (insert "MPV Playlist:\n\n")
                           (cl-loop for i from 0
                                    for entry in playlist do
                                    (let ((current (eq (alist-get 'current entry) t)))
@@ -6026,11 +6026,11 @@ Then run it in *container* buffer."
                                               (1+ i)
                                               (file-name-nondirectory
                                                (alist-get 'filename entry)))))))
-                      (insert "❌ Failed to parse playlist or playlist is empty."))))
+                      (insert "Error: failed to parse playlist or playlist is empty."))))
                 (special-mode)
                 (goto-char (point-min))))
             (display-buffer buf))
-        (message "❌ mpv IPC socket not found at %s" socket))))
+        (message "Error: mpv IPC socket not found at %s" socket))))
 
   (defun emacs-solo/mpv-maybe-refresh-playlist ()
     "Refresh *mpv-playlist* silently only if it is visible in a window."
@@ -6056,27 +6056,27 @@ Then run it in *container* buffer."
 
   (transient-define-prefix emacs-solo/mpv-transient ()
     "MPV Controls"
-    [["  Controls"
-      ("p" "⏸  Pause/Resume"
+    [["Controls"
+      ("SPC" "⏸  Pause/Resume"
        (lambda () (interactive)
          (emacs-solo/mpv-send-command "{\"command\": [\"cycle\", \"pause\"]}")
          (run-with-timer 0.15 nil #'emacs-solo/mpv-show-status)
          (run-with-timer 0.15 nil #'emacs-solo/mpv-maybe-refresh-playlist))
        :transient t)
-      ("x" "⏹  Stop" emacs-solo/mpv-stop :transient t)
-      ("n" "⏭  Next"
+      ("x" "  ⏹  Stop" emacs-solo/mpv-stop :transient t)
+      ("n" "  ⏭  Next"
        (lambda () (interactive)
          (emacs-solo/mpv-send-command "{\"command\": [\"playlist-next\"]}")
          (run-with-timer 0.4 nil #'emacs-solo/mpv-show-status)
          (run-with-timer 0.4 nil #'emacs-solo/mpv-maybe-refresh-playlist))
        :transient t)
-      ("b" "⏮  Previous"
+      ("p" "  ⏮  Previous"
        (lambda () (interactive)
          (emacs-solo/mpv-send-command "{\"command\": [\"playlist-prev\"]}")
          (run-with-timer 0.4 nil #'emacs-solo/mpv-show-status)
          (run-with-timer 0.4 nil #'emacs-solo/mpv-maybe-refresh-playlist))
        :transient t)
-      ("l" "↺  Loop file"
+      ("l" "  ↺  Loop file"
        (lambda () (interactive)
          (emacs-solo/mpv-send-command
           "{\"command\": [\"cycle-values\", \"loop-file\", \"no\", \"inf\"]}")
@@ -6087,10 +6087,10 @@ Then run it in *container* buffer."
                                (message "↺  Loop: %s"
                                         (if (equal state "inf") "on" "off")))))))
        :transient t)]
-     ["  Playlist"
+     ["Playlist"
       ("RET" "▶  Play files"   emacs-solo/mpv-play-files :transient t)
-      ("L"   "☰  Playlist"     emacs-solo/mpv-toggle-playlist :transient t)
-      ("q"   "×  Quit"         emacs-solo/mpv-quit-transient)]])
+      ("L"   "  ☰  Playlist"     emacs-solo/mpv-toggle-playlist :transient t)
+      ("q"   "  ×  Quit"         emacs-solo/mpv-quit-transient)]])
 
   (defun emacs-solo/mpv-dired-setup ()
     (global-set-key (kbd "C-c m") #'emacs-solo/mpv-transient))
