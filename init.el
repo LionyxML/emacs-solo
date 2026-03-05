@@ -5500,7 +5500,8 @@ This provides better rendering for the CLI's rich text user interface."
 
   (defun emacs-solo/dired-icons-add-icons ()
     "Add icons and suffixes as overlays to filenames in Dired buffer."
-    (when (derived-mode-p 'dired-mode)
+    (when (and (derived-mode-p 'dired-mode)
+               (not (file-remote-p default-directory))) ; skip icons on TRAMP — file-directory-p/file-executable-p per file kills performance
       (let ((inhibit-read-only t))
         (remove-overlays (point-min) (point-max) 'emacs-solo-dired-icon-overlay t)
 
