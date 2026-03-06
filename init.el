@@ -788,6 +788,11 @@ If ###@### is found, remove it and place point there at the end."
       (window-width . 100)
       (side . right)
       (slot . 1))
+     ("\\*claude:.*\\*"
+      (display-buffer-in-side-window)
+      (window-width . 100)
+      (side . right)
+      (slot . 1))
      ("\\*\\(Flymake diagnostics\\|Completions\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
@@ -5299,6 +5304,17 @@ This provides better rendering for the CLI's rich text user interface."
         (let ((proc-buffer (ansi-term "claude" base-name)))
           (with-current-buffer proc-buffer
             (pop-to-buffer proc-buffer)
+            ;; HACK: ansi-term sets the process window size before
+            ;; display-buffer-alist moves the buffer to the side window.
+            ;; Without this delay, Claude CLI renders its UI based on the
+            ;; original window dimensions, causing misaligned separators.
+            (run-at-time 0.2 nil
+                         (lambda (buf)
+                           (when-let ((win (get-buffer-window buf t))
+                                      (proc (get-buffer-process buf)))
+                             (set-process-window-size
+                              proc (window-height win) (window-width win))))
+                         proc-buffer)
             (setq-local column-number-mode nil)
             (when initial-input
               (run-at-time 1 nil
@@ -5310,7 +5326,10 @@ This provides better rendering for the CLI's rich text user interface."
                                    (term-send-string proc input)
                                    (term-send-string proc "\e[201~")
                                    (term-send-string proc "\r")))))
-                           proc-buffer initial-input))))))))
+                           proc-buffer initial-input)))))))
+
+    (global-set-key (kbd "C-c C-0") #'emacs-solo/claude-chat))
+
 
 
 ;;; │ EMACS-SOLO-DIRED-GUTTER
