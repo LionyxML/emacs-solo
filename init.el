@@ -3616,6 +3616,174 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (load-theme 'modus-vivendi t))
 
 
+;;; ├──────────────────── COMMON LISP
+;;  │
+;;  │ Built-in CL env (no SLY/SWANK). No debugger restarts, inspector or cross-refs.
+;;  │
+;;; │ INFERIOR-LISP
+(use-package inf-lisp
+  :ensure nil
+  :defer t
+  :custom
+  (inferior-lisp-program "sbcl")
+  :bind (:map lisp-mode-map
+              ("C-c C-z" . emacs-solo/switch-to-lisp)
+              ("C-c C-c" . lisp-eval-defun)
+              ("C-c C-r" . lisp-eval-region)
+              ("C-c C-e" . lisp-eval-last-sexp)
+              ("C-c C-l" . lisp-load-file)
+              ("C-c C-k" . emacs-solo/lisp-compile-file))
+  :config
+  (defun emacs-solo/switch-to-lisp ()
+    "Switch to inferior Lisp process, starting one if needed.
+Shows the REPL in a window below, keeping focus in the code buffer."
+    (interactive)
+    (let ((code-buffer (current-buffer)))
+      (unless (and (get-process "inferior-lisp")
+                   (process-live-p (get-process "inferior-lisp")))
+        (run-lisp inferior-lisp-program)
+        (switch-to-buffer code-buffer))
+      (display-buffer "*inferior-lisp*"
+                      '(display-buffer-below-selected
+                        (window-height . 0.33)))))
+
+  (defun emacs-solo/lisp-compile-file ()
+    "Compile the current Common Lisp file."
+    (interactive)
+    (let ((file (buffer-file-name)))
+      (when file
+        (save-buffer)
+        (lisp-eval-string (format "(compile-file \"%s\")" file))))))
+
+;;; │ LISP-MODE
+(use-package lisp-mode
+  :ensure nil
+  :defer t
+  :bind (:map lisp-mode-map
+              ("C-c d"   . emacs-solo/cl-describe-symbol)
+              ("C-c h"   . emacs-solo/cl-hyperspec-lookup)
+              ("C-c C-m" . emacs-solo/cl-macroexpand)
+              ("C-c M-m" . emacs-solo/cl-macroexpand-all))
+  :hook ((lisp-mode-hook . emacs-solo/cl-mode-setup))
+  :config
+  (defun emacs-solo/cl--send-and-capture (expr)
+    "Send EXPR to the inferior Lisp and return the output as a string."
+    (let* ((proc (get-process "inferior-lisp"))
+           (buf (and proc (process-buffer proc)))
+           result)
+      (unless proc
+        (user-error "No inferior Lisp process running.  Use C-c C-z to start one"))
+      (with-current-buffer buf
+        (let ((comint-preoutput-filter-functions
+               (list (lambda (text) (setq result (concat result text)) ""))))
+          (process-send-string proc (concat expr "\n"))
+          (accept-process-output proc 1)))
+      (string-trim (or result ""))))
+
+  (defun emacs-solo/cl--symbol-at-point ()
+    "Get the Common Lisp symbol at point as a string."
+    (let ((sym (thing-at-point 'symbol t)))
+      (when sym (upcase sym))))
+
+  (defun emacs-solo/cl-completion-at-point ()
+    "Completion-at-point function for Common Lisp using the inferior process."
+    (let* ((bounds (bounds-of-thing-at-point 'symbol))
+           (start (or (car bounds) (point)))
+           (end (or (cdr bounds) (point)))
+           (prefix (buffer-substring-no-properties start end))
+           (proc (get-process "inferior-lisp")))
+      (when (and proc (not (string-empty-p prefix)))
+        (let* ((expr (format
+                      "(let ((completions nil))
+                         (do-all-symbols (s)
+                           (when (and (fboundp s)
+                                      (eql 0 (search \"%s\" (symbol-name s))))
+                             (push (string-downcase (symbol-name s)) completions)))
+                         (sort (remove-duplicates completions :test #'string=) #'string<))"
+                      (upcase prefix)))
+               (raw (emacs-solo/cl--send-and-capture expr))
+               (cleaned (replace-regexp-in-string
+                         "^[^(]*" "" (replace-regexp-in-string "\n" " " raw)))
+               (candidates (and (string-match "(" cleaned)
+                                (condition-case nil
+                                    (car (read-from-string cleaned))
+                                  (error nil)))))
+          (when candidates
+            (list start end candidates :exclusive 'no))))))
+
+  (defun emacs-solo/cl-eldoc-function (callback &rest _)
+    "Eldoc function for Common Lisp - shows arglist and first line of docs."
+    (let* ((sym (emacs-solo/cl--symbol-at-point))
+           (proc (get-process "inferior-lisp")))
+      (when (and sym proc (process-live-p proc))
+        (let* ((arglist-raw (emacs-solo/cl--send-and-capture
+                             (format "(ignore-errors (princ-to-string (sb-introspect:function-lambda-list '%s)))" sym)))
+               (doc-raw (emacs-solo/cl--send-and-capture
+                         (format "(ignore-errors (documentation '%s 'function))" sym)))
+               (arglist (and arglist-raw
+                             (not (string-match-p "NIL\\|error\\|debugger" arglist-raw))
+                             (string-trim arglist-raw)))
+               (doc (and doc-raw
+                         (not (string-match-p "^NIL$\\|error\\|debugger" doc-raw))
+                         (car (split-string (string-trim (replace-regexp-in-string "\"" "" doc-raw)) "\n"))))
+               (result (cond
+                        ((and arglist doc)
+                         (format "(%s %s) -- %s" (downcase sym) arglist doc))
+                        (arglist
+                         (format "(%s %s)" (downcase sym) arglist))
+                        (doc
+                         (format "%s -- %s" (downcase sym) doc))
+                        (t nil))))
+          (when result
+            (funcall callback result))))))
+
+  (defun emacs-solo/cl-describe-symbol ()
+    "Describe the Common Lisp symbol at point."
+    (interactive)
+    (let ((sym (emacs-solo/cl--symbol-at-point)))
+      (unless sym (user-error "No symbol at point"))
+      (let ((output (emacs-solo/cl--send-and-capture
+                     (format "(describe '%s)" sym))))
+        (with-help-window "*CL Describe*"
+          (princ output)))))
+
+  (defun emacs-solo/cl-macroexpand ()
+    "Macroexpand the form at point."
+    (interactive)
+    (let* ((form (thing-at-point 'list t)))
+      (unless form (user-error "No form at point"))
+      (let ((output (emacs-solo/cl--send-and-capture
+                     (format "(pprint (macroexpand-1 '%s))" form))))
+        (with-help-window "*CL Macroexpand*"
+          (princ output)))))
+
+  (defun emacs-solo/cl-macroexpand-all ()
+    "Fully macroexpand the form at point."
+    (interactive)
+    (let* ((form (thing-at-point 'list t)))
+      (unless form (user-error "No form at point"))
+      (let ((output (emacs-solo/cl--send-and-capture
+                     (format "(pprint (macroexpand '%s))" form))))
+        (with-help-window "*CL Macroexpand*"
+          (princ output)))))
+
+  (defun emacs-solo/cl-hyperspec-lookup ()
+    "Look up the symbol at point in the Common Lisp HyperSpec."
+    (interactive)
+    (let ((sym (emacs-solo/cl--symbol-at-point)))
+      (unless sym (user-error "No symbol at point"))
+      (browse-url
+       (format "http://www.lispworks.com/documentation/HyperSpec/Body/f_%s.htm"
+               (downcase (replace-regexp-in-string "\\*" "_" sym))))))
+
+  (defun emacs-solo/cl-mode-setup ()
+    "Setup Common Lisp enhancements for lisp-mode."
+    (setq-local comment-column 40)
+    (add-hook 'completion-at-point-functions
+              #'emacs-solo/cl-completion-at-point nil t)
+    (add-hook 'eldoc-documentation-functions
+              #'emacs-solo/cl-eldoc-function nil t)))
+
 ;;; ├──────────────────── NON TREESITTER AREA
 ;;; │ SASS-MODE
 (use-package scss-mode
