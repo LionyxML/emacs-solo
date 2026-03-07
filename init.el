@@ -2218,7 +2218,7 @@ The completion candidates include the Git status of each file."
 
   (defun emacs-solo/eglot-setup ()
     "Setup eglot mode with specific exclusions."
-    (unless (eq major-mode 'emacs-lisp-mode)
+    (unless (memq major-mode '(emacs-lisp-mode lisp-mode))
       (eglot-ensure)))
 
   (add-hook 'prog-mode-hook #'emacs-solo/eglot-setup)
