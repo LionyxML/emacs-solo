@@ -1333,9 +1333,9 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-auto-revert-buffer t)
   (dired-dwim-target t)
   (dired-guess-shell-alist-user
-   '(("\\.\\(png\\|jpe?g\\|tiff\\)" "xdg-open" "open")
-     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv" "xdg-open" "open")
-     (".*" "xdg-open" "open")))
+   `(("\\.\\(png\\|jpe?g\\|tiff\\)" ,(if (eq system-type 'darwin) "open" "xdg-open"))
+     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
+     (".*" ,(if (eq system-type 'darwin) "open" "xdg-open"))))
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches "-alh --group-directories-first")
   (dired-omit-files "^\\.")                                ; with dired-omit-mode (C-x M-o)
