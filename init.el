@@ -5490,12 +5490,13 @@ This provides better rendering for the CLI's rich text user interface."
             ;; original window dimensions, causing misaligned separators.
             (run-at-time 0.2 nil
                          (lambda (buf)
-                           (when-let ((win (get-buffer-window buf t))
+                           (when-let* ((win (get-buffer-window buf t))
                                       (proc (get-buffer-process buf)))
                              (set-process-window-size
                               proc (window-height win) (window-width win))))
                          proc-buffer)
             (setq-local column-number-mode nil)
+            (setq-local term-buffer-maximum-size 2048)
             (when initial-input
               (run-at-time 1 nil
                            (lambda (buf input)
