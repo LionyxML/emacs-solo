@@ -5248,7 +5248,11 @@ If a prompt is provided, it's prepended."
     "Start a new interactive `gemini` session in an `ansi-term` buffer.
 This provides better rendering for the CLI's rich text user interface."
     (interactive)
-    (let* ((default-directory (or (vc-root-dir) emacs-solo-ai-scratch-path default-directory))
+    (let* ((default-directory (or (vc-root-dir)
+                                  (and emacs-solo-ai-scratch-path
+                                       (file-directory-p emacs-solo-ai-scratch-path)
+                                       emacs-solo-ai-scratch-path)
+                                  default-directory))
            (buffer-name (generate-new-buffer-name
                          (format "gemini-chat:%s"
                                  (file-name-nondirectory (directory-file-name default-directory))))))
@@ -5278,7 +5282,11 @@ This provides better rendering for the CLI's rich text user interface."
   }
 "
     (interactive)
-    (let* ((default-directory (or (vc-root-dir) emacs-solo-ai-scratch-path default-directory))
+    (let* ((default-directory (or (vc-root-dir)
+                                  (and emacs-solo-ai-scratch-path
+                                       (file-directory-p emacs-solo-ai-scratch-path)
+                                       emacs-solo-ai-scratch-path)
+                                  default-directory))
            (region-text (when (use-region-p)
                           (buffer-substring-no-properties (region-beginning) (region-end))))
            (query (when region-text
