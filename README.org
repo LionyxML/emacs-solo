@@ -149,7 +149,8 @@ It is recommended you have this programs in your system:
   site from Emacs Solo, by using either =emacs-solo/0x0-upload-text= or
   =emacs-solo/0x0-upload-file=.
 
-  Also used for =emacs-solo-weather= and =emacs-solo-rate=.
+  Also used for =emacs-solo-weather=, =emacs-solo-rate= and
+  =emacs-solo-how-in= (cheat.sh queries).
 
 
 - =wget=
@@ -162,8 +163,9 @@ It is recommended you have this programs in your system:
 
   Only needed if you'd like to play videos directly from news in
   =newsticker=, play music from dired with dired music player =C-c m=,
-  play something from a m3u file with =M-x m3u-visualizer-open-buffer=
-  or listen to online radio with =C-c r=.
+  play something from a m3u file with =M-x m3u-visualizer-open-buffer=,
+  listen to online radio with =C-c r=, or play YouTube results from
+  =emacs-solo-yt=.
 
 
 - =rsync=
@@ -176,7 +178,7 @@ It is recommended you have this programs in your system:
   Only needed if you'd like to use =emacs-solo/ollama-run-model=.
 
 
-- =gemmini-cli=
+- =gemini-cli=
 
   Only needed if you'd like to use =emacs-solo/gemini-chat=.
 
@@ -187,7 +189,38 @@ It is recommended you have this programs in your system:
 
 - =khard=
 
-  Only needed if you'd like to use =emacs-solo/khard-...= funcitons.
+  Only needed if you'd like to use =emacs-solo/khard-...= functions.
+
+
+- =yt-dlp=
+
+  Only needed if you'd like to use =youtube-search-async= from
+  =emacs-solo-yt=.
+
+
+- =gh= (GitHub CLI)
+
+  Only needed if you'd like to use the GitHub interface from
+  =emacs-solo-gh= (PRs, issues, notifications).
+
+
+- =docker= / =podman=
+
+  Only needed if you'd like to use the container management UI from
+  =emacs-solo-container=.
+
+
+- =biome= / =prettier= / =shfmt=
+
+  Only needed if you'd like to use the format-on-save feature from
+  =emacs-solo-formatter=.  The formatter is resolved per-project
+  (local install preferred over global).
+
+
+- =eslint=
+
+  Only needed if you'd like to use the Flymake ESLint backend from
+  =emacs-solo-flymake-eslint=.
 
 
 - =rassumfrassum=
@@ -197,7 +230,8 @@ It is recommended you have this programs in your system:
 
 In order to proper copy/paste from terminals (TUI), you need:
 
-- =pbcopy/pbpaste= (macos)
+- =pbcopy/pbpaste= (macOS)
+- =clip.exe/powershell.exe= (WSL)
 - =wl-copy/wl-paste= (Linux with Wayland)
 - =xclip= (Linux with Xorg)
 
@@ -210,10 +244,18 @@ with:
   emacs --init-directory=YOUR_DIR
 #+END_SRC
 
-You can also simply copy *init.el* and *early-init.el* into any folder
-issue the same command as above
+You can also simply copy *init.el*, *early-init.el* and the *lisp/*
+directory into any folder and issue the same command as above.
 
 And that's it, happy hacking! 🐂
+
+** Project Structure
+
+The configuration is split into two layers:
+
+- =init.el= / =early-init.el= — core configuration using Emacs built-ins.
+- =lisp/= — self-contained modules loaded via =require= at the end of
+  =init.el=.
 
 ** Disclaimer
 
