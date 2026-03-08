@@ -1339,6 +1339,8 @@ away from the bottom.  Counts wrapped lines as real lines."
 ;;; │ DIRED
 (use-package dired
   :ensure nil
+  :bind
+  (("M-i" . emacs-solo/window-dired-vc-root-left))
   :custom
   (dired-auto-revert-buffer t)
   (dired-dwim-target t)
@@ -1421,7 +1423,66 @@ away from the bottom.  Counts wrapped lines as real lines."
        :stderr buffer)
 
       (display-buffer buffer)
-      (message "rsync started..."))))
+      (message "rsync started...")))
+
+  (defun emacs-solo/window-dired-vc-root-left (&optional directory-path)
+    "Creates *Dired-Side* like an IDE side explorer"
+    (interactive)
+    (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+
+    (let ((dir (if directory-path
+                   (dired-noselect directory-path)
+                 (if (eq (vc-root-dir) nil)
+                     (dired-noselect default-directory)
+                   (dired-noselect (vc-root-dir))))))
+
+      (display-buffer-in-side-window
+       dir `((side . left)
+             (slot . 0)
+             (window-width . 30)
+             (window-parameters . ((no-other-window . t)
+                                   (no-delete-other-windows . t)
+                                   (mode-line-format . (" "
+                                                        "%b"))))))
+      (with-current-buffer dir
+        (let ((window (get-buffer-window dir)))
+          (when window
+            (select-window window)
+            (rename-buffer "*Dired-Side*")
+            )))))
+
+  (defun emacs-solo/window-dired-open-directory ()
+    "Open the current directory in *Dired-Side* side window."
+    (interactive)
+    (emacs-solo/window-dired-vc-root-left (dired-get-file-for-visit)))
+
+  (defun emacs-solo/window-dired-open-directory-back ()
+    "Open the parent directory in *Dired-Side* side window and refresh it."
+    (interactive)
+    (emacs-solo/window-dired-vc-root-left "../")
+    (when (get-buffer "*Dired-Side*")
+      (with-current-buffer "*Dired-Side*"
+        (revert-buffer t t))))
+
+  (defun emacs-solo/dired-run-async-on-marked-files (command)
+    "Run COMMAND asynchronously on marked files in Dired.
+Ex: mpv file1 file2 file3 file4..."
+    (interactive "sCommand: ")
+    (let ((files (dired-get-marked-files)))
+      (start-process-shell-command command nil (format "%s %s" command (mapconcat 'shell-quote-argument files " ")))))
+
+
+  (eval-after-load 'dired
+    '(progn
+       ;; Users should navigate with p/n, enter new directories with =, go back with q,
+       ;; quit with several q's, only use - to access stuff up on the tree from inicial
+       ;; directory.
+       (define-key dired-mode-map (kbd "=") 'emacs-solo/window-dired-open-directory)
+       (define-key dired-mode-map (kbd "-") 'emacs-solo/window-dired-open-directory-back)
+       (define-key dired-mode-map (kbd "#") 'emacs-solo/dired-run-async-on-marked-files)
+
+       ;; A better "BACK" keybiding
+       (define-key dired-mode-map (kbd "b") 'dired-up-directory))))
 
 
 ;;; │ WDIRED
