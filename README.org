@@ -89,12 +89,22 @@ hacky workaround is always added.
    [[file:doc/demo-09-single-init-file-with-sections.png]]
    [[file:doc/demo-10-single-init-file-with-sections-2.png]]
 
-*** Every enhancement is optional and customizable
+*** Emacs Solo also have extra mini-packages built-in
 
-Use =M-x customize-group emacs-solo RET=.
+Use =C-c d= or =M-x container-menu RET= to open a podman / docker
+container manager.
 
-   [[file:doc/demo-11-custom-emacs-solo-group.png]]
+   [[file:doc/demo-12-container-management.png]]
 
+
+Use =C-c G= or =M-x gh-menu RET= to open a =gh= (github cli) UI:
+
+   [[file:doc/demo-13-gh-1.png]]
+
+   [[file:doc/demo-13-gh-2.png]]
+
+
+And much more!
 
 #+html:</details>
 
