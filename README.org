@@ -104,6 +104,22 @@ Or you can use =C-c G= or =M-x gh-menu RET= to open a =gh= (github cli) UI:
    [[file:doc/demo-13-gh-2.png]]
 
 
+Emacs Solo also ships with some very cool themes!
+
+We've got:
+
+**** Crafters
+   [[file:doc/demo-14-tema-crafters.png]]
+
+**** Catppuccin
+   [[file:doc/demo-14-tema-catppuccin.png]]
+
+**** GITS
+   [[file:doc/demo-14-tema-gits.png]]
+
+**** Matrix
+   [[file:doc/demo-14-tema-matrix.png]]
+
 And much more!
 
 #+html:</details>
