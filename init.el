@@ -1715,7 +1715,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
 
 
   ;; TODO: make this a single list of lists
-  (defvar emacs-solo/eshell-icons
+  (defvar emacs-solo/eshell-prompt-glyphs
     (mapcar
      '(lambda (p)
         (if (char-displayable-p (string-to-char (cdr p)))
