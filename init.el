@@ -66,8 +66,17 @@
 (defcustom emacs-solo-icon-modules
   '(dired eshell ibuffer)
   "List of Emacs Solo icon modules to enable.
-Controls which modules display file type icons.  When `nerd' is
-included, Nerd Font glyphs are used instead of emojis."
+Controls which modules display file type icons.
+
+Valid values (combine in a list):
+- \\='dired: Show file type icons in Dired buffers
+- \\='eshell: Show file type icons in Eshell prompts
+- \\='ibuffer: Show buffer type icons in Ibuffer
+- \\='nerd: Prefer Nerd Font glyphs over Emojis
+- nil: Disable all icons
+
+Default is \\='(dired eshell ibuffer), which uses Emoji icons.
+Add \\='nerd to the list to use Nerd Font glyphs instead."
   :type '(set :tag "Emacs Solo icon modules"
               (const :tag "Use icons on Dired" dired)
               (const :tag "Use icons on Eshell" eshell)
