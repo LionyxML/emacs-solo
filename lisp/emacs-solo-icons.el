@@ -19,6 +19,7 @@
   :no-require t
   :defer t
   :init
+  ;; TODO: make this a single list of lists for each icon set
   (let ((emoji-icons
          '(("el" . "📜")       ("rb" . "💎")       ("js" . "⚙️")      ("ts" . "⚙️")
            ("json" . "🗂️")     ("md" . "📝")       ("txt" . "📝")     ("html" . "🌐")
@@ -77,18 +78,25 @@
            ("direddir" . "") ("diredfile" . "") ("wranch" . "") ("news" . ""))))
 
     (defvar emacs-solo/file-icons
-      (cond
-       ;; If nerd icons are enabled, use them.
-       ((memq 'nerd emacs-solo-enabled-icons)
-        nerd-icons)
-       ;; If on kitty terminal AND not using nerd icons, use blank icons
-       ;; to prevent emoji rendering issues.
-       ((string= (getenv "TERM") "xterm-kitty")
-        (mapcar (lambda (p) (cons (car p) "")) emoji-icons))
-       ;; Otherwise, use the default emoji icons.
-       (t
-        emoji-icons))
-      "Icons for specific file extensions in Dired and Eshell.")))
+      (mapcar
+       '(lambda (p)
+          (if (char-displayable-p (string-to-char (cdr p)))
+              p
+            (cons (car p) "")))
+       (cond
+        ;; If nerd icons are enabled, use them.
+        ((memq 'nerd emacs-solo-enabled-icons)
+         nerd-icons)
+
+        ;; If on kitty terminal AND NOT using nerd icons, use blank icons
+        ;; to prevent emoji rendering issues.
+        '((string= (getenv "TERM") "xterm-kitty")
+          (mapcar (lambda (p) (cons (car p) "")) emoji-icons))
+
+        ;; Otherwise, use the default emoji icons if displayable.
+        (t
+         emoji-icons)))
+      "Icons for specific file extensions in Dired, Eshell and Ibuffer.")))
 
 (provide 'emacs-solo-icons)
 ;;; emacs-solo-icons.el ends here
