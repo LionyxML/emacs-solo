@@ -1690,23 +1690,14 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (when (derived-mode-p 'eshell-mode)
       (eshell-reset)))
 
-
-  (unless (eq emacs-solo-use-custom-theme 'catppuccin)
-    (defvar eshell-solo/color-bg-dark "#212234")
-    (defvar eshell-solo/color-bg-mid "#45475A")
-    (defvar eshell-solo/color-fg-user "#89b4fa")
-    (defvar eshell-solo/color-fg-host "#b4befe")
-    (defvar eshell-solo/color-fg-dir "#A6E3A1")
-    (defvar eshell-solo/color-fg-git "#F9E2AF"))
-
-  (when (eq emacs-solo-use-custom-theme 'catppuccin)
-    (defvar eshell-solo/color-bg-dark "#363a4f")
-    (defvar eshell-solo/color-bg-mid  "#494d64")
-    (defvar eshell-solo/color-fg-user "#89b4fa")
-    (defvar eshell-solo/color-fg-host "#b4befe")
-    (defvar eshell-solo/color-fg-dir  "#a6e3a1")
-    (defvar eshell-solo/color-fg-git  "#f9e2af"))
-
+  (defvar eshell-solo/color-bg-dark
+    (if (eq emacs-solo-use-custom-theme 'catppuccin) "#363a4f" "#212234"))
+  (defvar eshell-solo/color-bg-mid
+    (if (eq emacs-solo-use-custom-theme 'catppuccin) "#494d64" "#45475a"))
+  (defvar eshell-solo/color-fg-user                            "#89b4fa")
+  (defvar eshell-solo/color-fg-host                            "#b4befe")
+  (defvar eshell-solo/color-fg-dir                             "#a6e3a1")
+  (defvar eshell-solo/color-fg-git                             "#f9e2af")
 
   (defvar emacs-solo/eshell-prompt-glyphs
     '((arrow-left   :noicons ""      :nerd ""  :emoji "")
@@ -1960,9 +1951,9 @@ For the current icon style."
   (with-eval-after-load 'vc-annotate
     (setopt vc-annotate-color-map
             '((20 . "#c3e88d")
-              (40 . "#89DDFF")
+              (40 . "#89ddff")
               (60 . "#82aaff")
-              (80 . "#676E95")
+              (80 . "#676e95")
               (100 . "#c792ea")
               (120 . "#f78c6c")
               (140 . "#79a8ff")
@@ -2380,7 +2371,7 @@ and restart Flymake to apply the changes."
   :hook
   (gnus-group-mode-hook . gnus-topic-mode)
   :init
-  (run-at-time 1 nil (lambda () (setq gnus-logo-colors '("#676E95")))))
+  (run-at-time 1 nil (lambda () (setq gnus-logo-colors '("#676e95")))))
 
 
 ;;; │ MAN
