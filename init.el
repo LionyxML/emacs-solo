@@ -65,12 +65,14 @@
 
 (defcustom emacs-solo-enabled-icons
   '(dired eshell ibuffer)
-  "List of Emacs Solo icon features that are enabled."
+  "List of Emacs Solo icon features that are enabled.
+Controls which features display file type icons.  When `nerd' is
+included, Nerd Font glyphs are used instead of emojis."
   :type '(set :tag "Enabled Emacs Solo icon features"
-              (const :tag "Dired Icons" dired)
-              (const :tag "Eshell Icons" eshell)
-              (const :tag "Ibuffer Icons" ibuffer)
-              (const :tag "Nerd Font Icons" nerd))
+              (const :tag "Use icons on Dired" dired)
+              (const :tag "Use icons on Eshell" eshell)
+              (const :tag "Use icons on Ibuffer" ibuffer)
+              (const :tag "Prefer Nerd Fonts icons over Emojis" nerd))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-dired-gutter t
@@ -1661,9 +1663,9 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
 For the current icon style."
     (let* ((row (assq name emacs-solo/eshell-prompt-glyphs))
            (style (cond
-                   ((memq 'nerd emacs-solo-enabled-icons)   :nerd)
-                   ((memq 'eshell emacs-solo-enabled-icons) :emoji)
-                   (t                                       :noicons)))
+                   ((not (memq 'eshell emacs-solo-enabled-icons)) :noicons)
+                   ((memq 'nerd emacs-solo-enabled-icons)         :nerd)
+                   (t                                             :emoji)))
            (val (plist-get (cdr row) style)))
       (if (char-displayable-p (string-to-char val))
           val "")))
