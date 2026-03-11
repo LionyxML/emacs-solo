@@ -35,9 +35,9 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
            (is-exec (and perms (string-match-p "x" perms)))
            (ext (and (not is-dir) (file-name-extension filename)))
            (icon (if is-dir
-                     (cdr (assoc "direddir" emacs-solo/file-icons))
-                   (or (cdr (assoc ext emacs-solo/file-icons))
-                       (cdr (assoc "diredfile" emacs-solo/file-icons)))))
+                     (emacs-solo/file-icon "direddir")
+                   (or (emacs-solo/file-icon ext)
+                       (emacs-solo/file-icon "diredfile"))))
            (suffix (cond
                     (is-dir "/")
                     (is-exec "*")

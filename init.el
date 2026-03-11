@@ -1690,12 +1690,6 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (when (derived-mode-p 'eshell-mode)
       (eshell-reset)))
 
-  (defun enabled-icons-p ()
-    "Return \\='emoji, \\='nerd or nil depending on what is in `emacs-solo-enabled-icons'."
-    (cond
-     ((memq 'nerd emacs-solo-enabled-icons) 'nerd)
-     ((memq 'eshell emacs-solo-enabled-icons) 'emoji)
-     (t nil)))
 
   (unless (eq emacs-solo-use-custom-theme 'catppuccin)
     (defvar eshell-solo/color-bg-dark "#212234")
@@ -1714,72 +1708,38 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (defvar eshell-solo/color-fg-git  "#f9e2af"))
 
 
-  ;; TODO: make this a single list of lists
   (defvar emacs-solo/eshell-prompt-glyphs
-    (mapcar
-     '(lambda (p)
-        (if (char-displayable-p (string-to-char (cdr p)))
-            p
-          (cons (car p) "")))
-     (cond
-      ((not (enabled-icons-p))
-       '((arrow-left        . "")
-         (arrow-right       . "")
-         (success           . "1")
-         (failure           . "0")
-         (user-local        . "")
-         (user-remote       . "")
-         (host-local        . "")
-         (host-remote       . "")
-         (time              . "")
-         (folder            . "")
-         (branch            . " Git:")
-         (modified          . "M")
-         (untracked         . "U")
-         (conflict          . "X")
-         (git-diverged      . "D")
-         (git-ahead         . "A")
-         (git-behind        . "B")))
-      ((eq (enabled-icons-p) 'emoji)
-       '((arrow-left        . "")
-         (arrow-right       . "")
-         (success           . "🟢")
-         (failure           . "🔴")
-         (user-local        . "🧙")
-         (user-remote       . "👽")
-         (host-local        . "💻")
-         (host-remote       . "🌐")
-         (time              . "🕒")
-         (folder            . "📁")
-         (branch            . "")
-         (modified          . "✏️")
-         (untracked         . "✨")
-         (conflict          . "⚔️")
-         (git-diverged      . "🔀")
-         (git-ahead         . "⬆️")
-         (git-behind        . "⬇️")))
-      ((eq (enabled-icons-p) 'nerd)
-       '((arrow-left        . "")
-         (arrow-right       . "")
-         (success           . "")
-         (failure           . "")
-         (user-local        . "")
-         (user-remote       . "")
-         (host-local        . "")
-         (host-remote       . "")
-         (time              . "")
-         (folder            . "")
-         (branch            . "")
-         (modified          . " ")
-         (untracked         . " ")
-         (conflict          . " ")
-         (git-diverged      . " ")
-         (git-ahead         . " ")
-         (git-behind        . " ")))))
-    "Alist of all icons used in the Eshell prompt (emoji).")
+    '((arrow-left   :noicons ""      :nerd ""  :emoji "")
+      (arrow-right  :noicons ""      :nerd ""  :emoji "")
+      (success      :noicons "1"     :nerd ""  :emoji "🟢")
+      (failure      :noicons "0"     :nerd ""  :emoji "🔴")
+      (user-local   :noicons ""      :nerd ""  :emoji "🧙")
+      (user-remote  :noicons ""      :nerd ""  :emoji "👽")
+      (host-local   :noicons ""      :nerd ""  :emoji "💻")
+      (host-remote  :noicons ""      :nerd ""  :emoji "🌐")
+      (time         :noicons ""      :nerd ""  :emoji "🕒")
+      (folder       :noicons ""      :nerd ""  :emoji "📁")
+      (branch       :noicons "Git:"  :nerd ""  :emoji "")
+      (modified     :noicons "M"     :nerd " " :emoji "✏️")
+      (untracked    :noicons "U"     :nerd " " :emoji "✨")
+      (conflict     :noicons "X"     :nerd " " :emoji "⚔️")
+      (git-diverged :noicons "D"     :nerd " " :emoji "🔀")
+      (git-ahead    :noicons "A"     :nerd " " :emoji "⬆️")
+      (git-behind   :noicons "B"     :nerd " " :emoji "⬇️"))
+    "Alist of glyphs used in the Eshell prompt, keyed by style.")
 
+  (defun emacs-solo/glyph (name)
+    "Look up glyph NAME in `emacs-solo/eshell-prompt-glyphs'.
+For the current icon style."
+    (let* ((row (assq name emacs-solo/eshell-prompt-glyphs))
+           (style (cond
+                   ((memq 'nerd emacs-solo-enabled-icons)   :nerd)
+                   ((memq 'eshell emacs-solo-enabled-icons) :emoji)
+                   (t                                       :noicons)))
+           (val (plist-get (cdr row) style)))
+      (if (char-displayable-p (string-to-char val))
+          val "")))
 
-  ;; --- Git info caching ---
   (defvar emacs-solo/git-cache nil)
   (defvar emacs-solo/git-cache-dir nil)
   (defvar emacs-solo/git-cache-time 0)
@@ -1837,59 +1797,59 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                 ;; Full-blown prompt
                 (concat
                  (propertize
-                  (assoc-default 'arrow-left emacs-solo/eshell-prompt-glyphs) 'face `(:foreground ,eshell-solo/color-bg-dark))
+                  (emacs-solo/glyph 'arrow-left) 'face `(:foreground ,eshell-solo/color-bg-dark))
 
                  (propertize
                   (if (> eshell-last-command-status 0)
-                      (concat " " (assoc-default 'failure emacs-solo/eshell-prompt-glyphs)  " ")
-                    (concat " " (assoc-default 'success emacs-solo/eshell-prompt-glyphs)  " "))
+                      (concat " " (emacs-solo/glyph 'failure)  " ")
+                    (concat " " (emacs-solo/glyph 'success)  " "))
                   'face `(:background ,eshell-solo/color-bg-dark))
 
                  (propertize (concat (number-to-string eshell-last-command-status) " ")
                              'face `(:background ,eshell-solo/color-bg-dark))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-prompt-glyphs)
+                 (propertize (emacs-solo/glyph 'arrow-right)
                              'face `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
 
                  (propertize (let ((remote-user (file-remote-p default-directory 'user))
                                    (is-remote (file-remote-p default-directory)))
                                (concat
                                 (if is-remote
-                                    (concat (assoc-default 'user-remote emacs-solo/eshell-prompt-glyphs)  " ")
-                                  (concat (assoc-default 'user-local emacs-solo/eshell-prompt-glyphs)  " "))
+                                    (concat (emacs-solo/glyph 'user-remote)  " ")
+                                  (concat (emacs-solo/glyph 'user-local)  " "))
                                 (or remote-user (user-login-name))
                                 " "))
                              'face `(:foreground ,eshell-solo/color-fg-user
                                                  :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-prompt-glyphs) 'face
+                 (propertize (emacs-solo/glyph 'arrow-right) 'face
                              `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
 
                  (let ((remote-host (file-remote-p default-directory 'host))
                        (is-remote (file-remote-p default-directory)))
                    (propertize (concat (if is-remote
-                                           (concat " " (assoc-default 'host-remote emacs-solo/eshell-prompt-glyphs)  " ")
-                                         (concat " " (assoc-default 'host-local emacs-solo/eshell-prompt-glyphs)  " "))
+                                           (concat " " (emacs-solo/glyph 'host-remote)  " ")
+                                         (concat " " (emacs-solo/glyph 'host-local)  " "))
                                        (or remote-host (system-name)) " ")
                                'face `(:background ,eshell-solo/color-bg-dark  :foreground ,eshell-solo/color-fg-host)))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-prompt-glyphs) 'face
+                 (propertize (emacs-solo/glyph 'arrow-right) 'face
                              `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (concat " " (assoc-default 'time emacs-solo/eshell-prompt-glyphs)  " "
+                 (propertize (concat " " (emacs-solo/glyph 'time)  " "
                                      (format-time-string "%H:%M:%S" (current-time)) " ")
                              'face `(:foreground ,eshell-solo/color-fg-user :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (assoc-default 'arrow-right emacs-solo/eshell-prompt-glyphs)
+                 (propertize (emacs-solo/glyph 'arrow-right)
                              'face `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
 
-                 (propertize (concat " " (assoc-default 'folder emacs-solo/eshell-prompt-glyphs)  " "
+                 (propertize (concat " " (emacs-solo/glyph 'folder)  " "
                                      (if (>= (length (eshell/pwd)) 40)
                                          (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
                                        (abbreviate-file-name (eshell/pwd))) " ")
                              'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-dir))
 
-                 (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-prompt-glyphs) "\n")
+                 (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
                              'face `(:foreground ,eshell-solo/color-bg-dark))
 
                  (when-let* ((branch
@@ -1899,11 +1859,11 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                                ((fboundp 'vc-git--current-branch) ; < EMACS 31
                                 (vc-git--current-branch)))))
                    (concat
-                    (propertize (assoc-default 'arrow-left emacs-solo/eshell-prompt-glyphs)
+                    (propertize (emacs-solo/glyph 'arrow-left)
                                 'face `(:foreground ,eshell-solo/color-bg-dark))
                     (propertize
                      (concat
-                      (concat " " (assoc-default 'branch emacs-solo/eshell-prompt-glyphs) " " branch " ")
+                      (concat " " (emacs-solo/glyph 'branch) " " branch " ")
                       (when emacs-solo/eshell-full-prompt-resource-intensive
                         (let* ((info (emacs-solo/git-info))
                                (ahead (plist-get info :ahead))
@@ -1913,20 +1873,20 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
                                (conflicts (plist-get info :conflicts)))
                           (concat
                            (when (> ahead 0)
-                             (format (concat " " (assoc-default 'git-ahead emacs-solo/eshell-prompt-glyphs) "%d") ahead))
+                             (format (concat " " (emacs-solo/glyph 'git-ahead) "%d") ahead))
                            (when (> behind 0)
-                             (format (concat " " (assoc-default 'git-behind emacs-solo/eshell-prompt-glyphs) "%d") behind))
+                             (format (concat " " (emacs-solo/glyph 'git-behind) "%d") behind))
                            (when (and (> ahead 0) (> behind 0))
-                             (concat " " (assoc-default 'git-diverged emacs-solo/eshell-prompt-glyphs)))
+                             (concat " " (emacs-solo/glyph 'git-diverged)))
                            (when (> modified 0)
-                             (format (concat " " (assoc-default 'modified emacs-solo/eshell-prompt-glyphs) "%d") modified))
+                             (format (concat " " (emacs-solo/glyph 'modified) "%d") modified))
                            (when (> untracked 0)
-                             (format (concat " " (assoc-default 'untracked emacs-solo/eshell-prompt-glyphs) "%d") untracked))
+                             (format (concat " " (emacs-solo/glyph 'untracked) "%d") untracked))
                            (when (> conflicts 0)
-                             (format (concat " " (assoc-default 'conflict emacs-solo/eshell-prompt-glyphs) "%d") conflicts))
+                             (format (concat " " (emacs-solo/glyph 'conflict) "%d") conflicts))
                            " "))))
                      'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-git))
-                    (propertize (concat (assoc-default 'arrow-right emacs-solo/eshell-prompt-glyphs) "\n")
+                    (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
                                 'face `(:foreground ,eshell-solo/color-bg-dark))))
 
                  (propertize emacs-solo/eshell-lambda-symbol 'face 'font-lock-keyword-face))

@@ -21,14 +21,15 @@
   :init
   (defun emacs-solo/dired-icons-icon-for-file (file)
     (if (file-directory-p file)
-        (assoc-default "direddir" emacs-solo/file-icons)
+        (emacs-solo/file-icon "direddir")
       (let* ((ext (file-name-extension file))
-             (icon (and ext (assoc-default (downcase ext) emacs-solo/file-icons))))
-        (or icon (assoc-default "diredfile" emacs-solo/file-icons)))))
+             (icon (and ext (emacs-solo/file-icon (downcase ext)))))
+        (or icon (emacs-solo/file-icon "diredfile")))))
 
   (defun emacs-solo/dired-icons-icons-regexp ()
     "Return a regexp that matches any icon we use."
-    (let ((icons (mapcar #'cdr emacs-solo/file-icons)))
+    (let ((icons (mapcar (lambda (row) (emacs-solo/file-icon (car row)))
+                         emacs-solo/file-icons)))
       (concat "^\\(" (regexp-opt (cons "📁" icons)) "\\) ")))
 
   (defun emacs-solo/dired-icons-add-icons ()
