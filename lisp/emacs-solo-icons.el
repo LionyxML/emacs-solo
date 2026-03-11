@@ -125,7 +125,7 @@
   "Look up icon for file extension NAME in `emacs-solo/file-icons'."
   (let* ((row (assoc name emacs-solo/file-icons))
          (style (cond
-                 ((memq 'nerd emacs-solo-enabled-icons) :nerd)
+                 ((memq 'nerd emacs-solo-icon-modules) :nerd)
                  ((string= (getenv "TERM") "xterm-kitty") :noicons)
                  (t :emoji)))
          (val (plist-get (cdr row) style)))

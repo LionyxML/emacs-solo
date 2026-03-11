@@ -14,7 +14,7 @@
 ;;; Code:
 
 (use-package emacs-solo-icons-ibuffer
-  :if (memq 'ibuffer emacs-solo-enabled-icons)
+  :if (memq 'ibuffer emacs-solo-icon-modules)
   :ensure nil
   :no-require t
   :defer t

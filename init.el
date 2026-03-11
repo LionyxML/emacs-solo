@@ -63,12 +63,12 @@
   :type 'boolean
   :group 'emacs-solo)
 
-(defcustom emacs-solo-enabled-icons
+(defcustom emacs-solo-icon-modules
   '(dired eshell ibuffer)
-  "List of Emacs Solo icon features that are enabled.
-Controls which features display file type icons.  When `nerd' is
+  "List of Emacs Solo icon modules to enable.
+Controls which modules display file type icons.  When `nerd' is
 included, Nerd Font glyphs are used instead of emojis."
-  :type '(set :tag "Enabled Emacs Solo icon features"
+  :type '(set :tag "Emacs Solo icon modules"
               (const :tag "Use icons on Dired" dired)
               (const :tag "Use icons on Eshell" eshell)
               (const :tag "Use icons on Ibuffer" ibuffer)
@@ -1663,8 +1663,8 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
 For the current icon style."
     (let* ((row (assq name emacs-solo/eshell-prompt-glyphs))
            (style (cond
-                   ((not (memq 'eshell emacs-solo-enabled-icons)) :noicons)
-                   ((memq 'nerd emacs-solo-enabled-icons)         :nerd)
+                   ((not (memq 'eshell emacs-solo-icon-modules)) :noicons)
+                   ((memq 'nerd emacs-solo-icon-modules)         :nerd)
                    (t                                             :emoji)))
            (val (plist-get (cdr row) style)))
       (if (char-displayable-p (string-to-char val))
@@ -2457,7 +2457,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
 (eval-after-load 'newst-treeview
   '(define-widget 'newsticker--tree-widget-leaf-icon 'tree-widget-icon
      "Icon for a newsticker leaf node (customized)."
-     :tag (if (memq 'nerd emacs-solo-enabled-icons) "  " "> ")))
+     :tag (if (memq 'nerd emacs-solo-icon-modules) "  " "> ")))
 
 
 ;; FIXME: There's a bug on newsticker when using newsticker-treeview,

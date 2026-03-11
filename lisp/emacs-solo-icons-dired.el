@@ -14,7 +14,7 @@
 ;;; Code:
 
 (use-package emacs-solo-icons-dired
-  :if (memq 'dired emacs-solo-enabled-icons)
+  :if (memq 'dired emacs-solo-icon-modules)
   :ensure nil
   :no-require t
   :defer t

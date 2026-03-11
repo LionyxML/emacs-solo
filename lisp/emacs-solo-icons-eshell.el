@@ -17,7 +17,7 @@
 ;;; Code:
 
 (use-package emacs-solo-icons-eshell
-  :if (memq 'eshell emacs-solo-enabled-icons)
+  :if (memq 'eshell emacs-solo-icon-modules)
   :ensure nil
   :no-require t
   :defer t
