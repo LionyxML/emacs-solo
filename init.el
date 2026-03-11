@@ -1043,12 +1043,10 @@ Uses position instead of index field."
 
   ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-03/msg02638.html
   ;;
-  ;; I'm currently proposing these features on bug#75784 (bug-gnu-emacs).
-  ;; If they get accepted we can get rid of this giant block.
+  ;; Patch is now part of EMACS-31 bug#75784 (bug-gnu-emacs).
   ;;
-  ;; === FIXME: I'm reviewing it to the icomplete PATCH
-
-  ;; EMACS-31
+  ;; FIXME: Delete this giant block when new emacs becomes the current
+  ;; release
   (when (or (< emacs-major-version 31)
             (not (boundp 'icomplete-vertical-in-buffer-adjust-list)))
 
@@ -1105,7 +1103,7 @@ list.  It can be further customized by the face
       :group 'icomplete
       :version "31.1")
 
-    ;; FIXME: make this into PATCH - OK
+    ;; FIXME: make this into PATCH
     (defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
       "Adjust the LINES to align with the column in BUFFER based on DATA."
       (if icomplete-vertical-in-buffer-adjust-list
@@ -1135,67 +1133,6 @@ list.  It can be further customized by the face
                       (concat (make-string spaces-to-add-avoiding-scrolling ?\s) line))
                     lines))
         lines))
-
-    ;; FIXME: what to demo/test:
-    ;;
-    ;; This patch provides two more new features, which improves icomplete-vertical-mode, 1 and 2,
-    ;; explained below:
-    ;;
-    ;;
-    ;; 1.) Improve feature provided by `icomplete-in-buffer'.
-    ;;     If user, besides setting `icomplete-in-buffer' to t, also set the
-    ;;     new `icomplete-vertical-in-buffer-adjust-list' to t, the following are fixed/ improved:
-    ;;
-    ;; Without the new `icomplete-vertical-in-buffer-adjust-list':
-    ;; - [ ] wrapped lines   - completion candidates on different columns always shows candidates at column 0
-    ;; - [ ] wrapped lines   - completion candidates on different lines always shows candidates at column 0
-    ;; - [ ] wrapped lines   - completion candidates close to the end of buffer won't be printed
-    ;; - [ ] truncated lines - completion candidates on different columns always shows candidates at column 0
-    ;; - [ ] truncated lines - completion candidates on horizontally scrolled windows won't appear on buffer
-    ;;                         as they're on column 0
-    ;; - [ ] truncated lines - completion candidates close to the end of buffer wont be shown
-    ;;
-    ;;
-    ;; With the new `icomplete-vertical-in-buffer-adjust-list':
-    ;; - [ ] wrapped lines   - fix    : completion candidates on different columns will always be printed
-    ;;                                  under the cursor
-    ;; - [ ] wrapped lines   - feature: completion candidates on different columns close to the end
-    ;;                                  of the buffer will adjust so they stay visible
-    ;; - [ ] wrapped lines   - fix:   : completion candidates on different lines always be printed under
-    ;;                                  the cursor
-    ;; - [ ] wrapped lines   - fix    : if icomplete-prospects-height won't fit from current line to the
-    ;;                                  end of vertical space, our window will be scrolled so we have at
-    ;;                                  least this amount of lines. This ensures our candidates list is
-    ;;                                  always visible
-    ;; - [ ] truncated lines - fix    : completion candidates on different columns will always be printed
-    ;;                                  under the cursor
-    ;; - [ ] truncated lines - feature: completion candidates on different columns close to the end
-    ;;                                  of the buffer will adjust so they stay visible even when we scroll
-    ;;                                  horizontally
-    ;; - [ ] truncated lines - feature: completion candidates on horizontally scrolled windows will be
-    ;;                                  printed under the cursor
-    ;; - [ ] wrapped lines   - feature: if icomplete-prospects-height won't fit from current line to the
-    ;;                                  end of vertical space, our window will be scrolled so we have at
-    ;;                                  least this amount of lines. This ensures our candidates list is
-    ;;                                  always visible
-    ;; - [ ] from wrapped    - feature: if we are on wrapped lines and manually horiontal scroll, the lines
-    ;;       to truncated               will become automatically truncated, in this case, all the features
-    ;;                                  above still works from either mode (wrapped or truncated).
-    ;;
-    ;;
-    ;; 2.) Implements new feature which provides customizable prefix indicators
-    ;;
-    ;; Setting `icomplete-vertical-render-prefix-indicator' to t will provide a prefix indicator
-    ;; to indicate the current selected candidate, by default "» ".
-    ;;
-    ;; This prefix is customizable through the variable `icomplete-vertical-selected-prefix-indicator'
-    ;; and de face `icomplete-vertical-selected-prefix-indicator-face'.
-    ;;
-    ;; Users can also customize an indicator to the not selected candidates trhough the use of
-    ;; the variable `icomplete-vertical-unselected-prefix-indicator', by default: "  ", and the face
-    ;; `icomplete-vertical-unselected-prefix-indicator-face'.
-    ;;
-
 
     ;; FIXME: remove this after patch
     (defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
