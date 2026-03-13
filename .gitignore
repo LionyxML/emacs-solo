@@ -22,6 +22,7 @@ var/
 /.mc-lists.el
 /.DS_Store
 /network-security.data
+/network-security.eld
 /.emacs.desktop
 /.emacs.desktop.lock
 /.watsonresults
