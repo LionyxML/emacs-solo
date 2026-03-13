@@ -183,9 +183,8 @@ for ESLint."
 ;;; │ EMACS
 (use-package emacs
   :ensure nil
-  :bind                      ; NOTE: M-x describe-personal-bindings (for all use-packge binds)
+  :bind                                              ; NOTE: M-x describe-personal-bindings (for all use-packge binds)
   (("M-o" . other-window)
-   ("M-j" . duplicate-dwim)
    ("M-g r" . recentf)
    ("M-s g" . grep)
    ("C-x ;" . comment-line)
@@ -202,7 +201,22 @@ for ESLint."
    ("C-z" . nil)
    ("C-x C-z" . nil)
    ("C-M-z" . delete-pair)
-   ("C-x C-k RET" . nil))
+   ("C-x C-k RET" . nil)
+   ("M-@" . emacs-solo/copy-whole-word)
+   ("M-J" . duplicate-dwim)                          ; As suggest on r/emacs by the_cecep:
+   ("M-K" . kill-paragraph)                          ; Expands M-k for kill-sentence
+   ("M-Z" . zap-up-to-char)                          ; Expands M-z for zap-to-char
+   ("M-F" . forward-to-word)                         ; Expands M-f to jump to beginning of next word
+   ("M-B" . backward-to-word)                        ; Expands M-b to jump to end of previous word
+   ("M-M" . end-of-line)                             ; Expands M-m to jump to end line, useful for paragraphs
+   ("M-T" . transpose-sentences)                     ; Expands M-t for transposing words
+   ("C-x M-t" . transpose-paragraphs)                ; Expands C-x C-t for transposing lines
+   ([remap capitalize-word] . capitalize-dwim)       ; Make M-c work on regions
+   ([remap downcase-word] . downcase-dwim)           ; Make M-l work on regions
+   ([remap upcase-word] . upcase-dwim)               ; Make M-u work on regions
+   ([remap kill-buffer] . kill-current-buffer)       ; C-x k stops prompting for buffer to kill
+   ([remap delete-horizontal-space] . cycle-spacing) ; M-\. Called twice, cycle-spacing has same effect and its default binding (M-SPC) is problematic in macOS
+   )
   :custom
   (ad-redefinition-action 'accept)
   (auto-save-default t)
@@ -555,8 +569,15 @@ Use ⇒ if displayable, otherwise fallback to =>."
            ov)))))
   (global-set-key (kbd "C-x C-e") #'emacs-solo/eval-last-sexp-overlay)
 
+  (defun emacs-solo/copy-whole-word ()
+    "Copy the symbol at point to the kill ring without moving point."
+    (interactive)
+    (let ((bounds (bounds-of-thing-at-point 'symbol)))
+      (when bounds
+        (kill-ring-save (car bounds) (cdr bounds)))))
 
-  ;; TODO: move this to an emacs-lisp use-package
+
+  ;; TODO: move this to an emacs-lisp use-package section
   (defun emacs-solo/prefer-spaces ()
     "Disable indent-tabs-mode to prefer spaces over tabs."
     (interactive)
