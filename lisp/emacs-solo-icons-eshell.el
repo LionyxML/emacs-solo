@@ -34,10 +34,12 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
            (perms (nth 9 file))
            (is-exec (and perms (string-match-p "x" perms)))
            (ext (and (not is-dir) (file-name-extension filename)))
+           (found (and ext (emacs-solo/file-icon ext)))
            (icon (if is-dir
                      (emacs-solo/file-icon "direddir")
-                   (or (emacs-solo/file-icon ext)
-                       (emacs-solo/file-icon "diredfile"))))
+                   (if (and found (not (string-empty-p found)))
+                       found
+                     (emacs-solo/file-icon "diredfile"))))
            (suffix (cond
                     (is-dir "/")
                     (is-exec "*")

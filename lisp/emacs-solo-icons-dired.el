@@ -24,7 +24,9 @@
         (emacs-solo/file-icon "direddir")
       (let* ((ext (file-name-extension file))
              (icon (and ext (emacs-solo/file-icon (downcase ext)))))
-        (or icon (emacs-solo/file-icon "diredfile")))))
+        (if (and icon (not (string-empty-p icon)))
+            icon
+          (emacs-solo/file-icon "diredfile")))))
 
   (defun emacs-solo/dired-icons-icons-regexp ()
     "Return a regexp that matches any icon we use."
