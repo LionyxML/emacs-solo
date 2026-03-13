@@ -3,7 +3,7 @@
 #+OPTIONS: toc: nil
 
 #+HTML: <p align="center">
-#+HTML:   <img src="doc/emacs-solo-logo.png" alt="Project Logo" width="300"/>
+#+HTML:   <img src="https://github.com/LionyxML/emacs-solo/releases/download/assets/emacs-solo-logo.png" alt="Project Logo" width="300"/>
 #+HTML:   <br/>
 #+HTML:   <img src="https://img.shields.io/badge/Emacs-30%2B-green.svg" alt="Emacs 30+"/>
 #+HTML:   <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="GPLv3 License"/>
@@ -60,48 +60,48 @@ hacky workaround is always added.
 ** Obligatory Screenshots
 
 *** Overall View:
-   [[file:doc/demo-01-overall.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-01-overall.png]]
 
 #+html:<details open>
 #+html:<summary><h3>More screenshots here...</h3></summary>
 
 *** iComplete (in buffer completion) + Flymake + Gutter:
-   [[file:doc/demo-02-icomplete-flymake-gutter.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-02-icomplete-flymake-gutter.png]]
 
 *** Help Variable:
-   [[file:doc/demo-03-help-var.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-03-help-var.png]]
 
 *** iComplete Vertical:
-   [[file:doc/demo-04-icomplete-vertical.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-04-icomplete-vertical.png]]
 
 *** Eshell:
-   [[file:doc/demo-05-eshell.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-05-eshell.png]]
 
 *** Dired + Gutter:
-   [[file:doc/demo-06-dired-with-gutter.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-06-dired-with-gutter.png]]
 
-   [[file:doc/demo-07-dired-with-gutter-2.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-07-dired-with-gutter-2.png]]
 
 *** Well behaved mode-line:
-   [[file:doc/demo-08-mode-line.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-08-mode-line.png]]
 
 *** In Emacs Solo you find configurations for:
-   [[file:doc/demo-09-single-init-file-with-sections.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-09-single-init-file-with-sections.png]]
 
 *** Emacs Solo also has a lot of extra mini-packages built-in:
-   [[file:doc/demo-10-single-init-file-with-sections-2.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-10-single-init-file-with-sections-2.png]]
 
 You can use =C-c d= or =M-x container-menu RET= to open a podman / docker
 container manager.
 
-   [[file:doc/demo-12-container-management.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-12-container-management.png]]
 
 
 Or you can use =C-c G= or =M-x gh-menu RET= to open a =gh= (github cli) UI:
 
-   [[file:doc/demo-13-gh-1.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-13-gh-1.png]]
 
-   [[file:doc/demo-13-gh-2.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-13-gh-2.png]]
 
 
 Emacs Solo also ships with some very cool themes!
@@ -109,16 +109,16 @@ Emacs Solo also ships with some very cool themes!
 We've got:
 
 **** Crafters
-   [[file:doc/demo-14-tema-crafters.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-14-tema-crafters.png]]
 
 **** Catppuccin
-   [[file:doc/demo-14-tema-catppuccin.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-14-tema-catppuccin.png]]
 
 **** GITS
-   [[file:doc/demo-14-tema-gits.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-14-tema-gits.png]]
 
 **** Matrix
-   [[file:doc/demo-14-tema-matrix.png]]
+   [[https://github.com/LionyxML/emacs-solo/releases/download/assets/demo-14-tema-matrix.png]]
 
 And much more!
 
