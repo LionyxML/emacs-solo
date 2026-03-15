@@ -24,17 +24,24 @@
     "Default input to use when finding a project.")
 
   (defun emacs-solo/find-projects-and-switch (&optional directory)
-    "Find and switch to a project directory from ~/Projects."
+    "Find and switch to a project directory from ~/Projects.
+Uses `fd' (macOS) or `fdfind' (Debian/Ubuntu) when available,
+falling back to `find'."
     (interactive)
     (let* ((d (or directory emacs-solo-default-projects-folder))
-           ;; TODO: make it (if available) use 'fd'
-           ;; (find-command (concat "fd --type d --max-depth 4 . " d))           ; with fd
-           (find-command (concat "find " d " -mindepth 1 -maxdepth 4 -type d"))  ; with find
+           (fd-bin (or (executable-find "fd")
+                       (executable-find "fdfind")))
+           (find-command (if fd-bin
+                             (concat fd-bin " --type d --max-depth 4 . " d)
+                           (concat "find " d " -mindepth 1 -maxdepth 4 -type d")))
+           (tool-name (if fd-bin
+                          (file-name-nondirectory fd-bin)
+                        "find"))
            (project-list (split-string (shell-command-to-string find-command) "\n" t))
            (initial-input emacs-solo-default-projects-input))
       (let ((selected-project
              (completing-read
-              "Search project folder: "
+              (format "Search [%s] in %s: " tool-name (abbreviate-file-name d))
               project-list
               nil nil
               initial-input)))
