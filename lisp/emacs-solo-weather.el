@@ -32,8 +32,8 @@ Optional WHICH:
            (buffer (get-buffer-create
                     (format "*Weather-%s*"
                             (format-time-string "%Y-%m-%dT%H:%M:%S"))))
-           (url1 (format "curl -s 'wttr.in/%s?format'" city))
-           (url2 (format "curl -s 'v2d.wttr.in/%s?format'" city)))
+           (url1 (format "curl -s 'wttr.in/%s?F'" city))
+           (url2 (format "curl -s 'v2d.wttr.in/%s?F'" city)))
       (with-current-buffer buffer
         (read-only-mode -1)
         (erase-buffer)
