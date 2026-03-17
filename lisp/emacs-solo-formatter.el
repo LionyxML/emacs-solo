@@ -121,6 +121,16 @@ If MANUAL is non-nil, save the buffer before formatting."
     (remove-hook 'after-save-hook #'emacs-solo-formatter/format-current-file t)
     (message "Format-on-save disabled for this buffer."))
 
+  (defun emacs-solo-formatter/toggle-format-on-save ()
+    "Toggle format-on-save for the current buffer."
+    (interactive)
+    (if (memq #'emacs-solo-formatter/format-current-file after-save-hook)
+        (progn
+          (remove-hook 'after-save-hook #'emacs-solo-formatter/format-current-file t)
+          (message "Formatting on save turned OFF"))
+      (add-hook 'after-save-hook #'emacs-solo-formatter/format-current-file nil t)
+      (message "Formatting on save turned ON")))
+
   (defun emacs-solo-formatter--maybe-enable ()
     "Auto-enable format-on-save if the file's extension has a registered formatter."
     (when-let* ((file (buffer-file-name))
@@ -132,7 +142,8 @@ If MANUAL is non-nil, save the buffer before formatting."
   (add-hook 'find-file-hook #'emacs-solo-formatter--maybe-enable)
 
   (global-set-key (kbd "C-c p") #'emacs-solo-formatter/format-current-file-manual)
-  (global-set-key (kbd "C-c C-p") #'emacs-solo-formatter/format-current-file-manual))
+  (global-set-key (kbd "C-c C-p") #'emacs-solo-formatter/format-current-file-manual)
+  (global-set-key (kbd "C-c t f") #'emacs-solo-formatter/toggle-format-on-save))
 
 (provide 'emacs-solo-formatter)
 ;;; emacs-solo-formatter.el ends here
