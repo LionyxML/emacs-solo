@@ -2293,9 +2293,17 @@ and restart Flymake to apply the changes."
   :ensure nil
   :defer t
   :hook (before-save-hook . whitespace-cleanup)
-  ;; if we wanna remove this hook at any time, eval:
-  ;; (remove-hook 'before-save-hook #'whitespace-cleanup)
-  )
+  :init
+  (defun emacs-solo/toggle-whitespace-cleanup-on-save ()
+    "Toggle whitespace-cleanup on save."
+    (interactive)
+    (if (memq #'whitespace-cleanup before-save-hook)
+        (progn
+          (remove-hook 'before-save-hook #'whitespace-cleanup)
+          (message "Whitespace cleanup on save turned OFF"))
+      (add-hook 'before-save-hook #'whitespace-cleanup)
+      (message "Whitespace cleanup on save turned ON")))
+  (global-set-key (kbd "C-c t w") #'emacs-solo/toggle-whitespace-cleanup-on-save))
 
 
 ;;; │ GNUS
