@@ -3444,7 +3444,6 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :config
   (add-to-list 'treesit-language-source-alist '(dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src"))) ;; EMACS-31 this is now defined on mode code
 
-
 ;;; │ GO-TS-MODE
 (defun emacs-solo/go-common-setup ()
   "Common settings for Go tree-sitter modes."
@@ -3504,6 +3503,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (require 'emacs-solo-erc-image)
 (require 'emacs-solo-yt)
 (require 'emacs-solo-gh)
+(require 'emacs-solo-worktree)
 
 (provide 'init)
 ;;; └ init.el ends here
