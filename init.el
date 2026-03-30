@@ -392,6 +392,9 @@ for ESLint."
     (setq-local scroll-step 0))
   (add-hook 'term-mode-hook #'emacs-solo/disable-global-scrolling-in-ansi-term)
 
+  (with-eval-after-load 'term
+    (define-key term-raw-map (kbd "M-v") 'term-paste))
+
   ;; TRAMP specific HACKs
   ;; See https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
   (connection-local-set-profile-variables
