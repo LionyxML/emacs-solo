@@ -3420,12 +3420,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 ;;  https://lists.gnu.org/archive/html/emacs-devel/2025-02/msg00810.html
 (use-package markdown-ts-mode
   :ensure nil
-  :mode "\\.md\\'"
-  :defer t
-  :config
-  ;; (add-to-list 'major-mode-remap-alist '(markdown-mode . markdown-ts-mode))
-  (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))  ;; EMACS-31 this is now defined on mode code
-  (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))  ;; EMACS-31 this is now defined on mode code
+  :defer t)
 
 
 ;;; │ YAML-TS-MODE
