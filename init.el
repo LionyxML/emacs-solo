@@ -311,11 +311,11 @@ for ESLint."
   (visible-bell nil)
   (window-combination-resize t)
   (window-resize-pixelwise nil)
-  (xref-search-program 'ripgrep)        ; TODO: make it dinamic check if ripgrep is available before setting it and if it costs too much of the init time
+  (xref-search-program 'ripgrep)
   (zone-all-frames t)            ; EMACS-31
   (zone-all-windows-in-frame t)  ; EMACS-31
   (zone-programs '[zone-pgm-rat-race])
-  (grep-command "rg -nS --no-heading ") ; TODO: make it dinamic check if ripgrep is available before setting it and if it costs too much of the init time
+  (grep-command "rg -nS --no-heading ")
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".jj" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
@@ -837,7 +837,7 @@ If ###@### is found, remove it and place point there at the end."
       (window-width . 100)
       (side . right)
       (slot . 1))
-     ("\\*claude:.*\\*"
+     ("\\*\\(claude:\\|opencode:\\).*\\*"
       (display-buffer-in-side-window)
       (window-width . 100)
       (side . right)
@@ -3474,6 +3474,15 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (require 'emacs-solo-transparency)
 (require 'emacs-solo-mode-line)
 (require 'emacs-solo-exec-path-from-shell)
+(add-hook 'after-init-hook
+          (lambda ()
+            (if (executable-find "rg")
+                (progn
+                  (setq xref-search-program 'ripgrep)
+                  (setq grep-command "rg -nS --no-heading "))
+              (setq xref-search-program 'grep)
+              (setq grep-command "grep -nH -r ")))
+          90)
 (require 'emacs-solo-rainbow-delimiters)
 (require 'emacs-solo-project-select)
 (require 'emacs-solo-viper-extensions)
