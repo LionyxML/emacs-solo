@@ -520,6 +520,9 @@ for ESLint."
   ;; Mute NPM loglevel so it wont interfer with other issued commands like grep
   (setenv "NPM_CONFIG_LOGLEVEL" "silent")
 
+  ;; EMACS-31 Remove this, since new emacs will come with 'e' for editing xref buffers.
+  ;; Reference: https://debbugs.gnu.org/cgi/bugreport.cgi?bug=80616
+  ;;
   ;; Makes any xref buffer "exportable" to a grep buffer with "E" so you can edit it with "e".
   (defun emacs-solo/xref-to-grep-compilation ()
     "Export the current Xref results to a grep-like buffer (Emacs 30+)."
