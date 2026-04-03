@@ -21,7 +21,7 @@
   :init
   (defcustom emacs-solo-formatter-alist
     '(;; Node.js ecosystem — try biome first, fall back to prettier
-      (("js" "jsx" "ts" "tsx" "json" "css" "html" "sass" "yaml" "md")
+      (("js" "jsx" "ts" "tsx" "json" "css" "html" "sass" "yaml")
        . ((:cmd "biome" :args ("format" "--write") :local "node_modules/.bin/biome" :config "biome.json")
           (:cmd "prettier" :args ("--write") :local "node_modules/.bin/prettier")))
       ;; Shell scripts
