@@ -72,10 +72,9 @@ Marks lines as added, deleted, or changed."
     (interactive)
     (let* ((result '())
            (file-path (buffer-file-name))
-           (grep-command "rg -Po")                         ; for rgrep
-           ;; (grep-command (if (eq system-type 'darwin)   ; for grep / ggrep
-           ;;                   "ggrep -Po"
-           ;;                 "grep -Po"))
+            (grep-command (if (executable-find "rg")
+                              "rg -Po"
+                            "grep -Po"))
            (output (shell-command-to-string
                     (format
                      "git diff --unified=0 %s | %s '^@@ -[0-9]+(,[0-9]+)? \\+\\K[0-9]+(,[0-9]+)?(?= @@)'"
