@@ -239,6 +239,7 @@ for ESLint."
   (display-fill-column-indicator-warning nil) ; EMACS-31
   (delete-selection-mode t)
   (enable-recursive minibuffers t)
+  (ffap-machine-p-known 'reject)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
   (global-goto-address-mode t)                            ;     C-c RET on URLs open in default browser
@@ -261,6 +262,8 @@ for ESLint."
   (project-vc-extra-root-markers '("Cargo.toml" "package.json" "go.mod")) ; Excelent for mono repos with multiple langs, makes Eglot happy
   (ring-bell-function 'ignore)
   (read-answer-short t)
+  (read-process-output-max (* 4 1024 1024)) ; 4MB
+  (redisplay-skip-fontification-on-input t)
   (recentf-max-saved-items 300) ; default is 20
   (recentf-max-menu-items 15)
   (recentf-auto-cleanup (if (daemonp) 300 'never))
@@ -277,6 +280,7 @@ for ESLint."
   (resize-mini-windows 'grow-only)
   (scroll-conservatively 8)
   (scroll-margin 5)
+  (save-interprogram-paste-before-kill t)
   (savehist-save-minibuffer-history t)    ; t is default
   (savehist-additional-variables
    '(kill-ring                            ; clipboard
@@ -309,6 +313,7 @@ for ESLint."
   (use-package-hook-name-suffix nil)
   (use-short-answers t)
   (visible-bell nil)
+  (view-lossage-auto-refresh t)  ; EMACS-31 auto updates C-h l usefull when teaching/debugging
   (window-combination-resize t)
   (window-resize-pixelwise nil)
   (xref-search-program 'ripgrep)
@@ -591,6 +596,13 @@ Use ⇒ if displayable, otherwise fallback to =>."
 
   ;; Only override where necessary
   (add-hook 'emacs-lisp-mode-hook #'emacs-solo/prefer-spaces)
+
+
+  ;; Recenter after save-place restore
+  ;; Reference: https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/
+  (advice-add 'save-place-find-file-hook :after
+            (lambda (&rest _)
+              (when buffer-file-name (ignore-errors (recenter)))))
 
 
   ;; Runs 'private.el' after Emacs inits
@@ -2371,7 +2383,9 @@ and restart Flymake to apply the changes."
   :custom
   (completion-auto-help t)
   (completion-auto-select 'second-tab)
-  (completion-eager-update t) ;; EMACS-31
+  (completion-eager-update t)               ;; EMACS-31
+  (completion-eager-display 'auto)          ;; EMACS-31 (if not using icomplete, t is way cooler)
+  (minibuffer-visible-completions 'up-down) ;; EMACS-31
   (completion-ignore-case t)
   (completion-show-help nil)
   (completion-styles '(partial-completion flex initials))
