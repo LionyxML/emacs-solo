@@ -1,4 +1,4 @@
-;;; emacs-solo-0x0.el --- Upload text and files to 0x0.st  -*- lexical-binding: t; -*-
+;;; emacs-solo-temp-sharing.el --- Upload text and files to 0x0.st  -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
@@ -18,6 +18,12 @@
 ;; entire buffer contents.
 ;;
 ;; `emacs-solo/0x0-upload-file' prompts for a file and uploads it.
+;;
+;; `emacs-solo/crafterbin-upload-text' uploads the active region or
+;; the entire buffer contents to crafterbin.
+;;
+;; `emacs-solo/crafterbin-upload-file' prompts for a file and uploads
+;; it to crafterbin.
 ;;
 ;; Requires `curl' to be available in PATH.
 
@@ -51,5 +57,33 @@ The returned URL is copied to the kill ring."
     (message "The URL is %s" url)
     (kill-new url)))
 
-(provide 'emacs-solo-0x0)
-;;; emacs-solo-0x0.el ends here
+(defun emacs-solo/crafterbin-upload-text ()
+  "Upload the region or buffer contents to crafterbin.
+If a region is active, upload the selected text; otherwise upload
+the entire buffer.  The returned URL is copied to the kill ring."
+  (interactive)
+  (let* ((contents (if (use-region-p)
+                       (buffer-substring-no-properties (region-beginning) (region-end))
+                     (buffer-string)))
+         (temp-file (make-temp-file "crafterbin" nil ".txt" contents)))
+    (message "Sending %s to crafterbin..." temp-file)
+    (let ((url (string-trim-right
+                (shell-command-to-string
+                 (format "curl -s -F'file=@%s' https://crafterbin.glennstack.dev" temp-file)))))
+      (message "The URL is %s" url)
+      (kill-new url)
+      (delete-file temp-file))))
+
+(defun emacs-solo/crafterbin-upload-file (file-path)
+  "Upload FILE-PATH to crafterbin.
+The returned URL is copied to the kill ring."
+  (interactive "fSelect a file to upload: ")
+  (message "Sending %s to crafterbin..." file-path)
+  (let ((url (string-trim-right
+              (shell-command-to-string
+               (format "curl -s -F'file=@%s' https://crafterbin.glennstack.dev" (expand-file-name file-path))))))
+    (message "The URL is %s" url)
+    (kill-new url)))
+
+(provide 'emacs-solo-temp-sharing)
+;;; emacs-solo-temp-sharing.el ends here

@@ -3507,7 +3507,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (require 'emacs-solo-gutter)
 (require 'emacs-solo-ace-window)
 (require 'emacs-solo-olivetti)
-(require 'emacs-solo-0x0)
+(require 'emacs-solo-temp-sharing)
 (require 'emacs-solo-sudo-edit)
 (require 'emacs-solo-replace-as-diff)
 (require 'emacs-solo-weather)
