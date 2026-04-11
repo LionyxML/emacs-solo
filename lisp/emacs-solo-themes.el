@@ -568,7 +568,7 @@
                   tab-bar-tab-inactive
                   vc-dir-file
                   vc-dir-header-value))
-    (face-spec-set face nil 'customized-face)))
+    (face-spec-set face nil 'reset)))
 
 (provide 'emacs-solo-themes)
 ;;; emacs-solo-themes.el ends here
