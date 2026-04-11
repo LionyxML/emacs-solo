@@ -179,6 +179,82 @@ for ESLint."
   :type 'boolean
   :group 'emacs-solo)
 
+;;; ├──────────────────── CACHE PATHS
+;;
+;;  Single source of truth for every path Emacs Solo stores in its
+;;  cache.  `emacs-solo-cache-directory' is the base; each entry in
+;;  `emacs-solo-cache-paths' maps a key (usually the Emacs variable
+;;  that should hold the resolved path) to a path relative to that
+;;  base.  A trailing slash means the value is a directory and will be
+;;  created as-is; otherwise the value is a file and only its parent
+;;  directory is created.
+;;
+;;  To wire a variable: use (emacs-solo--cache-path 'KEY) inside a
+;;  use-package :custom block (or wherever the value is needed).
+
+(defcustom emacs-solo-cache-directory
+  (expand-file-name "cache/" user-emacs-directory)
+  "Base directory for Emacs Solo cache files.
+All entries in `emacs-solo-cache-paths' are resolved relative to this
+directory.  Choose one of the presets or supply any custom directory path.
+Changes take effect after restarting Emacs."
+  :type `(choice
+          (const     :tag "Inside Emacs config  (cache/ in user-emacs-directory)"
+                     ,(expand-file-name "cache/" user-emacs-directory))
+          (const     :tag "System temp          (/tmp/emacs-cache/)" "/tmp/emacs-cache/")
+          (directory :tag "Custom directory"))
+  :group 'emacs-solo)
+
+(defvar emacs-solo-cache-paths
+  '(;; Files:
+    (bookmark-file               . "bookmarks")
+    (ielm-history-file-name      . "ielm-history.eld")
+    (project-list-file           . "projects")
+    (recentf-save-file           . "recentf")
+    (savehist-file               . "history")
+    (save-place-file             . "saveplace")
+    (transient-history-file      . "transient/history.el")
+    (transient-levels-file       . "transient/levels.el")
+    (transient-values-file       . "transient/values.el")
+    (tramp-persistency-file-name . "tramp")
+    (viper-custom-file-name      . "viper")
+    (nsm-settings-file           . "network-security.data")
+    ;; Directories:
+    (auto-saves                  . "auto-saves/")
+    (auto-saves-sessions         . "auto-saves/sessions/")
+    (shared-game-score-directory . "games/")
+    (multisession-directory      . "multisession/")
+    (url-configuration-directory . "url/")
+    (rcirc-log-directory         . "rcirc/logs/")
+    (erc-log-channels-directory  . "erc/logs/")
+    (erc-image-cache-directory   . "erc/images/")
+    (image-dired-dir             . "image-dired/")
+    (newsticker-dir              . "newsticker/")
+    (yt-subs                     . "yt-subs"))
+  "Alist of (KEY . RELATIVE-PATH) for Emacs Solo cache locations.
+RELATIVE-PATH is resolved against `emacs-solo-cache-directory'.
+A trailing slash on RELATIVE-PATH marks the entry as a directory.")
+
+(defun emacs-solo--cache-path (key)
+  "Return the absolute path for KEY in `emacs-solo-cache-paths'."
+  (let ((rel (cdr (assq key emacs-solo-cache-paths))))
+    (unless rel
+      (error "emacs-solo--cache-path: Unknown key %S" key))
+    (expand-file-name rel emacs-solo-cache-directory)))
+
+(defun emacs-solo--ensure-cache-dirs ()
+  "Create every directory referenced by `emacs-solo-cache-paths'.
+Entries ending in `/' are created directly; other entries have their
+parent directory created."
+  (dolist (entry emacs-solo-cache-paths)
+    (let* ((abs (emacs-solo--cache-path (car entry)))
+           (dir (if (directory-name-p abs)
+                    abs
+                  (file-name-directory abs))))
+      (make-directory dir t))))
+
+(emacs-solo--ensure-cache-dirs)
+
 ;;; ├──────────────────── GENERAL EMACS CONFIG
 ;;; │ EMACS
 (use-package emacs
@@ -220,8 +296,8 @@ for ESLint."
   :custom
   (ad-redefinition-action 'accept)
   (auto-save-default t)
-  (bookmark-file (expand-file-name "cache/bookmarks" user-emacs-directory))
-  (shared-game-score-directory (expand-file-name "cache/games/" user-emacs-directory)) ; FIXME: is this even working?
+  (bookmark-file (emacs-solo--cache-path 'bookmark-file))
+  (shared-game-score-directory (emacs-solo--cache-path 'shared-game-score-directory)) ; FIXME: is this even working?
   (calendar-latitude 42.36)                   ;; These are needed
   (calendar-longitude -42.36)                 ;; for M-x `sunrise-sunset'
   (calendar-location-name "Cambridge, MA")
@@ -249,16 +325,17 @@ for ESLint."
   (inhibit-startup-message t)
   (initial-scratch-message "")
   (ibuffer-human-readable-size t) ; EMACS-31
-  (ielm-history-file-name (expand-file-name "cache/ielm-history.eld" user-emacs-directory)) ; EMACS-31
+  (ielm-history-file-name (emacs-solo--cache-path 'ielm-history-file-name)) ; EMACS-31
   (kill-do-not-save-duplicates t)
   (kill-region-dwim 'emacs-word)  ; EMACS-31
   (create-lockfiles nil)   ; No lock files
   (make-backup-files nil)  ; No backup files
-  (multisession-directory (expand-file-name "cache/multisession/" user-emacs-directory))
+  (multisession-directory (emacs-solo--cache-path 'multisession-directory))
+  (nsm-settings-file (emacs-solo--cache-path 'nsm-settings-file))
   (native-comp-async-on-battery-power nil)  ; No compilations when on battery EMACS-31
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
-  (project-list-file (expand-file-name "cache/projects" user-emacs-directory))
+  (project-list-file (emacs-solo--cache-path 'project-list-file))
   (project-vc-extra-root-markers '("Cargo.toml" "package.json" "go.mod")) ; Excelent for mono repos with multiple langs, makes Eglot happy
   (ring-bell-function 'ignore)
   (read-answer-short t)
@@ -268,7 +345,7 @@ for ESLint."
   (recentf-max-menu-items 15)
   (recentf-auto-cleanup (if (daemonp) 300 'never))
   (recentf-exclude (list "^/\\(?:ssh\\|su\\|sudo\\)?:"))
-  (recentf-save-file (expand-file-name "cache/recentf" user-emacs-directory))
+  (recentf-save-file (emacs-solo--cache-path 'recentf-save-file))
   (register-use-preview t)
   (remote-file-name-inhibit-delete-by-moving-to-trash t)
   (remote-file-name-inhibit-auto-save t)
@@ -287,8 +364,8 @@ for ESLint."
      register-alist                       ; macros
      mark-ring global-mark-ring           ; marks
      search-ring regexp-search-ring))     ; searches
-  (savehist-file (expand-file-name "cache/history" user-emacs-directory))
-  (save-place-file (expand-file-name "cache/saveplace" user-emacs-directory))
+  (savehist-file (emacs-solo--cache-path 'savehist-file))
+  (save-place-file (emacs-solo--cache-path 'save-place-file))
   (save-place-limit 600)
   (set-mark-command-repeat-pop t) ; So we can use C-u C-SPC C-SPC C-SPC... instead of C-u C-SPC C-u C-SPC...
   (split-width-threshold 170)     ; So vertical splits are preferred
@@ -297,9 +374,9 @@ for ESLint."
   (switch-to-buffer-obey-display-actions t)
   (tab-always-indent 'complete)
   (tab-width 4)
-  (transient-history-file (expand-file-name "cache/transient/history.el" user-emacs-directory))
-  (transient-levels-file (expand-file-name "cache/transient/levels.el" user-emacs-directory))
-  (transient-values-file (expand-file-name "cache/transient/values.el" user-emacs-directory))
+  (transient-history-file (emacs-solo--cache-path 'transient-history-file))
+  (transient-levels-file (emacs-solo--cache-path 'transient-levels-file))
+  (transient-values-file (emacs-solo--cache-path 'transient-values-file))
   (treesit-font-lock-level 4)
   (treesit-auto-install-grammar t) ; EMACS-31
   (treesit-enabled-modes t)        ; EMACS-31
@@ -307,7 +384,7 @@ for ESLint."
   (undo-limit (* 13 160000))
   (undo-strong-limit (* 13 240000))
   (undo-outer-limit (* 13 24000000))
-  (url-configuration-directory (expand-file-name "cache/url/" user-emacs-directory))
+  (url-configuration-directory (emacs-solo--cache-path 'url-configuration-directory))
   (use-dialog-box nil)
   (use-file-dialog nil)
   (use-package-hook-name-suffix nil)
@@ -380,9 +457,9 @@ for ESLint."
     (setq mac-command-modifier 'meta))
 
   ;; We want auto-save, but no #file# cluterring, so everything goes under our config cache/
-  (make-directory (expand-file-name "cache/auto-saves/" user-emacs-directory) t)
-  (setq auto-save-list-file-prefix (expand-file-name "cache/auto-saves/sessions/" user-emacs-directory)
-        auto-save-file-name-transforms `((".*" ,(expand-file-name "cache/auto-saves/" user-emacs-directory) t)))
+  ;; (Directories are pre-created by `emacs-solo--ensure-cache-dirs'.)
+  (setq auto-save-list-file-prefix (emacs-solo--cache-path 'auto-saves-sessions)
+        auto-save-file-name-transforms `((".*" ,(emacs-solo--cache-path 'auto-saves) t)))
 
   ;; For OSC 52 compatible terminals support
   (defvar xterm-extra-capabilities)
@@ -415,9 +492,9 @@ for ESLint."
     (with-eval-after-load 'compile
       (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
-  (setopt tramp-persistency-file-name (expand-file-name "cache/tramp" user-emacs-directory))
+  (setopt tramp-persistency-file-name (emacs-solo--cache-path 'tramp-persistency-file-name))
 
-  (setopt viper-custom-file-name (expand-file-name "cache/viper" user-emacs-directory))
+  (setopt viper-custom-file-name (emacs-solo--cache-path 'viper-custom-file-name))
 
   ;; Set line-number-mode with relative numbering
   (setq display-line-numbers-type 'relative)
@@ -964,7 +1041,7 @@ Uses position instead of index field."
   (rcirc-debug t)
   (rcirc-default-nick "Lionyx")
   (rcirc-default-user-name "Lionyx")
-  (rcirc-log-directory (expand-file-name "cache/rcirc/logs" user-emacs-directory))
+  (rcirc-log-directory (emacs-solo--cache-path 'rcirc-log-directory))
   (rcirc-default-full-name "Lionyx")
   (rcirc-server-alist
    '(("irc.libera.chat"
@@ -975,7 +1052,6 @@ Uses position instead of index field."
   (rcirc-fill-column 100)
   (rcirc-track-ignore-server-buffer-flag t)
   :config
-  (make-directory (expand-file-name "cache/rcirc/logs" user-emacs-directory) t)
   (setq rcirc-authinfo
         `(("irc.libera.chat"
            certfp
@@ -995,7 +1071,7 @@ Uses position instead of index field."
   (erc-server-reconnect-attempts 10)
   (erc-server-reconnect-timeout 3)
   (erc-fill-function 'erc-fill-wrap)
-  (erc-log-channels-directory (expand-file-name "cache/erc/logs" user-emacs-directory))
+  (erc-log-channels-directory (emacs-solo--cache-path 'erc-log-channels-directory))
   (erc-log-insert-log-on-open 'erc-log-new-target-buffer-p) ;; EMACS-31 and or needs https://debbugs.gnu.org/cgi/bugreport.cgi?bug=79665 patch
   (erc-save-buffer-on-part t)
   (erc-save-queries-on-quit t)
@@ -1003,8 +1079,6 @@ Uses position instead of index field."
   (erc-log-write-after-insert t)
   (erc-spelling-dictionaries '(("Libera.Chat" "en_US")))
   :config
-  (make-directory (expand-file-name "cache/erc/logs" user-emacs-directory) t)
-
   (defun emacs-solo/erc-get-color-for-nick (nick)
     "Return a Catppuccin Mocha Like color string for NICK based on its hash."
     (let* ((colors '("#f38ba8" "#a6e3a1" "#f9e2af" "#89b4fa"
@@ -1339,7 +1413,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-listing-switches "-alh --group-directories-first")
   (dired-omit-files "^\\.")                                ; with dired-omit-mode (C-x M-o)
   (dired-hide-details-hide-absolute-location t)            ; EMACS-31
-  (image-dired-dir (expand-file-name "cache/image-dired" user-emacs-directory))
+  (image-dired-dir (emacs-solo--cache-path 'image-dired-dir))
   :init
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))) ;; Turning this ON also sets the C-x M-o binding.
 
@@ -2540,7 +2614,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   :custom
   (newsticker-retrieval-interval 0) ;; Only fetches when first opening (avoids unwanted fetching/ui locking while doing other things later)
   (newsticker-treeview-treewindow-width 40)
-  (newsticker-dir (expand-file-name "cache/newsticker/" user-emacs-directory))
+  (newsticker-dir (emacs-solo--cache-path 'newsticker-dir))
   (newsticker-retrieval-method (if (executable-find "wget") 'extern 'intern))
   (newsticker-wget-arguments
    '("--quiet"
@@ -2693,7 +2767,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                  (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
                  (output-buffer (get-buffer-create (format "*YT Summary: %s*" video-id)))
                  (prompt emacs-solo-newsticker-summarize-yt-video-prompt)
-                 (base-path (expand-file-name "cache/yt-subs" user-emacs-directory))
+                 (base-path (emacs-solo--cache-path 'yt-subs))
                  (command
                   (format
                    (concat

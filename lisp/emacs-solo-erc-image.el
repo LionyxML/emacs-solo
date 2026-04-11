@@ -23,7 +23,14 @@
   :after erc
   :config
   (defvar erc-image-cache-directory
-    (expand-file-name "cache/erc/images/" user-emacs-directory)
+    ;; Prefer Emacs Solo's central cache-path registry when available,
+    ;; so the directory is managed alongside every other cache dir.
+    ;; Fall back to a self-contained default so this module keeps
+    ;; working when copied into a config that doesn't define the
+    ;; helper.
+    (if (fboundp 'emacs-solo--cache-path)
+        (emacs-solo--cache-path 'erc-image-cache-directory)
+      (expand-file-name "cache/erc/images/" user-emacs-directory))
     "Cache directory for inline ERC images.")
 
   (unless (file-directory-p erc-image-cache-directory)
