@@ -15,7 +15,7 @@
 
 (defcustom emacs-solo-avoid-flash-options
   '((enabled . t)
-    (background . "#292D3E") ;; Catppuccin "#1e1e2e" or Crafters "#292D3E"
+    (background . "#292D3E")        ;; Catppuccin "#1e1e2e" or Crafters "#292D3E"
     (foreground . "#292D3E")
     (reset-background . "#292D3E")
     (reset-foreground . "#EEFFFF")) ;; Catppuccin "#cdd6f4" or Crafters "#EEFFFF"

@@ -529,5 +529,46 @@
   :init
   (load-theme 'modus-vivendi t))
 
+;;;  nil theme: reset all custom face overrides set by other themes
+;;
+;; When no emacs-solo theme is selected, any faces previously saved to
+;; custom-vars.el by a theme's `custom-set-faces' call will persist across
+;; restarts.  This block explicitly clears them so Emacs falls back to its
+;; default/built-in face definitions.
+(when (null emacs-solo-use-custom-theme)
+  (dolist (face '(change-log-acknowledgment
+                  change-log-date
+                  change-log-name
+                  diff-context
+                  diff-file-header
+                  diff-header
+                  diff-hunk-header
+                  flymake-note
+                  flymake-warning
+                  gnus-button
+                  gnus-group-mail-3
+                  gnus-group-mail-3-empty
+                  gnus-header-content
+                  gnus-header-from
+                  gnus-header-name
+                  gnus-header-subject
+                  link
+                  log-view-message
+                  match
+                  modus-themes-search-current
+                  modus-themes-search-lazy
+                  newsticker-extra-face
+                  newsticker-feed-face
+                  newsticker-treeview-face
+                  newsticker-treeview-selection-face
+                  tab-bar
+                  tab-bar-tab
+                  tab-bar-tab-group-current
+                  tab-bar-tab-group-inactive
+                  tab-bar-tab-inactive
+                  vc-dir-file
+                  vc-dir-header-value))
+    (face-spec-set face nil 'customized-face)))
+
 (provide 'emacs-solo-themes)
 ;;; emacs-solo-themes.el ends here
