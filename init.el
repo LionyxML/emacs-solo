@@ -205,6 +205,11 @@ Changes take effect after restarting Emacs."
           (directory :tag "Custom directory"))
   :group 'emacs-solo)
 
+;; custom-file is already set and loaded in early-init.el, but reload it here
+;; so any M-x customize changes saved mid-session before restart also apply
+;; to cache paths and other init.el settings.
+(load custom-file 'noerror 'nomessage)
+
 (defvar emacs-solo-cache-paths
   '(;; Files:
     (bookmark-file               . "bookmarks")
@@ -401,10 +406,6 @@ parent directory created."
   (grep-find-ignored-directories
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".jj" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
   :config
-  ;; Save manual customizations to other file than init.el
-  (setq custom-file (locate-user-emacs-file "custom-vars.el"))
-  (load custom-file 'noerror 'nomessage)
-
   ;; Sets outline-mode for the `init.el' file
   (defun emacs-solo/outline-init-file ()
     (when (and (buffer-file-name)

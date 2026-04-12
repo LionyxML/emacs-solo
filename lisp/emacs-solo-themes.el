@@ -568,7 +568,11 @@
                   tab-bar-tab-inactive
                   vc-dir-file
                   vc-dir-header-value))
-    (face-spec-set face nil 'reset)))
+    ;; Clear the 'user theme entry that custom-set-faces wrote — it has
+    ;; higher priority than defface and would otherwise override the reset.
+    (put face 'customized-face nil)
+    (custom-push-theme 'theme-face face 'user 'reset)
+    (face-spec-recalc face (selected-frame))))
 
 (provide 'emacs-solo-themes)
 ;;; emacs-solo-themes.el ends here

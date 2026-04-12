@@ -13,12 +13,17 @@
 
 ;;; Code:
 
+;; Load customizations as early as possible so user settings
+;; (e.g. emacs-solo-avoid-flash-options) take effect before they are used.
+(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+(load custom-file 'noerror 'nomessage)
+
 (defcustom emacs-solo-avoid-flash-options
-  '((enabled . t)
-    (background . "#292D3E")        ;; Catppuccin "#1e1e2e" or Crafters "#292D3E"
-    (foreground . "#292D3E")
+  '((enabled          . t)
+    (background       . "#292D3E")        ;; Catppuccin "#1e1e2e" or Crafters "#292D3E"
+    (foreground       . "#292D3E")
     (reset-background . "#292D3E")
-    (reset-foreground . "#EEFFFF")) ;; Catppuccin "#cdd6f4" or Crafters "#EEFFFF"
+    (reset-foreground . "#EEFFFF"))       ;; Catppuccin "#cdd6f4" or Crafters "#EEFFFF"
   "Options to avoid flash of light on Emacs startup.
 - `enabled`: Whether to apply the workaround.
 - `background`, `foreground`: Initial colors to use.
