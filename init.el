@@ -341,7 +341,7 @@ parent directory created."
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (project-list-file (emacs-solo--cache-path 'project-list-file))
-  (project-vc-extra-root-markers '("Cargo.toml" "package.json" "go.mod")) ; Excelent for mono repos with multiple langs, makes Eglot happy
+  (project-vc-extra-root-markers '("Cargo.toml" "package.json" "go.mod" "*.asd")) ; Excelent for mono repos with multiple langs, makes Eglot happy
   (ring-bell-function 'ignore)
   (read-answer-short t)
   (read-process-output-max (* 4 1024 1024)) ; 4MB
