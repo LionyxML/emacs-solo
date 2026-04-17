@@ -33,7 +33,7 @@ Optional WHICH:
                     (format "*Weather-%s*"
                             (format-time-string "%Y-%m-%dT%H:%M:%S"))))
            (url1 (format "curl -s 'wttr.in/%s?F'" city))
-           (url2 (format "curl -s 'v2d.wttr.in/%s?F'" city)))
+           (url2 (format "curl -s 'wttr.in/%s?F&format=v2'" city)))
       (with-current-buffer buffer
         (read-only-mode -1)
         (erase-buffer)
