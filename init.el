@@ -3345,17 +3345,32 @@ Shows the REPL in a window below, keeping focus in the code buffer."
           (princ output)))))
 
   (defun emacs-solo/cl-hyperspec-lookup ()
-    "Look up the symbol at point in the Common Lisp HyperSpec."
+    "Look up the symbol at point in the Common Lisp HyperSpec.
+Resolve via l1sp.org redirector, then open final HTTPS URL."
     (interactive)
-    (let ((sym (emacs-solo/cl--symbol-at-point)))
-      (unless sym (user-error "No symbol at point"))
+    (let* ((sym (emacs-solo/cl--symbol-at-point))
+           (_ (unless sym (user-error "No symbol at point")))
+           (probe (format "http://l1sp.org/cl/%s"
+                          (url-hexify-string (downcase sym))))
+           (final
+            (if (executable-find "curl")
+                (string-trim
+                 (shell-command-to-string
+                  (format "curl -sLo /dev/null -w %%{url_effective} %s"
+                          (shell-quote-argument probe))))
+              (with-current-buffer (url-retrieve-synchronously probe t t 5)
+                (prog1
+                    (if (boundp 'url-http-target-url)
+                        (url-recreate-url url-http-target-url)
+                      probe)
+                  (kill-buffer (current-buffer)))))))
       (browse-url
-       (format "http://www.lispworks.com/documentation/HyperSpec/Body/f_%s.htm"
-               (downcase (replace-regexp-in-string "\\*" "_" sym))))))
+       (replace-regexp-in-string "\\`http://" "https://" final))))
 
   (defun emacs-solo/cl-mode-setup ()
     "Setup Common Lisp enhancements for lisp-mode."
     (setq-local comment-column 40)
+    (setq-local indent-tabs-mode nil)
     (add-hook 'completion-at-point-functions
               #'emacs-solo/cl-completion-at-point nil t)
     (add-hook 'eldoc-documentation-functions
