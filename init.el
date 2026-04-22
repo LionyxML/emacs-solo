@@ -2782,7 +2782,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                     "grep -v '^[[:space:]]*$' | "
                     "uniq | "
                     "(echo '%s'; cat -) | "
-                    "claude -p --model haiku -")
+                    ;; "claude -p --model haiku -")
+                    "opencode run --model \"opencode/big-pickle\" -")
                     ;; "gemini --extensions none --model \"gemini-2.5-flash\" -p -")
                    (shell-quote-argument base-path)      ;; For trap
                    (shell-quote-argument base-path)      ;; For yt-dlp's -o
