@@ -227,6 +227,7 @@ Changes take effect after restarting Emacs."
     ;; Directories:
     (auto-saves                  . "auto-saves/")
     (auto-saves-sessions         . "auto-saves/sessions/")
+    (eshell-directory-name       . "eshell/")
     (shared-game-score-directory . "games/")
     (multisession-directory      . "multisession/")
     (url-configuration-directory . "url/")
@@ -320,6 +321,7 @@ parent directory created."
   (display-fill-column-indicator-warning nil) ; EMACS-31
   (delete-selection-mode t)
   (enable-recursive minibuffers t)
+  (eshell-directory-name (emacs-solo--cache-path 'eshell-directory-name))
   (ffap-machine-p-known 'reject)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
