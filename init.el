@@ -2917,12 +2917,73 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (proced-tree-flag t)
   (proced-auto-update-flag 'visible)
   (proced-auto-update-interval 1)
-  (proced-descent t)
-  (proced-filter 'user) ;; We can change interactively with `s'
+  (proced-descend t)
+  (proced-format 'medium) ;; can be changed interactively with `F'
+  (proced-filter 'user)   ;; can be changed interactively with `f'
   :config
-  (add-hook 'proced-mode-hook
-            (lambda ()
-              (proced-toggle-auto-update 1))))
+  ;; FIXME: Remove this once https://debbugs.gnu.org/cgi/bugreport.cgi?bug=80898 lands
+  (when (eq system-type 'darwin)
+    (defvar emacs-solo--proced-ps-cache (make-hash-table))
+    (defvar emacs-solo--proced-ps-timer nil)
+
+    (defun emacs-solo--proced-ps-do-refresh ()
+      (make-process
+       :name "proced-ps-refresh"
+       :buffer (generate-new-buffer " *proced-ps-temp*")
+       :command '("env" "LC_ALL=C" "ps" "-axo" "pid=,%cpu=,%mem=")
+       :noquery t
+       :sentinel
+       (lambda (proc _event)
+         (when (eq (process-status proc) 'exit)
+           (let ((new-cache (make-hash-table)))
+             (with-current-buffer (process-buffer proc)
+               (goto-char (point-min))
+               (while (not (eobp))
+                 (when (looking-at
+                        (rx
+                         (* blank)
+                         (group (+ digit))
+                         (+ blank)
+                         (group (+ (any digit ?.)))
+                         (+ blank)
+                         (group (+ (any digit ?.)))))
+                   (puthash (string-to-number (match-string 1))
+                            (cons (string-to-number (match-string 2))
+                                  (string-to-number (match-string 3)))
+                            new-cache))
+                 (forward-line 1)))
+             (kill-buffer (process-buffer proc))
+             (setq emacs-solo--proced-ps-cache new-cache))))))
+
+    (defun emacs-solo--proced-pcpu (pid)
+      (car (gethash pid emacs-solo--proced-ps-cache)))
+    (defun emacs-solo--proced-pmem (pid)
+      (cdr (gethash pid emacs-solo--proced-ps-cache)))
+
+    (add-hook 'proced-mode-hook
+              (lambda ()
+                (unless (file-remote-p default-directory)
+                  (setq emacs-solo--proced-ps-timer
+                        (run-with-timer 0 2 #'emacs-solo--proced-ps-do-refresh)))))
+    (add-hook 'kill-buffer-hook
+              (lambda ()
+                (when (and (derived-mode-p 'proced-mode)
+                           (timerp emacs-solo--proced-ps-timer))
+                  (cancel-timer emacs-solo--proced-ps-timer)
+                  (setq emacs-solo--proced-ps-timer nil))))
+
+    (setq proced-custom-attributes
+          (list (lambda (attrs)
+                  (unless (file-remote-p default-directory)
+                    (when-let* ((pid (cdr (assq 'pid attrs)))
+                                (v (emacs-solo--proced-pcpu pid)))
+                      (cons 'pcpu v))))
+                (lambda (attrs)
+                  (unless (file-remote-p default-directory)
+                    (when-let* ((pid (cdr (assq 'pid attrs)))
+                                (v (emacs-solo--proced-pmem pid)))
+                      (cons 'pmem v))))))))
+
 
 ;;; │ ORG
 (use-package org
