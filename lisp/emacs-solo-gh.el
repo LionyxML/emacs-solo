@@ -11,6 +11,12 @@
 ;; Provides a full GitHub interface using the `gh' CLI.  Browse
 ;; and manage pull requests, issues, and notifications in tabulated
 ;; list buffers with a transient menu for common operations.
+;;
+;; `gh' now activates telemetry, this package makes its best to
+;; disable it by opting out with `GH_TELEMETRY=false'.  This
+;; doesn't mean this software will forever have such option, use
+;; with caution, more here: https://cli.github.com/telemetry.
+;;
 
 ;;; Code:
 
@@ -43,7 +49,7 @@
     (or gh--repo
         (string-trim
          (shell-command-to-string
-          "gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null"))))
+          "GH_TELEMETRY=false gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null"))))
 
   (defun gh--browse-url (url)
     "Open URL in the default browser."
@@ -52,7 +58,7 @@
   (defun gh--run-json (args)
     "Run gh ARGS and return parsed JSON."
     (let ((output (string-trim
-                   (shell-command-to-string (format "gh %s 2>&1" args)))))
+                   (shell-command-to-string (format "GH_TELEMETRY=false gh %s 2>&1" args)))))
       (if (or (string-empty-p output) (string-prefix-p "no " output))
           nil
         (condition-case nil
@@ -62,7 +68,7 @@
 
   (defun gh--run-string (args)
     "Run gh ARGS and return trimmed output string."
-    (let ((raw (string-trim (shell-command-to-string (format "gh %s 2>&1" args)))))
+    (let ((raw (string-trim (shell-command-to-string (format "GH_TELEMETRY=false gh %s 2>&1" args)))))
       (replace-regexp-in-string "\r" "" raw)))
 
   (defun gh--date-short (date)
@@ -418,7 +424,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
     "Open PR in browser."
     (interactive)
     (let ((num (gh--pr-number)))
-      (shell-command (format "gh pr view %s --web" num))
+      (shell-command (format "GH_TELEMETRY=false gh pr view %s --web" num))
       (message "Opened PR #%s in browser" num)))
 
   (defun gh-pr-diff ()
@@ -633,7 +639,7 @@ g refresh | l PRs | N notifications
     "Open issue in browser."
     (interactive)
     (let ((num (gh--issue-number)))
-      (shell-command (format "gh issue view %s --web" num))
+      (shell-command (format "GH_TELEMETRY=false gh issue view %s --web" num))
       (message "Opened issue #%s in browser" num)))
 
   (defun gh-issue-comment ()
@@ -852,9 +858,9 @@ g refresh | l PRs | i issues
                (repo (string-join repo-parts "/")))
           (cond
            ((string= type-str "pulls")
-            (shell-command (format "gh pr view %s --repo %s --web" number repo)))
+            (shell-command (format "GH_TELEMETRY=false gh pr view %s --repo %s --web" number repo)))
            ((string= type-str "issues")
-            (shell-command (format "gh issue view %s --repo %s --web" number repo)))
+            (shell-command (format "GH_TELEMETRY=false gh issue view %s --repo %s --web" number repo)))
            (t (message "Cannot browse this notification type")))))))
 
   (defun gh-notification-mark-read ()
@@ -987,12 +993,12 @@ q quit (back to list + menu) | o open in browser | g refresh"
        ((string-match "\\*github-pr-\\(?:\\([^-]+/[^-]+\\)-\\)?\\([0-9]+\\)" name)
         (let ((repo (match-string 1 name))
               (num (match-string 2 name)))
-          (shell-command (format "gh pr view %s %s --web"
+          (shell-command (format "GH_TELEMETRY=false gh pr view %s %s --web"
                                  num (if repo (format "--repo %s" repo) "")))))
        ((string-match "\\*github-issue-\\(?:\\([^-]+/[^-]+\\)-\\)?\\([0-9]+\\)" name)
         (let ((repo (match-string 1 name))
               (num (match-string 2 name)))
-          (shell-command (format "gh issue view %s %s --web"
+          (shell-command (format "GH_TELEMETRY=false gh issue view %s %s --web"
                                  num (if repo (format "--repo %s" repo) "")))))
        (t (message "Cannot determine PR/issue from buffer name")))))
 
@@ -1075,7 +1081,7 @@ q quit (back to list + menu) | o open in browser | g refresh"
   (defun gh-repo-browse ()
     "Open the repo in the browser."
     (interactive)
-    (shell-command "gh repo view --web")
+    (shell-command "GH_TELEMETRY=false gh repo view --web")
     (message "Opened repo in browser"))
 
   (defun gh--in-pr-list-p ()
