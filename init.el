@@ -680,8 +680,8 @@ Use ⇒ if displayable, otherwise fallback to =>."
   ;; Recenter after save-place restore
   ;; Reference: https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/
   (advice-add 'save-place-find-file-hook :after
-            (lambda (&rest _)
-              (when buffer-file-name (ignore-errors (recenter)))))
+              (lambda (&rest _)
+                (when buffer-file-name (ignore-errors (recenter)))))
 
 
   ;; Runs 'private.el' after Emacs inits
@@ -980,8 +980,8 @@ If ###@### is found, remove it and place point there at the end."
   (defun tab-bar-tab-name-format-hints (name tab i)
     (if tab-bar-tab-hints
         (if (eq (car tab) 'current-tab)
-        (concat (format "  *%d*  " i) "")
-        (concat (format "   %d   " i) ""))
+            (concat (format "  *%d*  " i) "")
+          (concat (format "   %d   " i) ""))
       name))
 
   (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
@@ -3043,14 +3043,14 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   (setq org-log-done 'time)
 
   ;; Load babel only when org loads
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((python . t)
-       (js . t)
-       (emacs-lisp . t)
-       (org . t)
-       (shell . t)))
-    (setq org-confirm-babel-evaluate nil))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (js . t)
+     (emacs-lisp . t)
+     (org . t)
+     (shell . t)))
+  (setq org-confirm-babel-evaluate nil))
 
 
 ;;; │ SPEEDBAR
