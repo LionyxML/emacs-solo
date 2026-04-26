@@ -476,7 +476,8 @@ parent directory created."
   (add-hook 'term-mode-hook #'emacs-solo/disable-global-scrolling-in-ansi-term)
 
   (with-eval-after-load 'term
-    (define-key term-raw-map (kbd "M-v") 'term-paste))
+    (define-key term-raw-map (kbd "M-v") 'term-paste)
+    (define-key term-raw-map (kbd "M-e") (lambda () (interactive) (term-send-raw-string "\e"))))
 
   ;; TRAMP specific HACKs
   ;; See https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
