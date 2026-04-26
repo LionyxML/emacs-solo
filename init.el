@@ -2748,7 +2748,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
         (message "No *Newsticker Item* buffer found."))))
 
   ;; Override this variable on your customizations to other prompts
-  (setq  emacs-solo-newsticker-summarize-yt-video-prompt  "please, summarize this youtube video transcript in english")
+  (setq  emacs-solo-newsticker-summarize-yt-video-prompt  "please, summarize this youtube video transcript in english, answer in markdown")
 
 
   ;; FIXME: I'd like this to be mostly not dependent on BASH, like the "S" for Subtitles function....
@@ -2784,8 +2784,8 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                     "uniq | "
                     "(echo '%s'; cat -) | "
                     ;; "claude -p --model haiku -")
-                    "opencode run --model \"opencode/big-pickle\" -")
-                    ;; "gemini --extensions none --model \"gemini-2.5-flash\" -p -")
+                    "opencode --pure run --model \"opencode/big-pickle\" -")
+                   ;; "gemini --extensions none --model \"gemini-2.5-flash\" -p -")
                    (shell-quote-argument base-path)      ;; For trap
                    (shell-quote-argument base-path)      ;; For yt-dlp's -o
                    (shell-quote-argument video-url)      ;; The video URL
@@ -2817,7 +2817,9 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                   (define-key map (kbd "p") #'previous-line)
                   (use-local-map map))
                 (let ((shell-file-name "bash"))
-                  (start-process-shell-command "yt-summary" (current-buffer) command)))))))))
+                  (start-process-shell-command "yt-summary" (current-buffer) command)
+                  (goto-char (point-min))
+                  (markdown-ts-toggle-hide-markup)))))))))
 
   (defun emacs-solo/show-yt-thumbnail ()
     "Show YouTube thumbnail from a videoId in the current buffer."
