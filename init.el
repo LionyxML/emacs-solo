@@ -948,12 +948,16 @@ If ###@### is found, remove it and place point there at the end."
       (window-height . 0.25)
       (side . bottom)
       (slot . 1))
+     ("\\*inferior.*"
+      (display-buffer-in-side-window)
+      (window-height . 0.5)
+      (side . bottom)
+      (slot . 1))
      ("\\*\\(M3U Playlist\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
       (side . bottom)
-      (slot . 3))
-     )))
+      (slot . 3)))))
 
 
 ;;; │ TAB-BAR
