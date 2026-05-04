@@ -2823,7 +2823,19 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                   (define-key map (kbd "p") #'previous-line)
                   (use-local-map map))
                 (let ((shell-file-name "bash"))
-                  (start-process-shell-command "yt-summary" (current-buffer) command)
+                  (let ((proc (start-process-shell-command
+                               "yt-summary"
+                               (current-buffer)
+                               command)))
+                    (set-process-filter
+                     proc
+                     (lambda (proc chunk)
+                       (with-current-buffer (process-buffer proc)
+                         (let ((inhibit-read-only t))
+                           (save-excursion
+                             (goto-char (process-mark proc))
+                             (insert (ansi-color-filter-apply chunk))
+                             (set-marker (process-mark proc) (point))))))))
                   (goto-char (point-min))
                   (markdown-ts-toggle-hide-markup)))))))))
 
