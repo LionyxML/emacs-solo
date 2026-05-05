@@ -2756,86 +2756,119 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
   ;; Override this variable on your customizations to other prompts
   (setq  emacs-solo-newsticker-summarize-yt-video-prompt  "please, summarize this youtube video transcript in english, answer in markdown")
 
-
-  ;; FIXME: I'd like this to be mostly not dependent on BASH, like the "S" for Subtitles function....
   (defun emacs-solo/newsticker-summarize-yt-video ()
-    "Summarize a YT video."
+    "Summarize a YT video using its auto-generated subtitles and an AI model.
+
+Reads the videoId from the *Newsticker Item* buffer, then runs a two-stage
+async pipeline — no shell required:
+
+  Stage 1 — yt-dlp fetches the original-language auto-subtitles in LRC
+  format into a temp directory.  The local clean-lrc helper strips
+  timestamps, blank lines, and duplicate consecutive lines from the result.
+
+  Stage 2 — the cleaned transcript is piped via stdin to opencode, which
+  streams its Markdown response into a *YT Summary: <id>* output buffer.
+  The temp directory is deleted once opencode exits.
+
+The output buffer is set up with `markdown-ts-mode', visual-line-mode, and
+minimal keybindings (q kills the window, n/p move by line)."
     (interactive)
-    (let ((newsticker-buf (get-buffer "*Newsticker Item*")))
-      (unless newsticker-buf
-        (user-error "No *Newsticker Item* buffer found"))
+    (cl-flet ((clean-lrc (content)
+                (let* ((no-ts (replace-regexp-in-string "\\[[^]]*\\]" "" content))
+                       (lines (split-string no-ts "\n"))
+                       (non-blank (seq-filter (lambda (l) (not (string-match-p "^[[:space:]]*$" l))) lines))
+                       (deduped (nreverse
+                                 (seq-reduce (lambda (acc l)
+                                               (if (equal l (car acc)) acc (cons l acc)))
+                                             non-blank nil))))
+                  (string-join deduped "\n"))))
+      (let ((newsticker-buf (get-buffer "*Newsticker Item*")))
+        (unless newsticker-buf
+          (user-error "No *Newsticker Item* buffer found"))
 
-      (with-current-buffer newsticker-buf
-        (save-excursion
-          (goto-char (point-min))
-          (unless (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
-            (user-error "No videoId found in *Newsticker Item* buffer"))
+        (with-current-buffer newsticker-buf
+          (save-excursion
+            (goto-char (point-min))
+            (unless (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
+              (user-error "No videoId found in *Newsticker Item* buffer"))
 
-          (let* ((video-id (match-string 1))
-                 (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
-                 (output-buffer (get-buffer-create (format "*YT Summary: %s*" video-id)))
-                 (prompt emacs-solo-newsticker-summarize-yt-video-prompt)
-                 (base-path (emacs-solo--cache-path 'yt-subs))
-                 (command
-                  (format
-                   (concat
-                    ;; Use trap for robust cleanup, replacing the two `rm` commands in the original.
-                    "trap 'rm -f %s*' EXIT; "
-                    ;; Use the exact yt-dlp flags from the newsbeuter command (--convert-subs lrc, etc).
-                    "yt-dlp --write-auto-subs --sub-lang '.*-orig' --convert-subs lrc --skip-download --no-clean-infojson -o %s %s >/dev/null 2>&1 && "
-                    ;; Cat the globbed path (to find the .lrc file) and use the LRC-specific sed command.
-                    "cat %s* | "
-                    "sed 's/\\[[^\\]]*\\]//g' | "
-                    "grep -v '^[[:space:]]*$' | "
-                    "uniq | "
-                    "(echo '%s'; cat -) | "
-                    ;; "claude -p --model haiku -")
-                    "opencode --pure run --model \"opencode/big-pickle\" -")
-                   ;; "gemini --extensions none --model \"gemini-2.5-flash\" -p -")
-                   (shell-quote-argument base-path)      ;; For trap
-                   (shell-quote-argument base-path)      ;; For yt-dlp's -o
-                   (shell-quote-argument video-url)      ;; The video URL
-                   (shell-quote-argument base-path)      ;; For cat
-                   prompt)))                             ;; For the echo command
+            (let* ((video-id (match-string 1))
+                   (video-url (format "https://www.youtube.com/watch?v=%s" video-id))
+                   (output-buffer (get-buffer-create (format "*YT Summary: %s*" video-id)))
+                   (prompt emacs-solo-newsticker-summarize-yt-video-prompt)
+                   (temp-dir (make-temp-file "emacs-yt-subs-" t "/")))
 
-            (message "Generating summary for %s..." video-id)
+              (message "Generating summary for %s..." video-id)
 
-            (with-current-buffer output-buffer
-              (let ((inhibit-read-only t))
-                (erase-buffer)
-                (insert (format "* Generating summary for %s...\nThis may take a moment.\n\n\n" video-url))
-                (display-buffer (current-buffer))
-                (select-window (get-buffer-window (current-buffer)))
-                (special-mode)
-                (visual-line-mode 1)
-                (when (fboundp 'markdown-ts-mode)
-                  (markdown-ts-mode)
-                  (display-line-numbers-mode -1)
-                  (visual-line-mode 1))
-                (let ((map (make-sparse-keymap)))
-                  (define-key map (kbd "q")
-                              (lambda ()
-                                (interactive)
-                                (let ((win (get-buffer-window)))
-                                  (when (window-live-p win)
-                                    (quit-window 'kill win)))))
-                  (define-key map (kbd "n") #'forward-line)
-                  (define-key map (kbd "p") #'previous-line)
-                  (use-local-map map))
-                (let ((shell-file-name "bash"))
-                  (let ((proc (start-process-shell-command
-                               "yt-summary"
-                               (current-buffer)
-                               command)))
-                    (set-process-filter
-                     proc
-                     (lambda (proc chunk)
-                       (with-current-buffer (process-buffer proc)
-                         (let ((inhibit-read-only t))
-                           (save-excursion
-                             (goto-char (process-mark proc))
-                             (insert (ansi-color-filter-apply chunk))
-                             (set-marker (process-mark proc) (point))))))))
+              (with-current-buffer output-buffer
+                (let ((inhibit-read-only t))
+                  (erase-buffer)
+                  (insert (format "* Generating summary for %s...\nThis may take a moment.\n\n\n" video-url))
+                  (display-buffer (current-buffer))
+                  (select-window (get-buffer-window (current-buffer)))
+                  (special-mode)
+                  (visual-line-mode 1)
+                  (when (fboundp 'markdown-ts-mode)
+                    (markdown-ts-mode)
+                    (display-line-numbers-mode -1)
+                    (visual-line-mode 1))
+                  (let ((map (make-sparse-keymap)))
+                    (define-key map (kbd "q")
+                                (lambda ()
+                                  (interactive)
+                                  (let ((win (get-buffer-window)))
+                                    (when (window-live-p win)
+                                      (quit-window 'kill win)))))
+                    (define-key map (kbd "n") #'forward-line)
+                    (define-key map (kbd "p") #'previous-line)
+                    (use-local-map map))
+                  (make-process
+                   :name "yt-dlp-subs"
+                   :buffer nil
+                   :command `("yt-dlp"
+                              "--write-auto-subs"
+                              "--sub-lang" ".*-orig"
+                              "--convert-subs" "lrc"
+                              "--skip-download"
+                              "--no-clean-infojson"
+                              "-o" ,(concat temp-dir "temp.%(ext)s")
+                              ,video-url)
+                   :sentinel
+                   (let ((out-buf output-buffer)
+                         (vid-url video-url)
+                         (p prompt)
+                         (tdir temp-dir))
+                     (lambda (process _event)
+                       (when (eq (process-status process) 'exit)
+                         (if (zerop (process-exit-status process))
+                             (let ((lrc-file (car (directory-files tdir t "\\.lrc$"))))
+                               (if (and lrc-file (file-exists-p lrc-file))
+                                   (let* ((raw (with-temp-buffer
+                                                 (insert-file-contents lrc-file)
+                                                 (buffer-string)))
+                                          (cleaned (clean-lrc raw))
+                                          (proc (make-process
+                                                 :name "yt-summary"
+                                                 :buffer out-buf
+                                                 :connection-type 'pipe
+                                                 :command '("opencode" "--pure" "run" "--model" "opencode/big-pickle" "-")
+                                                 :filter
+                                                 (lambda (proc chunk)
+                                                   (with-current-buffer (process-buffer proc)
+                                                     (let ((inhibit-read-only t))
+                                                       (save-excursion
+                                                         (goto-char (process-mark proc))
+                                                         (insert (ansi-color-filter-apply chunk))
+                                                         (set-marker (process-mark proc) (point))))))
+                                                 :sentinel
+                                                 (lambda (_proc _event)
+                                                   (delete-directory tdir t)))))
+                                     (process-send-string proc (concat p "\n" cleaned "\n"))
+                                     (process-send-eof proc))
+                                 (message "No .lrc file found in %s" tdir)
+                                 (delete-directory tdir t)))
+                           (message "yt-dlp failed for %s" vid-url)
+                           (delete-directory tdir t))))))
                   (goto-char (point-min))
                   (markdown-ts-toggle-hide-markup)))))))))
 
