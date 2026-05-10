@@ -119,8 +119,7 @@ This provides better rendering for the CLI's rich text user interface."
               (let ((proc (get-buffer-process existing-buffer)))
                 (term-send-string proc "\e[200~")
                 (term-send-string proc initial-input)
-                (term-send-string proc "\e[201~")
-                (term-send-string proc "\r"))))
+                (term-send-string proc "\e[201~"))))
         ;; Kill stale buffer if process is dead
         (when (and existing-buffer (not (get-buffer-process existing-buffer)))
           (kill-buffer existing-buffer))
@@ -149,8 +148,7 @@ This provides better rendering for the CLI's rich text user interface."
                                  (when proc
                                    (term-send-string proc "\e[200~")
                                    (term-send-string proc input)
-                                   (term-send-string proc "\e[201~")
-                                   (term-send-string proc "\r")))))
+                                   (term-send-string proc "\e[201~")))))
                            proc-buffer initial-input)))))))
 
 
@@ -203,8 +201,7 @@ and 'explainer'."
               (let ((proc (get-buffer-process existing-buffer)))
                 (term-send-string proc "\e[200~")
                 (term-send-string proc initial-input)
-                (term-send-string proc "\e[201~")
-                (term-send-string proc "\r"))))
+                (term-send-string proc "\e[201~"))))
         ;; Kill stale buffer if process is dead
         (when (and existing-buffer (not (get-buffer-process existing-buffer)))
           (kill-buffer existing-buffer))
