@@ -13,8 +13,9 @@
 ;;   - primary: CAPF, xref, eldoc, mirror (async CAPF/eldoc, never blocks)
 ;;   - lint:    flymake compile-file diagnostics (isolated, never starves primary)
 ;;
-;; TLDR: open a file in lisp-mode and use
-;;       `emacs-solo/cl-start-project' instead of `sly' to start it all.
+;; TLDR: open a file in lisp-mode and press C-c C-s (or call
+;;       `emacs-solo/cl-start-or-restart-project') instead of `sly'.
+;;       If a session is already running, C-c C-s prompts to restart it.
 ;;
 ;; Features:
 ;;   - `completion-at-point' backend: async, apropos-based, package aware,
@@ -46,7 +47,10 @@
 ;;     C-c C-z/C-c/C-r/C-e/C-l/C-k keys on `lisp-mode-map'.
 ;;
 ;; Commands:
-;;   `emacs-solo/cl-start-project' one-shot entry point.  If an `.asd'
+;;   `emacs-solo/cl-start-or-restart-project' (C-c C-s) main entry point.
+;;       Start the project; if a session is already running, prompt to
+;;       terminate and restart.  Switches focus to the REPL on completion.
+;;   `emacs-solo/cl-start-project' underlying start logic.  If an `.asd'
 ;;       is found walking up from the project root, start `inferior-lisp'
 ;;       if needed, register + load-system in REPL, `in-package' into it,
 ;;       and mirror into the private SBCL.  If no `.asd' is found,
@@ -444,6 +448,22 @@ where a brief wait is acceptable."
           (if (re-search-forward pat nil t)
               (upcase (match-string-no-properties 1))
             "CL-USER")))))
+
+  (defun emacs-solo-cl--project-root ()
+    "Return project root for current buffer.
+Prefer dir containing an `.asd', else `project-current' root, else
+`default-directory'.  Always trailing-slash terminated."
+    (let* ((start (or (when-let* ((p (project-current nil)))
+                        (project-root p))
+                      default-directory))
+           (asd-dir (and start
+                         (locate-dominating-file
+                          start
+                          (lambda (d)
+                            (file-expand-wildcards
+                             (expand-file-name "*.asd" d)))))))
+      (file-name-as-directory
+       (expand-file-name (or asd-dir start)))))
 
   ;; ---- async CAPF
 
@@ -864,8 +884,17 @@ Best-effort: accept compile failures and warnings so partial work loads."
                                      (find-restart 'continue))))
                           (when r (invoke-restart r))
                           (format *error-output* \";; skip: ~a~%%\" c)))))
-  (pushnew #P\"%s\" asdf:*central-registry* :test #'equal)
-  (asdf:load-system :%s :force-not (asdf:already-loaded-systems)))" dir system)))
+  (let ((ql-pkg (find-package :ql)))
+    (cond
+      (ql-pkg
+       (let ((dirs-sym (find-symbol \"*LOCAL-PROJECT-DIRECTORIES*\" ql-pkg))
+             (ql-sym (find-symbol \"QUICKLOAD\" ql-pkg)))
+         (when dirs-sym
+           (set dirs-sym (adjoin #P\"%s\" (symbol-value dirs-sym) :test #'equal)))
+         (when ql-sym (funcall ql-sym :%s))))
+      (t
+       (pushnew #P\"%s\" asdf:*central-registry* :test #'equal)
+       (asdf:load-system :%s :force-not (asdf:already-loaded-systems))))))" dir system dir system)))
       (setq emacs-solo-cl--suppress-until
             (+ (float-time) emacs-solo-cl-busy-cooldown))
       (emacs-solo-cl--send form)
@@ -888,18 +917,23 @@ and, when the buffer has a file, `(load ...)' it into both so
 completion and xref pick it up."
     (interactive)
     (require 'inf-lisp)
-    (let* ((start (or (when-let* ((p (project-current nil)))
+    (let* ((root (emacs-solo-cl--project-root))
+           (start (or (when-let* ((p (project-current nil)))
                         (project-root p))
                       default-directory))
            (asd-dir (locate-dominating-file
                      start
                      (lambda (d)
                        (file-expand-wildcards
-                        (expand-file-name "*.asd" d))))))
-      (unless (and (boundp 'inferior-lisp-buffer)
-                   inferior-lisp-buffer
-                   (get-buffer-process inferior-lisp-buffer))
-        (save-window-excursion (inferior-lisp inferior-lisp-program)))
+                        (expand-file-name "*.asd" d)))))
+           (repl-alive (and (boundp 'inferior-lisp-buffer)
+                            inferior-lisp-buffer
+                            (get-buffer-process inferior-lisp-buffer))))
+      (if repl-alive
+          (comint-send-string (inferior-lisp-proc)
+                              (format "(uiop:chdir \"%s\")\n" root))
+        (let ((default-directory root))
+          (save-window-excursion (inferior-lisp inferior-lisp-program))))
       (emacs-solo-cl--start)
       (cond
        (asd-dir
@@ -908,11 +942,11 @@ completion and xref pick it up."
                (system (file-name-base asd))
                (dir (file-name-as-directory (expand-file-name asd-dir)))
                (repl-form
-                (format "(handler-bind ((warning #'muffle-warning) (error (lambda (c) (let ((r (or (find-restart 'asdf/action:accept) (find-restart 'continue)))) (when r (invoke-restart r)) (format *error-output* \";; skip: ~a~%%\" c))))) (pushnew #P\"%s\" asdf:*central-registry* :test #'equal) (asdf:load-system :%s :force-not (asdf:already-loaded-systems))) (in-package :%s)\n"
-                        dir system system)))
+                (format "(handler-bind ((warning #'muffle-warning) (error (lambda (c) (let ((r (or (find-restart 'asdf/action:accept) (find-restart 'continue)))) (when r (invoke-restart r)) (format *error-output* \";; skip: ~a~%%\" c))))) (let ((ql-pkg (find-package :ql))) (cond (ql-pkg (let ((dirs-sym (find-symbol \"*LOCAL-PROJECT-DIRECTORIES*\" ql-pkg)) (ql-sym (find-symbol \"QUICKLOAD\" ql-pkg))) (when dirs-sym (set dirs-sym (adjoin #P\"%s\" (symbol-value dirs-sym) :test #'equal))) (when ql-sym (funcall ql-sym :%s)))) (t (pushnew #P\"%s\" asdf:*central-registry* :test #'equal) (asdf:load-system :%s :force-not (asdf:already-loaded-systems)))))) (in-package :%s)\n"
+                        dir system dir system system)))
           (comint-send-string (inferior-lisp-proc) repl-form)
           (emacs-solo/cl-load-system system asd-dir)
-          (display-buffer inferior-lisp-buffer)
+          (pop-to-buffer inferior-lisp-buffer)
           (message "emacs-solo-cl: project %s loaded (repl + private)" system)))
        (buffer-file-name
         (when (buffer-modified-p) (save-buffer))
@@ -920,7 +954,7 @@ completion and xref pick it up."
                (repl-form (format "(load \"%s\")\n" file)))
           (comint-send-string (inferior-lisp-proc) repl-form)
           (emacs-solo-cl--send (format "(load \"%s\")" file))
-          (display-buffer inferior-lisp-buffer)
+          (pop-to-buffer inferior-lisp-buffer)
           (message "emacs-solo-cl: file %s queued (repl + private)"
                    (file-name-nondirectory file))))
        (t
@@ -947,6 +981,40 @@ completion and xref pick it up."
                    (format "(let ((*package* (find-package \"%s\"))) (eval (read-from-string %S)))"
                            pkg form))))
         (message "eval -> %s" (or out "timeout")))))
+
+  (defun emacs-solo/cl-eval-and-call-defun ()
+    "Send top-level defun at point to REPL, then call it.
+Zero-arg function: `(name)'.  N-arg function: prompt for args
+in the minibuffer (raw Lisp, e.g. `1 2' or `:foo \"bar\"').
+Mirrors into private SBCL via existing `lisp-eval-defun' advice."
+    (interactive)
+    (require 'inf-lisp)
+    (save-excursion
+      (let* ((end (progn (end-of-defun) (point)))
+             (beg (progn (beginning-of-defun) (point)))
+             (form (buffer-substring-no-properties beg end))
+             (name (when (string-match
+                          "(\\s-*def[a-z*-]+\\s-+\\([^[:space:]()]+\\)"
+                          form)
+                     (match-string 1 form)))
+             (arglist (when (and name
+                                 (string-match
+                                  "(\\s-*def[a-z*-]+\\s-+[^[:space:]()]+\\s-*(\\([^)]*\\))"
+                                  form))
+                        (string-trim (match-string 1 form))))
+             (needs-args (and arglist
+                              (> (length arglist) 0)
+                              (not (string-prefix-p "&" arglist))))
+             (args (if needs-args
+                       (read-string (format "Args for (%s ...): " name))
+                     ""))
+             (call (format "(%s%s%s)" name
+                           (if (string-empty-p args) "" " ")
+                           args)))
+        (unless name (user-error "No defun at point"))
+        (lisp-eval-defun)
+        (lisp-eval-string call)
+        (message "called %s" call))))
 
   (defun emacs-solo/cl-diagnose ()
     "Run checks and message the result."
@@ -1014,15 +1082,44 @@ completion and xref pick it up."
 
   ;; ---- inferior-lisp REPL helpers
 
+  (defun emacs-solo/cl-start-or-restart-project ()
+    "Start the project, or restart if already running.
+When inferior-lisp is live, prompt to terminate and restart."
+    (interactive)
+    (let ((repl-alive (and (boundp 'inferior-lisp-buffer)
+                           inferior-lisp-buffer
+                           (get-buffer-process inferior-lisp-buffer)
+                           (process-live-p (get-buffer-process inferior-lisp-buffer)))))
+      (if (and repl-alive
+               (y-or-n-p "CL REPL already running. Terminate and restart? "))
+          (progn
+            (when (emacs-solo-cl--live-p)
+              (delete-process emacs-solo-cl--proc))
+            (when (emacs-solo-cl--lint-live-p)
+              (delete-process emacs-solo-cl--lint-proc))
+            (setq emacs-solo-cl--proc nil
+                  emacs-solo-cl--lint-proc nil
+                  emacs-solo-cl--capf-pending nil
+                  emacs-solo-cl--eldoc-pending nil
+                  emacs-solo-cl--capf-cache nil
+                  emacs-solo-cl--suppress-until 0)
+            (when (get-buffer-process inferior-lisp-buffer)
+              (delete-process (get-buffer-process inferior-lisp-buffer)))
+            (emacs-solo/cl-start-project))
+        (unless repl-alive
+          (emacs-solo/cl-start-project)))))
+
   (defun emacs-solo/cl-switch-to-repl ()
     "Switch to inferior Lisp process, starting one if needed.
 Shows the REPL in a window below, keeping focus in the code buffer."
     (interactive)
     (require 'inf-lisp)
-    (let ((code-buffer (current-buffer)))
+    (let ((code-buffer (current-buffer))
+          (root (emacs-solo-cl--project-root)))
       (unless (and (get-process "inferior-lisp")
                    (process-live-p (get-process "inferior-lisp")))
-        (run-lisp inferior-lisp-program)
+        (let ((default-directory root))
+          (run-lisp inferior-lisp-program))
         (switch-to-buffer code-buffer))
       (display-buffer "*inferior-lisp*"
                       '(display-buffer-below-selected
@@ -1131,7 +1228,9 @@ Resolve via l1sp.org redirector, then open final HTTPS URL."
 
   (with-eval-after-load 'lisp-mode
     (let ((map lisp-mode-map))
+      (define-key map (kbd "C-c C-s") #'emacs-solo/cl-start-or-restart-project)
       (define-key map (kbd "C-c C-z") #'emacs-solo/cl-switch-to-repl)
+      (define-key map (kbd "C-M-x")   #'emacs-solo/cl-eval-and-call-defun)
       (define-key map (kbd "C-c C-c") #'lisp-eval-defun)
       (define-key map (kbd "C-c C-r") #'lisp-eval-region)
       (define-key map (kbd "C-c C-e") #'lisp-eval-last-sexp)
