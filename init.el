@@ -2118,6 +2118,45 @@ For the current icon style."
       (pop-to-buffer buffer)))
 
 
+  (defun emacs-solo/vc-rebase (rev)
+    "Rebase current VC branch onto REV."
+    (interactive (list (vc-read-revision "Rebase onto: ")))
+    (let* ((dir (vc-root-dir))
+           (backend (vc-responsible-backend dir)))
+      (unless (eq backend 'Git)
+        (user-error "Rebase not supported for backend %s" backend))
+      (let ((default-directory dir))
+        (compilation-start (format "git rebase %s" rev)
+                           'compilation-mode
+                           (lambda (_) "*vc-rebase*")))))
+
+  (defun emacs-solo/vc-rebase-continue ()
+    "Continue current Git rebase."
+    (interactive)
+    (let ((default-directory (vc-root-dir)))
+      (compile "git rebase --continue")))
+
+  (defun emacs-solo/vc-rebase-abort ()
+    "Abort current Git rebase."
+    (interactive)
+    (let ((default-directory (vc-root-dir)))
+      (compile "git rebase --abort")))
+
+  (defun emacs-solo/vc-rebase-skip ()
+    "Skip current Git rebase commit."
+    (interactive)
+    (let ((default-directory (vc-root-dir)))
+      (compile "git rebase --skip")))
+
+  (defvar-keymap emacs-solo/vc-rebase-map
+    :doc "Keymap for VC rebase commands and reflog."
+    "R" #'emacs-solo/vc-rebase
+    "c" #'emacs-solo/vc-rebase-continue
+    "a" #'emacs-solo/vc-rebase-abort
+    "s" #'emacs-solo/vc-rebase-skip
+    "l" #'emacs-solo/vc-git-reflog)
+
+
   (defun emacs-solo/vc-pull-merge-current-branch ()
     "Pull the from origin for the current branch and display output in a buffer."
     (interactive)
@@ -2226,6 +2265,7 @@ The completion candidates include the Git status of each file."
     (define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
     (define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
     (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
+    (define-key vc-dir-mode-map (kbd "R") emacs-solo/vc-rebase-map)
     ;; Bind g to hide up to date files after refreshing in vc-dir
 
     ;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
@@ -2237,7 +2277,7 @@ The completion candidates include the Git status of each file."
   (define-key vc-prefix-map (kbd "S") #'emacs-solo/vc-git-add)
   (define-key vc-prefix-map (kbd "U") #'emacs-solo/vc-git-reset)
   (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-  (define-key vc-prefix-map (kbd "R") #'emacs-solo/vc-git-reflog)
+  (define-key vc-prefix-map (kbd "R") emacs-solo/vc-rebase-map)
   (define-key vc-prefix-map (kbd "B") #'emacs-solo/vc-browse-remote)
   (define-key vc-prefix-map (kbd "o") #'(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
   (define-key vc-prefix-map (kbd "=") #'emacs-solo/vc-diff-on-current-hunk)
