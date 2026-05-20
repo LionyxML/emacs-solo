@@ -19,6 +19,7 @@
   :no-require t
   :defer t
   :bind (("C-c C-0" . emacs-solo/claude-chat)
+         ("C-c C-8" . emacs-solo/claude-tui-chat)
          ("C-c C-9" . emacs-solo/opencode-chat))
   :init
   (defun emacs-solo/ollama-run-model ()
@@ -774,6 +775,92 @@ initial context.  Image paste via \\[emacs-solo/claude-paste-image]."
         (when initial
           (insert initial)
           (emacs-solo/claude-send-input)))))
+
+
+  (defun emacs-solo/claude-tui-chat ()
+    "Start or reuse an interactive `claude' TUI session in an `ansi-term' buffer.
+
+Unlike `emacs-solo/claude-chat' (which uses `claude --print' and draws
+from the Agent SDK credit bucket), this runs the plain interactive
+`claude' TUI so usage counts against the regular Claude Code
+subscription limits.
+
+If a region is active, prompts for a query and sends the region as
+context.  Reuses a live buffer for the current project when present."
+    (interactive)
+    (let* ((source-file (buffer-file-name))
+           (project-root (vc-root-dir))
+           (default-directory (or project-root
+                                  (and emacs-solo-ai-scratch-path
+                                       (file-directory-p emacs-solo-ai-scratch-path)
+                                       emacs-solo-ai-scratch-path)
+                                  default-directory))
+           (file-ref (when source-file
+                       (if project-root
+                           (file-relative-name source-file project-root)
+                         source-file)))
+           (file-prefix (when file-ref
+                          (format "On file @%s " file-ref)))
+           (region-text (when (use-region-p)
+                          (buffer-substring-no-properties (region-beginning) (region-end))))
+           (query (when region-text
+                    (read-string "Prompt about this region: " file-prefix)))
+           (initial-input (when region-text
+                            (format "%s\n\n```\n%s\n```" query region-text)))
+           (base-name (format "claude:tui-%s"
+                              (file-name-nondirectory (directory-file-name default-directory))))
+           (term-buffer-name (format "*%s*" base-name))
+           (existing-buffer (get-buffer term-buffer-name)))
+      (if (and existing-buffer
+               (buffer-live-p existing-buffer)
+               (get-buffer-process existing-buffer))
+          (progn
+            (pop-to-buffer existing-buffer)
+            (when initial-input
+              (let ((proc (get-buffer-process existing-buffer)))
+                (term-send-string proc "\e[200~")
+                (term-send-string proc initial-input)
+                (term-send-string proc "\e[201~"))))
+        (when (and existing-buffer (not (get-buffer-process existing-buffer)))
+          (kill-buffer existing-buffer))
+        (let* ((proc-buffer (get-buffer-create term-buffer-name))
+               (resize-fn (make-symbol "emacs-solo--claude-tui-resize")))
+          (with-current-buffer proc-buffer
+            (unless (derived-mode-p 'term-mode)
+              (term-mode))
+            (setq-local column-number-mode nil)
+            (setq-local term-buffer-maximum-size 2048))
+          (let ((win (display-buffer proc-buffer)))
+            (when win
+              (select-window win)
+              (with-current-buffer proc-buffer
+                (term-exec proc-buffer
+                           base-name
+                           emacs-solo-claude-executable
+                           nil
+                           nil)
+                (term-char-mode)
+                (term-reset-size (window-body-height win)
+                                 (window-body-width win)))
+              (fset resize-fn
+                    (lambda (frame)
+                      (if (buffer-live-p proc-buffer)
+                          (when-let* ((w (get-buffer-window proc-buffer frame)))
+                            (with-current-buffer proc-buffer
+                              (term-reset-size (window-body-height w)
+                                               (window-body-width w))))
+                        (remove-hook 'window-size-change-functions resize-fn))))
+              (add-hook 'window-size-change-functions resize-fn)
+              (when initial-input
+                (run-at-time 0.5 nil
+                             (lambda (buf input)
+                               (when (buffer-live-p buf)
+                                 (let ((proc (get-buffer-process buf)))
+                                   (when proc
+                                     (term-send-string proc "\e[200~")
+                                     (term-send-string proc input)
+                                     (term-send-string proc "\e[201~")))))
+                             proc-buffer initial-input))))))))
 
 
   (defun emacs-solo/opencode-chat ()
