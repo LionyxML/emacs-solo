@@ -179,6 +179,11 @@ for ESLint."
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-doc-view-invert-default nil
+  "Whether PDFs in `doc-view-mode' open with all pages color-inverted."
+  :type 'boolean
+  :group 'emacs-solo)
+
 ;;; ├──────────────────── CACHE PATHS
 ;;
 ;;  Single source of truth for every path Emacs Solo stores in its
@@ -311,7 +316,6 @@ parent directory created."
   (line-spacing nil)
   (completion-ignore-case t)
   (completions-detailed t)
-  (doc-view-resolution 200)
   (delete-by-moving-to-trash t)
   (delete-pair-blink-delay 0)
   (delete-pair-push-mark t)                   ; EMACS-31 for easy subsequent C-x C-x
@@ -1561,6 +1565,111 @@ Ex: mpv file1 file2 file3 file4..."
   :config
   (setq wdired-allow-to-change-permissions t)
   (setq wdired-create-parent-directories t))
+
+
+;;; │ DOC-VIEW
+(use-package doc-view
+  :ensure nil
+  :custom
+  (doc-view-resolution 200)
+  :bind
+  (:map doc-view-mode-map
+        ("M-i" . emacs-solo/doc-view-invert-page)
+        ("M-I" . emacs-solo/doc-view-toggle-invert-default))
+  :config
+  (defvar-local emacs-solo/doc-view-invert-default-local nil
+    "Buffer-local invert default. Initialized from the global setting.")
+
+  (defvar-local emacs-solo/doc-view--page-overrides nil
+    "Hash of pages whose invert state is flipped from the buffer default.")
+
+  (defun emacs-solo/doc-view--page-file (page)
+    "Path to original PNG for PAGE."
+    (expand-file-name (format "page-%d.png" page)
+                      (doc-view--current-cache-dir)))
+
+  (defun emacs-solo/doc-view--page-inv-file (page)
+    "Path to inverted PNG for PAGE."
+    (expand-file-name (format "page-%d-inv.png" page)
+                      (doc-view--current-cache-dir)))
+
+  (defun emacs-solo/doc-view--ensure-inverted (page)
+    "Render inverted PNG for PAGE via ghostscript if missing; return its path."
+    (let ((out (emacs-solo/doc-view--page-inv-file page)))
+      (unless (file-exists-p out)
+        (let ((pdf (or (bound-and-true-p doc-view-buffer-file-name)
+                       buffer-file-name)))
+          (apply #'call-process "gs" nil nil nil
+                 `("-dSAFER" "-dNOPAUSE" "-dBATCH" "-dQUIET"
+                   "-sDEVICE=png16m"
+                   ,(format "-r%d" doc-view-resolution)
+                   ,(format "-dFirstPage=%d" page)
+                   ,(format "-dLastPage=%d" page)
+                   ,(concat "-sOutputFile=" out)
+                   "-c" "{1 exch sub} dup dup dup setcolortransfer"
+                   "-f" ,pdf))))
+      out))
+
+  (defun emacs-solo/doc-view--page-inverted-p (page)
+    "Return non-nil when PAGE should display inverted."
+    (let ((override (and emacs-solo/doc-view--page-overrides
+                         (gethash page emacs-solo/doc-view--page-overrides))))
+      (if override
+          (not emacs-solo/doc-view-invert-default-local)
+        emacs-solo/doc-view-invert-default-local)))
+
+  (defun emacs-solo/doc-view--insert-image-advice (orig-fn file &rest args)
+    "Around advice: swap FILE to inverted PNG when current page should invert."
+    (let ((file (if (and (derived-mode-p 'doc-view-mode)
+                         (doc-view-current-page)
+                         (emacs-solo/doc-view--page-inverted-p
+                          (doc-view-current-page)))
+                    (emacs-solo/doc-view--ensure-inverted
+                     (doc-view-current-page))
+                  file)))
+      (apply orig-fn file args)))
+
+  (advice-add 'doc-view-insert-image :around
+              #'emacs-solo/doc-view--insert-image-advice)
+
+  (defun emacs-solo/doc-view--init-local-default ()
+    "Seed buffer-local invert default from the global setting."
+    (setq-local emacs-solo/doc-view-invert-default-local
+                emacs-solo-doc-view-invert-default))
+  (add-hook 'doc-view-mode-hook #'emacs-solo/doc-view--init-local-default)
+
+  (defun emacs-solo/doc-view--refresh-current-page ()
+    "Re-insert current page image; advice picks correct variant."
+    (doc-view-insert-image (emacs-solo/doc-view--page-file
+                            (doc-view-current-page))
+                           :pointer 'arrow))
+
+  (defun emacs-solo/doc-view-invert-page ()
+    "Toggle invert override for the current `doc-view' page."
+    (interactive)
+    (unless (derived-mode-p 'doc-view-mode)
+      (user-error "Not in doc-view-mode"))
+    (unless emacs-solo/doc-view--page-overrides
+      (setq-local emacs-solo/doc-view--page-overrides (make-hash-table)))
+    (let* ((page (doc-view-current-page))
+           (cur (gethash page emacs-solo/doc-view--page-overrides)))
+      (if cur
+          (remhash page emacs-solo/doc-view--page-overrides)
+        (puthash page t emacs-solo/doc-view--page-overrides)))
+    (emacs-solo/doc-view--refresh-current-page))
+
+  (defun emacs-solo/doc-view-toggle-invert-default ()
+    "Toggle buffer-wide default invert state and clear per-page overrides."
+    (interactive)
+    (unless (derived-mode-p 'doc-view-mode)
+      (user-error "Not in doc-view-mode"))
+    (setq-local emacs-solo/doc-view-invert-default-local
+                (not emacs-solo/doc-view-invert-default-local))
+    (when emacs-solo/doc-view--page-overrides
+      (clrhash emacs-solo/doc-view--page-overrides))
+    (emacs-solo/doc-view--refresh-current-page)
+    (message "doc-view invert default: %s"
+             (if emacs-solo/doc-view-invert-default-local "on" "off"))))
 
 
 ;;; │ ESHELL
