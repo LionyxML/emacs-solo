@@ -254,19 +254,18 @@ Keys: :pkg :seed :with-packages :external-only :cands :stamp.")
                                 (error () \"<unprintable>\")))
                         results))
                 (muffle-warning)))
-             (error
+             (serious-condition
               (lambda (c)
-                (let* ((ctx (ignore-errors (sb-c::find-error-context nil)))
+                (let* ((safe (not (typep c 'storage-condition)))
+                       (ctx (when safe
+                              (ignore-errors (sb-c::find-error-context nil))))
                        (pos (when ctx
                               (ignore-errors
                                 (sb-c::compiler-error-context-file-position ctx)))))
                   (push (list \"error\" (or pos 0)
                               (handler-case (princ-to-string c)
                                 (error () \"<unprintable>\")))
-                        results))
-                (let ((r (or (find-restart 'continue)
-                             (find-restart 'abort))))
-                  (when r (invoke-restart r))))))
+                        results)))))
           (let ((*error-output* (make-broadcast-stream))
                 (*standard-output* (make-broadcast-stream))
                 (*compile-verbose* nil)
@@ -381,6 +380,7 @@ where a brief wait is acceptable."
                                   "--disable-debugger")))
         (set-process-query-on-exit-flag proc nil)
         (set-process-filter proc #'emacs-solo-cl--lint-filter)
+        (set-process-sentinel proc #'emacs-solo-cl--lint-sentinel)
         (setq emacs-solo-cl--lint-proc proc)
         (with-current-buffer buf (erase-buffer))
         (process-send-string
@@ -421,6 +421,40 @@ where a brief wait is acceptable."
           (when moving (goto-char (process-mark proc))))))
     (when emacs-solo-cl--flymake-state
       (emacs-solo-cl--flymake-scan)))
+
+  (defun emacs-solo-cl--lint-sentinel (proc _event)
+    "Panic any pending flymake if lint SBCL dies (crash, SIGSEGV, exit)."
+    (unless (process-live-p proc)
+      (when (eq proc emacs-solo-cl--lint-proc)
+        (setq emacs-solo-cl--lint-proc nil))
+      (let ((st emacs-solo-cl--flymake-state))
+        (when st
+          (let ((wd (plist-get st :watchdog))
+                (tmp (plist-get st :tmp))
+                (report-fn (plist-get st :report-fn)))
+            (when wd (cancel-timer wd))
+            (ignore-errors (delete-file tmp))
+            (setq emacs-solo-cl--flymake-state nil)
+            (when report-fn
+              (condition-case _
+                  (funcall report-fn :panic
+                           "emacs-solo-cl: lint SBCL died (see ` *emacs-solo-cl-lint*')")
+                (error nil))))))))
+
+  (defun emacs-solo-cl--flymake-watchdog (tick)
+    "Timeout fallback for in-flight lint TICK."
+    (let ((st emacs-solo-cl--flymake-state))
+      (when (and st (eq (plist-get st :tick) tick))
+        (let ((tmp (plist-get st :tmp))
+              (report-fn (plist-get st :report-fn)))
+          (ignore-errors (delete-file tmp))
+          (setq emacs-solo-cl--flymake-state nil)
+          (when report-fn
+            (condition-case _
+                (funcall report-fn :panic
+                         (format "emacs-solo-cl: lint timeout after %ss"
+                                 emacs-solo-cl-lint-timeout))
+              (error nil)))))))
 
   ;; ---- helpers
 
@@ -724,8 +758,57 @@ Returns cached candidates immediately; refreshes from SBCL in background."
                     (ignore pend)
                     (emacs-solo-cl--flymake-deliver st text))))))))))
 
+  (defun emacs-solo-cl--msg-symbol (msg)
+    "Extract first plausible CL symbol token from MSG, or nil.
+Requires earmuffs (`*FOO*'/`+FOO+') or 3+ uppercase chars to avoid
+matching English words like \"The\"."
+    (when msg
+      (let ((case-fold-search nil))
+        (cl-loop for tok in (split-string msg "[][[:space:]\",.;?!]+" t)
+                 when (string-match-p
+                       "\\`\\(?:[*+][A-Z][A-Z0-9*+!?<>=/.:_-]*[*+]\\|[A-Z][A-Z0-9*+!?<>=/.:_-]\\{2,\\}\\)\\'"
+                       tok)
+                 return tok))))
+
+  (defun emacs-solo-cl--locate-symbol (sym)
+    "Return position of first occurrence of SYM that isn't its own
+`defparameter'/`defvar'/`defconstant' form line, and isn't inside a
+comment or string.  Used to re-anchor deferred diagnostics that SBCL
+emits with stale EOF positions."
+    (when sym
+      (save-excursion
+        (goto-char (point-min))
+        (let* ((case-fold-search t)
+               (q (regexp-quote sym))
+               (def-re (format "\\s-*(\\s-*\\(defparameter\\|defvar\\|defconstant\\)\\s-+%s\\(?:\\s-\\|$\\)"
+                               q))
+               (found nil))
+          (while (and (not found) (re-search-forward q nil t))
+            (let* ((m (match-beginning 0))
+                   (state (syntax-ppss m))
+                   (in-comment-or-string (or (nth 3 state) (nth 4 state))))
+              (unless in-comment-or-string
+                (save-excursion
+                  (goto-char (line-beginning-position))
+                  (unless (looking-at-p def-re)
+                    (setq found m))))))
+          found))))
+
+  (defun emacs-solo-cl--locate-def (sym)
+    "Return position of `defparameter'/`defvar'/`defconstant' form for SYM."
+    (when sym
+      (save-excursion
+        (goto-char (point-min))
+        (let* ((case-fold-search t)
+               (re (format "^\\s-*(\\s-*\\(defparameter\\|defvar\\|defconstant\\)\\s-+%s\\(?:\\s-\\|$\\)"
+                           (regexp-quote sym))))
+          (when (re-search-forward re nil t)
+            (match-beginning 0))))))
+
   (defun emacs-solo-cl--flymake-deliver (st text)
     "Parse TEXT, build diagnostics, invoke report-fn from state ST."
+    (let ((wd (plist-get st :watchdog)))
+      (when wd (cancel-timer wd)))
     (setq emacs-solo-cl--flymake-state nil)
     (let* ((src-buf (plist-get st :src-buf))
            (tmp (plist-get st :tmp))
@@ -741,6 +824,14 @@ Returns cached candidates immediately; refreshes from SBCL in background."
             emacs-solo-cl--flymake-last-parsed diags)
       (ignore-errors (delete-file tmp))
       (when (and (not stale) (listp diags))
+        (let ((seen (make-hash-table :test 'equal))
+              (uniq '()))
+          (dolist (d diags)
+            (let ((msg (nth 2 d)))
+              (unless (gethash msg seen)
+                (puthash msg t seen)
+                (push d uniq))))
+          (setq diags (nreverse uniq)))
         (with-current-buffer src-buf
           (dolist (d diags)
             (let* ((kind (nth 0 d))
@@ -753,6 +844,11 @@ Returns cached candidates immediately; refreshes from SBCL in background."
                           (goto-char beg)
                           (forward-comment (point-max))
                           (point)))
+                   (beg (or (and (string= kind "error")
+                                 (string-match-p "\\bunbound\\b" msg)
+                                 (emacs-solo-cl--locate-def
+                                  (emacs-solo-cl--msg-symbol msg)))
+                            beg))
                    (end (save-excursion
                           (goto-char beg)
                           (let* ((bounds (bounds-of-thing-at-point 'sexp))
@@ -775,7 +871,9 @@ Returns cached candidates immediately; refreshes from SBCL in background."
   (defun emacs-solo-cl-flymake (report-fn &rest _args)
     "Async flymake backend via dedicated lint SBCL."
     (when emacs-solo-cl--flymake-state
-      (let ((old-tmp (plist-get emacs-solo-cl--flymake-state :tmp)))
+      (let ((old-tmp (plist-get emacs-solo-cl--flymake-state :tmp))
+            (old-wd (plist-get emacs-solo-cl--flymake-state :watchdog)))
+        (when old-wd (cancel-timer old-wd))
         (when old-tmp (ignore-errors (delete-file old-tmp))))
       (setq emacs-solo-cl--flymake-state nil))
     (let* ((src-buf (current-buffer))
@@ -789,7 +887,10 @@ Returns cached candidates immediately; refreshes from SBCL in background."
             (emacs-solo-cl--lint-start)
             (let* ((lint-buf (get-buffer emacs-solo-cl--lint-buf))
                    (start-pos (and lint-buf
-                                   (with-current-buffer lint-buf (point-max)))))
+                                   (with-current-buffer lint-buf (point-max))))
+                   (watchdog (run-at-time emacs-solo-cl-lint-timeout nil
+                                          #'emacs-solo-cl--flymake-watchdog
+                                          tick)))
               (setq emacs-solo-cl--flymake-state
                     (list :report-fn report-fn
                           :src-buf src-buf
@@ -797,6 +898,8 @@ Returns cached candidates immediately; refreshes from SBCL in background."
                           :start-pos start-pos
                           :beg-marker beg-marker
                           :end-marker end-marker
+                          :tick tick
+                          :watchdog watchdog
                           :mod-tick (buffer-chars-modified-tick src-buf)))
               (process-send-string
                emacs-solo-cl--lint-proc
@@ -804,6 +907,11 @@ Returns cached candidates immediately; refreshes from SBCL in background."
                        beg-marker tmp end-marker))))
         (error
          (ignore-errors (delete-file tmp))
+         (when (and emacs-solo-cl--flymake-state
+                    (eq (plist-get emacs-solo-cl--flymake-state :tick) tick))
+           (let ((wd (plist-get emacs-solo-cl--flymake-state :watchdog)))
+             (when wd (cancel-timer wd)))
+           (setq emacs-solo-cl--flymake-state nil))
          (funcall report-fn :panic (format "emacs-solo-cl: %s" err))))))
 
   ;; ---- minor mode
@@ -1091,7 +1199,7 @@ When inferior-lisp is live, prompt to terminate and restart."
                            (get-buffer-process inferior-lisp-buffer)
                            (process-live-p (get-buffer-process inferior-lisp-buffer)))))
       (if (and repl-alive
-               (y-or-n-p "CL REPL already running. Terminate and restart? "))
+               (y-or-n-p "CL REPL already running.  Terminate and restart? "))
           (progn
             (when (emacs-solo-cl--live-p)
               (delete-process emacs-solo-cl--proc))
