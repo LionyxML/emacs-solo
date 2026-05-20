@@ -132,7 +132,7 @@
      `(newsticker-treeview-selection-face ((,c :background "#3e5768" :foreground "#cdd6f5")))
      `(tab-bar ((,c :background "#181825" :foreground "#bac2de")))
      `(tab-bar-tab ((,c :background "#1e1e2e" :underline nil)))
-     `(tab-bar-tab-inactive ((,c :background "#181825" :foreground "#00ff00")))
+     `(tab-bar-tab-inactive ((,c :background "#181825" :foreground "#6c7086")))
      `(tab-bar-tab-group-current ((,c :background "#1e1e2e" :foreground "#bac2de" :underline t)))
      `(tab-bar-tab-group-inactive ((,c :background "#1e1e2e" :foreground "#9399b2")))
      `(vc-dir-file ((,c :foreground "#89b4fa")))
