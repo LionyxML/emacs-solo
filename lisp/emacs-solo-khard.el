@@ -24,25 +24,46 @@
   (defvar emacs-solo-khard-buffer "*Khard Contacts*"
     "Buffer name for displaying khard contacts.")
 
-  (defun emacs-solo--parse-khard-output (output)
-    "Parse khard OUTPUT into tabulated list entries."
-    (let ((lines (split-string output "\n" t))
-          entries)
-      ;; Drop header lines (find where actual table starts)
-      (dolist (line lines)
-        (when (string-match-p "gmail\\|icloud" line)
-          (let* ((cols (split-string line "\\s-\\{2,\\}" t))
-                 (index (car cols)))
-            (push
-             (list index
-                   (vector
-                    (or index "")
-                    (or (nth 1 cols) "")
-                    (or (nth 2 cols) "")
-                    (or (nth 3 cols) "")
-                    (or (nth 4 cols) "")
-                    (or (nth 5 cols) "")))
-             entries))))
+  (defvar emacs-solo-khard-addressbooks '("gmail" "icloud")
+    "Khard addressbooks to offer for new contacts.")
+
+  (defun emacs-solo--khard-parsable (args)
+    "Run `khard ARGS -p' and return list of tab-split rows."
+    (let* ((output (shell-command-to-string (concat "khard " args " -p")))
+           (lines (split-string output "\n" t)))
+      (mapcar (lambda (l) (split-string l "\t")) lines)))
+
+  (defun emacs-solo--khard-build-entries ()
+    "Build `tabulated-list' entries from khard parsable output.
+Joins `khard ls -p' (uid\tname\tbook) with `khard email -p' and
+`khard phone -p' by contact name.  Entry id is the contact UID."
+    (let* ((ls     (emacs-solo--khard-parsable "ls"))
+           (emails (emacs-solo--khard-parsable "email --remove-first-line"))
+           (phones (emacs-solo--khard-parsable "phone"))
+           (email-map (make-hash-table :test 'equal))
+           (phone-map (make-hash-table :test 'equal))
+           (i 0)
+           entries)
+      (dolist (row emails)
+        (let ((addr (nth 0 row)) (name (nth 1 row)))
+          (when (and name (not (gethash name email-map)))
+            (puthash name addr email-map))))
+      (dolist (row phones)
+        (let ((num (nth 0 row)) (name (nth 1 row)))
+          (when (and name (not (gethash name phone-map)))
+            (puthash name num phone-map))))
+      (dolist (row ls)
+        (let ((uid (nth 0 row)) (name (nth 1 row)) (book (nth 2 row)))
+          (when (and uid name)
+            (setq i (1+ i))
+            (push (list uid
+                        (vector (number-to-string i)
+                                (or name "")
+                                (or (gethash name phone-map) "")
+                                (or (gethash name email-map) "")
+                                (or book "")
+                                (substring uid 0 (min 8 (length uid)))))
+                  entries))))
       (nreverse entries)))
 
   (define-derived-mode emacs-solo-khard-mode tabulated-list-mode "Khard"
@@ -54,13 +75,22 @@
                                  ("Book" 10 t)
                                  ("UID" 8 t)])
     (setq tabulated-list-padding 2)
+    (setq-local revert-buffer-function
+                (lambda (&rest _) (emacs-solo/khard-list)))
     (tabulated-list-init-header))
+
+  (defun emacs-solo--khard-row ()
+    "Return plist (:uid UID :row LIST) for entry at point.
+Errors if point is not on a contact row."
+    (let ((id (tabulated-list-get-id))
+          (entry (tabulated-list-get-entry)))
+      (unless entry (user-error "No contact at point"))
+      (list :uid id :row (append entry nil))))
 
   (defun emacs-solo/khard-list ()
     "Run khard and display contacts in a tabulated buffer."
     (interactive)
-    (let* ((output (shell-command-to-string "khard"))
-           (entries (emacs-solo--parse-khard-output output)))
+    (let ((entries (emacs-solo--khard-build-entries)))
       (with-current-buffer (get-buffer-create emacs-solo-khard-buffer)
         (emacs-solo-khard-mode)
         (setq tabulated-list-entries entries)
@@ -68,24 +98,105 @@
         (switch-to-buffer (current-buffer)))))
 
   (defun emacs-solo/khard-search ()
-    "Search khard contacts and return `Name <email>`."
+    "Search khard contacts and copy `Name <email>' to kill ring."
     (interactive)
-    (let* ((output (shell-command-to-string "khard"))
-           (lines (split-string output "\n" t))
-           (candidates '()))
-      (dolist (line lines)
-        (when (string-match-p "gmail\\|icloud" line)
-          (let* ((cols (split-string line "\\s-\\{2,\\}" t))
-                 (name (or (nth 1 cols) ""))
-                 (email (or (nth 3 cols) "")))
-            (when (and (not (string-empty-p name))
-                       (not (string-empty-p email)))
-              (push (cons (format "%s <%s>" name email) email) candidates)))))
-      (let* ((choice (completing-read "Search on Khard: " (mapcar #'car candidates)))
-             (res choice))
+    (let ((rows (emacs-solo--khard-parsable "email --remove-first-line"))
+          candidates)
+      (dolist (row rows)
+        (let ((addr (nth 0 row)) (name (nth 1 row)))
+          (when (and name addr
+                     (not (string-empty-p name))
+                     (not (string-empty-p addr)))
+            (push (format "%s <%s>" name addr) candidates))))
+      (let ((res (completing-read "Search on Khard: " (nreverse candidates))))
         (kill-new res)
         (message "Copied contact: %s" res)
-        res))))
+        res)))
+
+  (defun emacs-solo/khard-copy-email ()
+    "Copy contact at point as `Name <email>'."
+    (interactive)
+    (let* ((row (plist-get (emacs-solo--khard-row) :row))
+           (name (nth 1 row))
+           (email (nth 3 row))
+           (res (format "%s <%s>" name email)))
+      (kill-new res)
+      (message "Copied: %s" res)))
+
+  (defun emacs-solo/khard-add ()
+    "Add new khard contact via stdin YAML."
+    (interactive)
+    (let* ((book (completing-read "Addressbook: "
+                                  emacs-solo-khard-addressbooks nil t))
+           (first-name (read-string "First name: "))
+           (last-name (read-string "Last name: "))
+           (email (read-string "Email: "))
+           (phone (read-string "Phone (blank to skip): "))
+           (yaml (concat
+                  (format "First name: %s\n" first-name)
+                  (format "Last name: %s\n" last-name)
+                  (unless (string-empty-p email)
+                    (format "Email:\n    home: %s\n" email))
+                  (unless (string-empty-p phone)
+                    (format "Phone:\n    home: %s\n" phone)))))
+      (with-temp-buffer
+        (insert yaml)
+        (let ((exit (call-process-region (point-min) (point-max)
+                                         "khard" nil
+                                         (get-buffer-create "*khard-output*")
+                                         nil
+                                         "new" "-a" book)))
+          (if (zerop exit)
+              (progn
+                (message "Added %s %s to %s" first-name last-name book)
+                (when (derived-mode-p 'emacs-solo-khard-mode)
+                  (emacs-solo/khard-list)))
+            (pop-to-buffer "*khard-output*")
+            (user-error "Failed adding new contact to khard"))))))
+
+  (defun emacs-solo/khard-edit ()
+    "Edit contact at point via khard.
+Requires `server-start' so $EDITOR=emacsclient works."
+    (interactive)
+    (let* ((data (emacs-solo--khard-row))
+           (uid (plist-get data :uid))
+           (book (nth 4 (plist-get data :row))))
+      (async-shell-command
+       (format "khard edit -a %s %s"
+               (shell-quote-argument book)
+               (shell-quote-argument uid))
+       "*khard-edit*")))
+
+  (defun emacs-solo/khard-sync ()
+    "Run `vdirsyncer sync' async."
+    (interactive)
+    (async-shell-command "vdirsyncer sync" "*vdirsyncer*"))
+
+  (defun emacs-solo/khard-remove ()
+    "Remove contact at point via khard."
+    (interactive)
+    (let* ((data (emacs-solo--khard-row))
+           (uid (plist-get data :uid))
+           (row (plist-get data :row))
+           (name (nth 1 row))
+           (book (nth 4 row)))
+      (when (yes-or-no-p (format "Remove %s from %s? " name book))
+        (let ((exit (call-process "khard" nil
+                                  (get-buffer-create "*khard-output*")
+                                  nil
+                                  "remove" "--force" "-a" book uid)))
+          (if (zerop exit)
+              (progn
+                (message "Removed %s" name)
+                (emacs-solo/khard-list))
+            (pop-to-buffer "*khard-output*")
+            (user-error "Failed removing a contact from khard"))))))
+
+  (define-key emacs-solo-khard-mode-map (kbd "a") #'emacs-solo/khard-add)
+  (define-key emacs-solo-khard-mode-map (kbd "e") #'emacs-solo/khard-edit)
+  (define-key emacs-solo-khard-mode-map (kbd "d") #'emacs-solo/khard-remove)
+  (define-key emacs-solo-khard-mode-map (kbd "w") #'emacs-solo/khard-copy-email)
+  (define-key emacs-solo-khard-mode-map (kbd "s") #'emacs-solo/khard-sync))
 
 (provide 'emacs-solo-khard)
 ;;; emacs-solo-khard.el ends here
