@@ -841,7 +841,18 @@ context.  Reuses a live buffer for the current project when present."
                            nil)
                 (term-char-mode)
                 (term-reset-size (window-body-height win)
-                                 (window-body-width win)))
+                                 (window-body-width win))
+                ;; HACK: makes claude aware of the real window width
+                (run-at-time
+                 0.1 nil
+                 (lambda (w)
+                   (when (window-live-p w)
+                     (with-selected-window w
+                       (shrink-window-horizontally 1)
+                       (redisplay t)
+                       (enlarge-window-horizontally 1)
+                       (redisplay t))))
+                 win))
               (fset resize-fn
                     (lambda (frame)
                       (if (buffer-live-p proc-buffer)
