@@ -2919,7 +2919,7 @@ async pipeline — no shell required:
   streams its Markdown response into a *YT Summary: <id>* output buffer.
   The temp directory is deleted once opencode exits.
 
-The output buffer is set up with `markdown-ts-mode', visual-line-mode, and
+The output buffer is set up with `markdown-ts-view-mode', visual-line-mode, and
 minimal keybindings (q kills the window, n/p move by line)."
     (interactive)
     (cl-flet ((clean-lrc (content)
@@ -2957,8 +2957,8 @@ minimal keybindings (q kills the window, n/p move by line)."
                   (select-window (get-buffer-window (current-buffer)))
                   (special-mode)
                   (visual-line-mode 1)
-                  (when (fboundp 'markdown-ts-mode)
-                    (markdown-ts-mode)
+                  (when (fboundp 'markdown-ts-view-mode)
+                    (markdown-ts-view-mode)
                     (display-line-numbers-mode -1)
                     (visual-line-mode 1))
                   (let ((map (make-sparse-keymap)))
@@ -3018,8 +3018,7 @@ minimal keybindings (q kills the window, n/p move by line)."
                                  (delete-directory tdir t)))
                            (message "yt-dlp failed for %s" vid-url)
                            (delete-directory tdir t))))))
-                  (goto-char (point-min))
-                  (markdown-ts-toggle-hide-markup)))))))))
+                  (goto-char (point-min))))))))))
 
   (defun emacs-solo/show-yt-thumbnail ()
     "Show YouTube thumbnail from a videoId in the current buffer."
