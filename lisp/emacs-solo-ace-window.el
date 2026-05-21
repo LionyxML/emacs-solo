@@ -64,9 +64,8 @@ With their assigned key labels ."
              (overlay (make-overlay start start (window-buffer window))))
         (overlay-put overlay 'after-string
                      (propertize (format " [%s] " key)
-                                 'face '(:foreground "#c3e88d"
-                                                     :weight bold
-                                                     :height default)))
+                                 'face '(:inherit font-lock-keyword-face
+                                                  :weight bold)))
         (overlay-put overlay 'window window)
         (push overlay emacs-solo-ace-window/quick-window-overlays))))
 
