@@ -3448,13 +3448,13 @@ minimal keybindings (q kills the window, n/p move by line)."
   :bind ("C-x /" . webjump)
   :custom
   (webjump-sites
-   '(("DuckDuckGo" . [simple-query "https://www.duckduckgo.com" "https://www.duckduckgo.com/?q=" ""])
-     ("DuckDuckAI" . [simple-query "https://duck.ai" "https://duck.ai/?q=" ""])
-     ("Google"     . [simple-query "https://www.google.com" "https://www.google.com/search?q=" ""])
-     ("YouTube"    . [simple-query "https://www.youtube.com/feed/subscriptions" "https://www.youtube.com/results?search_query=" ""])
-     ("Claude"     . [simple-query "https://claude.ai/new" "https://claude.ai/new?q=" ""])
-     ("ChatGPT"    . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
-
+   '(("DuckDuckGo"     . [simple-query "https://www.duckduckgo.com" "https://www.duckduckgo.com/?q=" ""])
+     ("DuckDuckGoNoAI" . [simple-query "https://noai.duckduckgo.com" "https://noai.duckduckgo.com/?q=" ""])
+     ("DuckDuckAI"     . [simple-query "https://duck.ai" "https://duck.ai/?q=" ""])
+     ("Google"         . [simple-query "https://www.google.com" "https://www.google.com/search?q=" ""])
+     ("YouTube"        . [simple-query "https://www.youtube.com/feed/subscriptions" "https://www.youtube.com/results?search_query=" ""])
+     ("Claude"         . [simple-query "https://claude.ai/new" "https://claude.ai/new?q=" ""])
+     ("ChatGPT"        . [simple-query "https://chatgpt.com" "https://chatgpt.com/?q=" ""]))))
 
 
 ;;; ├──────────────────── COMMON LISP
