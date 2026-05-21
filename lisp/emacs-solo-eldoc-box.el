@@ -70,21 +70,7 @@
                      (no-special-glyphs . t)
                      (name . "emacs-solo-eldoc-box")))))
 
-      ;; Turn on markdown-ts-mode on some modes
       (with-current-buffer buffer
-        (let ((supported-markdown-modes '(typescript-ts-mode tsx-ts-mode js-ts-mode)))
-          (when (memq origin-major-mode supported-markdown-modes)
-            (markdown-ts-mode)
-            (font-lock-ensure)))
-
-        (when (memq origin-major-mode '(go-ts-mode))
-          (go-ts-mode)
-          (font-lock-ensure))
-
-        (when (memq origin-major-mode '(rust-ts-mode))
-          (rust-ts-mode)
-          (font-lock-ensure))
-
         (flymake-mode -1)
         (visual-line-mode 1)
         (display-line-numbers-mode -1))
