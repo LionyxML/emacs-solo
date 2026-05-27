@@ -788,6 +788,7 @@ subscription limits.
 If a region is active, prompts for a query and sends the region as
 context.  Reuses a live buffer for the current project when present."
     (interactive)
+    (require 'term)
     (let* ((source-file (buffer-file-name))
            (project-root (vc-root-dir))
            (default-directory (or project-root
