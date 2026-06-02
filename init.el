@@ -1011,11 +1011,13 @@ If ###@### is found, remove it and place point there at the end."
   :init
   ;;; --- OPTIONAL INTERNAL FN OVERRIDES TO DECORATE NAMES
   (defun tab-bar-tab-name-format-hints (name tab i)
-    (if tab-bar-tab-hints
-        (if (eq (car tab) 'current-tab)
-            (concat (format "  [%d]  " i) "")
-          (concat (format "   %d   " i) ""))
-      name))
+    (let ((open-glyph  (if (char-displayable-p ?⌞) "⌞" "["))
+          (close-glyph (if (char-displayable-p ?⌝) "⌝" "]")))
+      (if tab-bar-tab-hints
+          (if (eq (car tab) 'current-tab)
+              (concat (format "  %s%d%s  " open-glyph i close-glyph) "")
+            (concat (format "   %d   " i) ""))
+        name)))
 
   (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
     (propertize
