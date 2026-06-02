@@ -450,8 +450,7 @@ parent directory created."
         (set-fontset-font t '(#xe0b0 . #xe0bF) (font-spec :family emacs-solo-preferred-font-name))
         ;; Emojis
         (set-fontset-font t '(#x1F300 . #x1FAFF)
-                  (font-spec :family "Apple Color Emoji")
-                  nil 'prepend)
+                          (font-spec :family "Apple Color Emoji") nil 'prepend)
         (add-to-list 'face-font-rescale-alist '("Apple Color Emoji" . 0.8)))))
 
   ;; Load Preferred Font Setup
