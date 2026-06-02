@@ -51,6 +51,14 @@ If reset values are nil, nothing is reset."
             (setq gc-cons-threshold (* 100 1024 1024)
                   gc-cons-percentage 0.1)))
 
+;; HACK: Skip the file-name-handler regexp matching on every file load
+;;       while booting, then restore it afterwards
+(defvar emacs-solo--file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(add-hook 'after-init-hook
+          (lambda ()
+            (setq file-name-handler-alist emacs-solo--file-name-handler-alist)))
+
 ;; Single VC backend inscreases booting speed
 (setq vc-handled-backends '(Git))
 
