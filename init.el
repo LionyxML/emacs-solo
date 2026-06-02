@@ -1783,8 +1783,9 @@ Pre-fills the minibuffer with current Eshell input (from prompt to point)."
   ;; GIVES SYNTAX HIGHLIGHTING TO CAT
   ;;
   (defun eshell/cat-with-syntax-highlighting (filename)
-    "Like cat(1) but with syntax highlighting.
-  Stole from aweshell"
+    "Like `eshell/cat' but with syntax highlighting.
+
+Stolen from aweshell."
     (let ((existing-buffer (get-file-buffer filename))
           (buffer (find-file-noselect filename)))
       (eshell-print
@@ -1800,6 +1801,34 @@ Pre-fills the minibuffer with current Eshell input (from prompt to point)."
         (kill-buffer buffer))
       nil))
   (advice-add 'eshell/cat :override #'eshell/cat-with-syntax-highlighting)
+
+
+  ;; MAKES CAT PRINT IMAGES
+  ;;
+  (defun eshell/cat-with-images (orig-fun &rest args)
+    "Like `eshell/cat' but with image support.
+
+Stolen from xenodium."
+    (if (seq-every-p (lambda (arg)
+                       (and (stringp arg)
+                            (file-exists-p arg)
+                            (image-supported-file-p arg)))
+                     args)
+        (with-temp-buffer
+          (insert "\n")
+          (dolist (path args)
+            (let ((spec (create-image
+                         (expand-file-name path)
+                         (image-supported-file-p path)
+                         nil :max-width 350
+                         :conversion (lambda (data) data))))
+              (image-flush spec)
+              (insert-image spec))
+            (insert "\n"))
+          (insert "\n")
+          (buffer-string))
+      (apply orig-fun args)))
+  (advice-add #'eshell/cat :around #'eshell/cat-with-images)
 
 
   ;; LOCAL ESHELL BINDINGS
