@@ -35,7 +35,7 @@ This works with bash, zsh, or fish)."
               "bash --login -c 'echo $PATH'")
              (t nil))))
       (if (not command)
-          (message "emacs-solo: Unsupported shell: %s" shell-name)
+          (message ">>> emacs-solo: `%s' shell is not supported" shell-name)
         (let ((path-from-shell
                (replace-regexp-in-string
                 "[ \t\n]*$" ""
@@ -43,7 +43,7 @@ This works with bash, zsh, or fish)."
           (when (and path-from-shell (not (string= path-from-shell "")))
             (setenv "PATH" path-from-shell)
             (setq exec-path (split-string path-from-shell path-separator))
-            (message ">>> emacs-solo: PATH loaded from %s" shell-name))))))
+            (message ">>> emacs-solo: environment variable PATH loaded from `%s' shell" shell-name))))))
 
   (add-hook 'after-init-hook #'emacs-solo/set-exec-path-from-shell-PATH))
 

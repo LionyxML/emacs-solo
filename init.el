@@ -682,6 +682,30 @@ Use ⇒ if displayable, otherwise fallback to =>."
   (add-hook 'emacs-lisp-mode-hook #'emacs-solo/prefer-spaces)
 
 
+  ;; Colorize the '*Messages*' buffer
+  (defun emacs-solo/messages-font-lock-setup ()
+    (unless font-lock-defaults
+      (setq-local font-lock-defaults '(nil nil nil nil nil)))
+    (font-lock-add-keywords nil
+                            '(("^Loading .*"                      0 'shadow prepend)
+                              ("^Package .*"                      0 'shadow prepend)
+                              ("^line-move.*"                     0 'shadow prepend)
+                              ("^For information abou.*"          0 'shadow prepend)
+                              ("^Importing package-keyring.gpg.*" 0 'shadow prepend)
+                              ("^.*[Ee]rror:? .*"                 0 'compilation-error prepend)
+                              ("\\[.* times\\]"                   0 'font-lock-regexp-face prepend)
+                              ("done$"                            0 'font-lock-regexp-face prepend)
+                              ("^>>>.*"                           0 'font-lock-function-name-face prepend)))
+    (font-lock-mode 1)
+    (font-lock-flush)
+    (font-lock-ensure))
+
+  (add-hook 'messages-buffer-mode-hook #'emacs-solo/messages-font-lock-setup)
+
+  (with-current-buffer (messages-buffer)
+    (emacs-solo/messages-font-lock-setup))
+
+
   ;; Recenter after save-place restore
   ;; Reference: https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/
   (advice-add 'save-place-find-file-hook :after
@@ -741,7 +765,7 @@ or is an ERC buffer."
                     (emacs-init-time)
                     (number-to-string (length package-activated-list)))))
 
-  (message (emacs-init-time)))
+  (message ">>> emacs-solo init time: %s" (emacs-init-time)))
 
 
 ;;; │ ABBREV
