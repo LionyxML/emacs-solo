@@ -166,15 +166,28 @@ after git add/commit, or after an external tool modifies files)."
             (with-current-buffer buf
               (emacs-solo/timed-git-gutter-on)))))))
 
+  (defvar emacs-solo/git-gutter--switch-timer nil
+    "Debounce timer for `emacs-solo/git-gutter-on-window-switch'.")
+
   (defun emacs-solo/git-gutter-on-window-switch (_frame)
     "Refresh gutter marks in the newly selected window's buffer.
-Called by `window-selection-change-functions' on C-x o, etc."
-    (let ((buf (window-buffer (selected-window))))
-      (when (and (buffer-file-name buf)
-                 (not (string-match-p "^\\*" (buffer-name buf)))
-                 (vc-git-root (buffer-file-name buf)))
-        (with-current-buffer buf
-          (emacs-solo/timed-git-gutter-on)))))
+Called by `window-selection-change-functions' on C-x o, tab switch, etc.
+Debounced so rapid switches (e.g. holding C-TAB) collapse to a single
+refresh and never run `vc-git-root'/git synchronously in the handler."
+    (when (timerp emacs-solo/git-gutter--switch-timer)
+      (cancel-timer emacs-solo/git-gutter--switch-timer))
+    (setq emacs-solo/git-gutter--switch-timer
+          (run-at-time
+           0.2 nil
+           (lambda ()
+             (setq emacs-solo/git-gutter--switch-timer nil)
+             (let ((buf (window-buffer (selected-window))))
+               (when (and (buffer-file-name buf)
+                          (not (string-match-p "^\\*" (buffer-name buf)))
+                          (with-current-buffer buf
+                            (vc-git-root (buffer-file-name buf))))
+                 (with-current-buffer buf
+                   (emacs-solo/git-gutter-add-mark))))))))
 
   (global-set-key (kbd "M-9") 'emacs-solo/goto-previous-hunk)
   (global-set-key (kbd "M-0") 'emacs-solo/goto-next-hunk)
