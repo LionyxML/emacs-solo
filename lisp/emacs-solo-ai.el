@@ -451,7 +451,7 @@ that command locally instead of forwarding it to Claude."
     (let ((data (or (ignore-errors (gui-get-selection 'CLIPBOARD 'image/png))
                     (ignore-errors (gui-get-selection 'PRIMARY   'image/png)))))
       (if (not data)
-          (message "No PNG image in clipboard")
+          (message ">>> emacs-solo: No PNG image in clipboard")
         (let ((file (make-temp-file "emacs-claude-img-" nil ".png"))
               (coding-system-for-write 'binary))
           (with-temp-file file
@@ -459,7 +459,7 @@ that command locally instead of forwarding it to Claude."
             (insert data))
           (insert (propertize (format "[image:%s]" file)
                               'face 'emacs-solo-claude-image-face))
-          (message "Image attached: %s" file)))))
+          (message ">>> emacs-solo: Image attached %s" file)))))
 
   (defun emacs-solo/claude-interrupt ()
     "Send SIGINT to the running claude process."

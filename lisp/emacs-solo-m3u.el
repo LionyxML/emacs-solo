@@ -127,7 +127,7 @@ If RAW-BUFFER is nil, use the current buffer."
     (let* ((choice (completing-read "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources))
            (url (cdr (assoc choice emacs-solo/m3u-radio-sources)))
            (raw-buffer (get-buffer-create "*M3U Raw*")))
-      (message "Getting the playlist...")
+      (message ">>> emacs-solo: Getting the playlist...")
       (url-retrieve
        url
        (lambda (_status)
@@ -140,7 +140,7 @@ If RAW-BUFFER is nil, use the current buffer."
                (let ((inhibit-read-only t))
                  (erase-buffer)
                  (insert decoded)
-                 (message "Playlist loaded!")
+                 (message ">>> emacs-solo: Playlist loaded!")
                  (goto-char (point-min))
                  (m3u-visualizer-open-buffer (current-buffer)))))))
        nil t)))
@@ -193,7 +193,7 @@ If RAW-BUFFER is nil, use the current buffer."
                    (setq m3u-visualizer--mpv-process nil)
                    (m3u-visualizer--refresh))))))))
       (m3u-visualizer--refresh)
-      (message "Playing: %s" url)))
+      (message ">>> emacs-solo: Playing %s" url)))
 
   (defun m3u-visualizer-stop-mpv ()
     "Stop current mpv process and clear playing marker."
@@ -205,8 +205,8 @@ If RAW-BUFFER is nil, use the current buffer."
           (setq m3u-visualizer--mpv-process nil)
           (setq m3u-visualizer--active-url nil)
           (m3u-visualizer--refresh)
-          (message "Stopped mpv."))
-      (message "No mpv process running.")))
+          (message ">>> emacs-solo: Stopped mpv."))
+      (message ">>> emacs-solo: No mpv process running.")))
 
 
   (defvar-local m3u-visualizer--logo-cache nil
@@ -239,18 +239,18 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
          ((and (stringp logo) (get-text-property 0 'display logo))
           (let ((orig (get-text-property 0 'orig-url logo)))
             (setf (nth 2 entry) (or orig ""))
-            (message "Logo hidden")))
+            (message ">>> emacs-solo: Logo hidden")))
          ;; No logo info at all
          ((or (not logo) (string-empty-p logo))
-          (message "No logo available for this entry"))
+          (message ">>> emacs-solo: No logo available for this entry"))
          ;; Otherwise: it's a URL string -> show image (use cache if present)
          (t
           (let ((cached (assoc logo m3u-visualizer--logo-cache)))
             (if cached
                 (progn
                   (setf (nth 2 entry) (cdr cached))
-                  (message "Logo loaded! (from cache)"))
-              (message "Getting playlist entry logo...")
+                  (message ">>> emacs-solo: Logo loaded! (from cache)"))
+              (message ">>> emacs-solo: Getting playlist entry logo...")
               (let ((img-buf (url-retrieve-synchronously logo t t 6)))
                 (unless img-buf (user-error "Failed to fetch logo: %s" logo))
                 (with-current-buffer img-buf
@@ -263,7 +263,7 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
                       ;; cache and set entry's logo field to the propertized display string
                       (push (cons logo disp) m3u-visualizer--logo-cache)
                       (setf (nth 2 entry) disp)
-                      (message "Logo loaded!"))))))))))
+                      (message ">>> emacs-solo: Logo loaded!"))))))))))
       ;; Rebuild the table from the (now-modified) m3u-visualizer--entries
       (m3u-visualizer--refresh)))
 

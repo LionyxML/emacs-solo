@@ -124,7 +124,7 @@
                (yes-or-no-p "Delete all cached ERC images? "))
       (dolist (file (directory-files erc-image-cache-directory t "\\`[^.]"))
         (ignore-errors (delete-file file)))
-      (message "ERC image cache cleared.")))
+      (message ">>> emacs-solo: ERC image cache cleared.")))
 
   (define-erc-module image nil
                      "Inline scaled images in ERC"

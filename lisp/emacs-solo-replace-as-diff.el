@@ -61,7 +61,7 @@ GLOB-PATTERN is the glob pattern to match files (e.g., \"*.el\")."
 
       (if files
           (multi-file-replace-regexp-as-diff files regexp to-string delimited)
-        (message "No files found for glob-pattern: %s" glob-pattern))))
+        (message ">>> emacs-solo: No files found for glob-pattern %s" glob-pattern))))
 
 
   ;; `M-x dired RET' mark files and/or directories then
@@ -100,7 +100,7 @@ you can later apply as a patch after reviewing the changes."
       (if files
           (progn
             (multi-file-replace-regexp-as-diff files from to delimited))
-        (message "No files found in marked items.")))))
+        (message ">>> emacs-solo: No files found in marked items.")))))
 
 (provide 'emacs-solo-replace-as-diff)
 ;;; emacs-solo-replace-as-diff.el ends here

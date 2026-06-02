@@ -866,7 +866,7 @@ emits with stale EOF positions."
       (unless stale
         (condition-case err
             (funcall report-fn (nreverse result))
-          (error (message "emacs-solo-cl flymake deliver: %s" err))))))
+          (error (message ">>> emacs-solo: flymake deliver %s" err))))))
 
   (defun emacs-solo-cl-flymake (report-fn &rest _args)
     "Async flymake backend via dedicated lint SBCL."
@@ -1010,7 +1010,7 @@ Best-effort: accept compile failures and warnings so partial work loads."
       (emacs-solo-cl--lint-start)
       (when (emacs-solo-cl--lint-live-p)
         (process-send-string emacs-solo-cl--lint-proc form))
-      (message "load-system %s queued (check *emacs-solo-cl* buffer)" system)))
+      (message ">>> emacs-solo: load-system %s queued (check *emacs-solo-cl* buffer)" system)))
 
   (defun emacs-solo/cl-start-project ()
     "Do the best for the current project or file.
@@ -1055,7 +1055,7 @@ completion and xref pick it up."
           (comint-send-string (inferior-lisp-proc) repl-form)
           (emacs-solo/cl-load-system system asd-dir)
           (pop-to-buffer inferior-lisp-buffer)
-          (message "emacs-solo-cl: project %s loaded (repl + private)" system)))
+          (message ">>> emacs-solo: project %s loaded (repl + private)" system)))
        (buffer-file-name
         (when (buffer-modified-p) (save-buffer))
         (let* ((file buffer-file-name)
@@ -1063,11 +1063,11 @@ completion and xref pick it up."
           (comint-send-string (inferior-lisp-proc) repl-form)
           (emacs-solo-cl--send (format "(load \"%s\")" file))
           (pop-to-buffer inferior-lisp-buffer)
-          (message "emacs-solo-cl: file %s queued (repl + private)"
+          (message ">>> emacs-solo: file %s queued (repl + private)"
                    (file-name-nondirectory file))))
        (t
         (display-buffer inferior-lisp-buffer)
-        (message "emacs-solo-cl: REPL + private SBCL started (no file, no .asd)")))))
+        (message ">>> emacs-solo: REPL + private SBCL started (no file, no .asd)")))))
 
   (defun emacs-solo/cl-load-file ()
     "Load current buffer's file into the primary SBCL (async)."
@@ -1075,7 +1075,7 @@ completion and xref pick it up."
     (unless buffer-file-name (user-error "Buffer has no file"))
     (when (buffer-modified-p) (save-buffer))
     (emacs-solo-cl--send (format "(load \"%s\")" buffer-file-name))
-    (message "load %s queued" (file-name-nondirectory buffer-file-name)))
+    (message ">>> emacs-solo: load %s queued" (file-name-nondirectory buffer-file-name)))
 
   (defun emacs-solo/cl-compile-defun ()
     "Send top-level form at point to primary SBCL."
@@ -1088,7 +1088,7 @@ completion and xref pick it up."
              (out (emacs-solo-cl--eval
                    (format "(let ((*package* (find-package \"%s\"))) (eval (read-from-string %S)))"
                            pkg form))))
-        (message "eval -> %s" (or out "timeout")))))
+        (message ">>> emacs-solo: eval -> %s" (or out "timeout")))))
 
   (defun emacs-solo/cl-eval-and-call-defun ()
     "Send top-level defun at point to REPL, then call it.
@@ -1122,7 +1122,7 @@ Mirrors into private SBCL via existing `lisp-eval-defun' advice."
         (unless name (user-error "No defun at point"))
         (lisp-eval-defun)
         (lisp-eval-string call)
-        (message "called %s" call))))
+        (message ">>> emacs-solo: called %s" call))))
 
   (defun emacs-solo/cl-diagnose ()
     "Run checks and message the result."
@@ -1136,7 +1136,7 @@ Mirrors into private SBCL via existing `lisp-eval-defun' advice."
            (ping (ignore-errors
                    (emacs-solo-cl--eval
                     "(cl-user::identity :pong)"))))
-      (message "primary=%s lint=%s capf=%s xref=%s pkg=%s sym=%s ping=%s"
+      (message ">>> emacs-solo: primary=%s lint=%s capf=%s xref=%s pkg=%s sym=%s ping=%s"
                (emacs-solo-cl--live-p)
                (emacs-solo-cl--lint-live-p)
                (and capf-in t) (and xref-in t) pkg sym ping)))
@@ -1186,7 +1186,7 @@ Mirrors into private SBCL via existing `lisp-eval-defun' advice."
           emacs-solo-cl--capf-cache nil
           emacs-solo-cl--suppress-until 0)
     (emacs-solo-cl--start)
-    (message "emacs-solo-cl: both SBCLs restarted"))
+    (message ">>> emacs-solo: both SBCLs restarted"))
 
   ;; ---- inferior-lisp REPL helpers
 

@@ -150,7 +150,7 @@ Sentinel \"EV\\t\" prefixes every event line so day-format headers
                          nil args)))
         (if (zerop exit)
             (progn
-              (message "Added event %s" summary)
+              (message ">>> emacs-solo: Added event %s" summary)
               (when (derived-mode-p 'emacs-solo-khal-mode)
                 (emacs-solo/khal-list)))
           (pop-to-buffer "*khal-output*")
@@ -176,7 +176,7 @@ Save the buffer then `s' from the list to push via vdirsyncer."
       (unless path (user-error "No .ics file found for UID %s" uid))
       (when (yes-or-no-p (format "Delete event %S (%s)? " title path))
         (delete-file path)
-        (message "Deleted %s.  Run `s' to sync." title)
+        (message ">>> emacs-solo: Deleted %s. Run `s' to sync." title)
         (emacs-solo/khal-list))))
 
   (defun emacs-solo/khal-copy-summary ()
@@ -185,7 +185,7 @@ Save the buffer then `s' from the list to push via vdirsyncer."
     (let* ((row (plist-get (emacs-solo--khal-row) :row))
            (title (nth 3 row)))
       (kill-new title)
-      (message "Copied: %s" title)))
+      (message ">>> emacs-solo: Copied %s" title)))
 
   (defun emacs-solo/khal-sync ()
     "Run `vdirsyncer sync' async."

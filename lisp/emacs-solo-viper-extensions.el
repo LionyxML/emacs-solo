@@ -85,7 +85,7 @@ The deleted text is saved to the kill ring."
     (let ((bounds (bounds-of-thing-at-point 'word)))
       (if bounds
           (kill-region (car bounds) (cdr bounds))
-        (message "No word under cursor"))))
+        (message ">>> emacs-solo: No word under cursor"))))
 
   (defun viper-change-inner-word ()
     "Change the current word under the cursor, handling edge cases."
@@ -100,7 +100,7 @@ The deleted text is saved to the kill ring."
       (pulse-momentary-highlight-region (car bounds) (cdr bounds))
       (if bounds
           (kill-ring-save (car bounds) (cdr bounds))
-        (message "No word under cursor"))))
+        (message ">>> emacs-solo: No word under cursor"))))
 
   (defun viper-delete-inner-compound-word ()
     "Delete the entire compound word under the cursor, including `-` and `_`."
@@ -108,7 +108,7 @@ The deleted text is saved to the kill ring."
     (let ((bounds (viper-compound-word-bounds)))
       (if bounds
           (kill-region (car bounds) (cdr bounds))
-        (message "No compound word under cursor"))))
+        (message ">>> emacs-solo: No compound word under cursor"))))
 
   (defun viper-change-inner-compound-word ()
     "Change the entire compound word under the cursor, including `-` and `_`."
@@ -123,7 +123,7 @@ The deleted text is saved to the kill ring."
       (pulse-momentary-highlight-region (car bounds) (cdr bounds))
       (if bounds
           (kill-ring-save (car bounds) (cdr bounds))
-        (message "No compound word under cursor"))))
+        (message ">>> emacs-solo: No compound word under cursor"))))
 
   (defun viper-compound-word-bounds ()
     "Get the bounds of a compound word under the cursor.

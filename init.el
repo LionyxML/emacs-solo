@@ -593,7 +593,7 @@ parent directory created."
                  (selection (completing-read "Switch to project buffer: " buffer-names nil t)))
             (when selection
               (switch-to-buffer selection)))
-        (message "No suitable project buffers to switch to."))))
+        (message ">>> emacs-solo: No suitable project buffers to switch to."))))
   ;; Tell project.el filter out *special buffers* on `C-x p C-b'
   (setq project-buffers-viewer 'emacs-solo/filtered-project-buffer-completer)
 
@@ -765,7 +765,7 @@ or is an ERC buffer."
                     (emacs-init-time)
                     (number-to-string (length package-activated-list)))))
 
-  (message ">>> emacs-solo init time: %s" (emacs-init-time)))
+  (message ">>> emacs-solo: init time %s" (emacs-init-time)))
 
 
 ;;; │ ABBREV
@@ -1523,10 +1523,10 @@ away from the bottom.  Counts wrapped lines as real lines."
            (command (append '("rsync" "-hPur") files-rsync (list dest-rsync)))
            (buffer (get-buffer-create "*rsync*")))
 
-      (message "[rsync] original dest: %s" dest-original)
-      (message "[rsync] converted dest: %s" dest-rsync)
-      (message "[rsync] source files: %s" files-rsync)
-      (message "[rsync] command: %s" (string-join command " "))
+      (message ">>> emacs-solo: rsync original dest %s" dest-original)
+      (message ">>> emacs-solo: rsync converted dest %s" dest-rsync)
+      (message ">>> emacs-solo: rsync source files %s" files-rsync)
+      (message ">>> emacs-solo: rsync command %s" (string-join command " "))
 
       (with-current-buffer buffer
         (erase-buffer)
@@ -1555,7 +1555,7 @@ away from the bottom.  Counts wrapped lines as real lines."
        :stderr buffer)
 
       (display-buffer buffer)
-      (message "rsync started...")))
+      (message ">>> emacs-solo: rsync started...")))
 
   (defun emacs-solo/window-dired-vc-root-left (&optional directory-path)
     "Creates *Dired-Side* like an IDE side explorer"
@@ -1727,7 +1727,7 @@ Ex: mpv file1 file2 file3 file4..."
     (when emacs-solo/doc-view--page-overrides
       (clrhash emacs-solo/doc-view--page-overrides))
     (emacs-solo/doc-view--refresh-current-page)
-    (message "doc-view invert default: %s"
+    (message ">>> emacs-solo: doc-view invert default %s"
              (if emacs-solo/doc-view-invert-default-local "on" "off"))))
 
 
@@ -1941,7 +1941,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     "Toggle between full and minimal Eshell prompt."
     (interactive)
     (setq emacs-solo/eshell-full-prompt (not emacs-solo/eshell-full-prompt))
-    (message "Eshell prompt: %s"
+    (message ">>> emacs-solo: Eshell prompt %s"
              (if emacs-solo/eshell-full-prompt "full" "minimal"))
     (when (derived-mode-p 'eshell-mode)
       (eshell-reset)))
@@ -1951,7 +1951,7 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
     (interactive)
     (setq emacs-solo/eshell-full-prompt-resource-intensive
           (not emacs-solo/eshell-full-prompt-resource-intensive))
-    (message "Eshell prompt: %s"
+    (message ">>> emacs-solo: Eshell prompt %s"
              (if emacs-solo/eshell-full-prompt-resource-intensive "heavier" "lighter"))
     (when (derived-mode-p 'eshell-mode)
       (eshell-reset)))
@@ -2256,8 +2256,8 @@ For the current icon style."
         (if (eq backend 'Git)
             (progn
               (funcall fn files)
-              (message "%s %d file(s)." verb (length files)))
-          (message "Not in a VC Git buffer."))))
+              (message ">>> emacs-solo: %s %d file(s)." verb (length files)))
+          (message ">>> emacs-solo: Not in a VC Git buffer."))))
 
     (defun emacs-solo/vc-git-add (&optional _revision _vc-fileset _comment)
       (interactive "P")
@@ -2282,7 +2282,7 @@ For the current icon style."
               ;; Capture the raw output including colors using 'git status --color=auto'
               (call-process "git" nil output-buffer nil "status" "-v")
               (pop-to-buffer output-buffer)))
-        (message "Not in a VC Git buffer."))))
+        (message ">>> emacs-solo: Not in a VC Git buffer."))))
 
 
   (defun emacs-solo/vc-git-reflog ()
@@ -2367,7 +2367,7 @@ For the current icon style."
               (insert (format "$ %s\n\n" command))
               (call-process-shell-command command nil buffer t))
             (display-buffer buffer))
-        (message "Could not determine current branch."))))
+        (message ">>> emacs-solo: Could not determine current branch."))))
 
 
   (defun emacs-solo/vc-browse-remote (&optional current-line)
@@ -2379,7 +2379,7 @@ Otherwise, open the repository's main page."
            (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
            (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
            (line (line-number-at-pos)))
-      (message "Opening remote on browser: %s" remote-url)
+      (message ">>> emacs-solo: Opening remote on browser %s" remote-url)
       (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
           (let ((host (match-string 1 remote-url))
                 (path (match-string 2 remote-url)))
@@ -2391,14 +2391,14 @@ Otherwise, open the repository's main page."
              (if current-line
                  (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
                (format "https://%s/%s" host path))))
-        (message "Could not determine repository URL"))))
+        (message ">>> emacs-solo: Could not determine repository URL"))))
 
 
   (defun emacs-solo/vc-diff-on-current-hunk ()
     "Open diff jumping to the current hunk."
     (interactive)
     (let ((current-line (line-number-at-pos)))
-      (message "Current line in file: %d" current-line)
+      (message ">>> emacs-solo: Current line in file %d" current-line)
       (vc-diff) ; Generate the diff buffer
       (with-current-buffer "*vc-diff*"
         (goto-char (point-min))
@@ -2408,14 +2408,14 @@ Otherwise, open the repository's main page."
             (let* ((start-line (string-to-number (match-string 2)))
                    (line-count (string-to-number (match-string 3)))
                    (end-line (+ start-line line-count)))
-              (message "Found hunk: %d to %d" start-line end-line)
+              (message ">>> emacs-solo: Found hunk %d to %d" start-line end-line)
               (when (and (>= current-line start-line)
                          (<= current-line end-line))
-                (message "Current line %d is within hunk range %d to %d" current-line start-line end-line)
+                (message ">>> emacs-solo: Current line %d is within hunk range %d to %d" current-line start-line end-line)
                 (setq found-hunk t)
                 (goto-char (match-beginning 0))))) ; Jump to the beginning of the hunk
           (unless found-hunk
-            (message "Current line %d is not within any hunk range." current-line)
+            (message ">>> emacs-solo: Current line %d is not within any hunk range." current-line)
             (goto-char (point-min)))))))
 
 
@@ -2426,7 +2426,7 @@ The completion candidates include the Git status of each file."
     (require 'vc-git)
     (let ((repo-root (vc-git-root default-directory)))
       (if (not repo-root)
-          (message "Not inside a Git repository.")
+          (message ">>> emacs-solo: Not inside a Git repository.")
         (let* ((expanded-root (expand-file-name repo-root))
                (cmd-output (vc-git--run-command-string nil "status" "--porcelain=v1"))
                (target-files
@@ -2447,7 +2447,7 @@ The completion candidates include the Git status of each file."
                               (string-match "\\?\\?" status))
                           (push (cons (format "%s %s" status path-info) path-info) files)))))))))
           (if (null target-files)
-              (message "No modified or renamed files found.")
+              (message ">>> emacs-solo: No modified or renamed files found.")
             (let* ((candidates target-files)
                    (selection (completing-read "Switch to buffer (Git modified): "
                                                (mapcar #'car candidates) nil t)))
@@ -2606,7 +2606,7 @@ and restart Flymake to apply the changes."
           (not flymake-show-diagnostics-at-end-of-line))
     (flymake-mode -1) ;; Disable Flymake
     (flymake-mode 1)  ;; Re-enable Flymake
-    (message "Flymake diagnostics at end of line: %s"
+    (message ">>> emacs-solo: Flymake diagnostics at end of line %s"
              (if flymake-show-diagnostics-at-end-of-line
                  "Enabled" "Disabled"))))
 
@@ -2637,9 +2637,9 @@ and restart Flymake to apply the changes."
     (if (memq #'whitespace-cleanup before-save-hook)
         (progn
           (remove-hook 'before-save-hook #'whitespace-cleanup)
-          (message "Whitespace cleanup on save turned OFF"))
+          (message ">>> emacs-solo: Whitespace cleanup on save turned OFF"))
       (add-hook 'before-save-hook #'whitespace-cleanup)
-      (message "Whitespace cleanup on save turned ON")))
+      (message ">>> emacs-solo: Whitespace cleanup on save turned ON")))
   (global-set-key (kbd "C-c t w") #'emacs-solo/toggle-whitespace-cleanup-on-save))
 
 
@@ -2930,7 +2930,7 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
       (if window
           (progn
             (select-window window)
-            (message "Loading subtitles...")
+            (message ">>> emacs-solo: Loading subtitles...")
             (save-excursion
               (goto-char (point-min))
               (when (re-search-forward "^\\* videoId: \\([^ \n]+\\)" nil t)
@@ -2981,14 +2981,14 @@ As seen on: https://emacs.dyerdwelling.family/emacs/20250604085817-emacs--buildi
                                      (insert-file-contents subs-file)
                                      (emacs-solo/clean-subtitles buffer-name))
                                    (switch-to-buffer-other-window (current-buffer))
-                                   (message "Loaded subtitles: %s" (file-name-nondirectory subs-file))
+                                   (message ">>> emacs-solo: Loaded subtitles %s" (file-name-nondirectory subs-file))
                                    (delete-directory temp-dir t))
-                               (message "No -orig subtitles found in %s" temp-dir)
+                               (message ">>> emacs-solo: No -orig subtitles found in %s" temp-dir)
                                (delete-directory temp-dir t)))
-                         (message "Failed to fetch subtitles")
+                         (message ">>> emacs-solo: Failed to fetch subtitles")
                          (delete-directory temp-dir t)))))))))
 
-        (message "No *Newsticker Item* buffer found."))))
+        (message ">>> emacs-solo: No *Newsticker Item* buffer found."))))
 
   ;; Override this variable on your customizations to other prompts
   (setq  emacs-solo-newsticker-summarize-yt-video-prompt  "please, summarize this youtube video transcript in english, answer in markdown")
@@ -3035,7 +3035,7 @@ minimal keybindings (q kills the window, n/p move by line)."
                    (prompt emacs-solo-newsticker-summarize-yt-video-prompt)
                    (temp-dir (make-temp-file "emacs-yt-subs-" t "/")))
 
-              (message "Generating summary for %s..." video-id)
+              (message ">>> emacs-solo: Generating summary for %s..." video-id)
 
               (with-current-buffer output-buffer
                 (let ((inhibit-read-only t))
@@ -3102,9 +3102,9 @@ minimal keybindings (q kills the window, n/p move by line)."
                                                    (delete-directory tdir t)))))
                                      (process-send-string proc (concat p "\n" cleaned "\n"))
                                      (process-send-eof proc))
-                                 (message "No .lrc file found in %s" tdir)
+                                 (message ">>> emacs-solo: No .lrc file found in %s" tdir)
                                  (delete-directory tdir t)))
-                           (message "yt-dlp failed for %s" vid-url)
+                           (message ">>> emacs-solo: yt-dlp failed for %s" vid-url)
                            (delete-directory tdir t))))))
                   (goto-char (point-min))))))))))
 
@@ -3150,7 +3150,7 @@ minimal keybindings (q kills the window, n/p move by line)."
                          (select-window (get-buffer-window (current-buffer))))))
                    nil t)))))
 
-        (message "No *Newsticker Item* buffer found."))))
+        (message ">>> emacs-solo: No *Newsticker Item* buffer found."))))
 
 
   (defun emacs-solo/newsticker-play-yt-video-from-buffer (&optional no-video)
@@ -3169,9 +3169,9 @@ minimal keybindings (q kills the window, n/p move by line)."
                                      '("--no-video")
                                    '("--autofit=400" "--geometry=-0+100" "--ontop"))
                                  (list (format "https://www.youtube.com/watch?v=%s" video-id))))
-                  (message "Playing with mpv: %s" video-id)))))
+                  (message ">>> emacs-solo: Playing with mpv %s" video-id)))))
 
-        (message "No window showing *Newsticker Item* buffer."))))
+        (message ">>> emacs-solo: No window showing *Newsticker Item* buffer."))))
 
   (defun emacs-solo/newsticker-eww-current-article ()
     "Open the news item at point in EWW in the same window."

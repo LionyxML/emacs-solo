@@ -63,7 +63,7 @@
           nil
         (condition-case nil
             (json-parse-string output :object-type 'alist :array-type 'list)
-          (error (message "gh JSON parse error: %s" (truncate-string-to-width output 120))
+          (error (message ">>> emacs-solo: gh JSON parse error %s" (truncate-string-to-width output 120))
                  nil)))))
 
   (defun gh--run-string (args)
@@ -345,7 +345,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
     (interactive)
     (setq gh--active-list 'prs
           gh--marked-ids nil)
-    (message "Fetching PRs...")
+    (message ">>> emacs-solo: Fetching PRs...")
     (let* ((filter-args (pcase gh--pr-filter
                           ('mine "--author @me")
                           ('all  "")))
@@ -372,7 +372,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
           (tabulated-list-print t)
           (goto-char (min pos (point-max))))
         (switch-to-buffer (current-buffer)))
-      (message "PRs: %d found" (length entries))))
+      (message ">>> emacs-solo: PRs %d found" (length entries))))
 
   (defun gh--pr-number ()
     "Get PR number at point."
@@ -425,7 +425,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
     (interactive)
     (let ((num (gh--pr-number)))
       (shell-command (format "GH_TELEMETRY=false gh pr view %s --web" num))
-      (message "Opened PR #%s in browser" num)))
+      (message ">>> emacs-solo: Opened PR #%s in browser" num)))
 
   (defun gh-pr-diff ()
     "View PR diff in a buffer."
@@ -448,9 +448,9 @@ E merge | w copy URL | g refresh | i issues | N notifications
     (interactive)
     (let ((num (gh--pr-number)))
       (when (y-or-n-p (format "Checkout PR #%s? " num))
-        (message "Checking out PR #%s..." num)
+        (message ">>> emacs-solo: Checking out PR #%s..." num)
         (let ((output (gh--run-string (format "pr checkout %s" num))))
-          (message "%s" output)))))
+          (message ">>> emacs-solo: %s" output)))))
 
   (defun gh-pr-comment ()
     "Add a comment to the PR at point."
@@ -461,7 +461,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
         (let ((output (gh--run-string
                        (format "pr comment %s --body %s"
                                num (shell-quote-argument body)))))
-          (message "%s" output)))))
+          (message ">>> emacs-solo: %s" output)))))
 
   (defun gh-pr-approve ()
     "Approve the PR at point."
@@ -473,7 +473,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
                          (format "pr review %s --approve" num)
                        (format "pr review %s --approve --body %s"
                                num (shell-quote-argument body)))))
-            (message "%s" (gh--run-string cmd)))))))
+            (message ">>> emacs-solo: %s" (gh--run-string cmd)))))))
 
   (defun gh-pr-request-changes ()
     "Request changes on the PR at point."
@@ -481,7 +481,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
     (let* ((num (gh--pr-number))
            (body (read-string (format "Changes requested on PR #%s: " num))))
       (when (and body (not (string-empty-p body)))
-        (message "%s"
+        (message ">>> emacs-solo: %s"
                  (gh--run-string
                   (format "pr review %s --request-changes --body %s"
                           num (shell-quote-argument body)))))))
@@ -493,7 +493,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
            (method (completing-read (format "Merge PR #%s method: " num)
                                     '("merge" "squash" "rebase") nil t)))
       (when (y-or-n-p (format "%s PR #%s? " (capitalize method) num))
-        (message "%s"
+        (message ">>> emacs-solo: %s"
                  (gh--run-string
                   (format "pr merge %s --%s" num method))))))
 
@@ -503,7 +503,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
     (let* ((num (gh--pr-number))
            (url (gh--run-string (format "pr view %s --json url -q .url" num))))
       (kill-new url)
-      (message "Copied: %s" url)))
+      (message ">>> emacs-solo: Copied %s" url)))
 
   (defun gh-pr-create ()
     "Create a new pull request interactively."
@@ -516,13 +516,13 @@ E merge | w copy URL | g refresh | i issues | N notifications
                         (if (string-empty-p body) ""
                           (format "--body %s" (shell-quote-argument body)))
                         (if draft "--draft" ""))))
-      (message "%s" (gh--run-string cmd))))
+      (message ">>> emacs-solo: %s" (gh--run-string cmd))))
 
   (defun gh-toggle-pr-filter ()
     "Toggle between my PRs and all PRs."
     (interactive)
     (setq gh--pr-filter (if (eq gh--pr-filter 'mine) 'all 'mine))
-    (message "PR filter: %s" gh--pr-filter))
+    (message ">>> emacs-solo: PR filter %s" gh--pr-filter))
 
   (defun gh-toggle-issue-filter ()
     "Cycle issue filter: open -> closed -> all."
@@ -531,7 +531,7 @@ E merge | w copy URL | g refresh | i issues | N notifications
                              ('open 'closed)
                              ('closed 'all)
                              ('all 'open)))
-    (message "Issue filter: %s" gh--issue-filter))
+    (message ">>> emacs-solo: Issue filter %s" gh--issue-filter))
 
   (defvar-keymap gh-issue-mode-map
     :doc "Keymap for GitHub issue list mode."
@@ -574,7 +574,7 @@ g refresh | l PRs | N notifications
     (interactive)
     (setq gh--active-list 'issues
           gh--marked-ids nil)
-    (message "Fetching issues...")
+    (message ">>> emacs-solo: Fetching issues...")
     (let* ((state-arg (pcase gh--issue-filter
                         ('open "--state open")
                         ('closed "--state closed")
@@ -605,7 +605,7 @@ g refresh | l PRs | N notifications
           (tabulated-list-print t)
           (goto-char (min pos (point-max))))
         (switch-to-buffer (current-buffer)))
-      (message "Issues: %d found" (length entries))))
+      (message ">>> emacs-solo: Issues %d found" (length entries))))
 
   (defun gh--issue-number ()
     "Get issue number at point."
@@ -640,7 +640,7 @@ g refresh | l PRs | N notifications
     (interactive)
     (let ((num (gh--issue-number)))
       (shell-command (format "GH_TELEMETRY=false gh issue view %s --web" num))
-      (message "Opened issue #%s in browser" num)))
+      (message ">>> emacs-solo: Opened issue #%s in browser" num)))
 
   (defun gh-issue-comment ()
     "Add a comment to the issue at point."
@@ -648,7 +648,7 @@ g refresh | l PRs | N notifications
     (let* ((num (gh--issue-number))
            (body (read-string (format "Comment on issue #%s: " num))))
       (when (and body (not (string-empty-p body)))
-        (message "%s"
+        (message ">>> emacs-solo: %s"
                  (gh--run-string
                   (format "issue comment %s --body %s"
                           num (shell-quote-argument body)))))))
@@ -662,7 +662,7 @@ g refresh | l PRs | N notifications
                                   (format "issue #%s" (car ids))
                                 (format "%d issues" (length ids)))))
         (dolist (id ids)
-          (message "%s" (gh--run-string (format "issue close %s" id))))
+          (message ">>> emacs-solo: %s" (gh--run-string (format "issue close %s" id))))
         (setq gh--marked-ids nil)
         (gh-issue-list))))
 
@@ -671,7 +671,7 @@ g refresh | l PRs | N notifications
     (interactive)
     (let ((num (gh--issue-number)))
       (when (y-or-n-p (format "Reopen issue #%s? " num))
-        (message "%s" (gh--run-string (format "issue reopen %s" num)))
+        (message ">>> emacs-solo: %s" (gh--run-string (format "issue reopen %s" num)))
         (gh-issue-list))))
 
   (defun gh-issue-add-label ()
@@ -680,7 +680,7 @@ g refresh | l PRs | N notifications
     (let* ((num (gh--issue-number))
            (label (read-string (format "Add label to issue #%s: " num))))
       (when (and label (not (string-empty-p label)))
-        (message "%s"
+        (message ">>> emacs-solo: %s"
                  (gh--run-string
                   (format "issue edit %s --add-label %s"
                           num (shell-quote-argument label)))))))
@@ -691,7 +691,7 @@ g refresh | l PRs | N notifications
     (let* ((num (gh--issue-number))
            (user (read-string (format "Assign issue #%s to (@me for self): " num))))
       (when (and user (not (string-empty-p user)))
-        (message "%s"
+        (message ">>> emacs-solo: %s"
                  (gh--run-string
                   (format "issue edit %s --add-assignee %s"
                           num (shell-quote-argument user)))))))
@@ -702,7 +702,7 @@ g refresh | l PRs | N notifications
     (let* ((num (gh--issue-number))
            (url (gh--run-string (format "issue view %s --json url -q .url" num))))
       (kill-new url)
-      (message "Copied: %s" url)))
+      (message ">>> emacs-solo: Copied %s" url)))
 
   (defun gh-issue-create ()
     "Create a new issue interactively."
@@ -713,7 +713,7 @@ g refresh | l PRs | N notifications
                         (shell-quote-argument title)
                         (if (string-empty-p body) ""
                           (format "--body %s" (shell-quote-argument body))))))
-      (message "%s" (gh--run-string cmd))))
+      (message ">>> emacs-solo: %s" (gh--run-string cmd))))
 
   (defvar-keymap gh-notification-mode-map
     :doc "Keymap for GitHub notifications mode."
@@ -749,7 +749,7 @@ g refresh | l PRs | i issues
     (interactive)
     (setq gh--active-list 'notifications
           gh--marked-ids nil)
-    (message "Fetching notifications...")
+    (message ">>> emacs-solo: Fetching notifications...")
     (let* ((output (gh--run-string "api notifications --paginate"))
            (data (condition-case nil
                      (json-parse-string output :object-type 'alist :array-type 'list)
@@ -775,7 +775,7 @@ g refresh | l PRs | i issues
           (tabulated-list-print t)
           (goto-char (min pos (point-max))))
         (switch-to-buffer (current-buffer)))
-      (message "Notifications: %d" (length entries))))
+      (message ">>> emacs-solo: Notifications %d" (length entries))))
 
   (defun gh--notification-at-point ()
     "Return (id . api-url) for the notification at point."
@@ -788,7 +788,7 @@ g refresh | l PRs | i issues
            (id-pair (gh--notification-at-point))
            (api-url (cdr id-pair)))
       (if (or (null api-url) (string-empty-p api-url))
-          (message "No viewable subject for this notification")
+          (message ">>> emacs-solo: No viewable subject for this notification")
         ;; Extract type and number from API URL
         (let* ((parts (split-string api-url "/"))
                (type-str (car (last parts 2)))
@@ -842,7 +842,7 @@ g refresh | l PRs | i issues
                 (setq gh--return-buffer from)
                 (gh--setup-detail-buffer))
               (switch-to-buffer buf)))
-           (t (message "Unknown subject type: %s" type-str)))))))
+           (t (message ">>> emacs-solo: Unknown subject type %s" type-str)))))))
 
   (defun gh-notification-browse ()
     "Open the notification subject in the browser."
@@ -850,7 +850,7 @@ g refresh | l PRs | i issues
     (let* ((id-pair (gh--notification-at-point))
            (api-url (cdr id-pair)))
       (if (or (null api-url) (string-empty-p api-url))
-          (message "No browsable URL for this notification")
+          (message ">>> emacs-solo: No browsable URL for this notification")
         (let* ((parts (split-string api-url "/"))
                (type-str (car (last parts 2)))
                (number (car (last parts)))
@@ -861,7 +861,7 @@ g refresh | l PRs | i issues
             (shell-command (format "GH_TELEMETRY=false gh pr view %s --repo %s --web" number repo)))
            ((string= type-str "issues")
             (shell-command (format "GH_TELEMETRY=false gh issue view %s --repo %s --web" number repo)))
-           (t (message "Cannot browse this notification type")))))))
+           (t (message ">>> emacs-solo: Cannot browse this notification type")))))))
 
   (defun gh-notification-mark-read ()
     "Mark selected notifications as read."
@@ -871,7 +871,7 @@ g refresh | l PRs | i issues
         (let ((id (if (consp id-pair) (car id-pair) id-pair)))
           (gh--run-string (format "api -X PATCH notifications/threads/%s" id))))
       (setq gh--marked-ids nil)
-      (message "Marked %d notification(s) as read" (length ids))
+      (message ">>> emacs-solo: Marked %d notification(s) as read" (length ids))
       (gh-notifications)))
 
   (defun gh-notification-copy-url ()
@@ -880,7 +880,7 @@ g refresh | l PRs | i issues
     (let* ((entry (tabulated-list-get-entry))
            (title (aref entry 2)))
       (kill-new title)
-      (message "Copied title: %s" title)))
+      (message ">>> emacs-solo: Copied title %s" title)))
 
   (defvar-local gh--return-buffer nil
     "Buffer to return to when quitting detail view.")
@@ -1000,7 +1000,7 @@ q quit (back to list + menu) | o open in browser | g refresh"
               (num (match-string 2 name)))
           (shell-command (format "GH_TELEMETRY=false gh issue view %s %s --web"
                                  num (if repo (format "--repo %s" repo) "")))))
-       (t (message "Cannot determine PR/issue from buffer name")))))
+       (t (message ">>> emacs-solo: Cannot determine PR/issue from buffer name")))))
 
   (defun gh-detail-refresh ()
     "Refresh the current detail view."
@@ -1082,7 +1082,7 @@ q quit (back to list + menu) | o open in browser | g refresh"
     "Open the repo in the browser."
     (interactive)
     (shell-command "GH_TELEMETRY=false gh repo view --web")
-    (message "Opened repo in browser"))
+    (message ">>> emacs-solo: Opened repo in browser"))
 
   (defun gh--in-pr-list-p ()
     (eq gh--active-list 'prs))

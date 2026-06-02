@@ -38,11 +38,11 @@ the entire buffer.  The returned URL is copied to the kill ring."
                        (buffer-substring-no-properties (region-beginning) (region-end))
                      (buffer-string)))
          (temp-file (make-temp-file "0x0" nil ".txt" contents)))
-    (message "Sending %s to 0x0.st..." temp-file)
+    (message ">>> emacs-solo: Sending %s to 0x0.st..." temp-file)
     (let ((url (string-trim-right
                 (shell-command-to-string
                  (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" temp-file)))))
-      (message "The URL is %s" url)
+      (message ">>> emacs-solo: The URL is %s" url)
       (kill-new url)
       (delete-file temp-file))))
 
@@ -50,11 +50,11 @@ the entire buffer.  The returned URL is copied to the kill ring."
   "Upload FILE-PATH to 0x0.st.
 The returned URL is copied to the kill ring."
   (interactive "fSelect a file to upload: ")
-  (message "Sending %s to 0x0.st..." file-path)
+  (message ">>> emacs-solo: Sending %s to 0x0.st..." file-path)
   (let ((url (string-trim-right
               (shell-command-to-string
                (format "curl -A 'curl/7.68.8' -s -F'file=@%s' https://0x0.st" (expand-file-name file-path))))))
-    (message "The URL is %s" url)
+    (message ">>> emacs-solo: The URL is %s" url)
     (kill-new url)))
 
 (defun emacs-solo/crafterbin-upload-text ()
@@ -66,11 +66,11 @@ the entire buffer.  The returned URL is copied to the kill ring."
                        (buffer-substring-no-properties (region-beginning) (region-end))
                      (buffer-string)))
          (temp-file (make-temp-file "crafterbin" nil ".txt" contents)))
-    (message "Sending %s to crafterbin..." temp-file)
+    (message ">>> emacs-solo: Sending %s to crafterbin..." temp-file)
     (let ((url (string-trim-right
                 (shell-command-to-string
                  (format "curl -s -F'file=@%s' https://crafterbin.glennstack.dev" temp-file)))))
-      (message "The URL is %s" url)
+      (message ">>> emacs-solo: The URL is %s" url)
       (kill-new url)
       (delete-file temp-file))))
 
@@ -78,11 +78,11 @@ the entire buffer.  The returned URL is copied to the kill ring."
   "Upload FILE-PATH to crafterbin.
 The returned URL is copied to the kill ring."
   (interactive "fSelect a file to upload: ")
-  (message "Sending %s to crafterbin..." file-path)
+  (message ">>> emacs-solo: Sending %s to crafterbin..." file-path)
   (let ((url (string-trim-right
               (shell-command-to-string
                (format "curl -s -F'file=@%s' https://crafterbin.glennstack.dev" (expand-file-name file-path))))))
-    (message "The URL is %s" url)
+    (message ">>> emacs-solo: The URL is %s" url)
     (kill-new url)))
 
 (provide 'emacs-solo-temp-sharing)

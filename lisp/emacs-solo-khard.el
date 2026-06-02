@@ -110,7 +110,7 @@ Errors if point is not on a contact row."
             (push (format "%s <%s>" name addr) candidates))))
       (let ((res (completing-read "Search on Khard: " (nreverse candidates))))
         (kill-new res)
-        (message "Copied contact: %s" res)
+        (message ">>> emacs-solo: Copied contact %s" res)
         res)))
 
   (defun emacs-solo/khard-copy-email ()
@@ -121,7 +121,7 @@ Errors if point is not on a contact row."
            (email (nth 3 row))
            (res (format "%s <%s>" name email)))
       (kill-new res)
-      (message "Copied: %s" res)))
+      (message ">>> emacs-solo: Copied %s" res)))
 
   (defun emacs-solo/khard-add ()
     "Add new khard contact via stdin YAML."
@@ -148,7 +148,7 @@ Errors if point is not on a contact row."
                                          "new" "-a" book)))
           (if (zerop exit)
               (progn
-                (message "Added %s %s to %s" first-name last-name book)
+                (message ">>> emacs-solo: Added %s %s to %s" first-name last-name book)
                 (when (derived-mode-p 'emacs-solo-khard-mode)
                   (emacs-solo/khard-list)))
             (pop-to-buffer "*khard-output*")
@@ -187,7 +187,7 @@ Requires `server-start' so $EDITOR=emacsclient works."
                                   "remove" "--force" "-a" book uid)))
           (if (zerop exit)
               (progn
-                (message "Removed %s" name)
+                (message ">>> emacs-solo: Removed %s" name)
                 (emacs-solo/khard-list))
             (pop-to-buffer "*khard-output*")
             (user-error "Failed removing a contact from khard"))))))

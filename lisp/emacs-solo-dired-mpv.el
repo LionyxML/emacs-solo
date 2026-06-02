@@ -92,7 +92,7 @@
     (when (process-live-p emacs-solo/mpv-process)
       (kill-process emacs-solo/mpv-process)
       (setq emacs-solo/mpv-process nil))
-    (message "⏹  Stopped")
+    (message ">>> emacs-solo: Stopped")
     ;; Socket is gone; update the playlist buffer directly if visible.
     (when (get-buffer-window "*mpv-playlist*" t)
       (with-current-buffer "*mpv-playlist*"
@@ -117,10 +117,10 @@
                                (unless (process-live-p p)
                                  (setq emacs-solo/mpv-ipc-process nil)))))
           (error
-           (message "❌ mpv IPC connect error: %s" (error-message-string err))))))
+           (message ">>> emacs-solo: mpv IPC connect error %s" (error-message-string err))))))
     (if (process-live-p emacs-solo/mpv-ipc-process)
         (process-send-string emacs-solo/mpv-ipc-process (concat json-cmd "\n"))
-      (message "❌ mpv IPC socket not found or unreachable: %s" emacs-solo/mpv-ipc-socket)))
+      (message ">>> emacs-solo: mpv IPC socket not found or unreachable %s" emacs-solo/mpv-ipc-socket)))
 
 
   (defun emacs-solo/mpv-read-property (prop)
@@ -156,7 +156,7 @@
       (let* ((title  (emacs-solo/mpv-read-property "media-title"))
              (paused (emacs-solo/mpv-read-property "pause")))
         (when title
-          (message "%s  %s" (if (eq paused t) "⏸" "▶") title)))))
+          (message ">>> emacs-solo: %s %s" (if (eq paused t) "Paused" "Playing") title)))))
 
   (defun emacs-solo/mpv-show-playlist ()
     "Show the current mpv playlist in a readable buffer."
@@ -205,7 +205,7 @@
                 (special-mode)
                 (goto-char (point-min))))
             (display-buffer buf))
-        (message "Error: mpv IPC socket not found at %s" socket))))
+        (message ">>> emacs-solo: Error mpv IPC socket not found at %s" socket))))
 
   (defun emacs-solo/mpv-maybe-refresh-playlist ()
     "Refresh *mpv-playlist* silently only if it is visible in a window."
@@ -259,7 +259,7 @@
                          (lambda ()
                            (when (process-live-p emacs-solo/mpv-process)
                              (let ((state (emacs-solo/mpv-read-property "loop-file")))
-                               (message "↺  Loop: %s"
+                               (message ">>> emacs-solo: Loop %s"
                                         (if (equal state "inf") "on" "off")))))))
        :transient t)]
      ["Playlist"

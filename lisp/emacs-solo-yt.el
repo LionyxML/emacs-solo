@@ -87,7 +87,7 @@
     "Insert RESULTS into the tabulated-list buffer.
 Also fetch thumbnails asynchronously."
     (with-current-buffer (get-buffer-create "*YouTube Results*")
-      (message "Processing youtube results...")
+      (message ">>> emacs-solo: Processing youtube results...")
       (youtube-results-mode)
       (setq tabulated-list-entries
             (mapcar
@@ -123,7 +123,7 @@ Also fetch thumbnails asynchronously."
       (tabulated-list-init-header)
       (tabulated-list-print t)
       (display-buffer (current-buffer)))
-    (message "Processing youtube results: Done!"))
+    (message ">>> emacs-solo: Processing youtube results Done!"))
 
   (defun youtube-search-async (query &optional max-results)
     "Search YouTube asynchronously using yt-dlp."
@@ -132,7 +132,7 @@ P")
     (let* ((buf (get-buffer-create "*YouTube Search Raw*"))
            (max-results (or max-results youtube-search-max-results)))
       (with-current-buffer buf (erase-buffer))
-      (message "Searching YouTube...")
+      (message ">>> emacs-solo: Searching YouTube...")
       (make-process
        :name "youtube-search"
        :buffer buf
@@ -153,7 +153,7 @@ P")
                                   (youtube-search--parse-line line))))
                    (when obj (push obj results)))
                  (forward-line 1))
-               (message "YouTube search done.")
+               (message ">>> emacs-solo: YouTube search done.")
                (youtube-search--insert-results (nreverse results)))))))))
 
   ;; Table UI
@@ -186,7 +186,7 @@ P")
                              "--autofit=640x360"
                              url))
         (youtube-search--refresh-status)
-        (message "Playing: %s" url))))
+        (message ">>> emacs-solo: Playing %s" url))))
 
   (defun youtube-results-stop ()
     "Stop current mpv process."
@@ -197,8 +197,8 @@ P")
           (setq youtube-mpv-process nil)
           (setq youtube-active-url nil)
           (youtube-search--refresh-status)
-          (message "Stopped mpv."))
-      (message "No mpv process running.")))
+          (message ">>> emacs-solo: Stopped mpv."))
+      (message ">>> emacs-solo: No mpv process running.")))
 
   (defun youtube-search--refresh-status ()
     "Refresh play status in the results buffer."

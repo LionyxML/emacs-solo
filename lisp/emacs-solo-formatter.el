@@ -100,9 +100,9 @@ If MANUAL is non-nil, save the buffer before formatting."
                    (with-current-buffer buf
                      (revert-buffer t t t)
                      (let ((elapsed-time (* 1000 (- (float-time) start-time))))
-                       (message "Formatted with %s - %.0f ms" source elapsed-time))))))))
+                       (message ">>> emacs-solo: Formatted with %s - %.0f ms" source elapsed-time))))))))
         (when manual
-          (message "No formatter found for this file")))))
+          (message ">>> emacs-solo: No formatter found for this file")))))
 
   (defun emacs-solo-formatter/format-current-file-manual ()
     "Manually invoke format for current file (saves first)."
@@ -113,13 +113,13 @@ If MANUAL is non-nil, save the buffer before formatting."
     "Add format-on-save to the current buffer's `after-save-hook'."
     (interactive)
     (add-hook 'after-save-hook #'emacs-solo-formatter/format-current-file nil t)
-    (message "Format-on-save enabled for this buffer."))
+    (message ">>> emacs-solo: Format-on-save enabled for this buffer."))
 
   (defun emacs-solo-formatter/disable-format-on-save ()
     "Remove format-on-save from the current buffer's `after-save-hook'."
     (interactive)
     (remove-hook 'after-save-hook #'emacs-solo-formatter/format-current-file t)
-    (message "Format-on-save disabled for this buffer."))
+    (message ">>> emacs-solo: Format-on-save disabled for this buffer."))
 
   (defun emacs-solo-formatter/toggle-format-on-save ()
     "Toggle format-on-save for the current buffer."
@@ -127,9 +127,9 @@ If MANUAL is non-nil, save the buffer before formatting."
     (if (memq #'emacs-solo-formatter/format-current-file after-save-hook)
         (progn
           (remove-hook 'after-save-hook #'emacs-solo-formatter/format-current-file t)
-          (message "Formatting on save turned OFF"))
+          (message ">>> emacs-solo: Formatting on save turned OFF"))
       (add-hook 'after-save-hook #'emacs-solo-formatter/format-current-file nil t)
-      (message "Formatting on save turned ON")))
+      (message ">>> emacs-solo: Formatting on save turned ON")))
 
   (defun emacs-solo-formatter--maybe-enable ()
     "Auto-enable format-on-save if the file's extension has a registered formatter."

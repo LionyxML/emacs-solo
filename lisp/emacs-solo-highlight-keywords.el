@@ -69,7 +69,7 @@
                   (lambda ()
                     (when (and buffer-file-name ; only if it's visiting a file
                                (not (string-match-p "^\\*" (buffer-name)))) ; avoid *scratch*, etc.
-                      (message "[emacs-solo-highlight-keywords-mode]: running on buffer %s" (buffer-name))
+                      (message ">>> emacs-solo: running on buffer %s" (buffer-name))
                       (run-with-idle-timer 1 nil #'emacs-solo/highlight-keywords-mode-on)))))
 
 (provide 'emacs-solo-highlight-keywords)

@@ -46,13 +46,13 @@
     "Toggle between Docker and Podman."
     (interactive)
     (setq container-backend (if (eq container-backend 'docker) 'podman 'docker))
-    (message "Backend: %s" container-backend))
+    (message ">>> emacs-solo: Backend %s" container-backend))
 
   (defun container-toggle-profile ()
     "Toggle between prod and dev profiles."
     (interactive)
     (setq container-profile (if (eq container-profile 'prod) 'dev 'prod))
-    (message "Profile: %s (%s)" container-profile
+    (message ">>> emacs-solo: Profile %s (%s)" container-profile
              (if (eq container-profile 'prod)
                  "Dockerfile / docker-compose.yml"
                "Dockerfile.dev / docker-compose-dev.yml")))
@@ -61,13 +61,13 @@
     "Toggle command confirmation."
     (interactive)
     (setq container-confirm (not container-confirm))
-    (message "Confirm: %s" (if container-confirm "ON" "OFF")))
+    (message ">>> emacs-solo: Confirm %s" (if container-confirm "ON" "OFF")))
 
   (defun container-toggle-force ()
     "Toggle --force on remove operations."
     (interactive)
     (setq container-force (not container-force))
-    (message "Force: %s" (if container-force "ON" "OFF")))
+    (message ">>> emacs-solo: Force %s" (if container-force "ON" "OFF")))
 
   (defun container--command ()
     "Return the container backend command string."
@@ -124,7 +124,7 @@ When `container-confirm' is non-nil, prompt to edit first."
                         cmd-template))
            (buf (get-buffer-create "*container-output*")))
       (unless container-confirm
-        (message "Running: %s" final-cmd))
+        (message ">>> emacs-solo: Running %s" final-cmd))
       (with-current-buffer buf
         (setq buffer-read-only nil)
         (erase-buffer)
@@ -223,9 +223,9 @@ g refresh | i images | v volumes | ? menu
            (cmd (format "%s %s %s" (container--command) action id-str)))
       (if container-confirm
           (container--run-to-buffer cmd)
-        (message "%s %s..." action id-str)
+        (message ">>> emacs-solo: %s %s..." action id-str)
         (let ((output (string-trim (shell-command-to-string cmd))))
-          (message "%s: %s" action output))
+          (message ">>> emacs-solo: %s %s" action output))
         (setq container--marked-ids nil)
         (when (derived-mode-p 'container-list-mode)
           (container-list)))))
@@ -264,7 +264,7 @@ g refresh | i images | v volumes | ? menu
                         cmd))
            (buf (get-buffer-create (format "*container-logs-%s*" name))))
       (unless container-confirm
-        (message "Running: %s" final-cmd))
+        (message ">>> emacs-solo: Running %s" final-cmd))
       (with-current-buffer buf
         (setq buffer-read-only nil)
         (erase-buffer)
@@ -299,7 +299,7 @@ g refresh | i images | v volumes | ? menu
                     (list (read-string "ID to copy: "))))
            (str (string-join ids " ")))
       (kill-new str)
-      (message "Copied: %s" str)))
+      (message ">>> emacs-solo: Copied %s" str)))
 
   (defun container-nav-next ()
     "Move to next entry in the underlying list buffer."
@@ -410,7 +410,7 @@ g refresh | l containers | v volumes | ? menu
                     (format "%d images" count))))
       (when (y-or-n-p (format "%s %s? "
                               (if container-force "Force remove" "Remove") label))
-        (message "%s"
+        (message ">>> emacs-solo: %s"
                  (string-trim
                   (shell-command-to-string
                    (format "%s rmi %s %s" (container--command)
@@ -425,7 +425,7 @@ g refresh | l containers | v volumes | ? menu
     (let* ((entry (tabulated-list-get-entry))
            (id (string-trim (aref entry 0))))
       (kill-new id)
-      (message "Copied: %s" id)))
+      (message ">>> emacs-solo: Copied %s" id)))
 
   (defvar-keymap container-volume-mode-map
     :doc "Keymap for container volume list mode."
@@ -490,7 +490,7 @@ RET inspect | g refresh | l containers | i images | ? menu
            (label (if (= count 1) (car ids) (format "%d volumes" count))))
       (when (y-or-n-p (format "%s %s? "
                               (if container-force "Force remove" "Remove") label))
-        (message "%s"
+        (message ">>> emacs-solo: %s"
                  (string-trim
                   (shell-command-to-string
                    (format "%s volume rm %s %s" (container--command)
@@ -504,7 +504,7 @@ RET inspect | g refresh | l containers | i images | ? menu
     (interactive)
     (let ((name (container--volume-name-at-point)))
       (kill-new name)
-      (message "Copied: %s" name)))
+      (message ">>> emacs-solo: Copied %s" name)))
 
   (defun container-volume-inspect ()
     "Inspect volume at point in output buffer."

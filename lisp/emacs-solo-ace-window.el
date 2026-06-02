@@ -40,7 +40,7 @@ top to bottom, then left to right."
         (emacs-solo-ace-window/remove-window-key-overlays)
         (if-let* ((selected-window (cdr (assoc (char-to-string key) window-map))))
             (select-window selected-window)
-          (message "No window assigned to key: %c" key)))))
+          (message ">>> emacs-solo: No window assigned to key %c" key)))))
 
   (defun emacs-solo-ace-window/get-windows ()
     "Return a list of windows in the current frame.
