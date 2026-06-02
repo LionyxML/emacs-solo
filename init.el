@@ -992,11 +992,13 @@ If ###@### is found, remove it and place point there at the end."
   :ensure nil
   :defer t
   :bind
-  (("C-x t <left>" . tab-bar-history-back)
+  (("C-x t <left>"  . tab-bar-history-back)
    ("C-x t <right>" . tab-bar-history-forward)
-   ("C-x t P" . #'emacs-solo/tab-group-from-project)
-   ("C-x t g" . #'emacs-solo/tab-switch-to-group)
-   ("C-x t RET" . #'emacs-solo/tab-select-by-number))
+   ("C-x t P"       . #'emacs-solo/tab-group-from-project)
+   ("C-x t g"       . #'emacs-solo/tab-switch-to-group)
+   ("C-x t RET"     . #'emacs-solo/tab-select-by-number)
+   ("M-<tab>"       . #'emacs-solo/tab-next-group)
+   ("M-S-<tab>"     . #'emacs-solo/tab-previous-group))
   :custom
   (tab-bar-new-tab-choice "*scratch*")
   (tab-bar-close-button-show nil)
@@ -1019,10 +1021,14 @@ If ###@### is found, remove it and place point there at the end."
             (concat (format "   %d   " i) ""))
         name)))
 
+  ;;; --- MAKE DISABLED GROUP NOT BE RENDERED
   (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
-    (propertize
-     (concat (funcall tab-bar-tab-group-function tab))
-     'face (if current-p 'tab-bar-tab-group-current 'tab-bar-tab-group-inactive)))
+    (if current-p
+        (propertize
+         (concat
+          (if (char-displayable-p ?) "   " " [p] ") (funcall tab-bar-tab-group-function tab))
+         'face 'tab-bar-tab-group-current)
+      ""))
 
   (defun emacs-solo/tab-bar-toggle-time ()
     "Enable `display-time-mode' when `tab-bar-mode' is on, disable it otherwise."
@@ -1046,7 +1052,7 @@ If ###@### is found, remove it and place point there at the end."
     (when-let* ((proj (project-current))
                 (name (file-name-nondirectory
                        (directory-file-name (project-root proj)))))
-      (tab-group (format "[%s]" name))))
+      (tab-group (format "%s" name))))
 
   (defun emacs-solo/tab-switch-to-group ()
     "Prompt for a tab group and switch to its first tab.
@@ -1065,6 +1071,34 @@ Uses position instead of index field."
                 (setq found t)
                 (tab-bar-select-tab i)))
             (setq i (1+ i)))))))
+
+  (defun emacs-solo/tab-next-group (&optional backward)
+    "Switch to the first tab of the next tab group, cycling around.
+With BACKWARD non-nil, cycle to the previous group instead."
+    (interactive "P")
+    (let* ((tabs (funcall tab-bar-tabs-function))
+           (groups (delete-dups
+                    (mapcar (lambda (tab)
+                              (funcall tab-bar-tab-group-function tab))
+                            tabs)))
+           (current (funcall tab-bar-tab-group-function
+                             (assq 'current-tab tabs))))
+      (when (> (length groups) 1)
+        (let* ((pos (or (cl-position current groups :test #'equal) 0))
+               (next (nth (mod (+ pos (if backward -1 1)) (length groups))
+                          groups))
+               (i 1) (found nil))
+          (dolist (tab tabs)
+            (when (and (not found)
+                       (equal (funcall tab-bar-tab-group-function tab) next))
+              (setq found t)
+              (tab-bar-select-tab i))
+            (setq i (1+ i)))))))
+
+  (defun emacs-solo/tab-previous-group ()
+    "Switch to the first tab of the previous tab group, cycling around."
+    (interactive)
+    (emacs-solo/tab-next-group t))
 
   ;;; --- TURNS ON BY DEFAULT
   (tab-bar-mode 1)
