@@ -705,6 +705,10 @@ Use ⇒ if displayable, otherwise fallback to =>."
   (with-current-buffer (messages-buffer)
     (emacs-solo/messages-font-lock-setup))
 
+  ;; Force abbrev-mode off entering message/mail
+  (add-hook 'message-mode-hook (lambda () (abbrev-mode -1)))
+  (add-hook 'mail-mode-hook    (lambda () (abbrev-mode -1)))
+
 
   ;; Recenter after save-place restore
   ;; Reference: https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/
