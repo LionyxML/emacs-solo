@@ -2541,7 +2541,8 @@ The completion candidates include the Git status of each file."
   (eglot-events-buffer-config '(:size 0 :format full))
   (eglot-prefer-plaintext nil)
   (jsonrpc-event-hook nil)
-  (eglot-code-action-indications nil) ;; EMACS-31 -- annoying as hell
+  (eglot-code-action-indications nil) ;; EMACS-31 -- annoying depending on the LSP server
+  (eglot-documentation-renderer 'markdown-ts-view-mode) ;; EMACS-31 -- use the 'experimental' internal markdown-ts-mode to render docs
   :init
   (fset #'jsonrpc--log-event #'ignore)
 
