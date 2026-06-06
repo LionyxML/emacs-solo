@@ -1490,7 +1490,9 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-hide-details-hide-absolute-location t)            ; EMACS-31
   (image-dired-dir (emacs-solo--cache-path 'image-dired-dir))
   :init
-  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1))) ;; Turning this ON also sets the C-x M-o binding.
+  (add-hook 'dired-mode-hook (lambda ()
+                               (dired-omit-mode 1)          ;; Turning this ON also sets the C-x M-o binding.
+                               (turn-on-gnus-dired-mode)))  ;; This makes C-c RET C-a add attachments.
 
   (defun emacs-solo/dired-rsync-copy (dest)
     "Copy marked files in Dired to DEST using rsync in an async shell buffer."
