@@ -1612,6 +1612,75 @@ Use this with caution."
           "ssh %s@%s %s | mpv -"
           user host catpath)))))
 
+  (defun emacs-solo/dired-stream-remote-audio ()
+    "Stream marked remote audio files to a local mpv instance.
+
+Builds a `concat' playlist on the remote host, then pipes remote
+`ffmpeg' output straight over SSH into local `mpv':
+
+  ssh user@host \\='ffmpeg ... -f mp3 -\\=' | mpv -
+
+mpv reads the SSH pipe on its stdin, so there is no race between
+launching ffmpeg and connecting.
+
+Runs inside a `term' buffer so mpv gets a real tty and its keyboard
+controls work: SPC pause, q quit, LEFT/RIGHT seek, 9/0 volume.
+
+Requires `ffmpeg' on the remote host and `mpv' locally."
+    (interactive)
+    (require 'tramp)
+    (require 'term)
+
+    (let* ((files (dired-get-marked-files))
+           (first (car files))
+           (vec (tramp-dissect-file-name first))
+           (user (tramp-file-name-user vec))
+           (host (tramp-file-name-host vec))
+           (playlist (format "/tmp/emacs-solo-playlist-%d.m3u" (abs (random)))))
+
+      (unless (executable-find "mpv")
+        (user-error ">>> emacs-solo: local 'mpv' not found in PATH"))
+
+      (message ">>> emacs-solo: checking remote 'ffmpeg' on %s..." host)
+      (unless (zerop (call-process "ssh" nil nil nil
+                                   (format "%s@%s" user host)
+                                   "command -v ffmpeg >/dev/null 2>&1"))
+        (user-error ">>> emacs-solo: remote 'ffmpeg' not found on %s" host))
+
+      (message ">>> emacs-solo: building remote playlist %s (%d file(s))"
+               playlist (length files))
+      (with-temp-file (format "/sshx:%s@%s:%s"
+                              user host playlist)
+        (dolist (file files)
+          (let* ((v (tramp-dissect-file-name file))
+                 (path (tramp-file-name-localname v))
+                 (quoted (replace-regexp-in-string "'" "'\\\\''" path)))
+            (insert (format "file '%s'\n" quoted)))))
+
+      (message ">>> emacs-solo: streaming audio from %s (%d file(s))"
+               host (length files))
+      (let* ((name "emacs-solo-audio-stream")
+             (qpl (shell-quote-argument playlist))
+             (cmd (format
+                   "ssh %s@%s 'trap \"rm -f %s\" EXIT INT TERM; \
+ffmpeg -nostdin -nostats -loglevel error \
+-f concat -safe 0 -i %s \
+-vn -c:a libmp3lame -b:a 320k -f mp3 -' | mpv --no-video -"
+                   user host qpl qpl))
+             (buffer (make-term name "bash" nil "-c" cmd)))
+        (with-current-buffer buffer
+          (term-mode)
+          (term-char-mode))
+        (set-process-sentinel
+         (get-buffer-process buffer)
+         (lambda (proc _event)
+           (when (memq (process-status proc) '(exit signal))
+             (start-process "emacs-solo-audio-cleanup" nil "ssh"
+                            (format "%s@%s" user host)
+                            (format "pkill -f %s; rm -f %s" qpl qpl)))))
+        (pop-to-buffer buffer)
+        (message ">>> emacs-solo: SPC pause  q quit  LEFT/RIGHT seek  9/0 volume"))))
+
   (defun emacs-solo/window-dired-vc-root-left (&optional directory-path)
     "Creates *Dired-Side* like an IDE side explorer"
     (interactive)
