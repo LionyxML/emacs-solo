@@ -1563,6 +1563,55 @@ away from the bottom.  Counts wrapped lines as real lines."
       (display-buffer buffer)
       (message ">>> emacs-solo: rsync started...")))
 
+  (defun emacs-solo/dired-play-remote-video ()
+    "Play a remote file with its subtitles.
+
+This basically runs:
+
+ssh user@hostname \\='cat FILE\\=' | mpv -
+
+Where FILE is the selected file in dired.
+
+Usually, mounting a file system with `sshfs' and running `mpv' locally
+is a better option.  Also, using `mpv' with `sftp' compiled support is
+a nicer option.
+
+Use this with caution."
+    (interactive)
+    (require 'tramp)
+    (let* ((file (dired-get-file-for-visit))
+           (vec (tramp-dissect-file-name file))
+           (user (tramp-file-name-user vec))
+           (host (tramp-file-name-host vec))
+           (path (tramp-file-name-localname vec))
+           (base (file-name-sans-extension path))
+           (srt (concat base ".srt"))
+           (catpath (shell-quote-argument
+                     (format "cat %s" (shell-quote-argument path))))
+           (catsrt (shell-quote-argument
+                    (format "cat %s" (shell-quote-argument srt))))
+           (have-srt (file-exists-p
+                      (format "/sshx:%s@%s:%s" user host srt))))
+
+      (unless (executable-find "mpv")
+        (user-error ">>> emacs-solo: local 'mpv' not found in PATH"))
+
+      (message ">>> emacs-solo: playing remote video %s%s"
+               (file-name-nondirectory path)
+               (if have-srt " (with subtitles)" ""))
+
+      (start-process
+       "emacs-solo-video" nil
+       "bash" "-c"
+       (if have-srt
+           (format
+            "mpv --sub-file=<(ssh %s@%s %s) <(ssh %s@%s %s)"
+            user host catsrt
+            user host catpath)
+         (format
+          "ssh %s@%s %s | mpv -"
+          user host catpath)))))
+
   (defun emacs-solo/window-dired-vc-root-left (&optional directory-path)
     "Creates *Dired-Side* like an IDE side explorer"
     (interactive)
