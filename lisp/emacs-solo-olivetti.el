@@ -48,12 +48,14 @@
     (emacs-solo/center-document--adjust-margins))
 
 
-  (add-hook 'org-mode-hook #'emacs-solo/center-document-mode)
-  (add-hook 'gnus-group-mode-hook #'emacs-solo/center-document-mode)
+  (add-hook 'org-mode-hook          #'emacs-solo/center-document-mode)
+  (add-hook 'gnus-group-mode-hook   #'emacs-solo/center-document-mode)
   (add-hook 'gnus-summary-mode-hook #'emacs-solo/center-document-mode)
   (add-hook 'gnus-article-mode-hook #'emacs-solo/center-document-mode)
-  (add-hook 'gnus-server-mode-hook #'emacs-solo/center-document-mode)
-  (add-hook 'gnus-browse-mode-hook #'emacs-solo/center-document-mode)
+  (add-hook 'gnus-server-mode-hook  #'emacs-solo/center-document-mode)
+  (add-hook 'gnus-browse-mode-hook  #'emacs-solo/center-document-mode)
+  (add-hook 'eww-mode-hook          #'emacs-solo/center-document-mode)
+  (add-hook 'elpher-mode-hook       #'emacs-solo/center-document-mode)
   ;; (add-hook 'newsticker-treeview-list-mode-hook 'emacs-solo/timed-center-visual-fill-on)
   ;; (add-hook 'newsticker-treeview-item-mode-hook 'emacs-solo/timed-center-visual-fill-on)
   )
