@@ -1757,9 +1757,21 @@ Ex: mpv file1 file2 file3 file4..."
   (doc-view-resolution 200)
   :bind
   (:map doc-view-mode-map
+        ("C-v" . emacs-solo/doc-view-scroll-down)
+        ("M-v" . emacs-solo/doc-view-scroll-up)
         ("M-i" . emacs-solo/doc-view-invert-page)
         ("M-I" . emacs-solo/doc-view-toggle-invert-default))
   :config
+  (defun emacs-solo/doc-view-scroll-down ()
+    "Scrolls down half a page."
+    (interactive)
+    (doc-view-next-line-or-next-page (/ (window-body-height) 2)))
+
+  (defun emacs-solo/doc-view-scroll-up ()
+    "Scrolls up half a page."
+    (interactive)
+    (doc-view-next-line-or-next-page (/ (window-body-height) -2)))
+
   (defvar-local emacs-solo/doc-view-invert-default-local nil
     "Buffer-local invert default. Initialized from the global setting.")
 
