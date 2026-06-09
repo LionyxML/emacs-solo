@@ -3311,13 +3311,17 @@ minimal keybindings (q kills the window, n/p move by line)."
         (message ">>> emacs-solo: No window showing *Newsticker Item* buffer."))))
 
   (defun emacs-solo/newsticker-eww-current-article ()
-    "Open the news item at point in EWW in the same window."
+    "Focus the window showing the Newsticker item and open it in EWW."
     (interactive)
-    (with-current-buffer (newsticker--treeview-list-buffer)
-      (let ((url (get-text-property (point) :nt-link)))
-        (when url
-          (eww url)
-          (switch-to-buffer (get-buffer "*eww*")))))))
+    (let ((window (get-buffer-window (newsticker--treeview-item-buffer) t)))
+      (if window
+          (progn
+            (select-window window)
+            (let ((url (get-text-property (point) :nt-link)))
+              (if url
+                  (eww url)
+                (message ">>> emacs-solo: No link at point."))))
+        (message ">>> emacs-solo: No window showing Newsticker item buffer.")))))
 
 
 ;;; │ ELECTRIC-PAIR
