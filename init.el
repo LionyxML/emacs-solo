@@ -406,9 +406,10 @@ parent directory created."
   (zone-all-frames t)            ; EMACS-31
   (zone-all-windows-in-frame t)  ; EMACS-31
   (zone-programs '[zone-pgm-rat-race])
-  (grep-command "rg -nS --no-heading ")
-  (grep-find-ignored-directories
+  (grep-command "rg -nS --no-heading ")                      ; used by M-x grep
+  (grep-find-ignored-directories                             ; used if M-x rgrep uses find (default in grep-find-template)
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".jj" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
+  (grep-find-template "rg <C> --null -nH -e <R> <D>")        ; used by M-x rgrep (dropping find when using rg)
   :config
   ;; Sets outline-mode for the `init.el' file
   (defun emacs-solo/outline-init-file ()
@@ -3902,14 +3903,19 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (require 'emacs-solo-transparency)
 (require 'emacs-solo-mode-line)
 (require 'emacs-solo-exec-path-from-shell)
+;; NOTE: this is down here because in some OSs some tools are
+;;       available only after the PATH is read from user shell
 (add-hook 'after-init-hook
           (lambda ()
             (if (executable-find "rg")
                 (progn
                   (setq xref-search-program 'ripgrep)
-                  (setq grep-command "rg -nS --no-heading "))
+                  (setq grep-command "rg -nS --no-heading ")
+                  (setq grep-find-template "rg <C> --null -nH -e <R> <D>"))
+              ;; Emacs defaults
               (setq xref-search-program 'grep)
-              (setq grep-command "grep -nH -r ")))
+              (setq grep-command "grep -nH -r ")
+              (setq grep-find-template "find -H <D> <X> -type f <F> -print0 | xargs -0 grep <C> -n --null -e <R>")))
           90)
 (require 'emacs-solo-rainbow-delimiters)
 (require 'emacs-solo-project-select)
