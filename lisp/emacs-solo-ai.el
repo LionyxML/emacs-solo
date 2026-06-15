@@ -841,6 +841,12 @@ context.  Reuses a live buffer for the current project when present."
                            nil
                            nil)
                 (term-char-mode)
+                ;; route C-x to Emacs in this buffer only
+                (let ((map (make-sparse-keymap)))
+                  (set-keymap-parent map term-raw-map)
+                  (define-key map (kbd "C-x")
+                              (lookup-key (current-global-map) (kbd "C-x")))
+                  (use-local-map map))
                 (term-reset-size (window-body-height win)
                                  (window-body-width win))
                 ;; HACK: makes claude aware of the real window width
@@ -940,17 +946,20 @@ and 'explainer'."
           (with-current-buffer proc-buffer
             (pop-to-buffer proc-buffer)
             (when-let* ((win (get-buffer-window proc-buffer t)))
-              (term-reset-size (window-body-height win) (window-body-width win)))
+              (term-reset-size (window-body-height win) (window-body-width win))
+              ;; HACK: makes opencode aware of the real window width
+              (run-at-time
+               0.1 nil
+               (lambda (w)
+                 (when (window-live-p w)
+                   (with-selected-window w
+                     (shrink-window-horizontally 1)
+                     (redisplay t)
+                     (enlarge-window-horizontally 1)
+                     (redisplay t))))
+               win))
             (setq-local column-number-mode nil)
-            (setq-local term-buffer-maximum-size 2048)
-            (run-at-time 0.5 nil
-                         (lambda (buf)
-                           (when (buffer-live-p buf)
-                             (when-let* ((win (get-buffer-window buf t)))
-                               (with-current-buffer buf
-                                 (term-reset-size (window-body-height win)
-                                                  (window-body-width win))))))
-                         proc-buffer)))))))
+            (setq-local term-buffer-maximum-size 2048)))))))
 
 (provide 'emacs-solo-ai)
 ;;; emacs-solo-ai.el ends here
