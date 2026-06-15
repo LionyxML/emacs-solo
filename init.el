@@ -718,12 +718,15 @@ Use ⇒ if displayable, otherwise fallback to =>."
                 (when buffer-file-name (ignore-errors (recenter)))))
 
 
-  ;; Runs 'private.el' after Emacs inits
+  ;; Loads 'private.el' lazily, once Emacs goes idle after startup.
   (add-hook 'after-init-hook
             (lambda ()
-              (let ((private-file (expand-file-name "private.el" user-emacs-directory)))
-                (when (file-exists-p private-file)
-                  (load private-file)))))
+              (run-with-idle-timer
+               0.5 nil
+               (lambda ()
+                 (let ((private-file (expand-file-name "private.el" user-emacs-directory)))
+                   (when (file-exists-p private-file)
+                     (load private-file)))))))
 
   :init
   ;; Keep margins from automatic resizing
@@ -1113,6 +1116,7 @@ With BACKWARD non-nil, cycle to the previous group instead."
 ;;; │ RCIRC
 (use-package rcirc
   :ensure nil
+  :defer t
   :custom
   (rcirc-debug t)
   (rcirc-default-nick "Lionyx")
@@ -2334,7 +2338,7 @@ For the current icon style."
 ;;; │ VC
 (use-package vc
   :ensure nil
-  :defer nil
+  :defer t
   :config
   (setopt
    vc-auto-revert-mode t                    ; EMACS-31
@@ -3723,7 +3727,7 @@ minimal keybindings (q kills the window, n/p move by line)."
 
 ;;; │ JS-TS-MODE
 (use-package js-ts-mode
-  :ensure js ;; I care about js-base-mode but it is locked behind the feature "js"
+  :ensure nil ;; js-ts-mode is autoloaded; js.el (and its js-base-mode parent) loads lazily on first .js/.jsx file
   :mode "\\.jsx?\\'"
   :defer t
   :hook
