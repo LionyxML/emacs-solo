@@ -815,6 +815,7 @@ context.  Reuses a live buffer for the current project when present."
       (if (and existing-buffer
                (buffer-live-p existing-buffer)
                (get-buffer-process existing-buffer))
+          ;; Reuse existing buffer — switch and send input
           (progn
             (pop-to-buffer existing-buffer)
             (when initial-input
@@ -822,63 +823,48 @@ context.  Reuses a live buffer for the current project when present."
                 (term-send-string proc "\e[200~")
                 (term-send-string proc initial-input)
                 (term-send-string proc "\e[201~"))))
+        ;; Kill stale buffer if process is dead
         (when (and existing-buffer (not (get-buffer-process existing-buffer)))
           (kill-buffer existing-buffer))
-        (let* ((proc-buffer (get-buffer-create term-buffer-name))
-               (resize-fn (make-symbol "emacs-solo--claude-tui-resize")))
+        ;; Create new session
+        (let* ((resize-fn (make-symbol "emacs-solo--claude-tui-resize"))
+               (proc-buffer (ansi-term emacs-solo-claude-executable base-name)))
+          (fset resize-fn
+                (lambda (frame)
+                  (if (buffer-live-p proc-buffer)
+                      (when-let* ((win (get-buffer-window proc-buffer frame)))
+                        (with-current-buffer proc-buffer
+                          (term-reset-size (window-body-height win)
+                                           (window-body-width win))))
+                    (remove-hook 'window-size-change-functions resize-fn))))
+          (add-hook 'window-size-change-functions resize-fn)
           (with-current-buffer proc-buffer
-            (unless (derived-mode-p 'term-mode)
-              (term-mode))
+            (pop-to-buffer proc-buffer)
+            (when-let* ((win (get-buffer-window proc-buffer t)))
+              (term-reset-size (window-body-height win) (window-body-width win))
+              ;; HACK: makes claude aware of the real window width
+              (run-at-time
+               0.1 nil
+               (lambda (w)
+                 (when (window-live-p w)
+                   (with-selected-window w
+                     (shrink-window-horizontally 1)
+                     (redisplay t)
+                     (enlarge-window-horizontally 1)
+                     (redisplay t))))
+               win))
             (setq-local column-number-mode nil)
             (setq-local term-buffer-maximum-size 2048))
-          (let ((win (display-buffer proc-buffer)))
-            (when win
-              (select-window win)
-              (with-current-buffer proc-buffer
-                (term-exec proc-buffer
-                           base-name
-                           emacs-solo-claude-executable
-                           nil
-                           nil)
-                (term-char-mode)
-                ;; route C-x to Emacs in this buffer only
-                (let ((map (make-sparse-keymap)))
-                  (set-keymap-parent map term-raw-map)
-                  (define-key map (kbd "C-x")
-                              (lookup-key (current-global-map) (kbd "C-x")))
-                  (use-local-map map))
-                (term-reset-size (window-body-height win)
-                                 (window-body-width win))
-                ;; HACK: makes claude aware of the real window width
-                (run-at-time
-                 0.1 nil
-                 (lambda (w)
-                   (when (window-live-p w)
-                     (with-selected-window w
-                       (shrink-window-horizontally 1)
-                       (redisplay t)
-                       (enlarge-window-horizontally 1)
-                       (redisplay t))))
-                 win))
-              (fset resize-fn
-                    (lambda (frame)
-                      (if (buffer-live-p proc-buffer)
-                          (when-let* ((w (get-buffer-window proc-buffer frame)))
-                            (with-current-buffer proc-buffer
-                              (term-reset-size (window-body-height w)
-                                               (window-body-width w))))
-                        (remove-hook 'window-size-change-functions resize-fn))))
-              (add-hook 'window-size-change-functions resize-fn)
-              (when initial-input
-                (run-at-time 0.5 nil
-                             (lambda (buf input)
-                               (when (buffer-live-p buf)
-                                 (let ((proc (get-buffer-process buf)))
-                                   (when proc
-                                     (term-send-string proc "\e[200~")
-                                     (term-send-string proc input)
-                                     (term-send-string proc "\e[201~")))))
-                             proc-buffer initial-input))))))))
+          (when initial-input
+            (run-at-time 0.5 nil
+                         (lambda (buf input)
+                           (when (buffer-live-p buf)
+                             (let ((proc (get-buffer-process buf)))
+                               (when proc
+                                 (term-send-string proc "\e[200~")
+                                 (term-send-string proc input)
+                                 (term-send-string proc "\e[201~")))))
+                         proc-buffer initial-input))))))
 
 
   (defun emacs-solo/opencode-chat ()
