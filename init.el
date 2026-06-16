@@ -2075,6 +2075,22 @@ more, like:
     "When non-nil, and emacs-solo/eshell-full-prompt t. Also show slower operations.
 Check `emacs-solo/eshell-full-prompt' for more info.")
 
+  (defcustom emacs-solo/eshell-show-user-host nil
+    "When non-nil, show user and host segments on a local Eshell prompt.
+
+When nil (the default), a local prompt hides the user and host blocks,
+turning a prompt like:
+
+ 0  user  host  21:24:01  ~/path/
+
+into:
+
+ 0  21:24:01  ~/path
+
+Remote prompts always show user and host regardless of this setting."
+    :type 'boolean
+    :group 'emacs-solo)
+
   (defvar emacs-solo/eshell-lambda-symbol (if (char-displayable-p ?λ) "  λ " "  $ ")
     "Symbol used for the minimal Eshell prompt.")
 
@@ -2209,37 +2225,40 @@ For the current icon style."
                  (propertize (emacs-solo/glyph 'arrow-right)
                              'face `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
 
-                 (propertize (let ((remote-user (file-remote-p default-directory 'user))
-                                   (is-remote (file-remote-p default-directory)))
-                               (concat
-                                (if is-remote
-                                    (concat (emacs-solo/glyph 'user-remote)  " ")
-                                  (concat (emacs-solo/glyph 'user-local)  " "))
-                                (or remote-user (user-login-name))
-                                " "))
-                             'face `(:foreground ,eshell-solo/color-fg-user
-                                                 :background ,eshell-solo/color-bg-mid))
-
-                 (propertize (emacs-solo/glyph 'arrow-right) 'face
-                             `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
-
-                 (let ((remote-host (file-remote-p default-directory 'host))
-                       (is-remote (file-remote-p default-directory)))
-                   (propertize (concat (if is-remote
-                                           (concat " " (emacs-solo/glyph 'host-remote)  " ")
-                                         (concat " " (emacs-solo/glyph 'host-local)  " "))
-                                       (or remote-host (system-name)) " ")
-                               'face `(:background ,eshell-solo/color-bg-dark  :foreground ,eshell-solo/color-fg-host)))
-
-                 (propertize (emacs-solo/glyph 'arrow-right) 'face
-                             `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
-
                  (propertize (concat " " (emacs-solo/glyph 'time)  " "
                                      (format-time-string "%H:%M:%S" (current-time)) " ")
                              'face `(:foreground ,eshell-solo/color-fg-user :background ,eshell-solo/color-bg-mid))
 
                  (propertize (emacs-solo/glyph 'arrow-right)
                              'face `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
+
+                 (when (or (file-remote-p default-directory)
+                           emacs-solo/eshell-show-user-host)
+                   (concat
+                    (propertize (let ((remote-user (file-remote-p default-directory 'user))
+                                      (is-remote (file-remote-p default-directory)))
+                                  (concat
+                                   (if is-remote
+                                       (concat " " (emacs-solo/glyph 'user-remote)  " ")
+                                     (concat " " (emacs-solo/glyph 'user-local)  " "))
+                                   (or remote-user (user-login-name))
+                                   " "))
+                                'face `(:foreground ,eshell-solo/color-fg-user
+                                                    :background ,eshell-solo/color-bg-dark))
+
+                    (propertize (emacs-solo/glyph 'arrow-right) 'face
+                                `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
+
+                    (let ((remote-host (file-remote-p default-directory 'host))
+                          (is-remote (file-remote-p default-directory)))
+                      (propertize (concat (if is-remote
+                                              (concat " " (emacs-solo/glyph 'host-remote)  " ")
+                                            (concat " " (emacs-solo/glyph 'host-local)  " "))
+                                          (or remote-host (system-name)) " ")
+                                  'face `(:background ,eshell-solo/color-bg-mid  :foreground ,eshell-solo/color-fg-host)))
+
+                    (propertize (emacs-solo/glyph 'arrow-right) 'face
+                                `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))))
 
                  (propertize (concat " " (emacs-solo/glyph 'folder)  " "
                                      (if (>= (length (eshell/pwd)) 40)
