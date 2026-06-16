@@ -25,7 +25,6 @@
   :no-require t
   :defer t
   :init
-  (require 'transient)
   (require 'tabulated-list)
   (require 'json)
 
@@ -1093,7 +1092,14 @@ q quit (back to list + menu) | o open in browser | g refresh"
   (defun gh--in-notification-list-p ()
     (eq gh--active-list 'notifications))
 
-  (transient-define-prefix gh-menu ()
+  (defun gh-menu ()
+    "Open the GitHub management menu, loading `transient' on demand."
+    (interactive)
+    (require 'transient)
+    (gh--menu))
+
+  (with-eval-after-load 'transient
+   (transient-define-prefix gh--menu ()
     "GitHub management menu."
     :refresh-suffixes t
     [["Settings"
@@ -1159,7 +1165,7 @@ q quit (back to list + menu) | o open in browser | g refresh"
       ("B" "Browse repo" gh-repo-browse)
       ("G" "Repo info" gh-repo-view)]
      [""
-      ("q" "Quit" transient-quit-one)]])
+      ("q" "Quit" transient-quit-one)]]))
 
   (global-set-key (kbd "C-c G") #'gh-menu))
 

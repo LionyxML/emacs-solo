@@ -19,7 +19,6 @@
   :no-require t
   :defer t
   :init
-  (require 'transient)
   (require 'project)
 
   (defvar container-backend 'podman
@@ -552,7 +551,14 @@ RET inspect | g refresh | l containers | i images | ? menu
   (defun container--in-volume-list-p ()
     (eq container--active-list 'volumes))
 
-  (transient-define-prefix container-menu ()
+  (defun container-menu ()
+    "Open the container management menu, loading `transient' on demand."
+    (interactive)
+    (require 'transient)
+    (container--menu))
+
+  (with-eval-after-load 'transient
+   (transient-define-prefix container--menu ()
     "Container and Compose management menu."
     :refresh-suffixes t
     [["Settings"
@@ -618,7 +624,7 @@ RET inspect | g refresh | l containers | i images | ? menu
        :transient t :inapt-if-not container--has-compose-file-p)]
      [""
       ("k" "Kill output" container-kill-output :transient t)
-      ("q" "Quit" transient-quit-one)]])
+      ("q" "Quit" transient-quit-one)]]))
 
   (global-set-key (kbd "C-c d") #'container-menu))
 

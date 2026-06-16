@@ -21,10 +21,15 @@
   :init
   (defun emacs-solo/set-exec-path-from-shell-PATH ()
     "Set up Emacs' `exec-path' and PATH environment the same as the user's shell.
-This works with bash, zsh, or fish)."
+This works with bash, zsh, or fish.
+
+The shell is spawned ASYNCHRONOUSLY so it never blocks startup: PATH is
+updated from the sentinel once the shell responds (typically within a
+~100ms after init).  Commands issued in that tiny initial window may not
+yet see the updated PATH."
     (interactive)
     (let* ((shell (getenv "SHELL"))
-           (shell-name (file-name-nondirectory shell))
+           (shell-name (file-name-nondirectory (or shell "")))
            (command
             (cond
              ((string= shell-name "fish")
@@ -36,14 +41,23 @@ This works with bash, zsh, or fish)."
              (t nil))))
       (if (not command)
           (message ">>> emacs-solo: `%s' shell is not supported" shell-name)
-        (let ((path-from-shell
-               (replace-regexp-in-string
-                "[ \t\n]*$" ""
-                (shell-command-to-string command))))
-          (when (and path-from-shell (not (string= path-from-shell "")))
-            (setenv "PATH" path-from-shell)
-            (setq exec-path (split-string path-from-shell path-separator))
-            (message ">>> emacs-solo: environment variable PATH loaded from `%s' shell" shell-name))))))
+        (let ((output ""))
+          (make-process
+           :name "emacs-solo-exec-path"
+           :buffer nil
+           :noquery t
+           :connection-type 'pipe
+           :command (list shell-file-name shell-command-switch command)
+           :filter (lambda (_proc chunk) (setq output (concat output chunk)))
+           :sentinel
+           (lambda (_proc event)
+             (when (string-prefix-p "finished" event)
+               (let ((path-from-shell
+                      (replace-regexp-in-string "[ \t\n]*$" "" output)))
+                 (when (and path-from-shell (not (string= path-from-shell "")))
+                   (setenv "PATH" path-from-shell)
+                   (setq exec-path (split-string path-from-shell path-separator))
+                   (message ">>> emacs-solo: environment variable PATH loaded from `%s' shell" shell-name))))))))))
 
   (add-hook 'after-init-hook #'emacs-solo/set-exec-path-from-shell-PATH))
 

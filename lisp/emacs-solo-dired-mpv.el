@@ -227,9 +227,14 @@
       (delete-window win))
     (transient-quit-all))
 
-  (require 'transient)
+  (defun emacs-solo/mpv-transient ()
+    "Open the MPV controls menu, loading `transient' on demand."
+    (interactive)
+    (require 'transient)
+    (emacs-solo/mpv-transient--menu))
 
-  (transient-define-prefix emacs-solo/mpv-transient ()
+  (with-eval-after-load 'transient
+   (transient-define-prefix emacs-solo/mpv-transient--menu ()
     "MPV Controls"
     [["Controls"
       ("SPC" "⏸  Pause/Resume"
@@ -265,7 +270,7 @@
      ["Playlist"
       ("RET" "▶  Play files"   emacs-solo/mpv-play-files :transient t)
       ("L"   "  ☰  Playlist"     emacs-solo/mpv-toggle-playlist :transient t)
-      ("q"   "  ×  Quit"         emacs-solo/mpv-quit-transient)]])
+      ("q"   "  ×  Quit"         emacs-solo/mpv-quit-transient)]]))
 
   (defun emacs-solo/mpv-dired-setup ()
     (global-set-key (kbd "C-c m") #'emacs-solo/mpv-transient))
