@@ -387,8 +387,8 @@ parent directory created."
   (transient-levels-file (emacs-solo--cache-path 'transient-levels-file))
   (transient-values-file (emacs-solo--cache-path 'transient-values-file))
   (treesit-font-lock-level 4)
-  (treesit-auto-install-grammar t) ; EMACS-31
-  (treesit-enabled-modes t)        ; EMACS-31
+  (treesit-auto-install-grammar 'always) ; EMACS-31
+  (treesit-enabled-modes t)              ; EMACS-31
   (truncate-lines t)
   (undo-limit (* 13 160000))
   (undo-strong-limit (* 13 240000))
@@ -2371,7 +2371,7 @@ For the current icon style."
    vc-git-show-stash 0                                        ;; do not polute vc-dir with stash lines
    vc-annotate-display-mode 'scale
    add-log-keep-changes-together t
-   vc-dir-hide-up-to-date-on-revert t       ; EMACS-31
+   vc-dir-auto-hide-up-to-date   t          ; EMACS-31
    vc-make-backup-files nil)                                  ;; do not backup version controlled files
 
   (with-eval-after-load 'vc-annotate
