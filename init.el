@@ -184,6 +184,11 @@ for ESLint."
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-icomplete t
+  "Whether to use `icomplete' or Emacs default completion system."
+  :type 'boolean
+  :group 'emacs-solo)
+
 ;;; ├──────────────────── CACHE PATHS
 ;;
 ;;  Single source of truth for every path Emacs Solo stores in its
@@ -510,10 +515,11 @@ parent directory created."
   (add-hook 'text-mode-hook #'display-line-numbers-mode)
 
   ;; Starts `completion-preview-mode' automatically in some modes
-  (add-hook 'prog-mode-hook #'completion-preview-mode)
-  (add-hook 'text-mode-hook #'completion-preview-mode)
-  (add-hook 'rcirc-mode-hook #'completion-preview-mode)
-  (add-hook 'erc-mode-hook #'completion-preview-mode)
+  (when emacs-solo-enable-icomplete
+    (add-hook 'prog-mode-hook  #'completion-preview-mode)
+    (add-hook 'text-mode-hook  #'completion-preview-mode)
+    (add-hook 'rcirc-mode-hook #'completion-preview-mode)
+    (add-hook 'erc-mode-hook   #'completion-preview-mode))
 
   ;; A Protesilaos life savier HACK
   ;; Add option "d" to whenever using C-x s or C-x C-c, allowing a quick preview
@@ -973,7 +979,7 @@ If ###@### is found, remove it and place point there at the end."
       (window-width . 100)
       (side . right)
       (slot . 1))
-     ("\\*\\(Flymake diagnostics\\|Completions\\)"
+     ("\\*\\(Flymake diagnostics\\)"
       (display-buffer-in-side-window)
       (window-height . 0.25)
       (side . bottom)
@@ -1209,6 +1215,7 @@ With BACKWARD non-nil, cycle to the previous group instead."
 
 ;;; │ ICOMPLETE
 (use-package icomplete
+  :if emacs-solo-enable-icomplete
   :bind (:map icomplete-minibuffer-map
               ("C-n" . icomplete-forward-completions)
               ("C-p" . icomplete-backward-completions)
@@ -2860,22 +2867,87 @@ and restart Flymake to apply the changes."
 ;;; │ MINIBUFFER
 (use-package minibuffer
   :ensure nil
+  :bind (:map minibuffer-visible-completions-up-down-map
+              ("C-n" . minibuffer-next-completion)
+              ("C-p" . minibuffer-previous-completion))
   :custom
   (completion-auto-help t)
-  (completion-auto-select 'second-tab)
+  (completion-auto-select t)
   (completion-eager-update t)               ;; EMACS-31
-  (completion-eager-display 'auto)          ;; EMACS-31 (if not using icomplete, t is way cooler)
+  (completion-eager-display (if emacs-solo-enable-icomplete 'auto t)) ;; EMACS-31 (if not using icomplete, t is way cooler)
   (minibuffer-visible-completions 'up-down) ;; EMACS-31
   (completion-ignore-case t)
   (completion-show-help nil)
   (completion-styles '(partial-completion flex initials))
+  (completion-category-overrides '((eglot-capf (styles flex-noinsert))))
   (completions-format 'one-column)
-  (completions-max-height nil)
+  (completions-max-height 10)
   (completions-sort 'historical)
   (enable-recursive-minibuffers t)
   (read-buffer-completion-ignore-case t)
   (read-file-name-completion-ignore-case t)
   :config
+  ;; There's a bug with C-x p p when you have both
+  ;; completion-eager-update and completion-eager-display set to t
+  (unless emacs-solo-enable-icomplete
+    (define-advice project-switch-project
+        (:around (orig &rest args) emacs-solo/project-no-eager-display)
+      "Disable `completion-eager-display' during project switching.
+  The eager *Completions* from the project-selection `completing-read'
+  leaks a synthetic key into the dispatch menu's `read-key-sequence',
+  auto-firing the first command (`project-find-file') instead of
+  waiting for the user to press e/d/f."
+      (let ((completion-eager-display nil))
+        (apply orig args))))
+
+  (defun emacs-solo/flex-noinsert-try-completion (string table pred point)
+    "Flex `try-completion' that never auto-extends the input on TAB.
+
+  The stock `flex' completion style does two jobs: it filters
+  candidates by fuzzy (subsequence) match, and its `try-completion'
+  merges the surviving candidates, inserting their common expansion
+  into the buffer.  With `tab-always-indent' set to `complete' that
+  merge means TAB silently types a candidate (often a far, wrong one)
+  *before* the *Completions* list is shown.  Eglot's own
+  `eglot--dumb-flex' avoids the merge but gives no relevance sorting.
+
+  This wrapper keeps flex's filtering and scoring (so prefix matches
+  sort first, fuzzy ones last) but suppresses the merge:
+
+    - no candidates           -> nil   (no match)
+    - exactly one candidate   -> complete it fully (TAB still finishes
+                                 a unique completion)
+    - two or more candidates  -> return STRING unchanged, so TAB only
+                                 pops the *Completions* list and lets
+                                 you pick, inserting nothing.
+
+  Registered as the `flex-noinsert' style and used for Eglot's
+  `eglot-capf' category via `completion-category-overrides'.  See
+  `completion-flex-all-completions' and
+  `completion--flex-adjust-metadata' for the filtering/sorting it
+  piggybacks on.
+
+  STRING, TABLE, PRED and POINT are the usual `try-completion' args."
+    (let ((all (completion-flex-all-completions string table pred point)))
+      (cond
+       ((null all) nil)
+       ((= (safe-length all) 1)
+        (let ((sole (car all)))
+          (if (string= sole string) t (cons sole (length sole)))))
+       (t (cons string point)))))
+
+  ;; Register the `flex-noinsert' style: same filtering/sorting as
+  ;; `flex', but `emacs-solo/flex-noinsert-try-completion' as its try function.
+  (add-to-list 'completion-styles-alist
+               '(flex-noinsert
+                 emacs-solo/flex-noinsert-try-completion
+                 completion-flex-all-completions
+                 "Flex matching that never extends input on TAB."))
+  ;; Reuse flex's metadata tweak so *Completions* sorts by flex score.
+  (put 'flex-noinsert 'completion--adjust-metadata
+       'completion--flex-adjust-metadata)
+
+
   ;; Makes C-g behave (as seen on https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/)
   (define-advice keyboard-quit
       (:around (quit) quit-current-context)
