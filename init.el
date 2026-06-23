@@ -367,7 +367,7 @@ parent directory created."
   (remote-file-name-inhibit-auto-save-visited t)
   (tramp-copy-size-limit (* 2 1024 1024)) ;; 2MB
   (tramp-use-scp-direct-remote-copying t)
-  (tramp-verbose 2)
+  (tramp-verbose 1)
   (resize-mini-windows 'grow-only)
   (scroll-conservatively 8)
   (scroll-margin 5)
@@ -505,6 +505,13 @@ parent directory created."
   (with-eval-after-load 'tramp
     (with-eval-after-load 'compile
       (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
+
+  ;; Disable VC on remote files - skips git/vc probing over TRAMP (faster navigation)
+  (with-eval-after-load 'tramp
+    (setq vc-ignore-dir-regexp
+          (format "\\(%s\\)\\|\\(%s\\)"
+                  vc-ignore-dir-regexp
+                  tramp-file-name-regexp)))
 
   (setopt tramp-persistency-file-name (emacs-solo--cache-path 'tramp-persistency-file-name))
 
