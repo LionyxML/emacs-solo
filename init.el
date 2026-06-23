@@ -488,7 +488,8 @@ parent directory created."
 
   (with-eval-after-load 'term
     (define-key term-raw-map (kbd "M-v") 'term-paste)
-    (define-key term-raw-map (kbd "M-e") (lambda () (interactive) (term-send-raw-string "\e"))))
+    (define-key term-raw-map (kbd "M-e") (lambda () (interactive) (term-send-raw-string "\e")))
+    (define-key term-raw-map (kbd "<backtab>") (lambda () (interactive) (term-send-raw-string "\e[Z"))))
 
   ;; TRAMP specific HACKs
   ;; See https://coredumped.dev/2025/06/18/making-tramp-go-brrrr./
