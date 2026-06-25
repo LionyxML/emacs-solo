@@ -59,7 +59,8 @@ the timer is cancelled when the buffer is killed."
     (interactive)
     (let* ((city (shell-quote-argument emacs-solo-weather-city))
            (buffer (get-buffer-create
-                    (format "*Weather-%s*"
+                    (format "*Weather-%s-%s*"
+                            (or which 'both)
                             (format-time-string "%Y-%m-%dT%H:%M:%S"))))
            (url1 (format "curl -s 'wttr.in/%s?F'" city))
            (url2 (format "curl -s 'v2n.wttr.in/%s?F&format=v2'" city)))

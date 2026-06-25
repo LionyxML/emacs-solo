@@ -60,7 +60,8 @@ the timer is cancelled when the buffer is killed."
     (let* ((crypto (shell-quote-argument emacs-solo-rate-crypto))
            (fiat   (shell-quote-argument emacs-solo-rate-fiat))
            (buffer (get-buffer-create
-                    (format "*Rate-%s*"
+                    (format "*Rate-%s-%s*"
+                            (or which 'both)
                             (format-time-string "%Y-%m-%dT%H:%M:%S"))))
            (url1   (format "curl -s '%s.rate.sx/%s'" fiat crypto))
            (url2   (format "curl -s '%s.rate.sx/'"   fiat)))
