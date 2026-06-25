@@ -66,6 +66,7 @@ custom-vars.el
 /newsticker
 .authinfo*
 private.el
+private-early-init.el
 recentf.el*
 saveplace
 cert.pem

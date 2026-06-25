@@ -121,5 +121,9 @@ If reset values are nil, nothing is reset."
 (setq warning-suppress-types '((lexical-binding)))
 
 
+;; Optional user overrides, loaded only if present
+(load (locate-user-emacs-file "private-early-init") 'noerror 'nomessage)
+
+
 (provide 'early-init)
 ;;; early-init.el ends here

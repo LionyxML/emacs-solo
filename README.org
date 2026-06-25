@@ -283,6 +283,56 @@ The configuration is split into two layers:
 - =lisp/= — self-contained modules loaded via =require= at the end of
   =init.el=.
 
+** Load Order & Where to Put Your Changes
+
+Emacs Solo loads in a fixed sequence. There are three optional files
+you can drop into your =user-emacs-directory= (the same folder as
+=init.el=) to extend it *without ever editing the tracked files*, so you
+stay easy to update:
+
+#+BEGIN_SRC text
+  ╔═══════════════╗      ╔═══════════════════════╗
+  ║ early-init.el ║ ───▶ ║ private-early-init.el ║
+  ╚═══════════════╝      ╚═══════════════════════╝
+   ✗ DON'T TOUCH          ✎ TOUCH (yours, optional)
+   tracked / upstream     early overrides: frame, fonts,
+   loads custom-vars.el   default-frame-alist, GC, flash colors
+	  │
+	  ▼
+  ╔═══════════════╗      ╔═══════════════════════╗
+  ║    init.el    ║ ───▶ ║      private.el       ║
+  ╚═══════════════╝      ╚═══════════════════════╝
+   ✗ DON'T TOUCH          ✎ TOUCH (yours, optional)
+   tracked / upstream     everything else: keybindings,
+   reloads custom-vars,   commands, mail/IRC/weather flows,
+   requires lisp/*        overrides... (loaded 0.5s idle after start)
+
+  ───▶ loads      ✗ stays updatable, leave alone      ✎ edit freely
+#+END_SRC
+
+Rule of thumb: *never edit the =✗= files* (=early-init.el=, =init.el=,
+=lisp/*=) — leaving them untouched is what keeps you conflict-free when
+pulling upstream. Put your own code in the =✎= files instead.
+
+Pick the file by *when* your code needs to run:
+
+- =custom-vars.el= — settings written by =M-x customize=. Managed for you;
+  you normally don't edit it by hand.
+
+- =private-early-init.el= — runs at the *end of* =early-init.el=, before any
+  package or UI is set up. Use it only for things that must happen
+  early: frame parameters, fonts, =default-frame-alist=, the
+  flash-of-light colors, GC tweaks. Keep it small.
+
+- =private.el= — runs *after* startup (lazily, on first idle). This is
+  the right place for almost everything: keybindings, custom commands,
+  mail/IRC/weather flows, use-package for some 3rd party package
+  you might need, etc.
+
+All three are loaded with =noerror= / =file-exists-p= guards, so they are
+*entirely optional* — absent files are silently skipped. Add only what
+you need and pull from upstream without conflicts.
+
 ** Disclaimer
 
 I’m happy to share this configuration with a catchy name, and I’d be
