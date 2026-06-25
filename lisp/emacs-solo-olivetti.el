@@ -56,9 +56,8 @@
   (add-hook 'gnus-browse-mode-hook  #'emacs-solo/center-document-mode)
   (add-hook 'eww-mode-hook          #'emacs-solo/center-document-mode)
   (add-hook 'elpher-mode-hook       #'emacs-solo/center-document-mode)
-  ;; (add-hook 'newsticker-treeview-list-mode-hook 'emacs-solo/timed-center-visual-fill-on)
-  ;; (add-hook 'newsticker-treeview-item-mode-hook 'emacs-solo/timed-center-visual-fill-on)
-  )
+  (add-hook 'newsticker-treeview-list-mode-hook #'emacs-solo/center-document-mode)
+  (add-hook 'newsticker-treeview-item-mode-hook #'emacs-solo/center-document-mode))
 
 (provide 'emacs-solo-olivetti)
 ;;; emacs-solo-olivetti.el ends here
