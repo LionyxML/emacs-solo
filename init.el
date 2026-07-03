@@ -1008,8 +1008,11 @@ If ###@### is found, remove it and place point there at the end."
       (side . bottom)
       (slot . 3)))))
 
-
 ;;; │ TAB-BAR
+;;
+;;  Customizations:
+;;  C-<tab> and C-<backtab> cycles tabs inside a group (if inside a group)
+;;  M-<tab>                 cycles between groups
 (use-package tab-bar
   :ensure nil
   :defer t
@@ -1019,8 +1022,15 @@ If ###@### is found, remove it and place point there at the end."
    ("C-x t P"       . #'emacs-solo/tab-group-from-project)
    ("C-x t g"       . #'emacs-solo/tab-switch-to-group)
    ("C-x t RET"     . #'emacs-solo/tab-select-by-number)
+   ("C-x t <tab>"   . #'emacs-solo/tab-next-group)
+   ("C-x t <backtab>" . #'emacs-solo/tab-previous-group)
    ("M-<tab>"       . #'emacs-solo/tab-next-group)
-   ("M-S-<tab>"     . #'emacs-solo/tab-previous-group))
+   ("M-S-<tab>"     . #'emacs-solo/tab-previous-group)
+   (:map tab-bar-mode-map
+         ("C-<tab>"           . #'emacs-solo/tab-next-in-group)
+         ("C-S-<tab>"         . #'emacs-solo/tab-previous-in-group)
+         ("C-<backtab>"       . #'emacs-solo/tab-previous-in-group)
+         ("C-S-<iso-lefttab>" . #'emacs-solo/tab-previous-in-group)))
   :custom
   (tab-bar-new-tab-choice "*scratch*")
   (tab-bar-close-button-show nil)
@@ -1121,6 +1131,32 @@ With BACKWARD non-nil, cycle to the previous group instead."
     "Switch to the first tab of the previous tab group, cycling around."
     (interactive)
     (emacs-solo/tab-next-group t))
+
+  (defun emacs-solo/tab-next-in-group (&optional backward)
+    "Switch to the next tab within the current tab's group, cycling around.
+With BACKWARD non-nil, cycle to the previous tab instead."
+    (interactive "P")
+    (let* ((tabs (funcall tab-bar-tabs-function))
+           (group (funcall tab-bar-tab-group-function
+                           (assq 'current-tab tabs)))
+           ;; global 1-based indices of tabs sharing the current group
+           (indices (let ((i 0) acc)
+                      (dolist (tab tabs (nreverse acc))
+                        (setq i (1+ i))
+                        (when (equal (funcall tab-bar-tab-group-function tab)
+                                     group)
+                          (push i acc)))))
+           (current (1+ (tab-bar--current-tab-index tabs))))
+      (when (> (length indices) 1)
+        (let* ((pos (cl-position current indices))
+               (next (nth (mod (+ pos (if backward -1 1)) (length indices))
+                          indices)))
+          (tab-bar-select-tab next)))))
+
+  (defun emacs-solo/tab-previous-in-group ()
+    "Switch to the previous tab within the current tab's group, cycling around."
+    (interactive)
+    (emacs-solo/tab-next-in-group t))
 
   ;;; --- TURNS ON BY DEFAULT
   (tab-bar-mode 1)
