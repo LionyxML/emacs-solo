@@ -3999,10 +3999,11 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 ;;; │ MARKDOWN-TS-MODE - EMACS-31
 ;;  As I first proposed here:
 ;;  https://lists.gnu.org/archive/html/emacs-devel/2025-02/msg00810.html
-(use-package markdown-ts-mode
-  :ensure nil
-  :mode ("\\.md\\'" "\\.mdx\\'" "\\.markdown\\'")
-  :init (load-library "markdown-ts-mode"))
+(when (>= emacs-major-version 31)
+  (use-package markdown-ts-mode
+    :ensure nil
+    :mode ("\\.md\\'" "\\.mdx\\'" "\\.markdown\\'")
+    :init (load-library "markdown-ts-mode")))
 
 
 ;;; │ YAML-TS-MODE
