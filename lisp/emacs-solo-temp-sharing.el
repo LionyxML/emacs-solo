@@ -25,7 +25,13 @@
 ;; `emacs-solo/crafterbin-upload-file' prompts for a file and uploads
 ;; it to crafterbin.
 ;;
-;; Requires `curl' to be available in PATH.
+;; `emacs-solo/termbin-upload-text' uploads the active region or the
+;; entire buffer contents to termbin.com.
+;;
+;; `emacs-solo/termbin-upload-file' prompts for a file and uploads it
+;; to termbin.com.
+;;
+;; Requires `curl' and `nc' to be available in PATH.
 
 ;;; Code:
 
@@ -82,6 +88,38 @@ The returned URL is copied to the kill ring."
   (let ((url (string-trim-right
               (shell-command-to-string
                (format "curl -s -F'file=@%s' https://crafterbin.glennstack.dev" (expand-file-name file-path))))))
+    (message ">>> emacs-solo: The URL is %s" url)
+    (kill-new url)))
+
+(defun emacs-solo--termbin-clean (output)
+  "Strip trailing null byte and whitespace from termbin OUTPUT."
+  (string-trim (replace-regexp-in-string "\0" "" output)))
+
+(defun emacs-solo/termbin-upload-text ()
+  "Upload the region or buffer contents to termbin.com.
+If a region is active, upload the selected text; otherwise upload
+the entire buffer.  The returned URL is copied to the kill ring."
+  (interactive)
+  (let ((contents (if (use-region-p)
+                      (buffer-substring-no-properties (region-beginning) (region-end))
+                    (buffer-string))))
+    (message ">>> emacs-solo: Sending buffer to termbin.com...")
+    (let ((url (emacs-solo--termbin-clean
+                (shell-command-to-string
+                 (format "printf '%%s' %s | nc termbin.com 9999"
+                         (shell-quote-argument contents))))))
+      (message ">>> emacs-solo: The URL is %s" url)
+      (kill-new url))))
+
+(defun emacs-solo/termbin-upload-file (file-path)
+  "Upload FILE-PATH to termbin.com.
+The returned URL is copied to the kill ring."
+  (interactive "fSelect a file to upload: ")
+  (message ">>> emacs-solo: Sending %s to termbin.com..." file-path)
+  (let ((url (emacs-solo--termbin-clean
+              (shell-command-to-string
+               (format "cat %s | nc termbin.com 9999"
+                       (shell-quote-argument (expand-file-name file-path)))))))
     (message ">>> emacs-solo: The URL is %s" url)
     (kill-new url)))
 
