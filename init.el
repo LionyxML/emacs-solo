@@ -4076,6 +4076,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (require 'emacs-solo-ace-window)
 (require 'emacs-solo-olivetti)
 (require 'emacs-solo-temp-sharing)
+(require 'emacs-solo-smash)
 (require 'emacs-solo-cl)
 (require 'emacs-solo-sudo-edit)
 (require 'emacs-solo-replace-as-diff)
