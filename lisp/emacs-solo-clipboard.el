@@ -48,8 +48,9 @@
           (lambda ()
             (string-trim (shell-command-to-string "powershell.exe -command Get-Clipboard")))))
 
-   ;; Linux with wl-copy/wl-paste (Wayland)
-   ((and (eq system-type 'gnu/linux)
+   ;; Linux/FreeBSD with wl-copy/wl-paste (Wayland)
+   ((and (or (eq system-type 'gnu/linux)
+             (eq system-type 'berkeley-unix))
          (getenv "WAYLAND_DISPLAY")
          (executable-find "wl-copy"))
     (setq interprogram-cut-function
@@ -62,8 +63,9 @@
           (lambda ()
             (shell-command-to-string "wl-paste -n"))))
 
-   ;; Linux with xclip (X11)
-   ((and (eq system-type 'gnu/linux)
+   ;; Linux/FreeBSD with xclip (X11)
+   ((and (or (eq system-type 'gnu/linux)
+             (eq system-type 'berkeley-unix))
          (getenv "DISPLAY")
          (executable-find "xclip"))
     (setq interprogram-cut-function
