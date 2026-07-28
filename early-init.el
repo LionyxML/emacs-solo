@@ -62,14 +62,18 @@ was loaded (or Emacs' built-in default, when none is) repaints it."
 ;; HACK: avoid being flashbanged
 (defun emacs-solo/avoid-initial-flash-of-light ()
   "Avoid flash of light when starting Emacs, based on `emacs-solo-avoid-flash-options`."
-  (when (alist-get 'enabled emacs-solo-avoid-flash-options)
+  (when (and initial-window-system  ;; TTYs never flash
+             (alist-get 'enabled emacs-solo-avoid-flash-options))
     (setq mode-line-format nil)
     (let ((color (alist-get 'mask-color emacs-solo-avoid-flash-options)))
       (set-face-attribute 'default nil :background color :foreground color))))
 
 (defun emacs-solo/reset-default-colors ()
   "Unmask the default face so the loaded theme (or default) repaints it."
-  (when (alist-get 'enabled emacs-solo-avoid-flash-options)
+  (when (and initial-window-system  ;; TTYs never flash
+             (alist-get 'enabled emacs-solo-avoid-flash-options))
+    (set-face-attribute 'default nil
+                        :background 'unspecified :foreground 'unspecified)
     (custom-theme-recalc-face 'default)))
 
 (emacs-solo/avoid-initial-flash-of-light)
