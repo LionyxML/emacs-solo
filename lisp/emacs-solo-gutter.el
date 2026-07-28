@@ -20,6 +20,8 @@
   :no-require t
   :defer t
   :init
+  (require 'vc-git)
+
   (defun emacs-solo/goto-next-hunk ()
     "Jump cursor to the closest next hunk."
     (interactive)
