@@ -102,7 +102,13 @@ If FOOTER is non-nil, append it as the last line of BUFFER."
            (setq output
                  (seq-reduce
                   (lambda (s rule) (replace-regexp-in-string (car rule) (cdr rule) s))
-                  '(("[\u2800-\u28FF]" . "*")
+                  '(;; NOTE: This converts Braille used in charts,
+                    ;;       which can be column messy depending on
+                    ;;       the font, with *.  Since nerd fonts 3.5.0
+                    ;;       this is no longer needed, if you need it
+                    ;;       for some reason, just uncomment this
+                    ;;       line.
+                    ;; ("[\u2800-\u28FF]" . "*")
                     ("―" . "-")
                     ("^Use.*" . " ")
                     (".*NEW.*" . " ")
