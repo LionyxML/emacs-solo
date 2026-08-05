@@ -74,7 +74,7 @@ With their assigned key labels ."
     (mapc 'delete-overlay emacs-solo-ace-window/quick-window-overlays)
     (setq emacs-solo-ace-window/quick-window-overlays nil))
 
-  (global-set-key (kbd "M-O") #'emacs-solo-ace-window/quick-window-jump))
+  (global-set-key (kbd "C-c w") #'emacs-solo-ace-window/quick-window-jump))
 
 (provide 'emacs-solo-ace-window)
 ;;; emacs-solo-ace-window.el ends here
