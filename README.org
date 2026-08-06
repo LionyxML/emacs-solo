@@ -249,6 +249,17 @@ It is recommended you have these programs in your system:
   =emacs-solo-flymake-eslint=.
 
 
+- =languagetool=
+
+  Only needed if you'd like to use the Flymake LanguageTool backend
+  (grammar/spelling on prose) from =emacs-solo-flymake-languagetool=.
+
+  Toggle it per buffer with =C-c ! C-t=, or set
+  =emacs-solo-enable-flymake-languagetool= to =t= to have it on from the
+  start in =text-mode= buffers.  =C-c ! L= picks a language, =C-c ! C-l=
+  cycles the favorites.
+
+
 - =rassumfrassum=
 
   Only needed if you'd like to use multiple LSP servers per buffer.
@@ -258,8 +269,8 @@ In order to proper copy/paste from terminals (TUI), you need:
 
 - =pbcopy/pbpaste= (macOS)
 - =clip.exe/powershell.exe= (WSL)
-- =wl-copy/wl-paste= (Linux with Wayland)
-- =xclip= (Linux with Xorg)
+- =wl-copy/wl-paste= (Linux / FreeBSD with Wayland)
+- =xclip= (Linux / FreeBSD with Xorg)
 
 ** Installation
 

@@ -179,6 +179,14 @@ for ESLint."
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-flymake-languagetool nil
+  "Whether `text-mode' buffers start with LanguageTool checking on.
+The backend is loaded either way, so `flymake-languagetool-toggle'
+\(`C-c ! C-t') turns it on per buffer even when this is nil.
+Requires the `languagetool' executable to be present in variable `exec-path'."
+  :type 'boolean
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-doc-view-invert-default nil
   "Whether PDFs in `doc-view-mode' open with all pages color-inverted."
   :type 'boolean
@@ -4097,6 +4105,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (require 'emacs-solo-khard)
 (require 'emacs-solo-khal)
 (require 'emacs-solo-flymake-eslint)
+(require 'emacs-solo-flymake-languagetool)
 (require 'emacs-solo-erc-image)
 (require 'emacs-solo-yt)
 (require 'emacs-solo-gh)
