@@ -1300,9 +1300,11 @@ With BACKWARD non-nil, cycle to the previous tab instead."
     ;; (setq icomplete-vertical-unselected-prefix-indicator "   ")
     )
 
-  (if icomplete-in-buffer
-      (advice-add 'completion-at-point
-                  :after #'minibuffer-hide-completions))
+  ;; FIXME: delete this since EMACS-32 fixed it (a1f5b8cf863)
+  (when (< emacs-major-version 32)
+    (if icomplete-in-buffer
+        (advice-add 'completion-at-point
+                    :after #'minibuffer-hide-completions)))
 
   ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-03/msg02638.html
   ;;
