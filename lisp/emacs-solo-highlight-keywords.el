@@ -27,7 +27,8 @@
       ("HACK" . warning)
       ("NOTE" . warning)
       ("HERE" . compilation-info)
-      ("EMACS-31" . compilation-info))
+      ("EMACS-31" . compilation-info)
+      ("EMACS-32" . icon-button))
     "Alist of keywords to highlight and their face."
     :group '+highlight-keywords
     :type '(alist :key-type (string :tag "Keyword")
