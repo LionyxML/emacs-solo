@@ -1939,41 +1939,18 @@ Ex: mpv file1 file2 file3 file4..."
   :bind
   (("C-c e" . eshell))
   :defer t
+  :custom
+  (eshell-history-size 100000)
+  (eshell-hist-ignoredups t)
+  (eshell-history-append t)
+  :preface
+  (defun emacs-solo/eshell-sync-history ()
+    "Flush this session's new history, then reload the merged file."
+    (eshell-write-history eshell-history-file-name t)
+    (eshell-read-history eshell-history-file-name t))
+  :hook
+  (eshell-post-command . emacs-solo/eshell-sync-history)
   :config
-  (setq eshell-history-size 100000)
-  (setq eshell-hist-ignoredups t)
-
-
-  ;; MAKE ALL INSTANCES OF ESHELL SHARE/MERGE ITS COMMAND HISTORY
-  ;;
-  (defun emacs-solo/eshell--collect-all-history ()
-    "Return a list of all eshell history entries from all buffers and disk."
-    (let ((history-from-buffers
-           (cl-loop for buf in (buffer-list)
-                    when (with-current-buffer buf (derived-mode-p 'eshell-mode))
-                    append (with-current-buffer buf
-                             (when (boundp 'eshell-history-ring)
-                               (ring-elements eshell-history-ring)))))
-          (history-from-file
-           (when (file-exists-p eshell-history-file-name)
-             (with-temp-buffer
-               (insert-file-contents eshell-history-file-name)
-               (split-string (buffer-string) "\n" t)))))
-      (seq-uniq (append history-from-buffers history-from-file))))
-
-  (defun emacs-solo/eshell--save-merged-history ()
-    "Save all eshell buffer histories merged into `eshell-history-file-name`."
-    (let ((all-history (emacs-solo/eshell--collect-all-history)))
-      (with-temp-file eshell-history-file-name
-        (insert (mapconcat #'identity all-history "\n")))))
-
-  (add-hook 'kill-emacs-hook #'emacs-solo/eshell--save-merged-history)
-
-  (add-hook 'eshell-mode-hook
-            (lambda ()
-              (eshell-read-history)))
-
-
   ;; CUSTOM WELCOME BANNER
   ;;
   (setopt eshell-banner-message
