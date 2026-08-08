@@ -287,7 +287,7 @@ parent directory created."
    ("M-g r" . recentf)
    ("M-s g" . grep)
    ("C-x ;" . comment-line)
-   ("M-s f" . find-name-dired)
+   ("M-s f" . find-dired)
    ("C-x C-b" . ibuffer)
    ("C-x p l". project-list-buffers)
    ("C-x w t"  . window-layout-transpose)            ; EMACS-31
