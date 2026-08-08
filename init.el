@@ -1979,6 +1979,9 @@ Pre-fills the minibuffer with current Eshell input (from prompt to point)."
     (interactive)
     (unless (derived-mode-p 'eshell-mode)
       (user-error "This command must be called from an Eshell buffer"))
+    ;; Flush anything this session has not written yet, so the file holds
+    ;; every session's commands
+    (eshell-write-history eshell-history-file-name t)
     (let* (;; Safely get current input from prompt to point
            (bol (save-excursion (eshell-bol) (point)))
            (eol (point))
@@ -1988,14 +1991,19 @@ Pre-fills the minibuffer with current Eshell input (from prompt to point)."
            (history-file (expand-file-name eshell-history-file-name
                                            eshell-directory-name))
 
-           ;; Read from history file
+           ;; The file is the only globally time-ordered source: every
+           ;; session appends to it after each command.  Stored oldest
+           ;; first, with newlines encoded as ?\177
            (history-from-file
             (when (file-exists-p history-file)
               (with-temp-buffer
                 (insert-file-contents-literally history-file)
-                (split-string (buffer-string) "\n" t))))
+                (nreverse
+                 (mapcar (lambda (s) (subst-char-in-string ?\177 ?\n s))
+                         (split-string (buffer-string) "\n" t))))))
 
-           ;; Read from in-memory Eshell buffers
+           ;; Rings are only a fallback for entries not yet in the file.
+           ;; They are per-buffer, so they carry no global recency order
            (history-from-rings
             (cl-loop for buf in (buffer-list)
                      when (with-current-buffer buf (derived-mode-p 'eshell-mode))
@@ -2003,14 +2011,21 @@ Pre-fills the minibuffer with current Eshell input (from prompt to point)."
                               (when (bound-and-true-p eshell-history-ring)
                                 (ring-elements eshell-history-ring)))))
 
-           ;; Deduplicate and sort
-           (all-history (reverse
-                         (seq-uniq
-                          (seq-filter (lambda (s) (and s (not (string-empty-p s))))
-                                      (append history-from-rings history-from-file)))))
+           ;; Deduplicate, keeping the newest occurrence of each entry
+           (all-history (seq-uniq
+                         (seq-filter (lambda (s) (and s (not (string-empty-p s))))
+                                     (append history-from-file history-from-rings))))
+
+           ;; `identity' sorters keep our recency order, instead of the
+           ;; default length/alphabetical one
+           (history-table
+            (completion-table-with-metadata
+             all-history
+             '((display-sort-function . identity)
+               (cycle-sort-function . identity))))
 
            ;; Prompt user with current input as initial suggestion
-           (selection (completing-read "Eshell History: " all-history
+           (selection (completing-read "Eshell History: " history-table
                                        nil t current-input)))
 
       (when selection
