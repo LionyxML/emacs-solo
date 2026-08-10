@@ -1071,14 +1071,27 @@ If ###@### is found, remove it and place point there at the end."
             (concat (format "   %d   " i) ""))
         name)))
 
+  (defvar emacs-solo/tab-bar-group-glyphs
+    '(:noicons " [p] " :nerd "    " :emoji " 🗂️ ")
+    "Glyph shown before the current tab group name, keyed by style.")
+
+  (defun emacs-solo/tab-bar-group-glyph ()
+    "Look up the tab group glyph for the current icon style."
+    (let* ((style (cond
+                   ((not (emacs-solo/tab-bar-icons-p))    :noicons)
+                   ((memq 'nerd emacs-solo-icon-modules)  :nerd)
+                   (t                                     :emoji)))
+           (val (plist-get emacs-solo/tab-bar-group-glyphs style)))
+      (if (char-displayable-p (string-to-char (string-trim val)))
+          val
+        (plist-get emacs-solo/tab-bar-group-glyphs :noicons))))
+
   ;;; --- MAKE DISABLED GROUP NOT BE RENDERED
   (defun tab-bar-tab-group-format-default (tab _i &optional current-p)
     (if current-p
         (propertize
-         (concat
-          (if (and (emacs-solo/tab-bar-icons-p)
-                   (char-displayable-p ?))
-              "   " " [p] ") (funcall tab-bar-tab-group-function tab))
+         (concat (emacs-solo/tab-bar-group-glyph)
+                 (funcall tab-bar-tab-group-function tab))
          'face 'tab-bar-tab-group-current)
       ""))
 
