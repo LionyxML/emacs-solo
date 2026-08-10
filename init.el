@@ -64,7 +64,7 @@
   :group 'emacs-solo)
 
 (defcustom emacs-solo-icon-modules
-  '(dired eshell ibuffer)
+  '(dired eshell ibuffer tab-bar)
   "List of Emacs Solo icon modules to enable.
 Controls which modules display file type icons.
 
@@ -72,15 +72,17 @@ Valid values (combine in a list):
 - \\='dired: Show file type icons in Dired buffers
 - \\='eshell: Show file type icons in Eshell prompts
 - \\='ibuffer: Show buffer type icons in Ibuffer
+- \\='tab-bar: Show glyphs on tab and tab group names
 - \\='nerd: Prefer Nerd Font glyphs over Emojis
 - nil: Disable all icons
 
-Default is \\='(dired eshell ibuffer), which uses Emoji icons.
+Default is \\='(dired eshell ibuffer tab-bar), which uses Emoji icons.
 Add \\='nerd to the list to use Nerd Font glyphs instead."
   :type '(set :tag "Emacs Solo icon modules"
               (const :tag "Use icons on Dired" dired)
               (const :tag "Use icons on Eshell" eshell)
               (const :tag "Use icons on Ibuffer" ibuffer)
+              (const :tag "Use icons on Tab Bar" tab-bar)
               (const :tag "Prefer Nerd Fonts icons over Emojis" nerd))
   :group 'emacs-solo)
 
@@ -1052,9 +1054,17 @@ If ###@### is found, remove it and place point there at the end."
                     tab-bar-format-global))
   :init
   ;;; --- OPTIONAL INTERNAL FN OVERRIDES TO DECORATE NAMES
+  (defun emacs-solo/tab-bar-icons-p ()
+    "Non-nil when the tab bar is allowed to use glyphs."
+    (and (memq 'tab-bar emacs-solo-icon-modules) t))
+
   (defun tab-bar-tab-name-format-hints (name tab i)
-    (let ((open-glyph  (if (char-displayable-p ?⌞) "⌞" "["))
-          (close-glyph (if (char-displayable-p ?⌝) "⌝" "]")))
+    (let ((open-glyph  (if (and (emacs-solo/tab-bar-icons-p)
+                                (char-displayable-p ?⌞))
+                           "⌞" "["))
+          (close-glyph (if (and (emacs-solo/tab-bar-icons-p)
+                                (char-displayable-p ?⌝))
+                           "⌝" "]")))
       (if tab-bar-tab-hints
           (if (eq (car tab) 'current-tab)
               (concat (format "  %s%d%s  " open-glyph i close-glyph) "")
@@ -1066,7 +1076,9 @@ If ###@### is found, remove it and place point there at the end."
     (if current-p
         (propertize
          (concat
-          (if (char-displayable-p ?) "   " " [p] ") (funcall tab-bar-tab-group-function tab))
+          (if (and (emacs-solo/tab-bar-icons-p)
+                   (char-displayable-p ?))
+              "   " " [p] ") (funcall tab-bar-tab-group-function tab))
          'face 'tab-bar-tab-group-current)
       ""))
 
