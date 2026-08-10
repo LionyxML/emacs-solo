@@ -10,14 +10,13 @@
 
 ;;; Commentary:
 ;;
-;; Adds file type icons to Eshell `ls' output via advice on
-;; `eshell-ls-annotate'.  Files are clickable (RET to open,
-;; D to delete).
+;; Decorates Eshell `ls' output via advice on `eshell-ls-annotate':
+;; dir/exec suffixes and clickable files (RET to open, D to delete).
+;; File type icons only when 'eshell is in `emacs-solo-icon-modules'.
 
 ;;; Code:
 
 (use-package emacs-solo-icons-eshell
-  :if (memq 'eshell emacs-solo-icon-modules)
   :ensure nil
   :no-require t
   :defer t
@@ -35,17 +34,20 @@ SIZE-LONG PERMS HARDLINKS INODE DEVICE).
            (is-exec (and perms (string-match-p "x" perms)))
            (ext (and (not is-dir) (file-name-extension filename)))
            (found (and ext (emacs-solo/file-icon ext)))
-           (icon (if is-dir
-                     (emacs-solo/file-icon "direddir")
-                   (if (and found (not (string-empty-p found)))
-                       found
-                     (emacs-solo/file-icon "diredfile"))))
+           (icon (if (memq 'eshell emacs-solo-icon-modules)
+                     (if is-dir
+                         (emacs-solo/file-icon "direddir")
+                       (if (and found (not (string-empty-p found)))
+                           found
+                         (emacs-solo/file-icon "diredfile")))
+                   ""))
            (suffix (cond
                     (is-dir "/")
                     (is-exec "*")
                     (t "")))
            (display-text (propertize
-                          (concat icon " " filename suffix)
+                          (concat icon (unless (string-empty-p icon) " ")
+                                  filename suffix)
                           'file-name filename
                           'mouse-face 'highlight
                           'help-echo (concat "Open " filename)

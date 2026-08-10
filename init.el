@@ -2144,7 +2144,21 @@ Remote prompts always show user and host regardless of this setting."
     :type 'boolean
     :group 'emacs-solo)
 
-  (defvar emacs-solo/eshell-lambda-symbol (if (char-displayable-p ?λ) "  λ " "  $ ")
+  (defun emacs-solo/eshell-icons-p ()
+    "Non-nil when the Eshell prompt is allowed to use icons/separators."
+    (and (memq 'eshell emacs-solo-icon-modules) t))
+
+  (defun emacs-solo/eshell-bg (color)
+    "Return COLOR, or `unspecified' when there are no separator glyphs."
+    (if (emacs-solo/eshell-icons-p) color 'unspecified))
+
+  (defun emacs-solo/eshell-pad ()
+    "Left padding of each prompt line.  None without separator glyphs."
+    (if (emacs-solo/eshell-icons-p) " " ""))
+
+  (defvar emacs-solo/eshell-lambda-symbol
+    (concat (if (emacs-solo/eshell-icons-p) "  " "")
+            (if (char-displayable-p ?λ) "λ " "$ "))
     "Symbol used for the minimal Eshell prompt.")
 
   (defun emacs-solo/toggle-eshell-prompt ()
@@ -2178,8 +2192,8 @@ Remote prompts always show user and host regardless of this setting."
   (defvar emacs-solo/eshell-prompt-glyphs
     '((arrow-left   :noicons ""      :nerd ""  :emoji "")
       (arrow-right  :noicons ""      :nerd ""  :emoji "")
-      (success      :noicons "1"     :nerd ""  :emoji "🟢")
-      (failure      :noicons "0"     :nerd ""  :emoji "🔴")
+      (success      :noicons ""      :nerd ""  :emoji "🟢")
+      (failure      :noicons ""      :nerd ""  :emoji "🔴")
       (user-local   :noicons ""      :nerd ""  :emoji "🧙")
       (user-remote  :noicons ""      :nerd ""  :emoji "👽")
       (host-local   :noicons ""      :nerd ""  :emoji "💻")
@@ -2200,9 +2214,9 @@ Remote prompts always show user and host regardless of this setting."
 For the current icon style."
     (let* ((row (assq name emacs-solo/eshell-prompt-glyphs))
            (style (cond
-                   ((not (memq 'eshell emacs-solo-icon-modules)) :noicons)
-                   ((memq 'nerd emacs-solo-icon-modules)         :nerd)
-                   (t                                             :emoji)))
+                   ((not (emacs-solo/eshell-icons-p))    :noicons)
+                   ((memq 'nerd emacs-solo-icon-modules) :nerd)
+                   (t                                    :emoji)))
            (val (plist-get (cdr row) style)))
       (if (char-displayable-p (string-to-char val))
           val "")))
@@ -2267,23 +2281,24 @@ For the current icon style."
                   (emacs-solo/glyph 'arrow-left) 'face `(:foreground ,eshell-solo/color-bg-dark))
 
                  (propertize
-                  (if (> eshell-last-command-status 0)
-                      (concat " " (emacs-solo/glyph 'failure)  " ")
-                    (concat " " (emacs-solo/glyph 'success)  " "))
-                  'face `(:background ,eshell-solo/color-bg-dark))
-
-                 (propertize (concat (number-to-string eshell-last-command-status) " ")
-                             'face `(:background ,eshell-solo/color-bg-dark))
+                  (concat (emacs-solo/eshell-pad)
+                          (when (emacs-solo/eshell-icons-p)
+                            (concat (if (> eshell-last-command-status 0)
+                                        (emacs-solo/glyph 'failure)
+                                      (emacs-solo/glyph 'success))
+                                    " "))
+                          (number-to-string eshell-last-command-status) " ")
+                  'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))
 
                  (propertize (emacs-solo/glyph 'arrow-right)
-                             'face `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
+                             'face `(:foreground ,eshell-solo/color-bg-dark :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
 
                  (propertize (concat " " (emacs-solo/glyph 'time)  " "
                                      (format-time-string "%H:%M:%S" (current-time)) " ")
-                             'face `(:foreground ,eshell-solo/color-fg-user :background ,eshell-solo/color-bg-mid))
+                             'face `(:foreground ,eshell-solo/color-fg-user :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
 
                  (propertize (emacs-solo/glyph 'arrow-right)
-                             'face `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))
+                             'face `(:foreground ,eshell-solo/color-bg-mid :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))
 
                  (when (or (file-remote-p default-directory)
                            emacs-solo/eshell-show-user-host)
@@ -2297,10 +2312,10 @@ For the current icon style."
                                    (or remote-user (user-login-name))
                                    " "))
                                 'face `(:foreground ,eshell-solo/color-fg-user
-                                                    :background ,eshell-solo/color-bg-dark))
+                                                    :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))
 
                     (propertize (emacs-solo/glyph 'arrow-right) 'face
-                                `(:foreground ,eshell-solo/color-bg-dark :background ,eshell-solo/color-bg-mid))
+                                `(:foreground ,eshell-solo/color-bg-dark :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
 
                     (let ((remote-host (file-remote-p default-directory 'host))
                           (is-remote (file-remote-p default-directory)))
@@ -2308,16 +2323,16 @@ For the current icon style."
                                               (concat " " (emacs-solo/glyph 'host-remote)  " ")
                                             (concat " " (emacs-solo/glyph 'host-local)  " "))
                                           (or remote-host (system-name)) " ")
-                                  'face `(:background ,eshell-solo/color-bg-mid  :foreground ,eshell-solo/color-fg-host)))
+                                  'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)  :foreground ,eshell-solo/color-fg-host)))
 
                     (propertize (emacs-solo/glyph 'arrow-right) 'face
-                                `(:foreground ,eshell-solo/color-bg-mid :background ,eshell-solo/color-bg-dark))))
+                                `(:foreground ,eshell-solo/color-bg-mid :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))))
 
                  (propertize (concat " " (emacs-solo/glyph 'folder)  " "
                                      (if (>= (length (eshell/pwd)) 40)
                                          (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
                                        (abbreviate-file-name (eshell/pwd))) " ")
-                             'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-dir))
+                             'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark) :foreground ,eshell-solo/color-fg-dir))
 
                  (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
                              'face `(:foreground ,eshell-solo/color-bg-dark))
@@ -2333,7 +2348,8 @@ For the current icon style."
                                 'face `(:foreground ,eshell-solo/color-bg-dark))
                     (propertize
                      (concat
-                      (concat " " (emacs-solo/glyph 'branch) " " branch " ")
+                      (concat (emacs-solo/eshell-pad)
+                              (emacs-solo/glyph 'branch) " " branch " ")
                       (when emacs-solo/eshell-full-prompt-resource-intensive
                         (let* ((info (emacs-solo/git-info))
                                (ahead (plist-get info :ahead))
@@ -2355,7 +2371,7 @@ For the current icon style."
                            (when (> conflicts 0)
                              (format (concat " " (emacs-solo/glyph 'conflict) "%d") conflicts))
                            " "))))
-                     'face `(:background ,eshell-solo/color-bg-dark :foreground ,eshell-solo/color-fg-git))
+                     'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark) :foreground ,eshell-solo/color-fg-git))
                     (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
                                 'face `(:foreground ,eshell-solo/color-bg-dark))))
 
