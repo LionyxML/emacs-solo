@@ -2181,6 +2181,11 @@ Remote prompts always show user and host regardless of this setting."
     "Left padding of each prompt line.  None without separator glyphs."
     (if (emacs-solo/eshell-icons-p) " " ""))
 
+  (defun emacs-solo/eshell-glyph-prefix (name)
+    "Glyph NAME followed by a space, or nothing when there is no glyph."
+    (let ((glyph (emacs-solo/glyph name)))
+      (if (string-empty-p glyph) "" (concat glyph " "))))
+
   (defvar emacs-solo/eshell-lambda-symbol
     (concat (if (emacs-solo/eshell-icons-p) "  " "")
             (if (char-displayable-p ?λ) "λ " "$ "))
@@ -2306,19 +2311,21 @@ For the current icon style."
                   (emacs-solo/glyph 'arrow-left) 'face `(:foreground ,eshell-solo/color-bg-dark))
 
                  (propertize
-                  (concat (emacs-solo/eshell-pad)
-                          (when (emacs-solo/eshell-icons-p)
-                            (concat (if (> eshell-last-command-status 0)
-                                        (emacs-solo/glyph 'failure)
-                                      (emacs-solo/glyph 'success))
-                                    " "))
-                          (number-to-string eshell-last-command-status) " ")
+                  (if (emacs-solo/eshell-icons-p)
+                      (concat (emacs-solo/eshell-pad)
+                              (if (> eshell-last-command-status 0)
+                                  (emacs-solo/glyph 'failure)
+                                (emacs-solo/glyph 'success))
+                              " "
+                              (number-to-string eshell-last-command-status) " ")
+                    "")
                   'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))
 
                  (propertize (emacs-solo/glyph 'arrow-right)
                              'face `(:foreground ,eshell-solo/color-bg-dark :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
 
-                 (propertize (concat " " (emacs-solo/glyph 'time)  " "
+                 (propertize (concat (emacs-solo/eshell-pad)
+                                     (emacs-solo/eshell-glyph-prefix 'time)
                                      (format-time-string "%H:%M:%S" (current-time)) " ")
                              'face `(:foreground ,eshell-solo/color-fg-user :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
 
@@ -2358,6 +2365,11 @@ For the current icon style."
                                          (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
                                        (abbreviate-file-name (eshell/pwd))) " ")
                              'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark) :foreground ,eshell-solo/color-fg-dir))
+
+                 (when (and (not (emacs-solo/eshell-icons-p))
+                            (> eshell-last-command-status 0))
+                   (propertize (format "  [%d] " eshell-last-command-status)
+                               'face 'error))
 
                  (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
                              'face `(:foreground ,eshell-solo/color-bg-dark))
