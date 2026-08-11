@@ -2484,7 +2484,6 @@ For the current icon style."
    vc-git-revision-complete-only-branches nil
    vc-git-show-stash 0                                        ;; do not polute vc-dir with stash lines
    vc-annotate-display-mode 'scale
-   add-log-keep-changes-together t
    vc-dir-auto-hide-up-to-date   t          ; EMACS-31
    vc-make-backup-files nil)                                  ;; do not backup version controlled files
 
@@ -2511,6 +2510,12 @@ For the current icon style."
 
   ;; This one is for editing commit messages
   (require 'log-edit)
+
+  ;; `add-log' must be loaded before `setopt': on EMACS-32 setopt defers the
+  ;; type check of not-yet-defined options and then chokes on non-list values.
+  (require 'add-log)
+  (setopt add-log-keep-changes-together t)
+
   (setopt log-edit-confirm 'changed
           log-edit-keep-buffer nil
           log-edit-require-final-newline t
