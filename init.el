@@ -383,6 +383,7 @@ parent directory created."
   (tramp-copy-size-limit (* 2 1024 1024)) ;; 2MB
   (tramp-use-scp-direct-remote-copying t)
   (tramp-verbose 1)
+  (query-replace-show-preview t)          ; EMACS-32
   (resize-mini-windows 'grow-only)
   (scroll-conservatively 8)
   (scroll-margin 5)
