@@ -96,6 +96,11 @@ Add \\='nerd to the list to use Nerd Font glyphs instead."
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-enable-eshell-banner t
+  "Enable the Emacs Solo Eshell banner with its keybinding hints."
+  :type 'boolean
+  :group 'emacs-solo)
+
 (defcustom emacs-solo-enable-rainbown-delimiters t
   "Enable `emacs-solo-enable-rainbown-delimiters'."
   :type 'boolean
@@ -1979,12 +1984,14 @@ Ex: mpv file1 file2 file3 file4..."
   ;; CUSTOM WELCOME BANNER
   ;;
   (setopt eshell-banner-message
-          (concat
-           (propertize "   Welcome to the Emacs Solo Shell  \n\n" 'face '(:weight bold :foreground "#f9e2af"))
-           (propertize " C-c t" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between prompts (full / minimum)\n"
-           (propertize " C-c T" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between full prompts (lighter / heavier)\n"
-           (propertize " C-c l" 'face '(:foreground "#89b4fa" :weight bold)) " - searches history\n"
-           (propertize " C-l  " 'face '(:foreground "#89b4fa" :weight bold)) " - clears scrolling\n\n"))
+          '(if emacs-solo-enable-eshell-banner
+               (concat
+                (propertize "   Welcome to the Emacs Solo Shell  \n\n" 'face '(:weight bold :foreground "#f9e2af"))
+                (propertize " C-c t" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between prompts (full / minimum)\n"
+                (propertize " C-c T" 'face '(:foreground "#89b4fa" :weight bold)) " - toggles between full prompts (lighter / heavier)\n"
+                (propertize " C-c l" 'face '(:foreground "#89b4fa" :weight bold)) " - searches history\n"
+                (propertize " C-l  " 'face '(:foreground "#89b4fa" :weight bold)) " - clears scrolling\n\n")
+             ""))
 
 
   ;; DISABLE SCROLLING CONSERVATIVELY ON ESHELL
