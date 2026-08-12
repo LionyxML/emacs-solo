@@ -230,6 +230,26 @@ Changes take effect after restarting Emacs."
           (directory :tag "Custom directory"))
   :group 'emacs-solo)
 
+;; EMACS-32 bug workaround, bug#81602: `setopt--set' stashes the raw value in
+;; `custom-check-values' when the defcustom is not loaded yet, but
+;; `custom-declare-variable' reads it back with `car'.  Non-list values (a
+;; lambda, a string, t) then signal wrong-type-argument while loading the file
+;; that defines the option, e.g. `eshell-prompt-function' aborting em-prompt.el
+;; and giving "Unable to load Eshell module `eshell-prompt'".
+;; The probe disables this once Emacs stashes the value wrapped in a list.
+(when (and (fboundp 'setopt--set)
+           (let ((probe (make-symbol "emacs-solo--setopt-probe")))
+             (setopt--set probe "probe")
+             (not (listp (car (get probe 'custom-check-values))))))
+  (defun setopt--set (variable value)
+    (custom-load-symbol variable)
+    (let ((type (get variable 'custom-type)))
+      (if (not (or type (get variable 'standard-value)))
+          (push (list value) (get variable 'custom-check-values))
+        (unless (widget-apply (widget-convert type) :match value)
+          (warn "Value does not match %S's type `%S': %S" variable type value))))
+    (funcall (or (get variable 'custom-set) #'set-default) variable value)))
+
 ;; custom-file is already set and loaded in early-init.el, but reload it here
 ;; so any M-x customize changes saved mid-session before restart also apply
 ;; to cache paths and other init.el settings.
@@ -2484,6 +2504,7 @@ For the current icon style."
    vc-git-revision-complete-only-branches nil
    vc-git-show-stash 0                                        ;; do not polute vc-dir with stash lines
    vc-annotate-display-mode 'scale
+   add-log-keep-changes-together t
    vc-dir-auto-hide-up-to-date   t          ; EMACS-31
    vc-make-backup-files nil)                                  ;; do not backup version controlled files
 
@@ -2510,11 +2531,6 @@ For the current icon style."
 
   ;; This one is for editing commit messages
   (require 'log-edit)
-
-  ;; `add-log' must be loaded before `setopt': on EMACS-32 setopt defers the
-  ;; type check of not-yet-defined options and then chokes on non-list values.
-  (require 'add-log)
-  (setopt add-log-keep-changes-together t)
 
   (setopt log-edit-confirm 'changed
           log-edit-keep-buffer nil
