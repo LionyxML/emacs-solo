@@ -2865,27 +2865,34 @@ The completion candidates include the Git status of each file."
               ("C-c ! l" . flymake-show-buffer-diagnostics)
               ("C-c ! t" . toggle-flymake-diagnostics-at-eol))
   :custom
-  (flymake-show-diagnostics-at-end-of-line nil)
-  ;; (flymake-show-diagnostics-at-end-of-line 'short)
   (flymake-indicator-type 'margins)
   (flymake-margin-indicators-string
    `((error "!" compilation-error)      ;; Alternatives: », E, W, i, !, ?, ⚠️)
      (warning "?" compilation-warning)
      (note "i" compilation-info)))
   :config
+  ;; EMACS-32 renamed `flymake-show-diagnostics-at-end-of-line' to
+  ;; `flymake-inline-diagnostics'.  Resolve it after load, never before.
+  (defconst emacs-solo--flymake-inline-var
+    (if (boundp 'flymake-inline-diagnostics)
+        'flymake-inline-diagnostics
+      'flymake-show-diagnostics-at-end-of-line)
+    "Variable holding the inline/eol diagnostics style on this Emacs.")
+
+  (set-default emacs-solo--flymake-inline-var nil)
+
   ;; Define the toggle function
   (defun toggle-flymake-diagnostics-at-eol ()
     "Toggle the display of Flymake diagnostics at the end of the line
 and restart Flymake to apply the changes."
     (interactive)
-    (setq flymake-show-diagnostics-at-end-of-line
-          (not flymake-show-diagnostics-at-end-of-line))
-    (flymake-mode -1) ;; Disable Flymake
-    (flymake-mode 1)  ;; Re-enable Flymake
-    (message ">>> emacs-solo: Flymake diagnostics at end of line %s"
-             (if flymake-show-diagnostics-at-end-of-line
-                 "Enabled" "Disabled"))))
-
+    (let ((var emacs-solo--flymake-inline-var))
+      ;; `short' is valid on both 31 and 32; t is not valid on 32.
+      (set-default var (if (symbol-value var) nil 'short))
+      (flymake-mode -1) ;; Disable Flymake
+      (flymake-mode 1)  ;; Re-enable Flymake
+      (message ">>> emacs-solo: Flymake diagnostics at end of line %s"
+               (if (symbol-value var) "Enabled" "Disabled")))))
 
 ;;; │ FLYSPELL
 (use-package flyspell
