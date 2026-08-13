@@ -12,11 +12,11 @@
 ;; Supports downloading online radio playlists and playing streams
 ;; via mpv.  Includes inline logo display support.
 ;;
-;; TLDR: C-c r (select an online radio list to download)
+;; TLDR: C-c r (select an online radio list to download, or jump back
+;;              to an already loaded one)
 ;;       RET - play with mpv
 ;;       x   - stop with mpv
-;;
-;; TODO: make already downloaded list the default when reopening with C-c r
+;;       l   - load another radio list
 
 ;;; Code:
 
@@ -27,10 +27,10 @@
   :init
   (defvar emacs-solo/m3u-radio-sources
     '(("Full List" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/---everything-full.m3u")
-      ("60s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/60s.m3u")
-      ("70s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/70s.m3u")
-      ("80s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/80s.m3u")
-      ("90s" . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/90s.m3u"))
+      ("60s"       . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/60s.m3u")
+      ("70s"       . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/70s.m3u")
+      ("80s"       . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/80s.m3u")
+      ("90s"       . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/90s.m3u"))
     "Alist of named M3U radio sources.")
 
   (defvar m3u-visualizer-buffer "*M3U Playlist*"
@@ -44,6 +44,10 @@
 
   (defvar m3u-visualizer--mpv-process nil
     "Holds the current mpv process instance.")
+
+  (defvar m3u-visualizer--mpv-socket (expand-file-name "emacs-solo-m3u-mpv.sock"
+                                                       temporary-file-directory)
+    "Path to mpv's JSON IPC socket.")
 
   (defun m3u-visualizer--collect-entries-from-buffer ()
     "Parse current buffer as M3U and return list of (title group logo url)."
@@ -95,16 +99,51 @@
                 (list url (vector status title group logo url))))
             m3u-visualizer--entries))
 
+  (defun m3u-visualizer--goto-active ()
+    "Move point to the row of `m3u-visualizer--active-url', if any."
+    (when m3u-visualizer--active-url
+      (goto-char (point-min))
+      (when (re-search-forward (regexp-quote m3u-visualizer--active-url) nil t)
+        (beginning-of-line))))
+
+  (defun m3u-visualizer--mpv-media-title ()
+    "Return mpv's current `media-title' via its IPC socket, or nil."
+    (when (process-live-p m3u-visualizer--mpv-process)
+      (ignore-errors
+        (let ((proc (make-network-process :name "m3u-mpv-ipc" :family 'local
+                                          :service m3u-visualizer--mpv-socket
+                                          :noquery t :coding 'utf-8))
+              (acc "")
+              (title nil))
+          (unwind-protect
+              (progn
+                (set-process-filter proc (lambda (_p s) (setq acc (concat acc s))))
+                (process-send-string proc "{\"command\":[\"get_property\",\"media-title\"]}\n")
+                (with-timeout (1 nil)
+                  (while (not title)
+                    (accept-process-output proc 0.1)
+                    ;; mpv also pushes events, so scan every complete line
+                    (dolist (line (split-string acc "\n" t))
+                      (let ((obj (ignore-errors (json-parse-string line :object-type 'alist))))
+                        (when (and obj (assq 'error obj) (stringp (alist-get 'data obj)))
+                          (setq title (alist-get 'data obj)))))))
+                title)
+            (delete-process proc))))))
+
+  (defun m3u-visualizer-show-now-playing ()
+    "Message the title mpv is currently playing, if any."
+    (interactive)
+    (let ((title (m3u-visualizer--mpv-media-title)))
+      (when title
+        (message ">>> emacs-solo: Now playing: %s" title))))
+
   (defun m3u-visualizer--refresh ()
     "Refresh the tabulated buffer from `m3u-visualizer--entries'."
     (setq tabulated-list-entries (m3u-visualizer--build-tab-entries))
 
     (tabulated-list-print t)
 
-    (when m3u-visualizer--active-url
-      (goto-char (point-min))
-      (when (re-search-forward (regexp-quote m3u-visualizer--active-url) nil t)
-        (beginning-of-line))))
+    (m3u-visualizer--goto-active))
 
   (defun m3u-visualizer-open-buffer (&optional raw-buffer)
     "Parse RAW-BUFFER (M3U contents) and pop to the tabulated view.
@@ -121,40 +160,38 @@ If RAW-BUFFER is nil, use the current buffer."
               (m3u-visualizer--refresh)
               (pop-to-buffer (current-buffer))))))))
 
-  (defun emacs-solo/get-online-radio-list-m3u ()
-    "Select and download an online M3U playlist, then visualize it."
-    (interactive)
-    (let* ((choice (completing-read "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources))
-           (url (cdr (assoc choice emacs-solo/m3u-radio-sources)))
-           (raw-buffer (get-buffer-create "*M3U Raw*")))
-      (message ">>> emacs-solo: Getting the playlist...")
-      (url-retrieve
-       url
-       (lambda (_status)
-         (goto-char (point-min))
-         (when (re-search-forward "\n\n" nil t)
-           (let* ((body-start (point))
-                  (raw (buffer-substring-no-properties body-start (point-max)))
-                  (decoded (decode-coding-string raw 'utf-8)))
-             (with-current-buffer raw-buffer
-               (let ((inhibit-read-only t))
-                 (erase-buffer)
-                 (insert decoded)
-                 (message ">>> emacs-solo: Playlist loaded!")
-                 (goto-char (point-min))
-                 (m3u-visualizer-open-buffer (current-buffer)))))))
-       nil t)))
-
-  (defun m3u-visualizer--mpv-sentinel (proc _event)
-    "Sentinel for mpv PROC. When it ends, clear active marker and refresh."
-    ;; When process is no longer live, clear the active marker and refresh the table
-    (unless (process-live-p proc)
-      (let ((buf (process-get proc 'm3u-buffer)))
-        (when (buffer-live-p buf)
-          (with-current-buffer buf
-            (setq m3u-visualizer--active-url nil)
-            (setq m3u-visualizer--mpv-process nil)
-            (m3u-visualizer--refresh))))))
+  (defun emacs-solo/get-online-radio-list-m3u (&optional force)
+    "Select and download an online M3U playlist, then visualize it.
+When a playlist is already loaded, pop to it instead, unless FORCE
+is non-nil or we are already in the playlist buffer."
+    (interactive "P")
+    (if (and (not force)
+             (not (derived-mode-p 'm3u-visualizer-mode))
+             (get-buffer m3u-visualizer-buffer))
+        (progn
+          (pop-to-buffer m3u-visualizer-buffer)
+          (m3u-visualizer--goto-active)
+          (m3u-visualizer-show-now-playing))
+      (let* ((choice (completing-read "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources))
+             (url (cdr (assoc choice emacs-solo/m3u-radio-sources)))
+             (raw-buffer (get-buffer-create "*M3U Raw*")))
+        (message ">>> emacs-solo: Getting the playlist...")
+        (url-retrieve
+         url
+         (lambda (_status)
+           (goto-char (point-min))
+           (when (re-search-forward "\n\n" nil t)
+             (let* ((body-start (point))
+                    (raw (buffer-substring-no-properties body-start (point-max)))
+                    (decoded (decode-coding-string raw 'utf-8)))
+               (with-current-buffer raw-buffer
+                 (let ((inhibit-read-only t))
+                   (erase-buffer)
+                   (insert decoded)
+                   (message ">>> emacs-solo: Playlist loaded!")
+                   (goto-char (point-min))
+                   (m3u-visualizer-open-buffer (current-buffer)))))))
+         nil t))))
 
   (defun m3u-visualizer--kill-mpv ()
     "Force kill the current mpv process if running."
@@ -179,7 +216,9 @@ If RAW-BUFFER is nil, use the current buffer."
       (m3u-visualizer--kill-mpv)
 
       (setq m3u-visualizer--active-url url)
-      (let ((proc (start-process "mpv-stream" "*mpv*" "mpv" "--no-terminal" url)))
+      (let ((proc (start-process "mpv-stream" "*mpv*" "mpv" "--no-terminal"
+                                 (concat "--input-ipc-server=" m3u-visualizer--mpv-socket)
+                                 url)))
         (setq m3u-visualizer--mpv-process proc)
         (process-put proc 'm3u-buffer (current-buffer))
         (set-process-sentinel
@@ -267,12 +306,13 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
       ;; Rebuild the table from the (now-modified) m3u-visualizer--entries
       (m3u-visualizer--refresh)))
 
-  (global-set-key (kbd "C-c r") #'emacs-solo/get-online-radio-list-m3u)
+  (global-set-key (kbd "C-c r")                   #'emacs-solo/get-online-radio-list-m3u)
   (define-key m3u-visualizer-mode-map (kbd "RET") #'m3u-visualizer-play-current)
   (define-key m3u-visualizer-mode-map (kbd "x")   #'m3u-visualizer-stop-mpv)
   (define-key m3u-visualizer-mode-map (kbd "n")   #'next-line)
   (define-key m3u-visualizer-mode-map (kbd "p")   #'previous-line)
-  (define-key m3u-visualizer-mode-map (kbd "i") #'m3u-visualizer-toggle-logo-at-point))
+  (define-key m3u-visualizer-mode-map (kbd "i")   #'m3u-visualizer-toggle-logo-at-point)
+  (define-key m3u-visualizer-mode-map (kbd "l")   #'emacs-solo/get-online-radio-list-m3u))
 
 (provide 'emacs-solo-m3u)
 ;;; emacs-solo-m3u.el ends here
