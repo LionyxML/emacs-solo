@@ -2900,8 +2900,8 @@ and restart Flymake to apply the changes."
   :defer t
   :config
   (setq ispell-program-name "aspell")
-  (setq ispell-dictionary "en_US")
   (ispell-set-spellchecker-params)
+  (ispell-change-dictionary "en_US" t)
   ;; :hook
   ;; ((text-mode-hook . flyspell-mode)
   ;;  (prog-mode-hook . flyspell-prog-mode))
