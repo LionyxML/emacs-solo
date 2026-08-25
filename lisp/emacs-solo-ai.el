@@ -11,6 +11,9 @@
 ;; Provides interactive functions to launch AI chat sessions
 ;; (Ollama, Gemini, Claude) inside `ansi-term' buffers.  Supports
 ;; sending selected regions as context.
+;;
+;; Also provides `emacs-solo/ai-recap', which pipes the current buffer
+;; (or region) to a CLI model and streams back a summary.
 
 ;;; Code:
 
@@ -20,7 +23,8 @@
   :defer t
   :bind (("C-c C-0" . emacs-solo/claude-chat)
          ("C-c C-8" . emacs-solo/claude-tui-chat)
-         ("C-c C-9" . emacs-solo/opencode-chat))
+         ("C-c C-9" . emacs-solo/opencode-chat)
+         ("C-c C-7" . emacs-solo/ai-recap))
   :init
   (defun emacs-solo/ollama-run-model ()
     "Run `ollama list`, let the user choose a model.
@@ -945,7 +949,258 @@ and 'explainer'."
                      (redisplay t))))
                win))
             (setq-local column-number-mode nil)
-            (setq-local term-buffer-maximum-size 2048)))))))
+            (setq-local term-buffer-maximum-size 2048))))))
+
+
+  (defcustom emacs-solo-ai-recap-command
+    '("opencode" "--pure" "run" "--model" "opencode/big-pickle" "-")
+    "Command (program plus arguments) used by `emacs-solo/ai-recap'.
+The transcript is written to its stdin, its stdout is streamed back
+into the recap buffer."
+    :type '(repeat string)
+    :group 'emacs-solo)
+
+  (defcustom emacs-solo-ai-recap-prompt
+    "Summarize this transcript.  Short bullets: who said what, decisions taken, open questions.  Ignore join/part/quit and server messages."
+    "Prompt prepended to the transcript sent by `emacs-solo/ai-recap'."
+    :type 'string
+    :group 'emacs-solo)
+
+  (defcustom emacs-solo-ai-recap-scope 'today
+    "How much of the buffer `emacs-solo/ai-recap' sends by default.
+
+`today'   messages timestamped today, from midnight on.
+`session' messages after the last silence longer than
+          `emacs-solo-ai-recap-gap-minutes', which is roughly what
+          arrived while you were away.
+`buffer'  the last `emacs-solo-ai-recap-max-lines' lines.
+
+Buffers without message timestamps (eshell, term, files) always
+fall back to `buffer'."
+    :type '(choice (const :tag "Since midnight" today)
+                   (const :tag "Since the last long silence" session)
+                   (const :tag "Last N lines" buffer))
+    :group 'emacs-solo)
+
+  (defcustom emacs-solo-ai-recap-gap-minutes 90
+    "Silence, in minutes, that starts a new session for `emacs-solo/ai-recap'."
+    :type 'integer
+    :group 'emacs-solo)
+
+  (defcustom emacs-solo-ai-recap-max-lines 500
+    "Trailing lines `emacs-solo/ai-recap' sends when scope is `buffer'."
+    :type 'integer
+    :group 'emacs-solo)
+
+  (defcustom emacs-solo-ai-recap-ignore-regexps
+    '("^\\*\\*\\*" "^<\\*\\*\\*>" "^[[:space:]]*$")
+    "Transcript lines matching any of these are dropped before sending.
+The defaults drop ERC server notices (topic, names, join/part) and
+the buffer playback markers, which are pure noise for a summary."
+    :type '(repeat regexp)
+    :group 'emacs-solo)
+
+  (defun emacs-solo/ai-recap--end-position ()
+    "Return where the recap-able text ends in the current buffer.
+Chat and shell modes keep an input area at the end of the buffer,
+which is left out."
+    (cond
+     ((and (boundp 'erc-insert-marker)
+           (markerp erc-insert-marker)
+           (marker-position erc-insert-marker))
+      (marker-position erc-insert-marker))
+     ((and (boundp 'rcirc-prompt-start-marker)
+           (markerp rcirc-prompt-start-marker)
+           (marker-position rcirc-prompt-start-marker))
+      (marker-position rcirc-prompt-start-marker))
+     ((and (derived-mode-p 'comint-mode)
+           (markerp comint-last-input-start)
+           (marker-position comint-last-input-start))
+      (marker-position comint-last-input-start))
+     (t (point-max))))
+
+  (defun emacs-solo/ai-recap--stamps (end)
+    "Return an alist of (POSITION . TIME) for messages before END.
+Reads the per-message timestamps ERC and rcirc leave behind as text
+properties, so it needs no parsing of the visible stamps."
+    (let ((pos (point-min))
+          (last nil)
+          (acc nil))
+      (while (< pos end)
+        (let ((ts (or (get-text-property pos 'erc--ts)
+                      (get-text-property pos 'rcirc-time))))
+          (when (and ts (not (equal ts last)))
+            (push (cons pos ts) acc)
+            (setq last ts)))
+        (setq pos (min (next-single-property-change pos 'erc--ts nil end)
+                       (next-single-property-change pos 'rcirc-time nil end))))
+      (nreverse acc)))
+
+  (defun emacs-solo/ai-recap--midnight ()
+    "Return the time of the last midnight."
+    (let ((now (decode-time)))
+      (encode-time (append '(0 0 0) (nthcdr 3 now)))))
+
+  (defun emacs-solo/ai-recap--start-position (scope end)
+    "Return where a recap of SCOPE starts, or nil when it cannot be found.
+END bounds the search, see `emacs-solo/ai-recap--end-position'."
+    (when-let* (((memq scope '(today session)))
+                (stamps (emacs-solo/ai-recap--stamps end))
+                (start
+                 (pcase scope
+                   ('today
+                    (let ((midnight (emacs-solo/ai-recap--midnight)))
+                      (car (seq-find (lambda (cell)
+                                       (not (time-less-p (cdr cell) midnight)))
+                                     stamps))))
+                   ('session
+                    (let ((gap (* 60 emacs-solo-ai-recap-gap-minutes))
+                          (found nil)
+                          (prev nil))
+                      (dolist (cell stamps)
+                        (when (and prev
+                                   (> (float-time (time-subtract (cdr cell) prev))
+                                      gap))
+                          (setq found (car cell)))
+                        (setq prev (cdr cell)))
+                      found)))))
+      (save-excursion
+        (goto-char start)
+        (line-beginning-position))))
+
+  (defun emacs-solo/ai-recap--clean (text)
+    "Drop noise lines from TEXT and collapse repeated ones."
+    (let ((kept nil))
+      (dolist (line (split-string text "\n"))
+        (unless (or (seq-some (lambda (re) (string-match-p re line))
+                              emacs-solo-ai-recap-ignore-regexps)
+                    (equal line (car kept)))
+          (push line kept)))
+      (string-trim (string-join (nreverse kept) "\n"))))
+
+  (defun emacs-solo/ai-recap--collect (scope)
+    "Return the transcript to summarize for SCOPE.
+SCOPE is one of `today', `session', `buffer', or a line count.  The
+active region always wins over SCOPE."
+    (if (use-region-p)
+        (emacs-solo/ai-recap--clean
+         (buffer-substring-no-properties (region-beginning) (region-end)))
+      (let* ((end (emacs-solo/ai-recap--end-position))
+             (start (or (and (symbolp scope)
+                             (emacs-solo/ai-recap--start-position scope end))
+                        (save-excursion
+                          (goto-char end)
+                          (forward-line (- (if (numberp scope)
+                                               scope
+                                             emacs-solo-ai-recap-max-lines)))
+                          (point)))))
+        (emacs-solo/ai-recap--clean (buffer-substring-no-properties start end)))))
+
+  (defun emacs-solo/ai-recap--setup-output-buffer (buffer header)
+    "Prepare BUFFER to receive recap output, showing HEADER while it runs."
+    (with-current-buffer buffer
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert header))
+      (special-mode)
+      (visual-line-mode 1)
+      (when (fboundp 'markdown-ts-view-mode)
+        (markdown-ts-view-mode)
+        (display-line-numbers-mode -1)
+        (visual-line-mode 1))
+      (let ((map (make-sparse-keymap)))
+        (set-keymap-parent map special-mode-map)
+        (define-key map (kbd "q")
+                    (lambda ()
+                      (interactive)
+                      (let ((win (get-buffer-window)))
+                        (when (window-live-p win)
+                          (quit-window 'kill win)))))
+        (define-key map (kbd "n") #'forward-line)
+        (define-key map (kbd "p") #'previous-line)
+        (use-local-map map))
+      (goto-char (point-max)))
+    buffer)
+
+  (defun emacs-solo/ai-recap (&optional arg)
+    "Summarize the current buffer with `emacs-solo-ai-recap-command'.
+
+The active region is sent when there is one.  Otherwise the amount of
+buffer to send comes from `emacs-solo-ai-recap-scope', by default
+everything timestamped today.  A numeric prefix sends that many
+trailing lines instead (\\[universal-argument] 200 \\[emacs-solo/ai-recap]),
+and a plain \\[universal-argument] asks for the scope to use this time.
+
+Message timestamps come from the `erc--ts' and `rcirc-time' text
+properties, so `today' and `session' only work in chat buffers; other
+buffers fall back to a line count.  Input areas of chat and comint
+buffers are skipped, and lines matching
+`emacs-solo-ai-recap-ignore-regexps' are dropped, which keeps topic,
+names and join/part spam out of the transcript.
+
+The transcript goes to the command on stdin and its answer is streamed
+into an *AI Recap: <buffer>* side buffer (q kills the window, n/p move
+by line)."
+    (interactive "P")
+    (require 'ansi-color)
+    (let* ((scope (cond ((numberp arg) arg)
+                        ((consp arg)
+                         (intern (completing-read "Recap scope: "
+                                                  '("today" "session" "buffer")
+                                                  nil t nil nil "today")))
+                        (t emacs-solo-ai-recap-scope)))
+           (source (buffer-name))
+           (text (emacs-solo/ai-recap--collect scope))
+           (output-buffer (get-buffer-create (format "*AI Recap: %s*" source)))
+           (default-directory (or (and emacs-solo-ai-scratch-path
+                                       (file-directory-p emacs-solo-ai-scratch-path)
+                                       emacs-solo-ai-scratch-path)
+                                  default-directory))
+           ;; no tty here: keep TUI spinners and ANSI out of the captured stdout
+           (process-environment (append '("NO_COLOR=1" "TERM=dumb" "CI=1")
+                                        process-environment))
+           (label (if (use-region-p) "region" (format "%s" scope))))
+      (when (string-empty-p text)
+        (user-error "Nothing to recap in %s (scope: %s)" source label))
+      (emacs-solo/ai-recap--setup-output-buffer
+       output-buffer
+       (format "* Recapping %s [%s, %d lines]...\nThis may take a moment.\n\n\n"
+               source label (length (split-string text "\n"))))
+      (display-buffer output-buffer '(display-buffer-in-direction (direction . right)))
+      (message ">>> emacs-solo: recapping %s (%s)..." source label)
+      (let ((proc (make-process
+                   :name "ai-recap"
+                   :buffer output-buffer
+                   :connection-type 'pipe
+                   :noquery t
+                   :command emacs-solo-ai-recap-command
+                   :filter
+                   (lambda (proc chunk)
+                     (when (buffer-live-p (process-buffer proc))
+                       (with-current-buffer (process-buffer proc)
+                         (let ((inhibit-read-only t))
+                           (save-excursion
+                             (goto-char (process-mark proc))
+                             (insert (ansi-color-filter-apply chunk))
+                             (set-marker (process-mark proc) (point)))))))
+                   :sentinel
+                   (lambda (proc _event)
+                     (when (memq (process-status proc) '(exit signal))
+                       (when (buffer-live-p (process-buffer proc))
+                         (with-current-buffer (process-buffer proc)
+                           (goto-char (point-min))
+                           (let ((win (get-buffer-window (current-buffer) t)))
+                             (when (window-live-p win)
+                               (set-window-point win (point-min))))))
+                       (unless (zerop (process-exit-status proc))
+                         (message ">>> emacs-solo: recap command exited with %d"
+                                  (process-exit-status proc))))))))
+        (process-send-string
+         proc
+         (format "%s\n\n<transcript source=\"%s\" scope=\"%s\" lines=\"%d\">\n%s\n</transcript>\n"
+                 emacs-solo-ai-recap-prompt source label
+                 (length (split-string text "\n")) text))
+        (process-send-eof proc)))))
 
 (provide 'emacs-solo-ai)
 ;;; emacs-solo-ai.el ends here
