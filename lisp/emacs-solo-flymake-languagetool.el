@@ -2,7 +2,7 @@
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: wp, tools
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 

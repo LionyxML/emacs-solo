@@ -2,7 +2,7 @@
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: config
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;
@@ -124,21 +124,22 @@ Add \\='nerd to the list to use Nerd Font glyphs instead."
 (defcustom emacs-solo-use-custom-theme 'crafters
   "Select which emacs-solo customization theme to use.
 
-Valid values are:
+Valid values (need modus-themes >= 5, bundled with Emacs 31+):
 - \\='catppuccin
 - \\='crafters
-- \\='gits
+- \\='kusanagi
 - \\='matrix
+
 - nil: Disable custom theme
 
 IMPORTANT NOTE: If you disable this or choose another theme, also check
 \\='emacs-solo-avoid-flash-options to ensure compatibility."
   :type '(choice
           (const :tag "Disabled" nil)
-          (const :tag "Catppuccin" catppuccin)
+          (const :tag "Catppuccin Mocha" catppuccin)
           (const :tag "Crafters" crafters)
-          (const :tag "Matrix" matrix)
-          (const :tag "GITS" gits))
+          (const :tag "Kusanagi" kusanagi)
+          (const :tag "Matrix" matrix))
   :group 'emacs-solo)
 
 (defcustom emacs-solo-enable-preferred-font t
@@ -289,47 +290,47 @@ parent directory created."
 ;;; │ EMACS
 (use-package emacs
   :ensure nil
-  :bind                                              ; NOTE: M-x describe-personal-bindings (for all use-packge binds)
-  (("M-o" . other-window)
-   ("M-g r" . recentf)
-   ("M-s g" . grep)
-   ("C-x ;" . comment-line)
-   ("M-s f" . find-dired)
-   ("C-x C-b" . ibuffer)
-   ("C-x p l". project-list-buffers)
-   ("C-x w t"  . window-layout-transpose)            ; EMACS-31
-   ("C-x w r"  . window-layout-rotate-clockwise)     ; EMACS-31
-   ("C-x w f h"  . window-layout-flip-leftright)     ; EMACS-31
-   ("C-x w f v"  . window-layout-flip-topdown)       ; EMACS-31
-   ("C-x 5 l"  . select-frame-by-name)
-   ("C-x 5 s"  . set-frame-name)
-   ("RET" . newline-and-indent)
-   ("C-z" . nil)
-   ("C-x C-z" . nil)
-   ("C-M-z" . delete-pair)
+  :bind           ; NOTE: use M-x describe-personal-bindings to list all custom bindings
+  (("M-o"         . other-window)
+   ("M-g r"       . recentf)
+   ("M-s g"       . grep)
+   ("C-x ;"       . comment-line)
+   ("M-s f"       . find-dired)
+   ("C-x C-b"     . ibuffer)
+   ("C-x p l"     . project-list-buffers)
+   ("C-x w t"     . window-layout-transpose)
+   ("C-x w r"     . window-layout-rotate-clockwise)
+   ("C-x w f h"   . window-layout-flip-leftright)
+   ("C-x w f v"   . window-layout-flip-topdown)
+   ("C-x 5 l"     . select-frame-by-name)
+   ("C-x 5 s"     . set-frame-name)
+   ("RET"         . newline-and-indent)
+   ("C-z"         . nil)
+   ("C-x C-z"     . nil)
+   ("C-M-z"       . delete-pair)
    ("C-x C-k RET" . nil)
-   ("M-@" . emacs-solo/copy-whole-word)
-   ("M-J" . duplicate-dwim)                          ; As suggest on r/emacs by the_cecep:
-   ("M-K" . kill-paragraph)                          ; Expands M-k for kill-sentence
-   ("M-Z" . zap-up-to-char)                          ; Expands M-z for zap-to-char
-   ("M-F" . forward-to-word)                         ; Expands M-f to jump to beginning of next word
-   ("M-B" . backward-to-word)                        ; Expands M-b to jump to end of previous word
-   ("M-M" . end-of-line)                             ; Expands M-m to jump to end line, useful for paragraphs
-   ("M-T" . transpose-sentences)                     ; Expands M-t for transposing words
-   ("C-x M-t" . transpose-paragraphs)                ; Expands C-x C-t for transposing lines
-   ([remap capitalize-word] . capitalize-dwim)       ; Make M-c work on regions
-   ([remap downcase-word] . downcase-dwim)           ; Make M-l work on regions
-   ([remap upcase-word] . upcase-dwim)               ; Make M-u work on regions
-   ([remap kill-buffer] . kill-current-buffer)       ; C-x k stops prompting for buffer to kill
-   ([remap delete-horizontal-space] . cycle-spacing) ; M-\. Called twice, cycle-spacing has same effect and its default binding (M-SPC) is problematic in macOS
+   ("M-@"         . emacs-solo/copy-whole-word)
+   ("M-J"         . duplicate-dwim)                        ; As suggest on r/emacs by the_cecep:
+   ("M-K"         . kill-paragraph)                        ; Expands M-k for kill-sentence
+   ("M-Z"         . zap-up-to-char)                        ; Expands M-z for zap-to-char
+   ("M-F"         . forward-to-word)                       ; Expands M-f to jump to beginning of next word
+   ("M-B"         . backward-to-word)                      ; Expands M-b to jump to end of previous word
+   ("M-M"         . end-of-line)                           ; Expands M-m to jump to end line, useful for paragraphs
+   ("M-T"         . transpose-sentences)                   ; Expands M-t for transposing words
+   ("C-x M-t"     . transpose-paragraphs)                  ; Expands C-x C-t for transposing lines
+   ([remap capitalize-word]         . capitalize-dwim)     ; Make M-c work on regions
+   ([remap downcase-word]           . downcase-dwim)       ; Make M-l work on regions
+   ([remap upcase-word]             . upcase-dwim)         ; Make M-u work on regions
+   ([remap kill-buffer]             . kill-current-buffer) ; C-x k stops prompting for buffer to kill
+   ([remap delete-horizontal-space] . cycle-spacing)       ; M-\. Called twice, cycle-spacing has same effect and its default binding (M-SPC) is problematic in macOS
    )
   :custom
   (ad-redefinition-action 'accept)
   (auto-save-default t)
   (bookmark-file (emacs-solo--cache-path 'bookmark-file))
   (shared-game-score-directory (emacs-solo--cache-path 'shared-game-score-directory)) ; FIXME: is this even working?
-  (calendar-latitude 42.36)                   ;; These are needed
-  (calendar-longitude -42.36)                 ;; for M-x `sunrise-sunset'
+  (calendar-latitude 42.36)                   ; These are needed
+  (calendar-longitude -42.36)                 ; for M-x `sunrise-sunset'
   (calendar-location-name "Cambridge, MA")
   (column-number-mode t)
   (line-number-mode t)
@@ -338,11 +339,13 @@ parent directory created."
   (completions-detailed t)
   (delete-by-moving-to-trash t)
   (delete-pair-blink-delay 0)
-  (delete-pair-push-mark t)                   ; EMACS-31 for easy subsequent C-x C-x
+  (delete-pair-push-mark t)                   ; For easy subsequent C-x C-x
   (display-line-numbers-width 4)
   (display-line-numbers-widen t)
-  (display-fill-column-indicator-warning nil) ; EMACS-31
+  (display-fill-column-indicator-warning nil)
   (delete-selection-mode t)
+  ;; (dictionary-server "dict.org")
+  ;; (dictionary-port 2628)
   (enable-recursive minibuffers t)
   (ffap-machine-p-known 'reject)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
@@ -353,15 +356,15 @@ parent directory created."
   (history-length 300)
   (inhibit-startup-message t)
   (initial-scratch-message "")
-  (ibuffer-human-readable-size t) ; EMACS-31
-  (ielm-history-file-name (emacs-solo--cache-path 'ielm-history-file-name)) ; EMACS-31
+  (ibuffer-human-readable-size t)
+  (ielm-history-file-name (emacs-solo--cache-path 'ielm-history-file-name))
   (kill-do-not-save-duplicates t)
-  (kill-region-dwim 'emacs-word)  ; EMACS-31
+  (kill-region-dwim 'emacs-word)
   (create-lockfiles nil)   ; No lock files
   (make-backup-files nil)  ; No backup files
   (multisession-directory (emacs-solo--cache-path 'multisession-directory))
   (nsm-settings-file (emacs-solo--cache-path 'nsm-settings-file))
-  (native-comp-async-on-battery-power nil)  ; No compilations when on battery EMACS-31
+  (native-comp-async-on-battery-power nil)
   (pixel-scroll-precision-mode t)
   (pixel-scroll-precision-use-momentum nil)
   (project-list-file (emacs-solo--cache-path 'project-list-file))
@@ -370,7 +373,7 @@ parent directory created."
   (read-answer-short t)
   (read-process-output-max (* 4 1024 1024)) ; 4MB
   (redisplay-skip-fontification-on-input t)
-  (recentf-max-saved-items 300) ; default is 20
+  (recentf-max-saved-items 300) ; Default is 20
   (recentf-max-menu-items 15)
   (recentf-auto-cleanup (if (daemonp) 300 'never))
   (recentf-exclude (list "^/\\(?:ssh\\|su\\|sudo\\)?:"))
@@ -390,10 +393,10 @@ parent directory created."
   (save-interprogram-paste-before-kill t)
   (savehist-save-minibuffer-history t)    ; t is default
   (savehist-additional-variables
-   '(kill-ring                            ; clipboard
-     register-alist                       ; macros
-     mark-ring global-mark-ring           ; marks
-     search-ring regexp-search-ring))     ; searches
+   '(kill-ring                            ; Clipboard
+     register-alist                       ; Macros
+     mark-ring global-mark-ring           ; Marks
+     search-ring regexp-search-ring))     ; Searches
   (savehist-file (emacs-solo--cache-path 'savehist-file))
   (save-place-file (emacs-solo--cache-path 'save-place-file))
   (save-place-limit 600)
@@ -408,8 +411,8 @@ parent directory created."
   (transient-levels-file (emacs-solo--cache-path 'transient-levels-file))
   (transient-values-file (emacs-solo--cache-path 'transient-values-file))
   (treesit-font-lock-level 4)
-  (treesit-auto-install-grammar 'always) ; EMACS-31
-  (treesit-enabled-modes t)              ; EMACS-31
+  (treesit-auto-install-grammar 'always)
+  (treesit-enabled-modes t)
   (truncate-lines t)
   (undo-limit (* 13 160000))
   (undo-strong-limit (* 13 240000))
@@ -420,17 +423,17 @@ parent directory created."
   (use-package-hook-name-suffix nil)
   (use-short-answers t)
   (visible-bell nil)
-  (view-lossage-auto-refresh t)  ; EMACS-31 auto updates C-h l usefull when teaching/debugging
+  (view-lossage-auto-refresh t)  ; Auto update C-h l,  usefull when teaching/debugging
   (window-combination-resize t)
   (window-resize-pixelwise nil)
   (xref-search-program 'ripgrep)
-  (zone-all-frames t)            ; EMACS-31
-  (zone-all-windows-in-frame t)  ; EMACS-31
+  (zone-all-frames t)
+  (zone-all-windows-in-frame t)
   (zone-programs '[zone-pgm-rat-race])
-  (grep-command "rg -nS --no-heading ")                      ; used by M-x grep
-  (grep-find-ignored-directories                             ; used if M-x rgrep uses find (default in grep-find-template)
+  (grep-command "rg -nS --no-heading ")                      ; Used by M-x grep
+  (grep-find-ignored-directories                             ; Used if M-x rgrep uses find (default in grep-find-template)
    '("SCCS" "RCS" "CVS" "MCVS" ".src" ".svn" ".jj" ".git" ".hg" ".bzr" "_MTN" "_darcs" "{arch}" "node_modules" "build" "dist"))
-  (grep-find-template "rg <C> --null -nH -e <R> <D>")        ; used by M-x rgrep (dropping find when using rg)
+  (grep-find-template "rg <C> --null -nH -e <R> <D>")        ; Used by M-x rgrep (dropping find when using rg)
   :config
   ;; Sets outline-mode for the `init.el' file
   (defun emacs-solo/outline-init-file ()
@@ -640,40 +643,6 @@ parent directory created."
   ;; Mute NPM loglevel so it wont interfer with other issued commands like grep
   (setenv "NPM_CONFIG_LOGLEVEL" "silent")
 
-  ;; EMACS-31 Remove this, since new emacs will come with 'e' for editing xref buffers.
-  ;; Reference: https://debbugs.gnu.org/cgi/bugreport.cgi?bug=80616
-  ;;
-  ;; Makes any xref buffer "exportable" to a grep buffer with "E" so you can edit it with "e".
-  (defun emacs-solo/xref-to-grep-compilation ()
-    "Export the current Xref results to a grep-like buffer (Emacs 30+)."
-    (interactive)
-    (unless (derived-mode-p 'xref--xref-buffer-mode)
-      (user-error "Not in an Xref buffer"))
-
-    (let* ((items (and (boundp 'xref--fetcher)
-                       (funcall xref--fetcher)))
-           (buf-name "*xref→grep*")
-           (grep-buf (get-buffer-create buf-name)))
-      (unless items
-        (user-error "No xref items found"))
-
-      (with-current-buffer grep-buf
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (insert (format "-*- mode: grep; default-directory: %S -*-\n\n"
-                          default-directory))
-          (dolist (item items)
-            (let* ((loc (xref-item-location item))
-                   (file (xref-file-location-file loc))
-                   (line (xref-file-location-line loc))
-                   (summary (xref-item-summary item)))
-              (insert (format "%s:%d:%s\n" file line summary)))))
-        (grep-mode))
-      (pop-to-buffer grep-buf)))
-  (with-eval-after-load 'xref
-    (define-key xref--xref-buffer-mode-map (kbd "E")
-                #'emacs-solo/xref-to-grep-compilation))
-
   ;; ELISP evaluations show results in an overlay
   (defun emacs-solo/eval-last-sexp-overlay (arg)
     "Eval last sexp and show result inline as overlay.
@@ -773,8 +742,7 @@ or is an ERC buffer."
 
   (add-hook 'window-configuration-change-hook #'emacs-solo/set-default-window-margins)
 
-  (when (>= emacs-major-version 31)
-    (tty-tip-mode nil))   ;; EMACS-31
+  (tty-tip-mode nil)
   (tooltip-mode nil)
 
   (select-frame-set-input-focus (selected-frame))
@@ -1241,7 +1209,7 @@ With BACKWARD non-nil, cycle to the previous tab instead."
   (erc-server-reconnect-timeout 3)
   (erc-fill-function 'erc-fill-wrap)
   (erc-log-channels-directory (emacs-solo--cache-path 'erc-log-channels-directory))
-  (erc-log-insert-log-on-open 'erc-log-new-target-buffer-p) ;; EMACS-31 and or needs https://debbugs.gnu.org/cgi/bugreport.cgi?bug=79665 patch
+  (erc-log-insert-log-on-open 'erc-log-new-target-buffer-p)
   (erc-save-buffer-on-part t)
   (erc-save-queries-on-quit t)
   (erc-log-write-after-send t)
@@ -1271,10 +1239,7 @@ With BACKWARD non-nil, cycle to the previous tab instead."
   (erc-spelling-mode 1)
   :init
   (with-eval-after-load 'erc
-
-    ;; EMACS-31 (no more dependency between scrolltobottom and erc-fill-wrap THX!!!)
-    (when (< emacs-major-version 31)
-      (add-to-list 'erc-modules 'scrolltobottom)))
+    (add-to-list 'erc-modules 'scrolltobottom))
 
   (setopt erc-sasl-mechanism 'external)
 
@@ -1320,254 +1285,16 @@ With BACKWARD non-nil, cycle to the previous tab instead."
   (setq icomplete-in-buffer t)
   (setq icomplete-max-delay-chars 0)
   (setq icomplete-scroll t)
-
-  ;; EMACS-31
-  (when (and (>= emacs-major-version 31)
-             (boundp 'icomplete-vertical-in-buffer-adjust-list))
-
-    (setq icomplete-vertical-in-buffer-adjust-list t)
-    (setq icomplete-vertical-render-prefix-indicator t)
-    ;; (setq icomplete-vertical-selected-prefix-indicator   " @ ")
-    ;; (setq icomplete-vertical-unselected-prefix-indicator "   ")
-    )
+  (setq icomplete-vertical-in-buffer-adjust-list t)
+  (setq icomplete-vertical-render-prefix-indicator t)
+  ;; (setq icomplete-vertical-selected-prefix-indicator   " @ ")
+  ;; (setq icomplete-vertical-unselected-prefix-indicator "   ")
 
   ;; FIXME: delete this since EMACS-32 fixed it (a1f5b8cf863)
   (when (< emacs-major-version 32)
     (if icomplete-in-buffer
         (advice-add 'completion-at-point
-                    :after #'minibuffer-hide-completions)))
-
-  ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2025-03/msg02638.html
-  ;;
-  ;; Patch is now part of EMACS-31 bug#75784 (bug-gnu-emacs).
-  ;;
-  ;; FIXME: Delete this giant block when new emacs becomes the current
-  ;; release
-  (when (or (< emacs-major-version 31)
-            (not (boundp 'icomplete-vertical-in-buffer-adjust-list)))
-
-    (defface icomplete-vertical-selected-prefix-indicator-face
-      '((t :inherit font-lock-keyword-face :weight bold :foreground "cyan"))
-      "Face used for the prefix set by `icomplete-vertical-selected-prefix-indicator'."
-      :group 'icomplete
-      :version "31.1")
-
-    (defface icomplete-vertical-unselected-prefix-indicator-face
-      '((t :inherit font-lock-keyword-face :weight normal :foreground "gray"))
-      "Face used for the prefix set by `icomplete-vertical-unselected-prefix-indicator'."
-      :group 'icomplete
-      :version "31.1")
-
-    (defcustom icomplete-vertical-in-buffer-adjust-list t
-      "Control whether in-buffer completion should align the cursor position.
-If this is t and `icomplete-in-buffer' is t, and `icomplete-vertical-mode'
-is activated, the in-buffer vertical completions are shown aligned to the
-cursor position when the completion started, not on the first column, as
-the default behaviour."
-      :type 'boolean
-      :group 'icomplete
-      :version "31.1")
-
-    (defcustom icomplete-vertical-render-prefix-indicator t
-      "Control whether a indicator is added as a prefix to each candidate.
-If this is t and `icomplete-vertical-mode' is activated, a indicator,
-controlled by `icomplete-vertical-selected-prefix-indicator' is shown
-as a prefix to the current under selection candidate, while the
-remaining of the candidates will receive the indicator controlled
-by `icomplete-vertical-unselected-prefix-indicator'."
-      :type 'boolean
-      :group 'icomplete
-      :version "31.1")
-
-    (defcustom icomplete-vertical-selected-prefix-indicator "» "
-      "Prefix string used to mark the selected completion candidate.
-If `icomplete-vertical-render-prefix-indicator' is t, the string
-defined here is used as a prefix of the currently selected entry in the
-list.  It can be further customized by the face
-`icomplete-vertical-selected-prefix-indicator-face'."
-      :type 'string
-      :group 'icomplete
-      :version "31.1")
-
-    (defcustom icomplete-vertical-unselected-prefix-indicator "  "
-      "Prefix string used on the unselected completion candidates.
-If `icomplete-vertical-render-prefix-indicator' is t, the string
-defined here is used as a prefix for all unselected entries in the list.
-list.  It can be further customized by the face
-`icomplete-vertical-unselected-prefix-indicator-face'."
-      :type 'string
-      :group 'icomplete
-      :version "31.1")
-
-    ;; FIXME: make this into PATCH
-    (defun icomplete-vertical--adjust-lines-for-column (lines buffer data)
-      "Adjust the LINES to align with the column in BUFFER based on DATA."
-      (if icomplete-vertical-in-buffer-adjust-list
-          (let* ((column (current-column))
-                 (prefix-indicator-width
-                  (if icomplete-vertical-render-prefix-indicator
-                      (max (length icomplete-vertical-selected-prefix-indicator)
-                           (length icomplete-vertical-unselected-prefix-indicator))
-                    0))
-                 (wrapped-line (with-current-buffer buffer
-                                 (save-excursion
-                                   (goto-char (car data))
-                                   (beginning-of-line)
-                                   (count-screen-lines (point) (car data)))))
-                 (window-width (+ (window-hscroll) (window-body-width)))
-                 (longest-line-width (apply #'max (mapcar #'length lines)))
-                 (spaces-to-add
-                  (if (> wrapped-line 1)
-                      (- column (* (- wrapped-line 1) (- window-width 5)))
-                    column))
-                 (spaces-to-add-avoiding-scrolling
-                  (if (>= (+ spaces-to-add longest-line-width prefix-indicator-width) window-width)
-                      (- spaces-to-add longest-line-width)
-                    spaces-to-add)))
-
-            (mapcar (lambda (line)
-                      (concat (make-string spaces-to-add-avoiding-scrolling ?\s) line))
-                    lines))
-        lines))
-
-    ;; FIXME: remove this after patch
-    (defun icomplete-vertical--ensure-visible-lines-inside-buffer ()
-      "Ensure the completion list is visible in regular buffers only.
-Scrolls the screen to be at least `icomplete-prospects-height' real lines
-away from the bottom.  Counts wrapped lines as real lines."
-      (unless (minibufferp)
-        (let* ((window-height (window-body-height))
-               (current-line (count-screen-lines (window-start) (point)))
-               (lines-to-bottom (- window-height current-line)))
-          (when (< lines-to-bottom icomplete-prospects-height)
-            (scroll-up (- icomplete-prospects-height lines-to-bottom))))))
-
-
-    (defun icomplete-vertical--add-indicator-to-selected (comp)
-      "Add indicators to the selected/unselected COMP completions."
-      (if (and icomplete-vertical-render-prefix-indicator
-               (get-text-property 0 'icomplete-selected comp))
-          (concat (propertize icomplete-vertical-selected-prefix-indicator
-                              'face 'icomplete-vertical-selected-prefix-indicator-face)
-                  comp)
-        (concat (propertize icomplete-vertical-unselected-prefix-indicator
-                            'face 'icomplete-vertical-unselected-prefix-indicator-face)
-                comp)))
-
-
-    (cl-defun icomplete--render-vertical
-        (comps md &aux scroll-above scroll-below
-               (total-space ; number of mini-window lines available
-                (1- (min
-                     icomplete-prospects-height
-                     (truncate (max-mini-window-lines) 1)))))
-      ;; Welcome to loopapalooza!
-      ;;
-      ;; First, be mindful of `icomplete-scroll' and manual scrolls.  If
-      ;; `icomplete--scrolled-completions' and `icomplete--scrolled-past'
-      ;; are:
-      ;;
-      ;; - both nil, there is no manual scroll;
-      ;; - both non-nil, there is a healthy manual scroll that doesn't need
-      ;;   to be readjusted (user just moved around the minibuffer, for
-      ;;   example);
-      ;; - non-nil and nil, respectively, a refiltering took place and we
-      ;;   may need to readjust them to the new filtered `comps'.
-      (when (and icomplete-scroll                                    ;; FIXME: remove this after patch
-                 (not icomplete--scrolled-completions)
-                 (not icomplete--scrolled-past))
-        (icomplete-vertical--ensure-visible-lines-inside-buffer))
-      (when (and icomplete-scroll
-                 icomplete--scrolled-completions
-                 (null icomplete--scrolled-past))
-        (icomplete-vertical--ensure-visible-lines-inside-buffer)     ;; FIXME: remove this after patch
-        (cl-loop with preds
-                 for (comp . rest) on comps
-                 when (equal comp (car icomplete--scrolled-completions))
-                 do
-                 (setq icomplete--scrolled-past preds
-                       comps (cons comp rest))
-                 (completion--cache-all-sorted-completions
-                  (icomplete--field-beg)
-                  (icomplete--field-end)
-                  comps)
-                 and return nil
-                 do (push comp preds)
-                 finally (setq icomplete--scrolled-completions nil)))
-      ;; Then, in this pretty ugly loop, collect completions to display
-      ;; above and below the selected one, considering scrolling
-      ;; positions.
-      (cl-loop with preds = icomplete--scrolled-past
-               with succs = (cdr comps)
-               with space-above = (- total-space
-                                     1
-                                     (cl-loop for (_ . r) on comps
-                                              repeat (truncate total-space 2)
-                                              while (listp r)
-                                              count 1))
-               repeat total-space
-               for neighbor = nil
-               if (and preds (> space-above 0)) do
-               (push (setq neighbor (pop preds)) scroll-above)
-               (cl-decf space-above)
-               else if (consp succs) collect
-               (setq neighbor (pop succs)) into scroll-below-aux
-               while neighbor
-               finally (setq scroll-below scroll-below-aux))
-      ;; Halfway there...
-      (let* ((selected (propertize (car comps) 'icomplete-selected t))
-             (chosen (append scroll-above (list selected) scroll-below))
-             (tuples (icomplete--augment md chosen))
-             max-prefix-len max-comp-len lines nsections)
-        (add-face-text-property 0 (length selected)
-                                'icomplete-selected-match 'append selected)
-        ;; Figure out parameters for horizontal spacing
-        (cl-loop
-         for (comp prefix) in tuples
-         maximizing (length prefix) into max-prefix-len-aux
-         maximizing (length comp) into max-comp-len-aux
-         finally (setq max-prefix-len max-prefix-len-aux
-                       max-comp-len max-comp-len-aux))
-        ;; Serialize completions and section titles into a list
-        ;; of lines to render
-        (with-no-warnings
-          (cl-loop
-           for (comp prefix suffix section) in tuples
-           when section
-           collect (propertize section 'face 'icomplete-section) into lines-aux
-           and count 1 into nsections-aux
-           for comp = (icomplete-vertical--add-indicator-to-selected comp)
-           when (get-text-property 0 'icomplete-selected comp)
-           do (add-face-text-property 0 (length comp)
-                                      'icomplete-selected-match 'append comp)
-           collect (concat prefix
-                           (make-string (max 0 (- max-prefix-len (length prefix))) ? )
-                           (completion-lazy-hilit comp)
-                           (make-string (max 0 (- max-comp-len (length comp))) ? )
-                           suffix)
-           into lines-aux
-           finally (setq lines lines-aux
-                         nsections nsections-aux)))
-        ;; Kick out some lines from the beginning due to extra sections.
-        ;; This hopes to keep the selected entry more or less in the
-        ;; middle of the dropdown-like widget when `icomplete-scroll' is
-        ;; t.  Funky, but at least I didn't use `cl-loop'
-        (setq lines
-              (nthcdr
-               (cond ((<= (length lines) total-space) 0)
-                     ((> (length scroll-above) (length scroll-below)) nsections)
-                     (t (min (ceiling nsections 2) (length scroll-above))))
-               lines))
-        (when icomplete--in-region-buffer
-          (setq lines (icomplete-vertical--adjust-lines-for-column
-                       lines icomplete--in-region-buffer completion-in-region--data)))
-        ;; At long last, render final string return value.  This may still
-        ;; kick out lines at the end.
-        (concat " \n"
-                (cl-loop for l in lines repeat total-space concat l concat "\n")))))
-
-  ;; end use-package
-  )
+                    :after #'minibuffer-hide-completions))))
 
 ;;; │ DIRED
 (use-package dired
@@ -1584,7 +1311,7 @@ away from the bottom.  Counts wrapped lines as real lines."
   (dired-kill-when-opening-new-dired-buffer t)
   (dired-listing-switches "-alh --group-directories-first")
   (dired-omit-files "^\\.")                                ; with dired-omit-mode (C-x M-o)
-  (dired-hide-details-hide-absolute-location t)            ; EMACS-31
+  (dired-hide-details-hide-absolute-location t)
   (image-dired-dir (emacs-solo--cache-path 'image-dired-dir))
   :init
   (add-hook 'dired-mode-hook (lambda ()
@@ -2382,12 +2109,8 @@ For the current icon style."
                  (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
                              'face `(:foreground ,eshell-solo/color-bg-dark))
 
-                 (when-let* ((branch
-                              (cond
-                               ((fboundp 'vc-git-working-branch)  ; >= EMACS 31
-                                (vc-git-working-branch))
-                               ((fboundp 'vc-git--current-branch) ; < EMACS 31
-                                (vc-git--current-branch)))))
+                 (when-let* ((branch (and (fboundp 'vc-git-working-branch)
+                                          (vc-git-working-branch))))
                    (concat
                     (propertize (emacs-solo/glyph 'arrow-left)
                                 'face `(:foreground ,eshell-solo/color-bg-dark))
@@ -2474,8 +2197,8 @@ For the current icon style."
   :defer t
   :config
   (setopt
-   vc-auto-revert-mode t                    ; EMACS-31
-   vc-allow-rewriting-published-history t   ; EMACS-31
+   vc-auto-revert-mode t
+   vc-allow-rewriting-published-history t
    vc-git-diff-switches '("--patch-with-stat" "--histogram")  ;; add stats to `git diff'
    vc-git-log-switches '("--stat")                            ;; add stats to `git log'
    vc-git-log-edit-summary-target-len 50
@@ -2485,7 +2208,7 @@ For the current icon style."
    vc-git-show-stash 0                                        ;; do not polute vc-dir with stash lines
    vc-annotate-display-mode 'scale
    add-log-keep-changes-together t
-   vc-dir-auto-hide-up-to-date   t          ; EMACS-31
+   vc-dir-auto-hide-up-to-date   t
    vc-make-backup-files nil)                                  ;; do not backup version controlled files
 
   (with-eval-after-load 'vc-annotate
@@ -2737,12 +2460,7 @@ The completion candidates include the Git status of each file."
     (define-key vc-dir-mode-map (kbd "S") #'emacs-solo/vc-git-add)
     (define-key vc-dir-mode-map (kbd "U") #'emacs-solo/vc-git-reset)
     (define-key vc-dir-mode-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
-    (define-key vc-dir-mode-map (kbd "R") emacs-solo/vc-rebase-map)
-    ;; Bind g to hide up to date files after refreshing in vc-dir
-
-    ;; NOTE: this won't be needed once EMACS-31 gets released: vc-dir-hide-up-to-date-on-revert does that
-    (define-key vc-dir-mode-map (kbd "g")
-                (lambda () (interactive) (vc-dir-refresh) (vc-dir-hide-up-to-date))))
+    (define-key vc-dir-mode-map (kbd "R") emacs-solo/vc-rebase-map))
 
 
   ;; For C-x v ... bindings:
@@ -2796,7 +2514,7 @@ The completion candidates include the Git status of each file."
 (use-package eldoc
   :ensure nil
   :custom
-  (eldoc-help-at-pt t) ;; EMACS-31
+  (eldoc-help-at-pt t)
   (eldoc-echo-area-use-multiline-p nil)
   (eldoc-echo-area-prefer-doc-buffer t)
   (eldoc-documentation-strategy 'eldoc-documentation-compose)
@@ -2804,16 +2522,15 @@ The completion candidates include the Git status of each file."
   (global-eldoc-mode))
 
 ;;; │ EGLOT
-(use-package eglot
+(use-package eglot  ;; TODO: add deno support, if project is deno we should use deno lsp, also on formatter if project is deno we should use deno fmt...
   :ensure nil
   :custom
   (eglot-autoshutdown t)
-  (eglot-events-buffer-size 0) ;; EMACS-31 -- do we still need it?
   (eglot-events-buffer-config '(:size 0 :format full))
   (eglot-prefer-plaintext nil)
   (jsonrpc-event-hook nil)
-  (eglot-code-action-indications nil) ;; EMACS-31 -- annoying depending on the LSP server
-  (eglot-documentation-renderer 'markdown-ts-view-mode) ;; EMACS-31 -- use the 'experimental' internal markdown-ts-mode to render docs
+  (eglot-code-action-indications nil)
+  (eglot-documentation-renderer 'markdown-ts-view-mode)
   :init
   (fset #'jsonrpc--log-event #'ignore)
 
@@ -2985,9 +2702,9 @@ and restart Flymake to apply the changes."
   :custom
   (completion-auto-help t)
   (completion-auto-select t)
-  (completion-eager-update t)               ;; EMACS-31
-  (completion-eager-display (if emacs-solo-enable-icomplete 'auto t)) ;; EMACS-31 (if not using icomplete, t is way cooler)
-  (minibuffer-visible-completions 'up-down) ;; EMACS-31
+  (completion-eager-update t)
+  (completion-eager-display (if emacs-solo-enable-icomplete 'auto t))
+  (minibuffer-visible-completions 'up-down)
   (completion-ignore-case t)
   (completion-show-help nil)
   (completion-styles '(partial-completion flex initials))
@@ -2999,9 +2716,8 @@ and restart Flymake to apply the changes."
   (read-buffer-completion-ignore-case t)
   (read-file-name-completion-ignore-case t)
   :config
-  (when (>= emacs-major-version 31)   ;; EMACS-31
-    (keymap-set minibuffer-visible-completions-up-down-map "C-n" #'minibuffer-next-completion)
-    (keymap-set minibuffer-visible-completions-up-down-map "C-p" #'minibuffer-previous-completion))
+  (keymap-set minibuffer-visible-completions-up-down-map "C-n" #'minibuffer-next-completion)
+  (keymap-set minibuffer-visible-completions-up-down-map "C-p" #'minibuffer-previous-completion)
 
   ;; There's a bug with C-x p p when you have both
   ;; completion-eager-update and completion-eager-display set to t
@@ -3710,13 +3426,13 @@ minimal keybindings (q kills the window, n/p move by line)."
   :bind
   (("M-I" . (lambda () ;; Toggles / focuses speedbar on side window
               (interactive)
-              (speedbar-window)       ;; EMACS-31
+              (speedbar-window)
               (let ((win (get-buffer-window speedbar-buffer)))
                 (when win
                   (select-window win))))))
   :custom
-  (speedbar-window-default-width 25)  ;; EMACS-31
-  (speedbar-window-max-width 25)      ;; EMACS-31
+  (speedbar-window-default-width 25)
+  (speedbar-window-max-width 25)
   (speedbar-show-unknown-files t)
   (speedbar-directory-unshown-regexp "^$")
   (speedbar-indentation-width 2)
@@ -3754,7 +3470,7 @@ minimal keybindings (q kills the window, n/p move by line)."
   ;; :hook (after-init-hook . display-time-mode) ;; If we'd like to see it on the mode-line
   :custom
   (world-clock-time-format "%A %d %B %H:%M:%S %Z")
-  (world-clock-sort-order "%FT%T") ; EMACS-31
+  (world-clock-sort-order "%FT%T")
   (display-time-day-and-date t)
   (display-time-default-load-average nil)
   (display-time-mail-string "")
@@ -3794,9 +3510,7 @@ minimal keybindings (q kills the window, n/p move by line)."
   :config
   (setq uniquify-buffer-name-style 'forward)
   (setq uniquify-strip-common-suffix t)
-  (with-no-warnings
-    (setq uniquify-after-kill-buffer-p t)
-    (setq uniquify-after-kill-buffer-flag t))) ;; EMACS-31 keep this one, delete the one above
+  (setq uniquify-after-kill-buffer-flag t))
 
 
 ;;; │ WHICH-KEY
@@ -3936,7 +3650,6 @@ minimal keybindings (q kills the window, n/p move by line)."
   :mode "Rakefile\\'"
   :mode "Gemfile\\'"
   :custom
-  (add-to-list 'treesit-language-source-alist '(ruby "https://github.com/tree-sitter/tree-sitter-ruby" "master" "src"))
   (ruby-indent-level 2)
   (ruby-indent-tabs-mode nil))
 
@@ -3950,10 +3663,7 @@ minimal keybindings (q kills the window, n/p move by line)."
   ((js-ts-mode-hook . (lambda ()
                         (setq indent-tabs-mode nil))))
   :custom
-  (js-indent-level 2)
-  :config
-  (add-to-list 'treesit-language-source-alist '(javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src"))
-  (add-to-list 'treesit-language-source-alist '(jsdoc "https://github.com/tree-sitter/tree-sitter-jsdoc" "master" "src")))
+  (js-indent-level 2))
 
 ;;; │ JSON-TS-MODE
 (use-package json-ts-mode
@@ -4019,7 +3729,6 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :custom
   (typescript-indent-level 2)
   :config
-  (add-to-list 'treesit-language-source-alist '(typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src"))  ;; EMACS-31 this is now defined on mode code
   (unbind-key "M-." typescript-ts-base-mode-map))
 
 
@@ -4034,7 +3743,6 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :custom
   (typescript-indent-level 2)
   :config
-  (add-to-list 'treesit-language-source-alist '(tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src"))  ;; EMACS-31 this is now defined on mode code
   (unbind-key "M-." typescript-ts-base-mode-map))
 
 
@@ -4042,9 +3750,7 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (use-package bash-ts-mode
   :ensure nil
   :mode "\\.\\(sh\\|bash\\)\\'"
-  :defer t
-  :config
-  (add-to-list 'treesit-language-source-alist '(bash "https://github.com/tree-sitter/tree-sitter-bash" "master" "src")))
+  :defer t)
 
 
 ;;; │ RUST-TS-MODE
@@ -4053,25 +3759,18 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
   :mode "\\.rs\\'"
   :defer t
   :custom
-  (rust-indent-level 2)
-  :config
-  (add-to-list 'treesit-language-source-alist '(rust "https://github.com/tree-sitter/tree-sitter-rust" "master" "src"))) ;; EMACS-31 this is now defined on mode code
+  (rust-indent-level 2))
 
 
 ;;; │ TOML-TS-MODE
 (use-package toml-ts-mode
   :ensure toml-ts-mode
   :mode "\\.toml\\'"
-  :defer t
-  :config
-  (add-to-list 'treesit-language-source-alist '(toml "https://github.com/ikatyang/tree-sitter-toml" "master" "src")))  ;; EMACS-31 this is now defined on mode code
+  :defer t)
 
 
-;;; │ MARKDOWN-TS-MODE - EMACS-31
-;;  As I first proposed here:
-;;  https://lists.gnu.org/archive/html/emacs-devel/2025-02/msg00810.html
+;;; │ MARKDOWN-TS-MODE
 (use-package markdown-ts-mode
-  :if (>= emacs-major-version 31)
   :ensure nil
   :mode ("\\.md\\'" "\\.mdx\\'" "\\.markdown\\'")
   :init (load-library "markdown-ts-mode"))
@@ -4081,18 +3780,14 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (use-package yaml-ts-mode
   :ensure yaml-ts-mode
   :mode "\\.ya?ml\\'"
-  :defer t
-  :config
-  (add-to-list 'treesit-language-source-alist '(yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "master" "src")))  ;; EMACS-31 this is now defined on mode code
+  :defer t)
 
 
 ;;; │ DOCKERFILE-TS-MODE
 (use-package dockerfile-ts-mode
   :ensure dockerfile-ts-mode
   :mode "\\Dockerfile.*\\'"
-  :defer t
-  :config
-  (add-to-list 'treesit-language-source-alist '(dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile" "main" "src"))) ;; EMACS-31 this is now defined on mode code
+  :defer t)
 
 
 ;;; │ GO-TS-MODE
@@ -4149,7 +3844,6 @@ As seen on: https://www.reddit.com/r/emacs/comments/1kfblch/need_help_with_addin
 (require 'emacs-solo-temp-sharing)
 (require 'emacs-solo-smash)
 (require 'emacs-solo-cl)
-(require 'emacs-solo-sudo-edit)
 (require 'emacs-solo-replace-as-diff)
 (require 'emacs-solo-weather)
 (require 'emacs-solo-rate)

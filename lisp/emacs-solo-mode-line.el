@@ -2,7 +2,7 @@
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: faces, convenience
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -58,9 +58,8 @@ Replacing `Git-' with a branch symbol."
                 mode-line-buffer-identification '(" %b")
                 mode-line-position-column-line-format '(" %l:%c"))
 
-  (setq mode-line-modes-delimiters '("" . ""))  ;; EMACS-31
+  (setq mode-line-modes-delimiters '("" . ""))
 
-  ;; EMACS-31
   (setq mode-line-collapse-minor-modes
         '(abbrev-mode
           auto-revert-mode
@@ -80,8 +79,7 @@ Replacing `Git-' with a branch symbol."
         (when trg
           (setcar trg "")))))
 
-  (if (< emacs-major-version 31)
-      (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes)))
+  (add-hook 'after-change-major-mode-hook 'emacs-solo/purge-minor-modes))
 
 (provide 'emacs-solo-mode-line)
 ;;; emacs-solo-mode-line.el ends here

@@ -2,7 +2,7 @@
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: faces, convenience
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;
@@ -27,8 +27,7 @@
       ("HACK" . warning)
       ("NOTE" . warning)
       ("HERE" . compilation-info)
-      ("EMACS-31" . compilation-info)
-      ("EMACS-32" . icon-button))
+      ("EMACS-32" . compilation-info))
     "Alist of keywords to highlight and their face."
     :group '+highlight-keywords
     :type '(alist :key-type (string :tag "Keyword")

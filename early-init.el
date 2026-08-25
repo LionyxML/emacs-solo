@@ -2,7 +2,7 @@
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "31.1"))
 ;; Keywords: config
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;
@@ -57,23 +57,43 @@ was loaded (or Emacs' built-in default, when none is) repaints it."
 (setq vc-handled-backends '(Git))
 
 ;; Do not native compile if on battery power
-(setopt native-comp-async-on-battery-power nil) ; EMACS-31
+(setopt native-comp-async-on-battery-power nil)
 
 ;; HACK: avoid being flashbanged
+(defvar emacs-solo--masked-mode-line-format nil
+  "Value of `mode-line-format' saved before the startup mask hid it.")
+
 (defun emacs-solo/avoid-initial-flash-of-light ()
   "Avoid flash of light when starting Emacs, based on `emacs-solo-avoid-flash-options`."
   (when (and initial-window-system  ;; TTYs never flash
              (alist-get 'enabled emacs-solo-avoid-flash-options))
-    (setq mode-line-format nil)
+    ;; `mode-line-format' is buffer-local in every buffer, so a plain
+    ;; `setq' here would only touch *scratch* (and be killed by its
+    ;; major mode anyway).
+    (setq emacs-solo--masked-mode-line-format (default-value 'mode-line-format))
+    (setq-default mode-line-format nil)
     (let ((color (alist-get 'mask-color emacs-solo-avoid-flash-options)))
       (set-face-attribute 'default nil :background color :foreground color))))
 
 (defun emacs-solo/reset-default-colors ()
-  "Unmask the default face so the loaded theme (or default) repaints it."
+  "Undo the startup mask so the loaded theme (or default) repaints it."
   (when (and initial-window-system  ;; TTYs never flash
              (alist-get 'enabled emacs-solo-avoid-flash-options))
+    ;; Only put the old mode line back if nothing set one meanwhile,
+    ;; so we never clobber the mode line built during init.
+    (when (null (default-value 'mode-line-format))
+      (setq-default mode-line-format emacs-solo--masked-mode-line-format))
     (set-face-attribute 'default nil
                         :background 'unspecified :foreground 'unspecified)
+    ;; Masking `default' also stored the mask color as the
+    ;; background-color/foreground-color of `default-frame-alist', and
+    ;; setting the face back to `unspecified' does not remove it, so
+    ;; every new frame (C-x 5 2) would still be born masked.
+    (let ((color (alist-get 'mask-color emacs-solo-avoid-flash-options)))
+      (dolist (param '(background-color foreground-color))
+        (when (equal (alist-get param default-frame-alist) color)
+          (setq default-frame-alist
+                (assq-delete-all param default-frame-alist)))))
     (custom-theme-recalc-face 'default)))
 
 (emacs-solo/avoid-initial-flash-of-light)
