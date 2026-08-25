@@ -3426,10 +3426,16 @@ minimal keybindings (q kills the window, n/p move by line)."
   :bind
   (("M-I" . (lambda () ;; Toggles / focuses speedbar on side window
               (interactive)
-              (speedbar-window)
-              (let ((win (get-buffer-window speedbar-buffer)))
-                (when win
-                  (select-window win))))))
+              (let ((buf (get-buffer speedbar-buffer)))
+                (if-let* ((win (and buf (get-buffer-window buf))))
+                    (delete-window win)
+                  (speedbar-window)
+                  (when-let* ((win (get-buffer-window speedbar-buffer)))
+                    (with-current-buffer speedbar-buffer
+                      ;; FIXME: without this it won't allow clicking
+                      ;;        Ref.: https://debbugs.gnu.org/cgi/bugreport.cgi?bug=81699
+                      (speedbar-mode))
+                    (select-window win)))))))
   :custom
   (speedbar-window-default-width 25)
   (speedbar-window-max-width 25)
@@ -3440,14 +3446,14 @@ minimal keybindings (q kills the window, n/p move by line)."
   (speedbar-update-flag nil)
   :config
   (setq speedbar-expand-image-button-alist
-        '(("<+>" . ezimage-directory) ;; previously ezimage-directory-plus
+        '(("<+>" . ezimage-directory)      ;; previously ezimage-directory-plus
           ("<->" . ezimage-directory-minus)
           ("< >" . ezimage-directory)
           ("[+]" . ezimage-page-plus)
           ("[-]" . ezimage-page-minus)
           ("[?]" . ezimage-page)
           ("[ ]" . ezimage-page)
-          ("{+}" . ezimage-directory-plus) ;; previously ezimage-box-plus
+          ("{+}" . ezimage-directory-plus)  ;; previously ezimage-box-plus
           ("{-}" . ezimage-directory-minus) ;; previously ezimage-box-minus
           ("<M>" . ezimage-mail)
           ("<d>" . ezimage-document-tag)
