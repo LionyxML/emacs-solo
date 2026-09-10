@@ -67,13 +67,15 @@
 ;;   `emacs-solo/cl-compile-file' (compile-file ...) current buffer in
 ;;       the REPL.  Bound to C-c C-k.
 ;;   `emacs-solo/cl-describe-symbol' `(describe ...)' symbol at point,
-;;       output in a help window.  Bound to C-c d.
+;;       output in a help window split to the right, `q' drops it.
+;;       Bound to C-c d.
 ;;   `emacs-solo/cl-macroexpand'     `macroexpand-1' form at point.
 ;;       Bound to C-c C-m.
 ;;   `emacs-solo/cl-macroexpand-all' `macroexpand' form at point (full).
 ;;       Bound to C-c M-m.
 ;;   `emacs-solo/cl-hyperspec-lookup' open HyperSpec entry for symbol
-;;       at point via l1sp.org.  Bound to C-c h.
+;;       at point via l1sp.org, in EWW on a right split.  With C-u,
+;;       open in the system browser.  Bound to C-c h.
 ;;   `emacs-solo/cl-restart'         kill + respawn both private SBCLs.
 ;;   `emacs-solo/cl-show-buffer'     pop primary SBCL I/O buffer.
 ;;   `emacs-solo/cl-diagnose'        echo wiring status.
@@ -758,6 +760,13 @@ Returns cached candidates immediately; refreshes from SBCL in background."
                     (ignore pend)
                     (emacs-solo-cl--flymake-deliver st text))))))))))
 
+  (defun emacs-solo-cl--normalize-msg (msg)
+    "Collapse whitespace runs in MSG to single spaces.
+SBCL pretty-prints compiler conditions over several indented lines;
+flymake only ever shows the first one."
+    (when msg
+      (string-trim (replace-regexp-in-string "[ \t\n\r\f]+" " " msg))))
+
   (defun emacs-solo-cl--msg-symbol (msg)
     "Extract first plausible CL symbol token from MSG, or nil.
 Requires earmuffs (`*FOO*'/`+FOO+') or 3+ uppercase chars to avoid
@@ -836,7 +845,7 @@ emits with stale EOF positions."
           (dolist (d diags)
             (let* ((kind (nth 0 d))
                    (pos (or (nth 1 d) 0))
-                   (msg (nth 2 d))
+                   (msg (emacs-solo-cl--normalize-msg (nth 2 d)))
                    (beg (or (ignore-errors (byte-to-position (1+ pos)))
                             (1+ pos)))
                    (beg (max (point-min) (min beg (point-max))))
@@ -1243,6 +1252,34 @@ Shows the REPL in a window below, keeping focus in the code buffer."
 
   ;; ---- describe / macroexpand / hyperspec (primary SBCL)
 
+  (defun emacs-solo-cl--display-right (buffer)
+    "Show BUFFER in a right split and select it.
+Forces `quit-restore' so `q' always drops the split."
+    (let ((origin (selected-window))
+          (win (display-buffer
+                buffer
+                '((display-buffer-reuse-window
+                   display-buffer-in-direction)
+                  (direction . right)
+                  (window-width . 0.5)
+                  (inhibit-same-window . t)))))
+      (when win
+        (set-window-parameter win 'quit-restore
+                              (list 'window 'window origin buffer))
+        (select-window win))
+      win))
+
+  (defun emacs-solo-cl--help-right (name text)
+    "Render TEXT in help buffer NAME, displayed in a right split."
+    (let ((buf (get-buffer-create name)))
+      (with-current-buffer buf
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert text))
+        (help-mode)
+        (goto-char (point-min)))
+      (emacs-solo-cl--display-right buf)))
+
   (defun emacs-solo/cl-describe-symbol ()
     "Describe the Common Lisp symbol at point using the primary SBCL."
     (interactive)
@@ -1254,8 +1291,8 @@ Shows the REPL in a window below, keeping focus in the code buffer."
                   pkg (upcase sym)))
            (raw (emacs-solo-cl--eval form))
            (text (emacs-solo-cl--read raw)))
-      (with-help-window "*CL Describe*"
-        (princ (or text "(no description)")))))
+      (emacs-solo-cl--help-right "*CL Describe*"
+                                 (or text "(no description)"))))
 
   (defun emacs-solo-cl--pprint-form (expander form pkg)
     "Pretty-print EXPANDER applied to FORM (string) under PKG in SBCL."
@@ -1272,8 +1309,8 @@ Shows the REPL in a window below, keeping focus in the code buffer."
            (_ (unless form (user-error "No form at point")))
            (text (emacs-solo-cl--pprint-form
                   "macroexpand-1" form (emacs-solo-cl--in-package))))
-      (with-help-window "*CL Macroexpand*"
-        (princ (or text "(no expansion)")))))
+      (emacs-solo-cl--help-right "*CL Macroexpand*"
+                                 (or text "(no expansion)"))))
 
   (defun emacs-solo/cl-macroexpand-all ()
     "Fully macroexpand the form at point."
@@ -1282,13 +1319,15 @@ Shows the REPL in a window below, keeping focus in the code buffer."
            (_ (unless form (user-error "No form at point")))
            (text (emacs-solo-cl--pprint-form
                   "macroexpand" form (emacs-solo-cl--in-package))))
-      (with-help-window "*CL Macroexpand*"
-        (princ (or text "(no expansion)")))))
+      (emacs-solo-cl--help-right "*CL Macroexpand*"
+                                 (or text "(no expansion)"))))
 
-  (defun emacs-solo/cl-hyperspec-lookup ()
+  (defun emacs-solo/cl-hyperspec-lookup (&optional external)
     "Look up the symbol at point in the Common Lisp HyperSpec.
-Resolve via l1sp.org redirector, then open final HTTPS URL."
-    (interactive)
+Resolve via l1sp.org redirector, then render the final HTTPS URL in
+EWW on a right split.  With prefix arg EXTERNAL, use the system
+browser instead."
+    (interactive "P")
     (let* ((sym (thing-at-point 'symbol t))
            (_ (unless sym (user-error "No symbol at point")))
            (probe (format "http://l1sp.org/cl/%s"
@@ -1304,9 +1343,14 @@ Resolve via l1sp.org redirector, then open final HTTPS URL."
                     (if (boundp 'url-http-target-url)
                         (url-recreate-url url-http-target-url)
                       probe)
-                  (kill-buffer (current-buffer)))))))
-      (browse-url
-       (replace-regexp-in-string "\\`http://" "https://" final))))
+                  (kill-buffer (current-buffer))))))
+           (url (replace-regexp-in-string "\\`http://" "https://" final)))
+      (if external
+          (browse-url url)
+        (require 'eww)
+        (let ((win (emacs-solo-cl--display-right (get-buffer-create "*eww*"))))
+          (with-selected-window win
+            (eww url))))))
 
   ;; ---- minor mode and keybindings
 
