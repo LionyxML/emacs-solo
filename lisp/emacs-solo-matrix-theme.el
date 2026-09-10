@@ -271,11 +271,18 @@ exists in the palette and is associated with a HEX-VALUE.")
     `(message-separator ((,c :foreground ,green-dark)))
 ;;;;; link
     `(link ((,c :foreground ,malachite :underline (:color ,malachite :style line))))
+;;;;; log-edit
+    ;; modus makes this a full-height band; restore the thin bar
+    `(log-edit-headers-separator ((,c :height 0.1 :background ,green-deep :extend t)))
 ;;;;; newsticker
     `(newsticker-extra-face ((,c :foreground ,green-dark :height 0.8 :slant italic)))
     `(newsticker-feed-face ((,c :foreground ,green-mid :height 1.2 :weight bold)))
     `(newsticker-treeview-face ((,c :foreground ,malachite)))
     `(newsticker-treeview-selection-face ((,c :background ,bg-forest :foreground ,malachite)))
+;;;;; separator-line
+    ;; modus replaces the default thin bar with an underline in bg-active,
+    ;; which our palette maps to bg-main (invisible)
+    `(separator-line ((,c :height 0.1 :background ,green-deep :underline nil)))
 ;;;;; tab-bar
     ;; :box nil is load-bearing: the built-in `tab-bar-tab' defface sets a
     ;; `released-button' box on dark displays, and `tab-bar-tab-inactive'

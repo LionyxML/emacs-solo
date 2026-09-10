@@ -276,11 +276,18 @@ exists in the palette and is associated with a HEX-VALUE.")
     `(gnus-header-subject ((,c :foreground ,neon-cyan)))
     `(message-signature-separator ((,c :foreground ,neon-cyan)))
     `(message-separator ((,c :foreground ,teal-dim)))
+;;;;; log-edit
+    ;; modus makes this a full-height band; restore the thin bar
+    `(log-edit-headers-separator ((,c :height 0.1 :background ,teal-dim :extend t)))
 ;;;;; newsticker
     `(newsticker-extra-face ((,c :foreground ,teal-faint :height 0.8 :slant italic)))
     `(newsticker-feed-face ((,c :foreground ,hot-pink :height 1.2 :weight bold)))
     `(newsticker-treeview-face ((,c :foreground ,fg-main)))
     `(newsticker-treeview-selection-face ((,c :background ,bg-region :foreground ,teal-soft)))
+;;;;; separator-line
+    ;; modus replaces the default thin bar with an underline in bg-active,
+    ;; which our palette maps to bg-main (invisible)
+    `(separator-line ((,c :height 0.1 :background ,teal-dim :underline nil)))
 ;;;;; tab-bar
     ;; :box nil is load-bearing: the built-in `tab-bar-tab' defface sets a
     ;; `released-button' box on dark displays, and `tab-bar-tab-inactive'

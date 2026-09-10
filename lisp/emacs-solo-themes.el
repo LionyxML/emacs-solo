@@ -57,6 +57,7 @@
                   gnus-header-name
                   gnus-header-subject
                   link
+                  log-edit-headers-separator
                   log-view-message
                   match
                   modus-themes-search-current
@@ -65,6 +66,7 @@
                   newsticker-feed-face
                   newsticker-treeview-face
                   newsticker-treeview-selection-face
+                  separator-line
                   tab-bar
                   tab-bar-tab
                   tab-bar-tab-group-current
