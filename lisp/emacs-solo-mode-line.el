@@ -18,12 +18,17 @@
   :no-require t
   :defer t
   :init
+  (defun emacs-solo/mode-line-glyph-p (char)
+    "Non-nil when CHAR is displayable and mode-line icons are enabled."
+    (and (memq 'mode-line emacs-solo-icon-modules)
+         (char-displayable-p char)))
+
   ;; Shorten big branches names
   (defun emacs-solo/shorten-vc-mode (vc)
     "Shorten VC string to at most 20 characters.
 Replacing `Git-' with a branch symbol."
     (let* ((vc (replace-regexp-in-string "^ Git[:-]"
-                                         (if (char-displayable-p ?) "  " "Git: ")
+                                         (if (emacs-solo/mode-line-glyph-p ?) "  " "Git: ")
                                          vc))) ;; Options:   ᚠ ⎇
       (if (> (length vc) 20)
           (concat (substring vc 0 20)
@@ -36,7 +41,7 @@ Replacing `Git-' with a branch symbol."
                   ;; (:propertize " " display (raise +0.1)) ;; Top padding
                   ;; (:propertize " " display (raise -0.1)) ;; Bottom padding
                   (:propertize
-                   (:eval (if (char-displayable-p ?λ) "λ  " "   ") face font-lock-keyword-face))
+                   (:eval (if (emacs-solo/mode-line-glyph-p ?λ) "λ  " "   ") face font-lock-keyword-face))
 
                   (:propertize
                    ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
