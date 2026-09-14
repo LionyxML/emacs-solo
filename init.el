@@ -3426,16 +3426,10 @@ minimal keybindings (q kills the window, n/p move by line)."
   :bind
   (("M-I" . (lambda () ;; Toggles / focuses speedbar on side window
               (interactive)
-              (let ((buf (get-buffer speedbar-buffer)))
-                (if-let* ((win (and buf (get-buffer-window buf))))
-                    (delete-window win)
-                  (speedbar-window)
-                  (when-let* ((win (get-buffer-window speedbar-buffer)))
-                    (with-current-buffer speedbar-buffer
-                      ;; FIXME: without this it won't allow clicking
-                      ;;        Ref.: https://debbugs.gnu.org/cgi/bugreport.cgi?bug=81699
-                      (speedbar-mode))
-                    (select-window win)))))))
+              (speedbar-window)
+              (when-let* ((buf (bound-and-true-p speedbar-buffer))
+                          (win (get-buffer-window buf)))
+                (select-window win)))))
   :custom
   (speedbar-window-default-width 25)
   (speedbar-window-max-width 25)
