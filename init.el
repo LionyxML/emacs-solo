@@ -3290,8 +3290,9 @@ minimal keybindings (q kills the window, n/p move by line)."
   (proced-format 'medium) ;; can be changed interactively with `F'
   (proced-filter 'user)   ;; can be changed interactively with `f'
   :config
-  ;; FIXME: Remove this once https://debbugs.gnu.org/cgi/bugreport.cgi?bug=80898 lands
-  (when (eq system-type 'darwin)
+  ;; Remove this when EMACS-32 is the current release.
+  ;; Bug#80898 already implements this feature.
+  (when (and (eq system-type 'darwin) (< emacs-major-version 32))
     (defvar emacs-solo--proced-ps-cache (make-hash-table))
     (defvar emacs-solo--proced-ps-timer nil)
 
