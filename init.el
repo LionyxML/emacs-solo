@@ -2600,6 +2600,15 @@ The completion candidates include the Git status of each file."
 
   (set-default emacs-solo--flymake-inline-var nil)
 
+  ;; EMACS-32 moved the `trusted-content-p' gate out of `elisp-mode.el'
+  ;; and into `flymake--run-backend', so it now disables *every* backend
+  ;; in untrusted buffers, ours included.  Trust the projects folder.
+  ;; Harmless on 31, where only the elisp backends consult it.
+  (setq trusted-content
+        (list (file-name-as-directory
+               (or (bound-and-true-p emacs-solo-default-projects-folder)
+                   "~/Projects"))))
+
   ;; Define the toggle function
   (defun toggle-flymake-diagnostics-at-eol ()
     "Toggle the display of Flymake diagnostics at the end of the line
