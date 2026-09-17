@@ -277,6 +277,8 @@ exists in the palette and is associated with a HEX-VALUE.")
     `(gnus-header-from ((,c :foreground ,ctp-mauve)))
     `(gnus-header-name ((,c :foreground ,ctp-green)))
     `(gnus-header-subject ((,c :foreground "#8aadf4")))
+    `(message-signature-separator ((,c :foreground ,ctp-mauve :weight bold)))
+    `(message-separator ((,c :foreground ,ctp-overlay1 :weight bold)))
 ;;;;; log-edit
     ;; modus makes this a full-height band; restore the thin bar
     `(log-edit-headers-separator ((,c :height 0.1 :background ,ctp-surface2 :extend t)))
