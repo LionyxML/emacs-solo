@@ -72,3 +72,4 @@ saveplace
 cert.pem
 multisession/
 tmp/
+user-lisp/
