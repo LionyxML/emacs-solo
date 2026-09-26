@@ -155,8 +155,8 @@ Examples: `Maple Mono NF' or `JetBrainsMono Nerd Font'."
   :type 'string
   :group 'emacs-solo)
 
-(defcustom emacs-solo-preferred-font-sizes '(130 105)
-  "List of default font sizes (first for macOS, second for GNU/Linux)."
+(defcustom emacs-solo-preferred-font-sizes '(130 105 120)
+  "List of default font sizes (first for macOS, second for GNU/Linux, third for FreeBSD)."
   :type '(repeat integer)
   :group 'emacs-solo)
 
@@ -465,7 +465,10 @@ parent directory created."
   (declare-function emacs-solo/setup-font "")
   (defun emacs-solo/setup-font ()
     (let* ((emacs-solo-have-default-font (find-font (font-spec :family emacs-solo-preferred-font-name)))
-           (size (nth (if (eq system-type 'darwin) 0 1)
+           (size (nth (pcase system-type
+                        ('darwin 0)
+                        ('berkeley-unix 2)
+                        (_ 1))
                       emacs-solo-preferred-font-sizes)))
       (set-face-attribute 'default nil
                           :family (when emacs-solo-have-default-font
