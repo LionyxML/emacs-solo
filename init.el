@@ -465,11 +465,12 @@ parent directory created."
   (declare-function emacs-solo/setup-font "")
   (defun emacs-solo/setup-font ()
     (let* ((emacs-solo-have-default-font (find-font (font-spec :family emacs-solo-preferred-font-name)))
-           (size (nth (pcase system-type
-                        ('darwin 0)
-                        ('berkeley-unix 2)
-                        (_ 1))
-                      emacs-solo-preferred-font-sizes)))
+           (size (or (nth (pcase system-type
+                            ('darwin 0)
+                            ('berkeley-unix 2)
+                            (_ 1))
+                          emacs-solo-preferred-font-sizes)
+                     (car (last emacs-solo-preferred-font-sizes)))))
       (set-face-attribute 'default nil
                           :family (when emacs-solo-have-default-font
                                     emacs-solo-preferred-font-name)
