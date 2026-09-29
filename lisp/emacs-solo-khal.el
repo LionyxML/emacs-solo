@@ -37,6 +37,12 @@ Used to locate `.ics' files for edit and remove.")
   (defvar emacs-solo-khal-default-calendar nil
     "Default calendar for new events.  Nil prompts every time.")
 
+  (defvar emacs-solo-khal-month-faces
+    '(font-lock-function-name-face font-lock-keyword-face
+      font-lock-string-face font-lock-type-face
+      font-lock-constant-face font-lock-builtin-face)
+    "Faces cycled by month for month and week separators.")
+
   (defvar emacs-solo--khal-fmt
     "EV\t{uid}\t{start}\t{end}\t{title}\t{calendar}\t{location}"
     "Format passed to `khal list -f' to emit tab-separated rows.
@@ -80,24 +86,92 @@ Sentinel \"EV\\t\" prefixes every event line so day-format headers
            (setq i (1+ i))
            (list uid
                  (vector (number-to-string i)
+                         title
                          start
                          end
-                         title
                          cal
                          loc
                          (substring uid 0 (min 8 (length uid)))))))
        (emacs-solo--khal-events))))
 
+  (defun emacs-solo--khal-day (start)
+    "Return date part of START string."
+    (car (split-string start " " t)))
+
+  (defun emacs-solo--khal-time (start)
+    "Return START's date as a Lisp time value."
+    (let ((ymd (mapcar #'string-to-number
+                       (split-string (emacs-solo--khal-day start) "-"))))
+      (encode-time (list 0 0 0 (nth 2 ymd) (nth 1 ymd) (nth 0 ymd)
+                         nil -1 nil))))
+
+  (defun emacs-solo--khal-break (start)
+    "Return `month', `week', `day' or nil for START vs the previous row.
+Only when sorted chronologically."
+    (when (member (car tabulated-list-sort-key) '(nil "Idx" "Start"))
+      (let ((prev (save-excursion
+                    (and (zerop (forward-line -1))
+                         (tabulated-list-get-entry))))
+            (cur (emacs-solo--khal-time start)))
+        (if (not prev)
+            'month
+          (let ((old (emacs-solo--khal-time (aref prev 2))))
+            (cond
+             ((not (equal (format-time-string "%Y-%m" old)
+                          (format-time-string "%Y-%m" cur)))
+              'month)
+             ((not (equal (format-time-string "%G-%V" old)
+                          (format-time-string "%G-%V" cur)))
+              'week)
+             ((not (equal (emacs-solo--khal-day (aref prev 2))
+                          (emacs-solo--khal-day start)))
+              'day)))))))
+
+  (defun emacs-solo--khal-print-entry (id cols)
+    "Print entry ID with COLS, preceded by a labeled rule on day,
+week or month change."
+    (let ((kind (emacs-solo--khal-break (aref cols 2))))
+      (when kind
+        (let* ((time (emacs-solo--khal-time (aref cols 2)))
+               (width (+ tabulated-list-padding
+                         (apply #'+ (mapcar (lambda (c) (1+ (nth 1 c)))
+                                            tabulated-list-format))))
+               (month-face (nth (mod (1- (decoded-time-month
+                                          (decode-time time)))
+                                     (length emacs-solo-khal-month-faces))
+                                emacs-solo-khal-month-faces))
+               (label (pcase kind
+                        ('month (upcase (format-time-string
+                                         "%B %Y · W%V · %a %d" time)))
+                        ('week  (capitalize (format-time-string
+                                             "W%V · %a %d %b" time)))
+                        ('day   (capitalize (format-time-string
+                                             "%a %d" time)))))
+               (char (pcase kind ('month ?═) ('week ?━) ('day ?─)))
+               (face (pcase kind
+                       ('month `(:inherit ,month-face :weight bold))
+                       ('week  month-face)
+                       ('day   'shadow))))
+          (insert (propertize
+                   (concat (make-string 3 char) " " label " "
+                           (make-string (max 0 (- width 5 (string-width label)))
+                                        char))
+                   'face face)
+                  "\n"))))
+    (tabulated-list-print-entry id cols))
+
   (define-derived-mode emacs-solo-khal-mode tabulated-list-mode "Khal"
     "Major mode for viewing Khal events."
     (setq tabulated-list-format [("Idx" 4 t)
+                                 ("Title" 40 t)
                                  ("Start" 17 t)
                                  ("End" 17 t)
-                                 ("Title" 40 t)
                                  ("Cal" 12 t)
                                  ("Where" 25 t)
                                  ("UID" 8 t)])
     (setq tabulated-list-padding 2)
+    (setq-local tabulated-list-printer #'emacs-solo--khal-print-entry)
+    (setq-local emacs-solo-center-document-desired-width 134)
     (setq-local revert-buffer-function
                 (lambda (&rest _) (emacs-solo/khal-list)))
     (tabulated-list-init-header))
@@ -171,7 +245,7 @@ Save the buffer then `s' from the list to push via vdirsyncer."
     (let* ((data (emacs-solo--khal-row))
            (uid (plist-get data :uid))
            (row (plist-get data :row))
-           (title (nth 3 row))
+           (title (nth 1 row))
            (path (emacs-solo--khal-find-ics uid)))
       (unless path (user-error "No .ics file found for UID %s" uid))
       (when (yes-or-no-p (format "Delete event %S (%s)? " title path))
@@ -183,7 +257,7 @@ Save the buffer then `s' from the list to push via vdirsyncer."
     "Copy event title at point to kill ring."
     (interactive)
     (let* ((row (plist-get (emacs-solo--khal-row) :row))
-           (title (nth 3 row)))
+           (title (nth 1 row)))
       (kill-new title)
       (message ">>> emacs-solo: Copied %s" title)))
 
