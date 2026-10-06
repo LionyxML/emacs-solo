@@ -207,6 +207,17 @@ Requires the `languagetool' executable to be present in variable `exec-path'."
   :type 'boolean
   :group 'emacs-solo)
 
+(defcustom emacs-solo-scratch-banner t
+  "Whether to display the Emacs Solo banner in the *scratch* buffer.
+
+If nil, do not display a banner.  If t, display the default Emacs
+Solo banner.  If a function, call it and insert its return value as
+the banner."
+  :type '(choice (const     :tag "Enabled" t)
+                 (const     :tag "Disabled" nil)
+                 (function  :tag "Other function"))
+  :group 'emacs-solo)
+
 ;;; ├──────────────────── CACHE PATHS
 ;;
 ;;  Single source of truth for every path Emacs Solo stores in its
@@ -763,7 +774,11 @@ or is an ERC buffer."
   (file-name-shadow-mode 1) ; allows us to type a new path without having to delete the current one
 
   (with-current-buffer (get-buffer-create "*scratch*")
-    (insert (format ";;
+    (insert
+     (pcase emacs-solo-scratch-banner
+       ('nil             "")
+       ((pred functionp) (funcall emacs-solo-scratch-banner))
+       (_                (format ";;
 ;; ███████╗███╗   ███╗ █████╗  ██████╗███████╗    ███████╗ ██████╗ ██╗      ██████╗
 ;; ██╔════╝████╗ ████║██╔══██╗██╔════╝██╔════╝    ██╔════╝██╔═══██╗██║     ██╔═══██╗
 ;; █████╗  ██╔████╔██║███████║██║     ███████╗    ███████╗██║   ██║██║     ██║   ██║
@@ -775,10 +790,10 @@ or is an ERC buffer."
 ;;   Packages     : %s
 ;;
 "
-                    (emacs-init-time)
-                    (number-to-string (length package-activated-list)))))
+                                 (emacs-init-time)
+                                 (length package-activated-list)))))
 
-  (message ">>> emacs-solo: init time %s" (emacs-init-time)))
+    (message ">>> emacs-solo: init time %s" (emacs-init-time))))
 
 
 ;;; │ ABBREV
