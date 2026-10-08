@@ -2390,28 +2390,33 @@ For the current icon style."
         (message ">>> emacs-solo: Could not determine current branch."))))
 
 
-  (defun emacs-solo/vc-browse-remote (&optional current-line)
+  (defun emacs-solo/vc-browse-remote (&optional current-line copy)
     "Open the repository's remote URL in the browser.
-If CURRENT-LINE is non-nil, point to the current branch, file, and line.
-Otherwise, open the repository's main page."
-    (interactive "P")
-    (let* ((remote-url (string-trim (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
-           (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
-           (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
-           (line (line-number-at-pos)))
-      (message ">>> emacs-solo: Opening remote on browser %s" remote-url)
-      (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
-          (let ((host (match-string 1 remote-url))
-                (path (match-string 2 remote-url)))
-            ;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
-            (when (string-prefix-p "git@" host)
-              (setq host (replace-regexp-in-string "^git@" "" host)))
-            ;; Construct the appropriate URL based on CURRENT-LINE
-            (browse-url
-             (if current-line
-                 (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
-               (format "https://%s/%s" host path))))
-        (message ">>> emacs-solo: Could not determine repository URL"))))
+If CURRENT-LINE is non-nil and the buffer visits a file, point to the
+current branch, file, and line.  Otherwise, open the repository's main page.
+If COPY is non-nil (interactively, with \\[universal-argument]), copy the URL
+to the kill ring instead."
+    (interactive (list nil current-prefix-arg))
+    (require 'vc-git)
+    (let* ((git (lambda (&rest args)
+                  (string-trim (or (apply #'vc-git--run-command-string nil args) ""))))
+           (root (vc-git-root default-directory))
+           (remote-url (funcall git "config" "--get" "remote.origin.url")))
+      (if (not (and root
+                    (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url)))
+          (message ">>> emacs-solo: Could not determine repository URL")
+        (let* ((repo (format "https://%s/%s" (match-string 1 remote-url) (match-string 2 remote-url)))
+               (url (if (and current-line buffer-file-name)
+                        (format "%s/blob/%s/%s#L%d" repo
+                                (funcall git "rev-parse" "--abbrev-ref" "HEAD")
+                                (file-relative-name buffer-file-name root)
+                                (line-number-at-pos))
+                      repo)))
+          (if copy
+              (progn (kill-new url)
+                     (message ">>> emacs-solo: Copied %s" url))
+            (message ">>> emacs-solo: Opening remote on browser %s" url)
+            (browse-url url))))))
 
 
   (defun emacs-solo/vc-diff-on-current-hunk ()
@@ -2491,7 +2496,7 @@ The completion candidates include the Git status of each file."
   (define-key vc-prefix-map (kbd "V") #'emacs-solo/vc-git-visualize-status)
   (define-key vc-prefix-map (kbd "R") emacs-solo/vc-rebase-map)
   (define-key vc-prefix-map (kbd "B") #'emacs-solo/vc-browse-remote)
-  (define-key vc-prefix-map (kbd "o") #'(lambda () (interactive) (emacs-solo/vc-browse-remote 1)))
+  (define-key vc-prefix-map (kbd "o") #'(lambda (copy) (interactive "P") (emacs-solo/vc-browse-remote t copy)))
   (define-key vc-prefix-map (kbd "=") #'emacs-solo/vc-diff-on-current-hunk)
 
   ;; Switch-buffer between modified files
