@@ -953,7 +953,7 @@ and 'explainer'."
 
 
   (defcustom emacs-solo-ai-recap-command
-    '("opencode" "--pure" "run" "--model" "opencode/big-pickle" "-")
+    '("opencode" "run" "--model" "opencode/big-pickle")
     "Command (program plus arguments) used by `emacs-solo/ai-recap'.
 The transcript is written to its stdin, its stdout is streamed back
 into the recap buffer."
@@ -1171,6 +1171,7 @@ by line)."
       (let ((proc (make-process
                    :name "ai-recap"
                    :buffer output-buffer
+                   :stderr (get-buffer-create " *ai-recap-stderr*")
                    :connection-type 'pipe
                    :noquery t
                    :command emacs-solo-ai-recap-command
