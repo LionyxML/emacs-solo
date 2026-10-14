@@ -3190,8 +3190,9 @@ minimal keybindings (q kills the window, n/p move by line)."
                                           (proc (make-process
                                                  :name "yt-summary"
                                                  :buffer out-buf
+                                                 :stderr (get-buffer-create " *yt-summary-stderr*")
                                                  :connection-type 'pipe
-                                                 :command '("opencode" "--pure" "run" "--model" "opencode/big-pickle" "-")
+                                                 :command '("opencode" "run" "--model" "opencode/big-pickle")
                                                  :filter
                                                  (lambda (proc chunk)
                                                    (with-current-buffer (process-buffer proc)
