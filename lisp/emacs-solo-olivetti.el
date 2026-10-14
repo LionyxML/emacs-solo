@@ -56,6 +56,7 @@
   (add-hook 'gnus-browse-mode-hook  #'emacs-solo/center-document-mode)
   (add-hook 'eww-mode-hook          #'emacs-solo/center-document-mode)
   (add-hook 'elpher-mode-hook       #'emacs-solo/center-document-mode)
+  (add-hook 'emacs-solo-khal-mode-hook #'emacs-solo/center-document-mode)
   (add-hook 'newsticker-treeview-list-mode-hook #'emacs-solo/center-document-mode)
   (add-hook 'newsticker-treeview-item-mode-hook #'emacs-solo/center-document-mode))
 
