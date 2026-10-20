@@ -3298,9 +3298,8 @@ minimal keybindings (q kills the window, n/p move by line)."
 
 
 ;;; │ ELECTRIC-PAIR
-(use-package electric-pair
+(use-package elec-pair
   :ensure nil
-  :defer
   :hook (after-init-hook . electric-pair-mode))
 
 ;;; │ PAREN
