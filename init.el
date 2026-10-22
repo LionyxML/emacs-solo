@@ -2189,7 +2189,7 @@ For the current icon style."
         '("vi" "screen" "top"  "htop" "btm" "less" "more" "lynx" "ncftp" "pine" "tin" "trn"
           "elm" "irssi" "nmtui-connect" "nethack" "vim" "alsamixer" "nvim" "w3m" "psql"
           "lazygit" "lazydocker" "ncmpcpp" "newsbeuter" "nethack" "mutt" "neomutt" "tmux"
-          "jqp")))
+          "jqp" "ssh")))
 
 
 ;;; │ ISEARCH
