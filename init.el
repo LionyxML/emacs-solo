@@ -358,9 +358,10 @@ parent directory created."
   (display-line-numbers-widen t)
   (display-fill-column-indicator-warning nil)
   (delete-selection-mode t)
-  ;; (dictionary-server "dict.org")
+  ;; (dictionary-server "dict.org")           ; These are defaults to M-x dictionary
   ;; (dictionary-port 2628)
   (enable-recursive minibuffers t)
+  (elisp-fontify-semantically t)
   (ffap-machine-p-known 'reject)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
   (frame-resize-pixelwise t)
@@ -400,7 +401,7 @@ parent directory created."
   (tramp-copy-size-limit (* 2 1024 1024)) ;; 2MB
   (tramp-use-scp-direct-remote-copying t)
   (tramp-verbose 1)
-  (query-replace-show-preview 'both)          ; EMACS-32
+  (query-replace-show-preview 'both)      ; EMACS-32
   (resize-mini-windows 'grow-only)
   (scroll-conservatively 8)
   (scroll-margin 5)
