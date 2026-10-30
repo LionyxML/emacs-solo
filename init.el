@@ -744,7 +744,8 @@ Use ⇒ if displayable, otherwise fallback to =>."
                (lambda ()
                  (let ((private-file (expand-file-name "private.el" user-emacs-directory)))
                    (when (file-exists-p private-file)
-                     (load private-file)))))))
+                     (load private-file nil t)))
+                 (message ">>> emacs-solo: ready to use (init time %s)" (emacs-init-time))))))
 
   :init
   ;; Keep margins from automatic resizing
@@ -792,9 +793,7 @@ or is an ERC buffer."
 ;;
 "
                                  (emacs-init-time)
-                                 (length package-activated-list)))))
-
-    (message ">>> emacs-solo: init time %s" (emacs-init-time))))
+                                 (length package-activated-list)))))))
 
 
 ;;; │ ABBREV
