@@ -44,32 +44,44 @@
 
   (require 'url-queue)
 
-  (defun erc-image--create (file)
-    (let* ((edges (window-inside-absolute-pixel-edges))
-           (win-w (- (nth 2 edges) (nth 0 edges)))
-           (win-h (- (nth 3 edges) (nth 1 edges)))
-           (max-w (min win-w erc-image-max-width))
-           (max-h (min win-h erc-image-max-height)))
-      (create-image file nil nil
-                    :max-width  max-w
-                    :max-height max-h)))
+  (defun erc-image--create (file window)
+    (create-image file nil nil
+                  :max-width  (if window
+                                  (min erc-image-max-width (window-body-width window t))
+                                erc-image-max-width)
+                  :max-height (if window
+                                  (min erc-image-max-height (window-body-height window t))
+                                erc-image-max-height)))
 
-  (defun erc-image--insert (status file marker)
-    (unless (eq (car status) :error)
-      (goto-char (point-min))
-      (search-forward "\n\n")
-      (let ((coding-system-for-write 'binary))
-        (write-region (point) (point-max) file))
-      (with-current-buffer (marker-buffer marker)
-        (save-excursion
-          (let ((inhibit-read-only t))
-            ;; move to end of the message line
-            (goto-char (marker-position marker))
-            (end-of-line)
-            (insert "\n"
-                    (propertize " "
-                                'display (erc-image--create file))
-                    "\n"))))))
+  (defun erc-image--put (file marker)
+    "Insert image FILE at MARKER, keeping the prompt in view."
+    (when-let* ((buffer (marker-buffer marker)))
+      (with-current-buffer buffer
+        (let ((windows (get-buffer-window-list buffer nil t)))
+          (save-excursion
+            (let ((inhibit-read-only t))
+              (goto-char marker)
+              (insert "\n" (propertize " " 'display
+                                       (erc-image--create file (car windows))))))
+          (when (bound-and-true-p erc-scrolltobottom-mode)
+            (dolist (window windows)
+              (with-selected-window window
+                (erc-scroll-to-bottom))))))))
+
+  (defun erc-image--fetch (url file marker)
+    (url-queue-retrieve
+     url
+     (lambda (status)
+       (let ((data (and (not (plist-get status :error))
+                        (progn (goto-char (point-min))
+                               (search-forward "\n\n" nil t))
+                        (buffer-substring-no-properties (point) (point-max)))))
+         (kill-buffer)
+         (when (and data (image-type-from-data data))
+           (let ((coding-system-for-write 'binary))
+             (write-region data nil file nil 'silent))
+           (erc-image--put file marker))))
+     nil t))
 
   (defvar erc-image-url-regexp
     (rx "." (or "png" "jpg" "jpeg" "gif" "webp" "bmp" "svg")
@@ -94,27 +106,30 @@
        ((string-match "youtube\\.com/shorts/\\([A-Za-z0-9_-]+\\)" url)
         (match-string 1 url)))))
 
+  (defun erc-image--image-url (url)
+    (if-let* ((id (erc-image--youtube-video-id url)))
+        (format "https://img.youtube.com/vi/%s/hqdefault.jpg" id)
+      (and (erc-image--image-url-p url) url)))
+
+  (defun erc-image--message-urls ()
+    "Image URLs in the current (narrowed) message."
+    (save-excursion
+      (goto-char (point-min))
+      (let (urls)
+        (while (re-search-forward "https?://" nil t)
+          (when-let* ((img (erc-image--image-url (thing-at-point 'url t))))
+            (push img urls)))
+        (delete-dups (nreverse urls)))))
+
   (defun erc-image--maybe-show ()
     (when (display-graphic-p)
-      (save-excursion
-        (goto-char (line-beginning-position))
-        (when (search-forward "http" (line-end-position) t)
-          (let* ((url (thing-at-point 'url t))
-                 (yt-id (erc-image--youtube-video-id url))
-                 (url (if yt-id
-                          (format "https://img.youtube.com/vi/%s/hqdefault.jpg" yt-id)
-                        url)))
-            (when (and url
-                       (erc-image--image-url-p url))
-              (let ((file (make-temp-file
-                           (expand-file-name "erc-img-" erc-image-cache-directory)))
-                    (marker (copy-marker (line-end-position) t)))
-                (url-queue-retrieve
-                 url
-                 (lambda (status)
-                   (erc-image--insert status file marker))
-                 nil
-                 t))))))))
+      (dolist (url (erc-image--message-urls))
+        (let ((file (expand-file-name (md5 url) erc-image-cache-directory))
+              (marker (copy-marker (1- (point-max)) t)))
+          (if (file-exists-p file)
+              ;; Deferred so the image lands after ERC finishes this message.
+              (run-at-time 0 nil #'erc-image--put file marker)
+            (erc-image--fetch url file marker))))))
 
   (defun erc-image-cleanup-cache ()
     "Delete all cached ERC images."
