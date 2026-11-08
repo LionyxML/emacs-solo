@@ -1,4 +1,4 @@
-;;; emacs-solo-m3u.el --- M3U playlist viewer and online radio player  -*- lexical-binding: t; -*-
+;;; emacs-solo-m3u.el --- M3U playlist viewer and online radio/TV player  -*- lexical-binding: t; -*-
 ;;
 ;; Author: Rahul Martim Juliato
 ;; URL: https://github.com/LionyxML/emacs-solo
@@ -9,11 +9,12 @@
 ;;; Commentary:
 ;;
 ;; Parse and display M3U playlists in a tabulated list buffer.
-;; Supports downloading online radio playlists and playing streams
-;; via mpv.  Includes inline logo display support.
+;; Supports downloading online radio and TV/IPTV playlists and playing
+;; streams via mpv.  Includes inline logo display support.
 ;;
 ;; TLDR: C-c r (select an online radio list to download, or jump back
 ;;              to an already loaded one)
+;;       C-c T (same, but for online TV/IPTV lists)
 ;;       RET - play with mpv
 ;;       x   - stop with mpv
 ;;       l   - load another radio list
@@ -32,6 +33,10 @@
       ("80s"       . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/80s.m3u")
       ("90s"       . "https://raw.githubusercontent.com/junguler/m3u-radio-music-playlists/refs/heads/main/90s.m3u"))
     "Alist of named M3U radio sources.")
+
+  (defvar emacs-solo/m3u-tv-sources
+    '(("Full List" . "https://iptv-org.github.io/iptv/index.m3u"))
+    "Alist of named M3U TV/IPTV sources.")
 
   (defvar m3u-visualizer-buffer "*M3U Playlist*"
     "Buffer name for the visualized M3U playlist.")
@@ -160,11 +165,11 @@ If RAW-BUFFER is nil, use the current buffer."
               (m3u-visualizer--refresh)
               (pop-to-buffer (current-buffer))))))))
 
-  (defun emacs-solo/get-online-radio-list-m3u (&optional force)
-    "Select and download an online M3U playlist, then visualize it.
-When a playlist is already loaded, pop to it instead, unless FORCE
-is non-nil or we are already in the playlist buffer."
-    (interactive "P")
+  (defun emacs-solo/m3u--get-online-list (prompt sources &optional force)
+    "Select and download an online M3U playlist from SOURCES, then visualize it.
+PROMPT is used for `completing-read'.  When a playlist is already loaded,
+pop to it instead, unless FORCE is non-nil or we are already in the
+playlist buffer."
     (if (and (not force)
              (not (derived-mode-p 'm3u-visualizer-mode))
              (get-buffer m3u-visualizer-buffer))
@@ -172,8 +177,8 @@ is non-nil or we are already in the playlist buffer."
           (pop-to-buffer m3u-visualizer-buffer)
           (m3u-visualizer--goto-active)
           (m3u-visualizer-show-now-playing))
-      (let* ((choice (completing-read "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources))
-             (url (cdr (assoc choice emacs-solo/m3u-radio-sources)))
+      (let* ((choice (completing-read prompt sources))
+             (url (cdr (assoc choice sources)))
              (raw-buffer (get-buffer-create "*M3U Raw*")))
         (message ">>> emacs-solo: Getting the playlist...")
         (url-retrieve
@@ -192,6 +197,22 @@ is non-nil or we are already in the playlist buffer."
                    (goto-char (point-min))
                    (m3u-visualizer-open-buffer (current-buffer)))))))
          nil t))))
+
+  (defun emacs-solo/get-online-radio-list-m3u (&optional force)
+    "Select and download an online radio M3U playlist, then visualize it.
+When a playlist is already loaded, pop to it instead, unless FORCE
+is non-nil or we are already in the playlist buffer."
+    (interactive "P")
+    (emacs-solo/m3u--get-online-list
+     "Choose your Online Radio playlist: " emacs-solo/m3u-radio-sources force))
+
+  (defun emacs-solo/get-online-tv-list-m3u (&optional force)
+    "Select and download an online TV/IPTV M3U playlist, then visualize it.
+When a playlist is already loaded, pop to it instead, unless FORCE
+is non-nil or we are already in the playlist buffer."
+    (interactive "P")
+    (emacs-solo/m3u--get-online-list
+     "Choose your Online TV playlist: " emacs-solo/m3u-tv-sources force))
 
   (defun m3u-visualizer--kill-mpv ()
     "Force kill the current mpv process if running."
@@ -217,6 +238,7 @@ is non-nil or we are already in the playlist buffer."
 
       (setq m3u-visualizer--active-url url)
       (let ((proc (start-process "mpv-stream" "*mpv*" "mpv" "--no-terminal"
+                                 "--autofit=400" "--geometry=-0+100" "--ontop"
                                  (concat "--input-ipc-server=" m3u-visualizer--mpv-socket)
                                  url)))
         (setq m3u-visualizer--mpv-process proc)
@@ -307,6 +329,7 @@ logo field in `m3u-visualizer--entries' with a propertized string that has a
       (m3u-visualizer--refresh)))
 
   (global-set-key (kbd "C-c r")                   #'emacs-solo/get-online-radio-list-m3u)
+  (global-set-key (kbd "C-c T")                   #'emacs-solo/get-online-tv-list-m3u)
   (define-key m3u-visualizer-mode-map (kbd "RET") #'m3u-visualizer-play-current)
   (define-key m3u-visualizer-mode-map (kbd "x")   #'m3u-visualizer-stop-mpv)
   (define-key m3u-visualizer-mode-map (kbd "n")   #'next-line)
