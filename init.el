@@ -360,7 +360,6 @@ parent directory created."
   (delete-selection-mode t)
   ;; (dictionary-server "dict.org")           ; These are defaults to M-x dictionary
   ;; (dictionary-port 2628)
-  (enable-recursive minibuffers t)
   (elisp-fontify-semantically t)
   (ffap-machine-p-known 'reject)
   (find-ls-option '("-exec ls -ldh {} +" . "-ldh"))  ; find-dired results with human readable sizes
