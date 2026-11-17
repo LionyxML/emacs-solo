@@ -2535,6 +2535,7 @@ The completion candidates include the Git status of each file."
   (eglot-prefer-plaintext nil)
   (jsonrpc-event-hook nil)
   (eglot-code-action-indications nil)
+  (refactor-indications nil)              ; EMACS-32
   (eglot-documentation-renderer 'markdown-ts-view-mode)
   :init
   (fset #'jsonrpc--log-event #'ignore)
