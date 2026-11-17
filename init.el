@@ -1037,7 +1037,7 @@ If ###@### is found, remove it and place point there at the end."
          ("C-<backtab>"       . #'emacs-solo/tab-previous-in-group)
          ("C-S-<iso-lefttab>" . #'emacs-solo/tab-previous-in-group)))
   :custom
-  (tab-bar-new-tab-choice "*scratch*")
+  (tab-bar-new-tab-choice t)
   (tab-bar-close-button-show nil)
   (tab-bar-new-button-show nil)
   (tab-bar-tab-hints t)
