@@ -1895,15 +1895,15 @@ The minimal version shows only the `emacs-solo/eshell-lambda-symbol', like:
 
 The full version shows something like:
 
- 🟢 0 🧙 user  💻 hostname  🕒 23:03:12  📁 ~/Projects/emacs-solo 
-  main 
+🧙 user 💻 hostname 📁 ~/Projects/emacs-solo  main
+🟢 0 🕒 23:03:12 𝛌
 
 There is also `emacs-solo/eshell-full-prompt-resource-intensive' which will
 print some extra `expensive' information, like conflicts, remote status, and
 more, like:
 
- 🟢 0 🧙 user  💻 hostname  🕒 23:03:12  📁 ~/Projects/emacs-solo 
-  main ✏️2 ✨1 ")
+📁 ~/Projects/emacs-solo  main ✏️2 ✨1
+🟢 0 🕒 23:03:12 𝛌")
 
   (defvar emacs-solo/eshell-full-prompt-resource-intensive nil
     "When non-nil, and emacs-solo/eshell-full-prompt t. Also show slower operations.
@@ -1915,11 +1915,13 @@ Check `emacs-solo/eshell-full-prompt' for more info.")
 When nil (the default), a local prompt hides the user and host blocks,
 turning a prompt like:
 
- 0  user  host  21:24:01  ~/path/
+user host ~/path
+0 21:24:01 λ
 
 into:
 
- 0  21:24:01  ~/path
+~/path
+0 21:24:01 λ
 
 Remote prompts always show user and host regardless of this setting."
     :type 'boolean
@@ -1943,8 +1945,7 @@ Remote prompts always show user and host regardless of this setting."
       (if (string-empty-p glyph) "" (concat glyph " "))))
 
   (defvar emacs-solo/eshell-lambda-symbol
-    (concat (if (emacs-solo/eshell-icons-p) "  " "")
-            (if (char-displayable-p ?λ) "λ " "$ "))
+    (if (char-displayable-p ?λ) "λ " "$ ")
     "Symbol used for the minimal Eshell prompt.")
 
   (defun emacs-solo/toggle-eshell-prompt ()
@@ -1976,8 +1977,8 @@ Remote prompts always show user and host regardless of this setting."
   (defvar eshell-solo/color-fg-git                             "#f9e2af")
 
   (defvar emacs-solo/eshell-prompt-glyphs
-    '((arrow-left   :noicons ""      :nerd ""  :emoji "")
-      (arrow-right  :noicons ""      :nerd ""  :emoji "")
+    '((pill-open    :noicons ""      :nerd ""  :emoji "")
+      (pill-close   :noicons ""      :nerd ""  :emoji "")
       (success      :noicons ""      :nerd ""  :emoji "🟢")
       (failure      :noicons ""      :nerd ""  :emoji "🔴")
       (user-local   :noicons ""      :nerd ""  :emoji "🧙")
@@ -2058,119 +2059,97 @@ For the current icon style."
         emacs-solo/git-cache)
       emacs-solo/git-cache))
 
+  (defun emacs-solo/eshell-pill (background foreground text)
+    "TEXT in FOREGROUND as a rounded pill on BACKGROUND.
+Without icons the caps are empty and BACKGROUND is dropped.  Faces
+already in TEXT win over FOREGROUND."
+    (let ((body (copy-sequence text))
+          (cap (lambda (name)
+                 (propertize (emacs-solo/glyph name) 'face `(:foreground ,background)))))
+      (add-face-text-property
+       0 (length body)
+       `(:foreground ,foreground :background ,(emacs-solo/eshell-bg background))
+       t body)
+      (concat (funcall cap 'pill-open) body (funcall cap 'pill-close))))
+
+  (defun emacs-solo/eshell-git-counters ()
+    "Ahead, behind, diverged, modified, untracked and conflict counters."
+    (let* ((info (emacs-solo/git-info))
+           (positive (lambda (key) (> (or (plist-get info key) 0) 0)))
+           (counter (lambda (key glyph)
+                      (if (funcall positive key)
+                          (concat " " (emacs-solo/glyph glyph)
+                                  (number-to-string (plist-get info key)))
+                        ""))))
+      (concat (funcall counter :ahead 'git-ahead)
+              (funcall counter :behind 'git-behind)
+              (if (and (funcall positive :ahead) (funcall positive :behind))
+                  (concat " " (emacs-solo/glyph 'git-diverged))
+                "")
+              (funcall counter :modified 'modified)
+              (funcall counter :untracked 'untracked)
+              (funcall counter :conflicts 'conflict))))
+
+  (defun emacs-solo/eshell-location-pills ()
+    "First prompt line: user, host, directory and Git branch pills."
+    (let ((remote (file-remote-p default-directory))
+          (pwd (eshell/pwd)))
+      (string-join
+       (delq nil
+             (list
+              (when (or remote emacs-solo/eshell-show-user-host)
+                (emacs-solo/eshell-pill
+                 eshell-solo/color-bg-dark eshell-solo/color-fg-user
+                 (concat (emacs-solo/eshell-glyph-prefix (if remote 'user-remote 'user-local))
+                         (or (file-remote-p default-directory 'user) (user-login-name)))))
+              (when (or remote emacs-solo/eshell-show-user-host)
+                (emacs-solo/eshell-pill
+                 eshell-solo/color-bg-mid eshell-solo/color-fg-host
+                 (concat (emacs-solo/eshell-glyph-prefix (if remote 'host-remote 'host-local))
+                         (or (file-remote-p default-directory 'host) (system-name)))))
+              (emacs-solo/eshell-pill
+               eshell-solo/color-bg-dark eshell-solo/color-fg-dir
+               (concat (emacs-solo/eshell-glyph-prefix 'folder)
+                       (if (>= (length pwd) 40)
+                           (concat "…" (car (last (split-string pwd "/"))))
+                         (abbreviate-file-name pwd))))
+              (when-let* ((branch (and (fboundp 'vc-git-working-branch)
+                                       (vc-git-working-branch))))
+                (emacs-solo/eshell-pill
+                 eshell-solo/color-bg-dark eshell-solo/color-fg-git
+                 (concat (emacs-solo/eshell-glyph-prefix 'branch)
+                         branch
+                         (when emacs-solo/eshell-full-prompt-resource-intensive
+                           (emacs-solo/eshell-git-counters)))))))
+       " ")))
+
+  (defun emacs-solo/eshell-status-pills ()
+    "Second prompt line: last exit status and current time pills."
+    (let ((status eshell-last-command-status))
+      (string-join
+       (delq nil
+             (list
+              (cond ((emacs-solo/eshell-icons-p)
+                     (emacs-solo/eshell-pill
+                      eshell-solo/color-bg-dark eshell-solo/color-fg-user
+                      (concat (propertize (emacs-solo/glyph (if (> status 0) 'failure 'success))
+                                          'face (if (> status 0) 'error 'success))
+                              " " (number-to-string status))))
+                    ((> status 0) (propertize (format "[%d]" status) 'face 'error)))
+              (emacs-solo/eshell-pill
+               eshell-solo/color-bg-dark eshell-solo/color-fg-user
+               (concat (emacs-solo/eshell-glyph-prefix 'time)
+                       (format-time-string "%H:%M:%S")))))
+       " ")))
+
   (setopt eshell-prompt-function
           (lambda ()
-            (if emacs-solo/eshell-full-prompt
-                ;; Full-blown prompt
-                (concat
-                 (propertize
-                  (emacs-solo/glyph 'arrow-left) 'face `(:foreground ,eshell-solo/color-bg-dark))
-
-                 (propertize
-                  (if (emacs-solo/eshell-icons-p)
-                      (concat (emacs-solo/eshell-pad)
-                              (if (> eshell-last-command-status 0)
-                                  (emacs-solo/glyph 'failure)
-                                (emacs-solo/glyph 'success))
-                              " "
-                              (number-to-string eshell-last-command-status) " ")
-                    "")
-                  'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))
-
-                 (propertize (emacs-solo/glyph 'arrow-right)
-                             'face `(:foreground ,eshell-solo/color-bg-dark :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
-
-                 (propertize (concat (emacs-solo/eshell-pad)
-                                     (emacs-solo/eshell-glyph-prefix 'time)
-                                     (format-time-string "%H:%M:%S" (current-time)) " ")
-                             'face `(:foreground ,eshell-solo/color-fg-user :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
-
-                 (propertize (emacs-solo/glyph 'arrow-right)
-                             'face `(:foreground ,eshell-solo/color-bg-mid :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))
-
-                 (when (or (file-remote-p default-directory)
-                           emacs-solo/eshell-show-user-host)
-                   (concat
-                    (propertize (let ((remote-user (file-remote-p default-directory 'user))
-                                      (is-remote (file-remote-p default-directory)))
-                                  (concat
-                                   (if is-remote
-                                       (concat " " (emacs-solo/glyph 'user-remote)  " ")
-                                     (concat " " (emacs-solo/glyph 'user-local)  " "))
-                                   (or remote-user (user-login-name))
-                                   " "))
-                                'face `(:foreground ,eshell-solo/color-fg-user
-                                                    :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))
-
-                    (propertize (emacs-solo/glyph 'arrow-right) 'face
-                                `(:foreground ,eshell-solo/color-bg-dark :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)))
-
-                    (let ((remote-host (file-remote-p default-directory 'host))
-                          (is-remote (file-remote-p default-directory)))
-                      (propertize (concat (if is-remote
-                                              (concat " " (emacs-solo/glyph 'host-remote)  " ")
-                                            (concat " " (emacs-solo/glyph 'host-local)  " "))
-                                          (or remote-host (system-name)) " ")
-                                  'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-mid)  :foreground ,eshell-solo/color-fg-host)))
-
-                    (propertize (emacs-solo/glyph 'arrow-right) 'face
-                                `(:foreground ,eshell-solo/color-bg-mid :background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark)))))
-
-                 (propertize (concat " " (emacs-solo/glyph 'folder)  " "
-                                     (if (>= (length (eshell/pwd)) 40)
-                                         (concat "…" (car (last (butlast (split-string (eshell/pwd) "/") 0))))
-                                       (abbreviate-file-name (eshell/pwd))) " ")
-                             'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark) :foreground ,eshell-solo/color-fg-dir))
-
-                 (when (and (not (emacs-solo/eshell-icons-p))
-                            (> eshell-last-command-status 0))
-                   (propertize (format "  [%d] " eshell-last-command-status)
-                               'face 'error))
-
-                 (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
-                             'face `(:foreground ,eshell-solo/color-bg-dark))
-
-                 (when-let* ((branch (and (fboundp 'vc-git-working-branch)
-                                          (vc-git-working-branch))))
-                   (concat
-                    (propertize (emacs-solo/glyph 'arrow-left)
-                                'face `(:foreground ,eshell-solo/color-bg-dark))
-                    (propertize
-                     (concat
-                      (concat (emacs-solo/eshell-pad)
-                              (emacs-solo/glyph 'branch) " " branch " ")
-                      (when emacs-solo/eshell-full-prompt-resource-intensive
-                        (let* ((info (emacs-solo/git-info))
-                               (ahead (plist-get info :ahead))
-                               (behind (plist-get info :behind))
-                               (modified (plist-get info :modified))
-                               (untracked (plist-get info :untracked))
-                               (conflicts (plist-get info :conflicts)))
-                          (concat
-                           (when (> ahead 0)
-                             (format (concat " " (emacs-solo/glyph 'git-ahead) "%d") ahead))
-                           (when (> behind 0)
-                             (format (concat " " (emacs-solo/glyph 'git-behind) "%d") behind))
-                           (when (and (> ahead 0) (> behind 0))
-                             (concat " " (emacs-solo/glyph 'git-diverged)))
-                           (when (> modified 0)
-                             (format (concat " " (emacs-solo/glyph 'modified) "%d") modified))
-                           (when (> untracked 0)
-                             (format (concat " " (emacs-solo/glyph 'untracked) "%d") untracked))
-                           (when (> conflicts 0)
-                             (format (concat " " (emacs-solo/glyph 'conflict) "%d") conflicts))
-                           " "))))
-                     'face `(:background ,(emacs-solo/eshell-bg eshell-solo/color-bg-dark) :foreground ,eshell-solo/color-fg-git))
-                    (propertize (concat (emacs-solo/glyph 'arrow-right) "\n")
-                                'face `(:foreground ,eshell-solo/color-bg-dark))))
-
-                 (propertize emacs-solo/eshell-lambda-symbol 'face 'font-lock-keyword-face))
-
-              ;; Minimal prompt
-              (propertize emacs-solo/eshell-lambda-symbol 'face 'font-lock-keyword-face))))
-
-
-  (setq eshell-prompt-regexp emacs-solo/eshell-lambda-symbol)
+            (let ((lambda-symbol (propertize emacs-solo/eshell-lambda-symbol
+                                             'face 'font-lock-keyword-face)))
+              (if emacs-solo/eshell-full-prompt
+                  (concat (emacs-solo/eshell-location-pills) "\n"
+                          (emacs-solo/eshell-status-pills) " " lambda-symbol)
+                lambda-symbol))))
 
 
   ;; SET TERM ENV SO MOST PROGRAMS WON'T COMPLAIN
