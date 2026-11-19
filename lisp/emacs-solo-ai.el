@@ -780,6 +780,15 @@ initial context.  Image paste via \\[emacs-solo/claude-paste-image]."
           (insert initial)
           (emacs-solo/claude-send-input)))))
 
+  (define-minor-mode emacs-solo-ai-tui-mode
+    "Pass AI TUI `C-x' chords through `ansi-term' instead of Emacs."
+    :keymap (let ((map (make-sparse-keymap)))
+              (dolist (key '("C-x e" "C-x C-s"))
+                (keymap-set map key
+                            (lambda ()
+                              (interactive)
+                              (term-send-raw-string (kbd key)))))
+              map))
 
   (defun emacs-solo/claude-tui-chat ()
     "Start or reuse an interactive `claude' TUI session in an `ansi-term' buffer.
@@ -858,7 +867,8 @@ context.  Reuses a live buffer for the current project when present."
                      (redisplay t))))
                win))
             (setq-local column-number-mode nil)
-            (setq-local term-buffer-maximum-size 2048))
+            (setq-local term-buffer-maximum-size 2048)
+            (emacs-solo-ai-tui-mode 1))
           (when initial-input
             (run-at-time 0.5 nil
                          (lambda (buf input)
@@ -949,7 +959,8 @@ and 'explainer'."
                      (redisplay t))))
                win))
             (setq-local column-number-mode nil)
-            (setq-local term-buffer-maximum-size 2048))))))
+            (setq-local term-buffer-maximum-size 2048)
+            (emacs-solo-ai-tui-mode 1))))))
 
 
   (defcustom emacs-solo-ai-recap-command
